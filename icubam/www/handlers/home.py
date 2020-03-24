@@ -1,5 +1,7 @@
+import json
 import tornado.web
 from icubam.www.handlers import base
+from icubam import config
 
 
 class HomeHandler(base.BaseHandler):
@@ -9,7 +11,7 @@ class HomeHandler(base.BaseHandler):
   def initialize(self, db):
     self.db = db
 
-  @tornado.web.authenticated
+  # @tornado.web.authenticated
   def get(self):
     # Retrieves lat-longs
     icus_df = self.db.get_icus()
@@ -28,11 +30,10 @@ class HomeHandler(base.BaseHandler):
       data.append({
         'id': "icu_{}".format(row.icu_id),
         'label': row.icu_name,
-        'free_beds': int(row.n_covid_free),
-        'total_beds': total,
         'lat': coords[0],
         'lng': coords[1],
-        'radius': total,
+        'popup': '<p>{}</p>{} / {}'.format(
+          row.icu_name, row.n_covid_free, total)
       })
 
-    self.render("index.html", data=data)
+    self.render("index.html", API_KEY=config.GOOGLE_API_KEY, data=json.dumps(data))
