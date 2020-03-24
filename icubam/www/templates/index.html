@@ -1,84 +1,23 @@
 <!DOCTYPE html>
+<html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script>
-        L_NO_TOUCH = false;
-        L_DISABLE_3D = false;
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.5.1/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.5.1/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://rawcdn.githack.com/python-visualization/folium/master/folium/templates/leaflet.awesome.rotate.css"/>
-    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
-    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
-
-    <meta name="viewport" content="width=device-width,
-        initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
     <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="/static/map.js"></script>
+    <title>ICUBAM</title>
   </head>
-
-  <body>
-    <div class='main-content'>
-      <h1>ICUBAM: Bed availability</h1>
-    </div>
-    <div class="folium-map" id="beds_map" ></div>
+  <body class='bed_map'>
+    <h1>ICU Beds Availability Monitor</h1>
+    <div id="map"></div>
+    <script>
+      let data = {% raw data %}
+      function initMap () {
+        plotMap(data)
+      }
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap">
+    </script>
   </body>
-
-  <script>
-
-    var beds_map = L.map(
-        "beds_map",
-        {
-            center: [48.856614, 2.3522219],
-            crs: L.CRS.EPSG3857,
-            zoom: 11,
-            zoomControl: true,
-            preferCanvas: false,
-        }
-    );
-
-    var tile_layer_34438c2104b8486487f6c80b4ef0462a = L.tileLayer(
-        "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-        {"attribution": "\u0026copy; \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"http://cartodb.com/attributions\"\u003eCartoDB\u003c/a\u003e, CartoDB \u003ca href =\"http://cartodb.com/attributions\"\u003eattributions\u003c/a\u003e", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-    ).addTo(beds_map);
-
-    var circle_markers = {}
-    var popups = {}
-    var htmls = {}
-    var markers = {}
-    var icons = {}
-    {% for icu in data %}
-
-      circle_markers.{{icu['id']}} = L.circleMarker(
-          [{{icu['lat']}}, {{icu['lng']}}],
-          {
-            "bubblingMouseEvents": true, "color": "#62a600",
-            "dashArray": null, "dashOffset": null, "fill": true,
-            "fillColor": "#62a600", "fillOpacity": 0.2, "fillRule": "evenodd",
-            "lineCap": "round", "lineJoin": "round", "opacity": 0.8,
-            "radius": {{icu['radius']}}, "stroke": true, "weight": 3}
-      ).addTo(beds_map);
-      popups.{{icu['id']}} = L.popup({"maxWidth": "100%"});
-      htmls.{{icu['id']}} = $(`<div id="htmls.{{icu["id"]}} style="width: 100.0%; height: 100.0%;">0<br> ALAND: 6<br> AWATER: 8</div>`)[0];
-      popups.{{icu['id']}}.setContent(htmls.{{icu['id']}});
-      circle_markers.{{icu['id']}}.bindPopup(popups.{{icu['id']}});
-      markers.{{icu['id']}} = L.marker(
-          [{{icu['lat']}}, {{icu['lng']}}],
-          {}).addTo(beds_map);
-      icons.{{icu['id']}} = L.divIcon(
-        {"className": "empty",
-        "html": "\u003cdiv style=\"font-size: 12pt;font-family:garamond;text-align:center\"\u003e\u003cb\u003e{{icu['free_beds']}} / {{icu['total_beds']}}\u003c/b\u003e\u003c/div\u003e\u003cdiv style=\"font-size: 8pt;text-align: center;font-style:bold\"\u003e \u003cb\u003e{{icu['label']}}\u003cb\u003e\u003c/div\u003e",
-        "iconSize": [150, 36]});
-      markers.{{icu['id']}}.setIcon(icons.{{icu['id']}});
-
-    {% end %}
-
-
-  </script>
+</html>

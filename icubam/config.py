@@ -4,6 +4,7 @@ import os
 
 
 load_dotenv(verbose=True)
-envs = "SHEET_ID,TOKEN_LOC,SMS_KEY,SMS_ORIG,SECRET_COOKIE,JWT_SECRET,SQLITE_DB"
+envs = ("SHEET_ID,TOKEN_LOC,SMS_KEY,SMS_ORIG,SECRET_COOKIE,JWT_SECRET,"
+        "SQLITE_DB,GOOGLE_API_KEY")
 for env in envs.split(','):
   globals()[env] = os.getenv(env)
