@@ -5,7 +5,9 @@
       <td style="background-color:{{obj['color']}}" class='report-number'>
         {{obj['occ']}} / {{obj['total']}}
       </td>
-      <td class='report-number'>{{obj['phone']}}</td>
+      <td class='report-number'>
+        <a href="tel:+{{obj['phone']}}">+{{obj['phone']}}</a>
+      </td>
     </tr>
   {% end %}
 </table>
