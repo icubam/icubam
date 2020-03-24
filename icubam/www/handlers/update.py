@@ -45,7 +45,7 @@ class UpdateHandler(base.BaseHandler):
 
     data = self.get_icu_data(input_data['icu_id'])
     data.update(input_data)
-    print('--> ', data)
+
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
 
