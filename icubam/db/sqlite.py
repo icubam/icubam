@@ -37,9 +37,10 @@ class SQLiteDB:
       """CREATE TABLE bed_updates
                           (icu_id INTEGER, icu_name TEXT,
                           n_covid_occ INTEGER, n_covid_free INTEGER,
-                          n_covid_deaths INTEGER, n_covid_healed INTEGER,
-                          n_covid_refused INTEGER, n_covid_transfered INTEGER,
-                          message TEXT, update_ts INTEGER)"""
+                          n_ncovid_occ INTEGER, n_covid_deaths INTEGER,
+                          n_covid_healed INTEGER, n_covid_refused INTEGER,
+                          n_covid_transfered INTEGER, message TEXT,
+                          update_ts INTEGER)"""
     )
     self._conn.commit()
 
