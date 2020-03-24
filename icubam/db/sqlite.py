@@ -110,13 +110,13 @@ class SQLiteDB:
 
     ts = int(time.time())
     query = """INSERT INTO bed_updates (icu_id, icu_name,
-                            n_covid_occ, n_covid_free,
+                            n_covid_occ, n_covid_free, n_ncovid_free,
                             n_covid_deaths, n_covid_healed,
                             n_covid_refused, n_covid_transfered,
                             update_ts)
                             VALUES
                             ({icu_id}, '{icu_name}', {n_covid_occ},
-                             {n_covid_free}, {n_covid_deaths},
+                             {n_covid_free}, {n_ncovid_free}, {n_covid_deaths},
                              {n_covid_healed}, {n_covid_refused},
                              {n_covid_transfered}, {ts})"""
 
