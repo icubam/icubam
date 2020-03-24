@@ -6,10 +6,14 @@ function add_marker (obj, map) {
     maxWidth: 200
   });
 
+  let icon_url = "http://maps.google.com/mapfiles/ms/icons/"
+  icon_url += obj.color + "-dot.png"
+
   var marker = new google.maps.Marker({
     position: position,
     map: map,
-    title: obj.label
+    title: obj.label,
+    icon: {url: icon_url}
   });
   marker.addListener('click', function() {
     infowindow.open(map, marker);
@@ -19,7 +23,7 @@ function add_marker (obj, map) {
 function plotMap(data) {
   let center = {lat: data[0].lat, lng: data[0].lng};
   var map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 4,
+    zoom: 9,
     center: center
   });
 
