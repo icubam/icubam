@@ -43,7 +43,9 @@ class SQLiteDBTest(absltest.TestCase):
 
     with self.assertRaises(sqlite3.IntegrityError):
       sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
-    sqldb.get_users()
+    users = sqldb.get_users()
+    import ipdb; ipdb.set_trace()
+    print(users)
 
   # def test_bedcount_update(self):
   #   tmp_folder = self.create_tempdir()

@@ -42,7 +42,7 @@ class MessageScheduler:
       url = "{}{}?id={}".format(self.base_url,
                                 update.UpdateHandler.ROUTE.strip('/'),
                                 token.encode_icu(row.icu_id, row.icu_name))
-      text = self.MESSAGE_TEMPLATE.format(row.name, row.icu_name, url)
+      text = self.MESSAGE_TEMPLATE.format(row['name'], row['icu_name'], url)
       self.urls.append(url)
       self.messages.append(
         message.Message(text, row.telephone, row.icu_id, row.icu_name))

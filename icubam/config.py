@@ -1,25 +1,13 @@
 """Manages config variables using .env file."""
-from dotenv import load_dotenv
-import os
+import configparser
 import os.path
 
-ENV_PATH = '.env'
-if not os.path.exists(ENV_PATH):
-  # !!! Put your path here !!!
-  # TODO(oliviert): turn this into a flag
-  ENV_PATH = None
+INI_PATH = '/Users/dulacarnold/Src/icubam/icubam.ini'
+if not os.path.exists(INI_PATH):
+  raise Exception(f"Couldn't find INI file: {INI_PATH}")
 
-load_dotenv(verbose=True, dotenv_path=ENV_PATH)
+config = configparser.ConfigParser()
+config.read(INI_PATH)
 
-def get_config_keys(env_path):
-  result = []
-  with open(env_path, 'r') as fp:
-    for line in fp:
-      if line.strip().startswith('#'):
-        continue
-
-      result.append(line.split('=')[0].strip())
-  return result
-
-for env in get_config_keys(ENV_PATH):
-  globals()[env] = os.getenv(env)
+for var in config['DEFAULT']:
+  globals()[var.upper()] = config['DEFAULT'][var]
