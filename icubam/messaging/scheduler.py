@@ -5,6 +5,7 @@ from absl import logging
 import tornado.ioloop
 from icubam.messaging import message
 from icubam.www import token
+from icubam.www.handlers import update
 
 
 class MessageScheduler:
@@ -37,8 +38,9 @@ class MessageScheduler:
     users_df = self.db.get_users()
     self.messages = []
     for index, row in users_df.iterrows():
-      url = "{}?id={}".format(
-        self.base_url, token.encode_icu(row.icu_id, row.icu_name))
+      url = "{}{}?id={}".format(self.base_url,
+                                update.UpdateHandler.route,
+                                token.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row.name, row.icu_name, url)
       self.messages.append(
         message.Message(text, row.telephone, row.icu_id, row.icu_name))
