@@ -38,10 +38,10 @@ class HomeHandler(base.BaseHandler):
     return coords, cluster_id
 
   def get_phones(self):
-    users_df = self.db.get_users()
+    users_df = self.db.get_icus()
     result = collections.defaultdict(list)
     for index, row in users_df.iterrows():
-      result[row.icu_id].append(row.telephone)
+      result[row['icu_id']].append(row['telephone'])
     return result
 
   def get_beds_per_city(self, df, phones: dict, cluster_id: dict):
@@ -54,13 +54,15 @@ class HomeHandler(base.BaseHandler):
 
       occupied_ratio = int(row.n_covid_occ) / row.total
       result[city].append({
-        'icu': row.icu_name,
-        'phone': phones.get(row.icu_id, [''])[0],
-        'occ': int(row.n_covid_occ),
-        'total': int(row.total),
+        'icu': row['icu_name'],
+        'phone': phones.get(row['icu_id'], [''])[0],
+        'occ': int(row['n_covid_occ']),
+        'total': int(row['total']),
         'occupation': occupied_ratio,
         'color': get_color(occupied_ratio)
       })
+
+    print(result)
 
     return result
 
