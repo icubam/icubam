@@ -10,6 +10,7 @@ __pycache__/
 
 # Configs
 .env
+.ini
 
 # Database
 *.db

@@ -52,11 +52,11 @@ class HomeHandler(base.BaseHandler):
         logging.error('Did not find a city for ICU {}'.format(row.icu_id))
         continue
 
-      occupied_ratio = row.n_covid_free / row.total
+      occupied_ratio = int(row.n_covid_occ) / row.total
       result[city].append({
         'icu': row.icu_name,
         'phone': phones.get(row.icu_id, [''])[0],
-        'free': int(row.n_covid_free),
+        'occ': int(row.n_covid_occ),
         'total': int(row.total),
         'occupation': occupied_ratio,
         'color': get_color(occupied_ratio)
@@ -71,9 +71,6 @@ class HomeHandler(base.BaseHandler):
     df = self.db.get_bedcount()
     df['total'] = df.n_covid_free.astype(int) + df.n_covid_occ.astype(int)
     beds_per_city = self.get_beds_per_city(df, phones, cluster_id)
-
-    print(list(coords.keys()))
-
     data = []
     for city, beds in beds_per_city.items():
       occupations = [x['occupation'] for x in beds]
