@@ -16,7 +16,13 @@ class MessageServer:
     self.port = port
     self.sender = sms_sender.get_sender(config.SMS_CARRIER)
     self.queue = queues.Queue()
-    self.scheduler = scheduler.MessageScheduler(when=[(18, 38), (16, 3)], reminder_delay= 60, base_url='https://test.icubam.net', db=self.db, queue=self.queue)
+    self.scheduler = scheduler.MessageScheduler(
+      when=[(18, 59), (16, 3)],
+      reminder_delay=60,
+      base_url=config.BASE_URL,
+      db=self.db,
+      queue=self.queue,
+    )
 
   async def process(self):
     async for msg in self.queue:
@@ -26,7 +32,7 @@ class MessageServer:
         self.queue.task_done()
 
   def run(self):
-    logging.info('Running {}'.format(self.__class__.__name__))
+    logging.info("Running {}".format(self.__class__.__name__))
     app = tornado.web.Application([])
     io_loop = tornado.ioloop.IOLoop.current()
     io_loop.spawn_callback(self.process)

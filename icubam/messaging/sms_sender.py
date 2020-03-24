@@ -19,7 +19,7 @@ class MBSender:
     return message
 
 
-class TWSender:
+class NXSender:
   def __init__(self, key, secret, originator="ICUBAM"):
     self._originator = originator
     self._client = nexmo.Client(key=key, secret=secret)
@@ -33,15 +33,15 @@ def get_sender(sms_carrier=None):
   sms_carrier = sms_carrier or config.SMS_CARRIER
   if sms_carrier == 'MB':
     return MBSender(config.MB_KEY)
-  if sms_carrier == 'TW':
-    return TWSender(config.TW_KEY, config.TW_API)
+  if sms_carrier == 'NX':
+    return NXSender(config.NX_KEY, config.NX_API)
   else:
     raise ValueError('Incorrect value in config: {config.SENDER}.')
 
 if __name__ == "__main__":
   from icubam import config
 
-  ms = get_sender(sms_carrier='TW')
-  ms.send_message("33698158092", "test TW")
+  ms = get_sender(sms_carrier='NX')
+  ms.send_message("33698158092", "test NX")
   ms = get_sender(sms_carrier='MB')
   ms.send_message("33698158092", "test MB")
