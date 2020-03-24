@@ -39,7 +39,7 @@ class MessageScheduler:
     self.messages = []
     for index, row in users_df.iterrows():
       url = "{}{}?id={}".format(self.base_url,
-                                update.UpdateHandler.route,
+                                update.UpdateHandler.ROUTE,
                                 token.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row.name, row.icu_name, url)
       self.messages.append(
