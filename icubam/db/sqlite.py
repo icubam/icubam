@@ -144,5 +144,10 @@ class SQLiteDB:
       self._conn,
     )
 
-  def execute(self, query):
+  def pd_execute(self, query):
+    """Run pd.read_sql_query on a query and return the DataFrame."""
     return pd.read_sql_query(query, self._conn)
+
+  def execute(self, query):
+    self._conn.execute(query)
+    self._conn.commit()

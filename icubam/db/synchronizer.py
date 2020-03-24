@@ -34,7 +34,8 @@ class Synchronizer:
         continue
 
   def sync_users(self):
-    self._shdb.execute("DELETE FROM users")
+    users = self._shdb.get_users()
+    self._sqldb.execute("DELETE FROM users")
     for row in users.iterrows():
       user = row[1]
       try:
@@ -55,7 +56,7 @@ if __name__ == "__main__":
   sync = Synchronizer(shdb, sqldb)
   reply = (
     str(
-      raw_input(
+      input(
         "!!Are you sure you want to sync, this will drop all users!! (duh/nay)"
       )
     )
