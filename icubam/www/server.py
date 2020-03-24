@@ -9,6 +9,7 @@ from icubam.db import queue_writer
 from icubam.db import sqlite
 from icubam.messaging import scheduler
 from icubam.www import token
+from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import update
 
@@ -34,6 +35,7 @@ class WWWServer:
   def make_app(self):
     self.add_handler(update.UpdateHandler, db=self.db, queue=self.writing_queue)
     self.add_handler(home.HomeHandler, db=self.db)
+    self.add_handler(db.DBHandler, db=self.db)
     self.routes.append(
       (r"/static/(.*)",
       tornado.web.StaticFileHandler,
