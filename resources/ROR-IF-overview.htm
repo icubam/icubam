@@ -1,0 +1,2061 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "dtd/xhtml1-transitional.dtd">
+<!-- saved from url=(0048)https://www.ror-if.fr/ror/syntheseRegionale.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=edge">
+
+<title>ROR-IF</title><meta name="description" content="ROR Ile-de-France">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<link type="text/css" href="./ROR-IF-overview_files/jquery.ui.selectmenu.css" rel="stylesheet">
+<link type="text/css" href="./ROR-IF-overview_files/jquery-ui-1.9.1.custom.css" rel="stylesheet">
+	<link type="text/css" href="./ROR-IF-overview_files/jquery.timepicker.css" rel="stylesheet">
+<script type="text/javascript" src="./ROR-IF-overview_files/prototype.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/jquery-1.8.2.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/jquery-ui-1.9.1.custom.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/jquery.ui.selectmenu.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/engine.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/util.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/jquery.timepicker.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/datepair.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/jquery.datepair.min.js"></script>
+
+
+	
+	
+		<script type="text/javascript" src="./ROR-IF-overview_files/scriptaculous.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/effects.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/dragdrop.js"></script>
+	
+
+
+
+<script type="text/javascript" src="./ROR-IF-overview_files/util(1).js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/messages.javascript"></script>
+
+<!-- script pour gérer les erreurs -->
+<script type="text/javascript" src="./ROR-IF-overview_files/errorHandler.js"></script>
+
+
+<script type="text/javascript">
+	var J = jQuery.noConflict();
+</script>
+
+
+<script type="text/javascript">
+	<!--
+		util.module='';
+	-->
+</script>
+<script type="text/javascript">
+	<!--
+		Event.observe(window,'load',function(){
+			
+				
+				
+	});
+	-->
+</script>
+
+<script type="text/javascript" src="./ROR-IF-overview_files/newsticker.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/moo.fx.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/gestion.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/events.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/praticien.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/RorDwr.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/trunk8.js"></script>
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+
+	
+	
+	
+	
+
+	
+	
+	
+
+	
+	
+
+	
+
+	
+	
+	
+
+	
+	
+		
+
+
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/disponibiliteLits.css">
+<!--[if IE 7]>
+	<link rel="stylesheet" type="text/css" href="css/disponibiliteLits_ie7.css?19.01.03_02" />
+<![endif]-->
+
+<script type="text/javascript" src="./ROR-IF-overview_files/disponibilite.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/DisponibiliteDwr.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/patientele.js"></script>
+
+
+
+<script type="text/javascript" src="./ROR-IF-overview_files/scriptaculous(1).js"></script><script type="text/javascript" src="./ROR-IF-overview_files/effects.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/dragdrop.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/effects.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/dragdrop.js"></script><script type="text/javascript" src="./ROR-IF-overview_files/controls.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/autocompletion.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/AutocompletionServiceFacade.js"></script>
+<script type="text/javascript" src="./ROR-IF-overview_files/CommunesDwr.js"></script>
+
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/autocompletion.css">
+
+
+
+
+		
+		<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/fiche.css">
+		
+		<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/leaflet.css"> 
+		<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/leaflet-text-icon.css">
+		<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/cartographie.css">
+	
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+	
+	<script>
+		Event.observe(window,'load',function(){
+			var userInfos = {};
+			userInfos["typeNavigateur"]=navigator.userAgent;
+			userInfos["resolutionEcran"]=screen.width+"x"+screen.height;
+			RorDwr.addUserInfosInSession(userInfos);	
+		});	
+	</script>
+
+
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/datepicker.css">
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/styles.css">
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/icons.css">
+<!--[if IE]>
+		   <link rel="stylesheet" type="text/css" href="css/styles_ie.css?19.01.03_02" />
+		<![endif]-->
+
+<script type="text/javascript" src="./ROR-IF-overview_files/toolbar.js"></script>
+<style></style></head>
+
+<body id="rorBody">
+	<div id="header">
+	<div id="headerlogo"><img src="./ROR-IF-overview_files/if.png" alt="Logo"></div>
+	<div id="headermenuleftrounded">
+		<div id="headermenurightrounded">
+			<ul id="headermenu">
+				<li>
+					<div id="userwelcome" class="headermenuitem" title="Sacha  Rozencwajg">
+						Bienvenue
+						Sacha  Rozencwajg
+					</div>
+				</li>
+				<li class="headermenuseparator">&nbsp;</li>
+
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><div id="orientation" class="headermenuitem">Recherche</div></li><li class="headermenuseparator">&nbsp;</li>
+
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><div id="repertoire" class="headermenuitem">Répertoire</div></li><li class="headermenuseparator">&nbsp;</li>
+
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><div id="disponibiliteCons" class="headermenuitem">Disponibilités</div></li><li class="headermenuseparator">&nbsp;</li>
+
+				
+
+				
+
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><div id="currentpage" class="headermenuitem accueil" title="Accueil">Menu</div>
+				</li>
+				<li class="headermenuseparator">&nbsp;</li>
+
+				
+
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><div id="gardeRegionale" class="headermenuitem">Garde régionale<br>/ Informations urgentes</div></li><li class="headermenuseparator">&nbsp;</li>
+				
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);" title="Gestion des notifications"><script type="text/javascript">Event.observe(window,'load',function(){util.refreshNotificationsNumber('menuNotifications');});</script><div id="menuNotifications" class="headermenuitem" style="background-image: url(&quot;images/icons/notificationsEmpty.png&quot;);">(0)</div></li><li class="headermenuseparator">&nbsp;</li>
+                
+              	
+				
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);"><script type="text/javascript">Event.observe(window,'load',function(){util.getNombreMessage('messagerie');});</script><div id="messagerie" class="headermenuitem">(0)</div>
+				</li>
+				
+				<li class="headermenuseparator">&nbsp;</li>
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);">
+					<div id="aide" class="headermenuitem" title="Aide">
+						
+					</div></li>
+				<li class="headermenuseparator">&nbsp;</li>
+				<li class="headermenuhover" onmouseover="util.hover(this,&#39;headermenuhoveron&#39;);" onmouseout="util.hover(this,&#39;headermenuhover&#39;);">
+					<div id="deconnexion" class="headermenuitem" title="Déconnexion">
+						
+					</div></li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="newsscrollerleftrounded"><div id="newsscrollerrightrounded"><ul id="newsscroller" class=""><li style="display: none;"><strong>Pour contacter le support utilisateur </strong> : 01.83.76.30.31 du lundi au vendredi de 8h à 22h, ou envoyer un mail en cliquant <a href="https://formulaire-support.sante-idf.fr/" target="_blank">ICI</a></li><li style="opacity: 0.266035;"><span style="color:red;"><strong>Document concernant l'épisode épidémique du Coronavirus, cliquez</strong></span> <a href="https://www.ror-if.fr/ror/pageGarde.html?id=121" target="_blank">ICI</a></li><li style="display: none;"><span style="color:red;"><strong>Réanimation et COVID19 : Merci de prendre connaissance des consignes de saisie, cliquez</strong></span> <a href="https://www.ror-if.fr/ror/pageGarde.html?id=121" target="_blank">ICI</a></li><li style="display: none;">Pour consulter la documentation, cliquez <a href="http://www.documents.ror-if.info/" target="_blank">ICI</a></li></ul></div></div>
+
+	<div id="headertapeleftrounded" class="headertapehidden">
+		<div id="headertaperightrounded">
+			<ul id="headertape">
+
+				
+				<li class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><div id="tape_moncompte" class="headertapeitem">Mon compte</div></li><li class="headertapeseparator">&nbsp;</li>
+				
+				 
+				
+ 				<li class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><div id="interop" class="headertapeitem">Recherche <br> nationale</div></li><li class="headertapeseparator">&nbsp;</li> 
+				
+				
+				
+				
+				
+				
+
+				<li class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><div id="tape_autres_regions"><form id="form_autres_regions"><select id="select_region" name="region" onchange="if(this.value != &#39;&#39; &amp;&amp; this.value != &#39;null&#39;) window.location.href=this.value;"><option value="https://www.ror-if.fr/ror/" selected="">Ile-de-France</option><option value="https://ror.sante-lorraine.fr/ror/">Lorraine</option><option value="https://ror.alsace-esante.fr">Alsace</option><option value="http://www.rorlr.fr">Langedoc-Roussillon</option></select></form></div></li><li class="headertapeseparator"> </li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="headertapeleftroundedRdr" class="headertapeRdrhidden">
+		<div id="headertaperightrounded">
+			<ul id="headertape">
+				
+				
+			</ul>
+		</div>
+	</div>
+
+	<div id="headertapeleftroundedGR" class="headertapeGRhidden">
+		<div id="headertaperightrounded">
+			<ul id="headertape"><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_81" onclick="window.location.href=&#39;pageGarde.html?id=81&#39;;">EBOLA</span></td></tr></tbody></table></li><li class="headertapeseparator"> </li><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_121" onclick="window.location.href=&#39;pageGarde.html?id=121&#39;;">Epidémie COVID-19</span></td></tr></tbody></table></li><li class="headertapeseparator"> </li><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_21" onclick="window.location.href=&#39;pageGarde.html?id=21&#39;;">Epidémies hivernales</span></td></tr></tbody></table></li><li class="headertapeseparator"> </li><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_101" onclick="window.location.href=&#39;pageGarde.html?id=101&#39;;">Garde PDSES Thrombectomie</span></td></tr></tbody></table></li><li class="headertapeseparator"> </li><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_1" onclick="window.location.href=&#39;pageGarde.html?id=1&#39;;">Grande garde de neurochirurgie adultes</span></td></tr></tbody></table></li><li class="headertapeseparator"> </li><li style="padding:0;" class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><table style="margin-top:-2px;"><tbody><tr><td style="vertical-align: middle; height: 49px; padding: 0px; width: 140px; text-align: center;"><span id="tape_gr_41" onclick="window.location.href=&#39;pageGarde.html?id=41&#39;;">Informations Urgentes </span></td></tr></tbody></table></li><li class="headertapeseparator"> </li></ul>
+		</div>
+	</div>
+
+	<div id="headertapeleftroundedDL" class="headertapeDLhidden">
+		<div id="headertaperightrounded">
+			<ul id="headertape">
+				<li class="headertapehover" onmouseover="util.hover(this,&#39;headertapehoveron&#39;);" onmouseout="util.hover(this,&#39;headertapehover&#39;);"><div id="tape_consult" class="headertapeitem">Consultation</div></li><li class="headertapeseparator">&nbsp;</li>
+				
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+	
+
+	<div id="left">
+<link rel="stylesheet" type="text/css" href="./ROR-IF-overview_files/jquery-ui-1.8.11.custom.css">
+
+<script>
+	Event.observe(window, 'load', init);
+</script>
+
+<div id="leftblock">
+	<div id="leftblockheabar">
+		<div id="leftblockheabaricon" style="background-image: url(&quot;images/icons/disponibilite_big.png&quot;)">
+			Disponibilités en lits et/ou places
+		</div>
+	</div>
+
+	<form id="syntheseRegionale_form" action="https://www.ror-if.fr/ror/syntheseRegionale.action" style="margin: 0; padding: 0;" method="POST" autocomplete="off">
+
+
+		<!-- ZONE D'ACCES DIRECT -->
+		<div class="lefttitle" style="font-weight: bold; font-size: 12px;">
+			Accès direct établissement
+		</div>
+
+		<div id="zoneAccesDirect">
+
+			<input id="acces_direct_inputValeur" name="zoneAccesDirectValeur" type="hidden" value="" onchange=""><input id="acces_direct_input" type="text" name="accesDirect" class="texte textejs" placeholder="Saisir un établissement" onkeypress="nopPressEnter(event)" autocomplete="off"><div id="acces_direct_input_autocomp" class="auto_complete" style="display: none;"></div>
+
+			<div class="blocboutons">
+				<div class="boutonOrientation droite">
+					<input type="button" id="boutonAccesDirect" value="Accès direct">
+				</div>
+			</div>
+		</div>
+
+
+		<!-- FILTRE PATIENTELE -->
+		<div class="lefttitle" style="font-weight: bold; font-size: 12px;">
+			Filtrer le tableau
+		</div>
+		
+		
+ 
+<!-- Adaptation des variables (le model n'a pas le même nom dans l'orientation et dans les controllers des synthèses disponibilité des lits) -->
+
+
+
+
+
+
+	<div style="margin-left:5px;margin-top:5px;position: relative;width: 98%;">
+	<div id="checkBoxPatientele">
+		<div class="checkBoxEnfant checkboxWithoutBorder" style="position: absolute; text-align: center; top: -20px; width: 51.1739%;">
+			<div id="accolade_gauche1" style="width: 50.1739%; display: inline-block; float: left;"></div><div id="typePatienteleEnfantDiv">
+				<input type="checkbox" id="typePatienteleEnfant" name="enfant" value="enfant" onclick="patientele.resetJauges(&#39;enfant&#39;);" checked="">
+				Enfant
+			</div><div id="accolade_droite1" style="width: 50.1739%; display: inline-block; float: right;"></div>
+		</div>
+		<div class="checkBoxAdulte checkboxWithoutBorder" style="position: absolute; text-align: center; top: -20px; width: 46.8261%; margin-left: 51.1739%;">
+			<div id="accolade_gauche2" style="width: 50.1739%; display: inline-block; float: left;"></div><div id="typePatienteleAdulteDiv">
+				<input type="checkbox" id="typePatienteleAdulte" name="adulte" value="adulte" onclick="patientele.resetJauges(&#39;adulte&#39;);" checked="">
+				Adulte
+			</div><div id="accolade_droite2" style="width: 50.1739%; display: inline-block; float: right;"></div>
+		</div>
+		<input type="hidden" id="ageMinPatientele" name="ageMinPatientele" value="0">
+		<input type="hidden" id="ageMaxPatientele" name="ageMaxPatientele">
+	</div>
+	<script type="text/javascript">
+		patientele.createPatientele("[[0,'0j'], [28,'28j'], [365,'1a'], [1095,'3a'], [2190,'6a'], [4015,'11a'], [4380,'12a'], [4745,'13a'], [5110,'14a'], [5475,'15a'], [5840,'16a'], [6205,'17a'], [6570,'18a'], [6935,'19a'], [7300,'20a'], [7665,'21a'], [8030,'22a'], [8395,'23a'], [8760,'24a'], [9125,'25a'], [21900,'60a'], [23725,'65a'], [27375,'75a'], [null,'+']]","0","");
+	</script>
+
+		
+	<div id="slider-range" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"><div class="ui-slider-range ui-widget-header" style="left: 0%; width: 100%;"></div><a class="ui-slider-handle ui-state-default ui-corner-all" href="https://www.ror-if.fr/ror/syntheseRegionale.html#" style="left: 0%;"><div class="ui-slider-tooltip1 sliderTooltip" style="display: none;"></div></a><a class="ui-slider-handle ui-state-default ui-corner-all" href="https://www.ror-if.fr/ror/syntheseRegionale.html#" style="left: 100%;"><div class="ui-slider-tooltip2 sliderTooltip" style="display: none;"></div></a><div id="graduation"><ul><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"><label> 0j </label></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"><label id="label18a" style="display: block;">18a</label></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"><label id="label21a" style="display: none;">21a</label></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"></li><li style="width: 4.34783%;"><img src="./ROR-IF-overview_files/graduation.png"><label style="right: 0px;"> + </label></li></ul></div></div>
+	<div id="labelAge"></div>
+	</div>
+
+		
+		<div class="blocboutons">
+			<div class="boutonOrientation gauche">
+				<input type="button" id="nouvellerecherche" value="Réinitialiser">
+			</div>
+			<div class="boutonOrientation droite">
+				<input type="button" id="lancer" value="Filtrer">
+			</div>
+		</div>
+
+		<!-- FRAICHEUR DES DONNEES -->
+		<div class="lefttitle" style="font-weight: bold; font-size: 12px;">Fraîcheur
+			des données</div>
+		<table style="width: 100%; padding: 10px 0 10px 3px;">
+			<tbody><tr>
+				<td><span class="label"> Fraicheur maximale </span></td>
+				<td><select name="fraicheur" id="choixFraicheur" style="width: 148px; margin-left: 32px; padding-left: 5px;">
+						
+							<option value="1">&lt; 1h00</option>
+						
+							<option value="2">&lt; 3h00</option>
+						
+							<option value="3">&lt; 6h00</option>
+						
+							<option selected="selected" value="4">&lt; 12h00</option>
+						
+							<option value="5">&lt; 23h59</option>
+						
+				</select></td>
+			</tr>
+		</tbody></table>
+
+	</form>
+</div>
+
+
+
+
+
+
+
+<ul class="toolbar" id="leftblockactbar">
+	<li>&nbsp;</li>
+</ul>
+
+</div>
+<div id="resizebar">&nbsp;</div>
+<div id="main">
+
+<ul class="toolbar" id="mainblocknavbar">
+	<li>&nbsp;</li>
+</ul>
+
+<div id="mainblock" style="bottom: 40px;">
+	<span class="mainblocklegend">Synthèse régionale</span>
+
+	<div id="mainblockcontent">
+		
+		
+		<div id="results_syntheseRegionale">
+			
+
+
+
+
+
+<table id="tableaudispofraicheur" style="clear: both;">
+	<thead>
+		<tr>
+			<th class="invisibletd" style="border: hidden" colspan="2">
+				
+			</th>
+			
+			
+			
+				<th class="depCol td75" onmouseover="tableColumnHover(&#39;td75&#39;)" onmouseout="tableColumnHover(&#39;td75&#39;)" title="Consultation pour le département 75" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=75&#39;);">
+					75</th>
+			
+				<th class="depCol td77" onmouseover="tableColumnHover(&#39;td77&#39;)" onmouseout="tableColumnHover(&#39;td77&#39;)" title="Consultation pour le département 77" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=77&#39;);">
+					77</th>
+			
+				<th class="depCol td78" onmouseover="tableColumnHover(&#39;td78&#39;)" onmouseout="tableColumnHover(&#39;td78&#39;)" title="Consultation pour le département 78" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=78&#39;);">
+					78</th>
+			
+				<th class="depCol td91" onmouseover="tableColumnHover(&#39;td91&#39;)" onmouseout="tableColumnHover(&#39;td91&#39;)" title="Consultation pour le département 91" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=91&#39;);">
+					91</th>
+			
+				<th class="depCol td92" onmouseover="tableColumnHover(&#39;td92&#39;)" onmouseout="tableColumnHover(&#39;td92&#39;)" title="Consultation pour le département 92" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=92&#39;);">
+					92</th>
+			
+				<th class="depCol td93" onmouseover="tableColumnHover(&#39;td93&#39;)" onmouseout="tableColumnHover(&#39;td93&#39;)" title="Consultation pour le département 93" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=93&#39;);">
+					93</th>
+			
+				<th class="depCol td94" onmouseover="tableColumnHover(&#39;td94&#39;)" onmouseout="tableColumnHover(&#39;td94&#39;)" title="Consultation pour le département 94" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=94&#39;);">
+					94</th>
+			
+				<th class="depCol td95" onmouseover="tableColumnHover(&#39;td95&#39;)" onmouseout="tableColumnHover(&#39;td95&#39;)" title="Consultation pour le département 95" onclick="util.goToUrlWithLayer(&#39;syntheseDepartementale.html?idDepart=95&#39;);">
+					95</th>
+			
+			<th class="totalCol" colspan="2">Total</th>
+		</tr>
+	</thead>
+
+
+
+	<tbody>
+
+		
+		
+		
+
+		
+
+
+			
+			
+			<!-- total des reg sans rag inutile, à supprimer -->
+			
+			
+			
+			
+
+			<tr>
+				<td class="whiteSpace" colspan="13"></td>
+			</tr>
+			
+				
+			
+
+			<tr>
+
+				
+					
+					
+						<td colspan="12" class="invisibletd"></td>
+					
+				
+
+				
+				
+					</tr><tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=61&#39;);" colspan="2">Réanimation COVID19 +</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,61);" title="Consultation de Réanimation COVID19 + pour le département 75">
+										24
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,61);" title="Consultation de Réanimation COVID19 + pour le département 77">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,61);" title="Consultation de Réanimation COVID19 + pour le département 78">
+										10
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,61);" title="Consultation de Réanimation COVID19 + pour le département 91">
+										4
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,61);" title="Consultation de Réanimation COVID19 + pour le département 92">
+										21
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,61);" title="Consultation de Réanimation COVID19 + pour le département 93">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,61);" title="Consultation de Réanimation COVID19 + pour le département 94">
+										22
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,61);" title="Consultation de Réanimation COVID19 + pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=61&#39;);" colspan="2">83</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=81&#39;);" colspan="2">Réanimation COVID19 -</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,81);" title="Consultation de Réanimation COVID19 - pour le département 75">
+										18
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,81);" title="Consultation de Réanimation COVID19 - pour le département 77">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,81);" title="Consultation de Réanimation COVID19 - pour le département 78">
+										6
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,81);" title="Consultation de Réanimation COVID19 - pour le département 91">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,81);" title="Consultation de Réanimation COVID19 - pour le département 92">
+										13
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,81);" title="Consultation de Réanimation COVID19 - pour le département 93">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,81);" title="Consultation de Réanimation COVID19 - pour le département 94">
+										7
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,81);" title="Consultation de Réanimation COVID19 - pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=81&#39;);" colspan="2">53</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=4&#39;);" colspan="2">Réanimation brûlés </td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,4);" title="Consultation de Réanimation brûlés  pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td77" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td78" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td91" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,4);" title="Consultation de Réanimation brûlés  pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td93" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td94" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td95" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=4&#39;);" colspan="2"></td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=5&#39;);" colspan="2">Réanimation médico-chirurgicale pédiatrique </td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,5);" title="Consultation de Réanimation médico-chirurgicale pédiatrique  pour le département 75">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td77" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td78" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,5);" title="Consultation de Réanimation médico-chirurgicale pédiatrique  pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,5);" title="Consultation de Réanimation médico-chirurgicale pédiatrique  pour le département 92">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td93" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,5);" title="Consultation de Réanimation médico-chirurgicale pédiatrique  pour le département 94">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td95" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=5&#39;);" colspan="2">1</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=7&#39;);" colspan="2">Réanimation néonatale </td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,7);" title="Consultation de Réanimation néonatale  pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,7);" title="Consultation de Réanimation néonatale  pour le département 77">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,7);" title="Consultation de Réanimation néonatale  pour le département 78">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,7);" title="Consultation de Réanimation néonatale  pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,7);" title="Consultation de Réanimation néonatale  pour le département 92">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,7);" title="Consultation de Réanimation néonatale  pour le département 93">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,7);" title="Consultation de Réanimation néonatale  pour le département 94">
+										3
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,7);" title="Consultation de Réanimation néonatale  pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=7&#39;);" colspan="2">5</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=8&#39;);" colspan="2">Soins intensifs de néonatologie</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,8);" title="Consultation de Soins intensifs de néonatologie pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,8);" title="Consultation de Soins intensifs de néonatologie pour le département 77">
+										6
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,8);" title="Consultation de Soins intensifs de néonatologie pour le département 78">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,8);" title="Consultation de Soins intensifs de néonatologie pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,8);" title="Consultation de Soins intensifs de néonatologie pour le département 92">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,8);" title="Consultation de Soins intensifs de néonatologie pour le département 93">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,8);" title="Consultation de Soins intensifs de néonatologie pour le département 94">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,8);" title="Consultation de Soins intensifs de néonatologie pour le département 95">
+										0
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=8&#39;);" colspan="2">10</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=9&#39;);" colspan="2">USINV</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,9);" title="Consultation de USINV pour le département 75">
+										11
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,9);" title="Consultation de USINV pour le département 77">
+										3
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,9);" title="Consultation de USINV pour le département 78">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,9);" title="Consultation de USINV pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,9);" title="Consultation de USINV pour le département 92">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,9);" title="Consultation de USINV pour le département 93">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,9);" title="Consultation de USINV pour le département 94">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,9);" title="Consultation de USINV pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=9&#39;);" colspan="2">18</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=10&#39;);" colspan="2">USIC</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,10);" title="Consultation de USIC pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,10);" title="Consultation de USIC pour le département 77">
+										8
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,10);" title="Consultation de USIC pour le département 78">
+										9
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,10);" title="Consultation de USIC pour le département 91">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,10);" title="Consultation de USIC pour le département 92">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,10);" title="Consultation de USIC pour le département 93">
+										8
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,10);" title="Consultation de USIC pour le département 94">
+										3
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,10);" title="Consultation de USIC pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=10&#39;);" colspan="2">38</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=11&#39;);" colspan="2">Soins intensifs spécialisés </td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,11);" title="Consultation de Soins intensifs spécialisés  pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,11);" title="Consultation de Soins intensifs spécialisés  pour le département 77">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,11);" title="Consultation de Soins intensifs spécialisés  pour le département 78">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,11);" title="Consultation de Soins intensifs spécialisés  pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,11);" title="Consultation de Soins intensifs spécialisés  pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,11);" title="Consultation de Soins intensifs spécialisés  pour le département 93">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,11);" title="Consultation de Soins intensifs spécialisés  pour le département 94">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,11);" title="Consultation de Soins intensifs spécialisés  pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=11&#39;);" colspan="2"></td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=21&#39;);" colspan="2">Unité de Surveillance Continue (USC) médecine</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 75">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 77">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 78">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td91" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 93">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 94">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,21);" title="Consultation de Unité de Surveillance Continue (USC) médecine pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=21&#39;);" colspan="2">10</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=22&#39;);" colspan="2">Unité de Surveillance Continue (USC) chirurgie</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 75">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 77">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 78">
+										3
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 92">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 93">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,22);" title="Consultation de Unité de Surveillance Continue (USC) chirurgie pour le département 94">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td95" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=22&#39;);" colspan="2">9</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=23&#39;);" colspan="2">Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente)</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 75">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 77">
+										4
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 78">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 91">
+										6
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 93">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 94">
+										6
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,23);" title="Consultation de Unité de Surveillance Continue (USC) médecine et chirurgie (polyvalente) pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=23&#39;);" colspan="2">20</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=41&#39;);" colspan="2">Unité de Surveillance Continue (USC) pédiatrie</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 75">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 77">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 78">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 93">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 94">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,41);" title="Consultation de Unité de Surveillance Continue (USC) pédiatrie pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=41&#39;);" colspan="2">0</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=1&#39;);" colspan="2">Réanimation médico-chirurgicale</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 75">
+										12
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td77" onclick="syntheseRegionale.showDepartementAndRegroupement(77,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 77">
+										10
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 78">
+										4
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 91">
+										4
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 92">
+										1
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td93" onclick="syntheseRegionale.showDepartementAndRegroupement(93,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 93">
+										7
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 94">
+										2
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td95" onclick="syntheseRegionale.showDepartementAndRegroupement(95,1);" title="Consultation de Réanimation médico-chirurgicale pour le département 95">
+										
+									</td>
+								
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=1&#39;);" colspan="2">40</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=3&#39;);" colspan="2">Réanimations chirurgicales</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,3);" title="Consultation de Réanimations chirurgicales pour le département 75">
+										9
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td77" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td78" onclick="syntheseRegionale.showDepartementAndRegroupement(78,3);" title="Consultation de Réanimations chirurgicales pour le département 78">
+										0
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td91" onclick="syntheseRegionale.showDepartementAndRegroupement(91,3);" title="Consultation de Réanimations chirurgicales pour le département 91">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,3);" title="Consultation de Réanimations chirurgicales pour le département 92">
+										6
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td93" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,3);" title="Consultation de Réanimations chirurgicales pour le département 94">
+										11
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td95" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=3&#39;);" colspan="2">26</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+						<tr>
+							<td class="whiteSpace" colspan="13"></td>
+						</tr>
+					
+
+					
+
+				
+					<tr class="reg alter  noRagTot ">
+
+						<td class="alignGauche avecDispo" style="color: #666; font-weight: normal;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=2&#39;);" colspan="2">Réanimations médicales</td>
+
+						
+							
+								
+									<td class="avecDispo td75" onclick="syntheseRegionale.showDepartementAndRegroupement(75,2);" title="Consultation de Réanimations médicales pour le département 75">
+										5
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td77" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td78" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td91" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td92" onclick="syntheseRegionale.showDepartementAndRegroupement(92,2);" title="Consultation de Réanimations médicales pour le département 92">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td93" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+							
+								
+									<td class="avecDispo td94" onclick="syntheseRegionale.showDepartementAndRegroupement(94,2);" title="Consultation de Réanimations médicales pour le département 94">
+										
+									</td>
+								
+								
+							
+						
+							
+								
+								
+									<td class="dispogrise td95" title="Pas d&#39;offre correspondante">&nbsp;</td>
+								
+							
+						
+
+						
+							
+								<td class="avecDispo regTot" style="font-weight: bold; font-size: 15px; color: #666;" onclick="util.goToUrlWithLayer(&#39;syntheseRegroupement.html?idRegroupement=2&#39;);" colspan="2">5</td>
+							
+							
+						
+
+					</tr>
+					
+
+					<!-- 					not ((nbTotalRag eq ragCount.count) && (nbTotalCons eq consCount.count)) -->
+					
+
+					
+
+				
+			
+		
+	</tbody>
+</table>
+
+		</div>
+	</div>
+</div>
+
+<div id="mainblockinfbar"></div>
+
+<ul class="toolbar" id="mainblockactbar">
+	<li class="toolbarhover"><a id="exporterExcel" class="toolbaritem" href="javascript:exporterResultatsVersExcel();"> Exporter le
+			tableau au format Excel </a></li>
+</ul>
+
+
+</div>
+
+</body></html>

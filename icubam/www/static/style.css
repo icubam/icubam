@@ -1,0 +1,28 @@
+.main-content {
+  margin: 20px;
+  max-width: 800px;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-elem {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.form-control {
+  width: 90px;
+}
+
+#beds_map {
+  position: relative;
+  width: 100.0%;
+  height: 100.0%;
+  left: 0.0%;
+  top: 0.0%;
+}

@@ -1,0 +1,9 @@
+absl-py==0.8.1
+google-api-python-client==1.8.0
+google-auth-httplib2==0.0.3
+google-auth-oauthlib==0.4.1
+messagebird==1.5.0
+pandas==1.0.3
+PyJWT==1.7.1
+python-dotenv==0.12.0
+tornado==6.0.3
