@@ -11,6 +11,10 @@ Steps:
 - install deps with `pip install -r requirements.txt`
 - install the package in edit mode by running `pip install -e .`
 
+### Configuration
+
+### Pre-populate DB with test data (optional)
+
 ## Running locally
 
 ## Running unit tests
