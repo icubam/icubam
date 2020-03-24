@@ -3,7 +3,7 @@ import tornado.ioloop
 from tornado import queues
 import tornado.web
 from icubam.db import sqlite
-from icubam.messaging import mb_sender
+from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
 from icubam import config
 
@@ -14,9 +14,9 @@ class MessageServer:
   def __init__(self, db_path, port=8889):
     self.db = sqlite.SQLiteDB(db_path)
     self.port = port
-    self.sender = mb_sender.MBSender(config.SMS_KEY, config.SMS_ORIG)
+    self.sender = sms_sender.get_sender(config.SMS_CARRIER)
     self.queue = queues.Queue()
-    self.scheduler = scheduler.MessageScheduler(db=self.db, queue=self.queue)
+    self.scheduler = scheduler.MessageScheduler(when=[(18, 38), (16, 3)], reminder_delay= 60, base_url='https://test.icubam.net', db=self.db, queue=self.queue)
 
   async def process(self):
     async for msg in self.queue:
