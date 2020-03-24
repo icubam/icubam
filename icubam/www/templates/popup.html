@@ -1,4 +1,11 @@
-<h2>{{row.icu_name}} (+...)</h2>
-<span style="background-color:{{color}}" class='report-number'>
-  {{row.n_covid_free}} / {{row.total}}
-</span>
+<table class='bed-table'>
+  {% for obj in beds %}
+    <tr>
+      <td class='report-number'>{{obj['icu']}}</td>
+      <td style="background-color:{{obj['color']}}" class='report-number'>
+        {{obj['free']}} / {{obj['total']}}
+      </td>
+      <td class='report-number'>{{obj['phone']}}</td>
+    </tr>
+  {% end %}
+</table>

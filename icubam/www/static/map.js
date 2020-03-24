@@ -3,7 +3,7 @@ function add_marker (obj, map) {
 
   var infowindow = new google.maps.InfoWindow({
     content: obj.popup,
-    maxWidth: 200
+    maxWidth: 500,
   });
 
   let icon_url = "http://maps.google.com/mapfiles/ms/icons/"
@@ -18,13 +18,14 @@ function add_marker (obj, map) {
   marker.addListener('click', function() {
     infowindow.open(map, marker);
   });
+  infowindow.open(map,marker);
 }
 
 function plotMap(data) {
   let center = {lat: data[0].lat, lng: data[0].lng};
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
-    center: center
+    center: center,
   });
 
   for (i = 0; i < data.length; i++) {

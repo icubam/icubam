@@ -41,6 +41,10 @@
   height: 100%;
 }
 
+.bed-table {
+  max-width: 350px;
+}
+
 /* Optional: Makes the sample page fill the window. */
 html {
   height: 100%;
@@ -55,9 +59,9 @@ body.bed_map {
 }
 
 .report-number {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
+  padding: 5px;
+  margin: 8px;
+  font-size: 13px;
   font-weight: bold;
   text-align: center;
 }
