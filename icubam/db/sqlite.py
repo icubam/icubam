@@ -22,15 +22,16 @@ class SQLiteDB:
   def _create_table(self):
     self._conn.execute(
       """CREATE TABLE icus
-                          (icu_id INTEGER NOT NULL PRIMARY KEY, icu_name TEXT,
-                           dept TEXT, city TEXT, lat REAL, long REAL,
-                           telephone TEXT )"""
+                          (icu_id INTEGER NOT NULL PRIMARY KEY,
+                           icu_name TEXT UNIQUE, dept TEXT, city TEXT, lat REAL,
+                           long REAL, telephone TEXT )"""
     )
 
     self._conn.execute(
       """CREATE TABLE users
                           (user_id INTEGER NOT NULL PRIMARY KEY, icu_id INTEGER,
-                           name TEXT, telephone TEXT, description TEXT)"""
+                           name TEXT, telephone TEXT, description TEXT,
+                           UNIQUE(icu_id, telephone))"""
     )
     self._conn.execute(
       """CREATE TABLE bed_updates
@@ -42,29 +43,28 @@ class SQLiteDB:
     )
     self._conn.commit()
 
-  def add_icu(
+  def upsert_icu(
     self,
     icu_name: str,
     dept: str,
     city: str,
     lat: float,
     long: float,
-    telephone: str = "",
+    telephone: str = "NULL",
   ):
-    """Add an ICU."""
-
-    # Check that the icu_name is not already present:
-    query = """SELECT count(icu_id) as n_icu FROM icus
-               WHERE icu_name = '{icu_name}'"""
-    res = pd.read_sql_query(query.format(**locals()), self._conn)
-    if res.iloc[0]["n_icu"] != 0:
-      raise ValueError(f"ICU {icu_name} already present.")
+    """Add or update an ICU."""
 
     # If not then add:
     query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
                             VALUES
                             ('{icu_name}', '{dept}', '{city}',
-                             {lat}, {long}, '{telephone}')"""
+                             {lat}, {long}, '{telephone}')
+                            ON CONFLICT(icu_name) DO UPDATE SET
+                            dept=excluded.dept,
+                            city=excluded.city,
+                            lat=excluded.lat,
+                            long=excluded.long,
+                            telephone=excluded.telephone"""
     self._conn.execute(query.format(**locals()))
     self._conn.commit()
 
@@ -72,14 +72,8 @@ class SQLiteDB:
     self, icu_name: str, name: str, telephone: str, description: str
   ):
     """Add a user."""
-    # Check that the telephone (unique id) is not already present:
-    query = """SELECT count(user_id) as n_users FROM users
-               WHERE telephone = '{telephone}'"""
-    res = pd.read_sql_query(query.format(**locals()), self._conn)
-    if res.iloc[0]["n_users"] != 0:
-      raise ValueError(f"User {name} with tel {telephone} already present.")
 
-    # Get the icu_id for the user:
+    # Get the icu_id from icu_name:
     query = """SELECT icu_id FROM icus
                WHERE icu_name = '{icu_name}'"""
     res = pd.read_sql_query(query.format(**locals()), self._conn)
@@ -100,6 +94,7 @@ class SQLiteDB:
     icu_name: str,
     n_covid_occ: int,
     n_covid_free: int,
+    n_ncovid_free: int,
     n_covid_deaths: int,
     n_covid_healed: int,
     n_covid_refused: int,
