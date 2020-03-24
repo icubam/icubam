@@ -1,5 +1,5 @@
 from icubam import config
-import gsheets
+from icubam.db import gsheets
 from absl.testing import absltest
 
 
