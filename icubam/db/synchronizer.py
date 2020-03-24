@@ -1,7 +1,7 @@
 """Pulls data from the google sheet and adds it to the sqlite DB."""
-import gsheets
-import sqlite
-import logging
+from icubam.db import gsheets
+from icubam.db import sqlite
+from absl import logging
 
 
 class Synchronizer:
@@ -46,23 +46,3 @@ class Synchronizer:
       except ValueError as e:
         logging.error(e)
         continue
-
-
-if __name__ == "__main__":
-  from icubam import config
-
-  shdb = gsheets.SheetsDB(config.TOKEN_LOC, config.SHEET_ID)
-  sqldb = sqlite.SQLiteDB(config.SQLITE_DB)
-  sync = Synchronizer(shdb, sqldb)
-  reply = (
-    str(
-      input(
-        "!!Are you sure you want to sync, this will drop all users!! (duh/nay)"
-      )
-    )
-    .lower()
-    .strip()
-  )
-  if reply == "duh":
-    sync.sync_icus()
-    sync.sync_users()

@@ -30,6 +30,7 @@ class MessageScheduler:
     self.when = when
     self.phone_to_icu = {}
     self.messages = []
+    self.urls = []  # for debug only
     self.timeouts = {}
     self.build_messages()
 
@@ -39,9 +40,10 @@ class MessageScheduler:
     self.messages = []
     for index, row in users_df.iterrows():
       url = "{}{}?id={}".format(self.base_url,
-                                update.UpdateHandler.ROUTE,
+                                update.UpdateHandler.ROUTE.strip('/'),
                                 token.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row.name, row.icu_name, url)
+      self.urls.append(url)
       self.messages.append(
         message.Message(text, row.telephone, row.icu_id, row.icu_name))
 
@@ -105,5 +107,6 @@ class MessageScheduler:
 
     logging.info('Sending to {} now ({}/{})'.format(
       msg.icu_name, msg.attempts, self.max_retries + 1))
-    await self.queue.put(msg)
+    if self.queue is not None:
+      await self.queue.put(msg)
     self.schedule(msg, delay=self.reminder_delay)

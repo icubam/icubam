@@ -7,6 +7,7 @@ import tornado.web
 from icubam import config
 from icubam.db import queue_writer
 from icubam.db import sqlite
+from icubam.messaging import scheduler
 from icubam.www import token
 from icubam.www.handlers import home
 from icubam.www.handlers import update
@@ -42,8 +43,7 @@ class WWWServer:
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return 'Connect to http://localhost:{}{}?id={}'.format(
-      self.port, update.UpdateHandler.ROUTE, token.encode_icu(1, 'A. Beclere'))
+    return '\n'.join(scheduler.MessageScheduler(self.db, None).urls)
 
   def run(self):
     logging.info('Running {} on port {}'.format(
