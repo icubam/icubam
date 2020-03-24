@@ -32,7 +32,7 @@ class WWWServer:
     logging.info('{} serving on {}'.format(handler.__name__, route))
 
   def make_app(self):
-    self.add_handler(update.UpdateHandler, queue=self.writing_queue)
+    self.add_handler(update.UpdateHandler, db=self.db, queue=self.writing_queue)
     self.add_handler(home.HomeHandler, db=self.db)
     self.routes.append(
       (r"/static/(.*)",
