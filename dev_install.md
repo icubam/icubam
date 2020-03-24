@@ -13,11 +13,12 @@ Steps:
 
 ### Configuration
 
-Create a `.env` file at root of the project containing the following keys:
+Create a `icubam.ini` file at root of the project containing the following keys:
 ```
+[DEFAULT]
 SHEET_ID=
 TOKEN_LOC=
-SMS_KEY = 
+SMS_KEY =
 SMS_ORIG=
 SECRET_COOKIE=
 JWT_SECRET=
@@ -29,6 +30,9 @@ GOOGLE_API_KEY=
 
 Create a fake database in order to be able to play with it:
 `python scripts/populate_db_fake.py`
+
+The databse will be named `test.db`.
+Please, rename this file and/or modify the `icubam.ini` file for `SQLITE_DB` to point on this file.
 
 ## Running locally
 
@@ -47,4 +51,5 @@ Just follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 
 ## Running unit tests
 
+It requires `TOKEN_LOC` to be set with a valid `token.pickle` file in `icubam.ini` file.
 `python -m unittest`
