@@ -55,15 +55,12 @@ class HomeHandler(base.BaseHandler):
       occupied_ratio = int(row.n_covid_occ) / row.total
       result[city].append({
         'icu': row['icu_name'],
-        'phone': phones.get(row['icu_id'], [''])[0],
+        'phone': str(phones.get(row['icu_id'], [''])[0]).lstrip('+'),
         'occ': int(row['n_covid_occ']),
         'total': int(row['total']),
         'occupation': occupied_ratio,
         'color': get_color(occupied_ratio)
       })
-
-    print(result)
-
     return result
 
   @tornado.web.authenticated

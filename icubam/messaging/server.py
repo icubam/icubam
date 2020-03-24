@@ -17,8 +17,6 @@ class MessageServer:
     self.sender = sms_sender.get_sender(config.SMS_CARRIER)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      when=[(20, 36), (16, 3)],
-      reminder_delay=40,
       base_url=config.BASE_URL,
       db=self.db,
       queue=self.queue,

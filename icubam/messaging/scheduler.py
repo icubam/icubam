@@ -88,7 +88,7 @@ class MessageScheduler:
     df = self.db.get_bedcount()
     last_update = df[df.icu_id == msg.icu_id].update_ts
     try:
-      last_update = int(last_update)
+      last_update = int(last_update.iloc[0])
     except:
       last_update = None
     uptodate = (last_update is not None) and (last_update > msg.first_sent)

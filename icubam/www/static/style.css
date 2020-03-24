@@ -1,6 +1,6 @@
 .main-content {
   margin: 20px;
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .form-row {
@@ -34,7 +34,7 @@
 }
 
 .form-control {
-  width: 120px;
+  width: 160px;
 }
 
 #map {

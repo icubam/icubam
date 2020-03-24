@@ -2,7 +2,7 @@
 import configparser
 import os.path
 
-INI_PATH = '/Users/dulacarnold/Src/icubam/icubam.ini'
+INI_PATH = 'icubam.ini'
 if not os.path.exists(INI_PATH):
   raise Exception(f"Couldn't find INI file: {INI_PATH}")
 
