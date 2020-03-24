@@ -10,7 +10,7 @@ from icubam import config
 def get_color(value):
   color = 'red'
   if value < 0.5:
-    color = 'greed'
+    color = 'green'
   elif value < 0.8:
     color = 'orange'
   return color
