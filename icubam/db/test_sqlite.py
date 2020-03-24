@@ -2,18 +2,18 @@ import os
 import time
 
 from absl.testing import absltest
-from sqlite import SQLiteDB
+from icubam.db import sqlite
 import sqlite3
 
 
 class SQLiteDBTest(absltest.TestCase):
   def test_init(self):
     tmp_folder = self.create_tempdir()
-    sqldb = SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
 
   def test_icu_creation(self):
     tmp_folder = self.create_tempdir()
-    sqldb = SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
     sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
     icus = sqldb.get_icus()
     self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep1")
@@ -31,7 +31,7 @@ class SQLiteDBTest(absltest.TestCase):
 
   def test_user_creation(self):
     tmp_folder = self.create_tempdir()
-    sqldb = SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
 
     # Make sure you can't add a user with non-existant ICU
     with self.assertRaises(ValueError):
