@@ -2,7 +2,7 @@ import os
 import time
 
 from absl.testing import absltest
-from sqlite import SQLiteDB
+from icubam.db.sqlite import SQLiteDB
 import sqlite3
 
 
