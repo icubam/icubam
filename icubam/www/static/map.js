@@ -3,7 +3,7 @@ function add_marker (obj, map) {
 
   var infowindow = new google.maps.InfoWindow({
     content: obj.popup,
-    maxWidth: 200
+    maxWidth: 500,
   });
 
   let icon_url = "http://maps.google.com/mapfiles/ms/icons/"
@@ -18,6 +18,7 @@ function add_marker (obj, map) {
   marker.addListener('click', function() {
     infowindow.open(map, marker);
   });
+  infowindow.open(map,marker);
 }
 
 function plotMap(data) {
