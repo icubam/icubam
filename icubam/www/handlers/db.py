@@ -1,5 +1,6 @@
 import tornado.web
 from icubam.www.handlers import base
+from icubam.www.handlers import home
 
 
 class DBHandler(base.BaseHandler):
@@ -15,3 +16,5 @@ class DBHandler(base.BaseHandler):
     get_fn = self.get_fns.get(collection, None)
     if get_fn is not None:
       self.write(get_fn().to_html())
+    else:
+      self.redirect(home.HomeHandler.ROUTE)
