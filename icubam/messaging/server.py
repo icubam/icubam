@@ -15,7 +15,7 @@ class MessageServer:
     self.config = config
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.port = port
-    self.sender = sms_sender.get_sender(self.config.sms.carrier)
+    self.sender = sms_sender.get_sender(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
       db=self.db,

@@ -1,6 +1,7 @@
 """MessageBird SMS Object"""
 import messagebird
 import nexmo
+from icubam import config
 
 
 class MBSender:
@@ -36,11 +37,3 @@ def get_sender(config, sms_carrier=None):
     return NXSender(config.NX_KEY, config.NX_API)
   else:
     raise ValueError('Incorrect value in config: {config.SENDER}.')
-
-if __name__ == "__main__":
-  from icubam import config
-
-  ms = get_sender(sms_carrier='NX')
-  ms.send_message("33698158092", "test NX")
-  ms = get_sender(sms_carrier='MB')
-  ms.send_message("33698158092", "test MB")
