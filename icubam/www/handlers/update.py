@@ -6,6 +6,8 @@ from icubam.www.handlers import home
 from icubam.www import token
 
 
+def last_time()
+
 class UpdateHandler(base.BaseHandler):
 
   ROUTE = '/update'
@@ -18,10 +20,13 @@ class UpdateHandler(base.BaseHandler):
 
   def get_icu_data(self, icu_id, def_val=0):
     df = self.db.get_bedcount()
+
     try:
       data = None
+      last_update = None
       for index, row in df[df.icu_id == icu_id].iterrows():
         data = row.to_dict()
+        last_update = data['update_ts']
         break
     except Exception as e:
       logging.error(e)
@@ -33,6 +38,11 @@ class UpdateHandler(base.BaseHandler):
     for k in data:
       if data[k] is None:
         data[k] = def_val
+
+    if update_ts is None:
+      data['since_update'] = 'Jamais'
+    else:
+      data['since_update'] = last_update
 
     return data
 
