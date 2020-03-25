@@ -4,7 +4,7 @@ title = "My TOML Config"
 # Tables
 [sms]
 origin = "ICUBAM"
-carrier = "nx"
+carrier = "TW"
 
 [db]
 sqlite_path = "icubam.db"
