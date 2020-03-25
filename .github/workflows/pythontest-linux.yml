@@ -15,8 +15,8 @@ jobs:
          auto-activate-base: false
     - shell: bash -l {0}
       run: |
+        conda update conda
         conda info
-        conda list
         python --version
     - name: Install dependencies
       run: |
