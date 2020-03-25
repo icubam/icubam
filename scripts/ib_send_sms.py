@@ -8,7 +8,7 @@ flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 FLAGS = flags.FLAGS
 
 def main(unused_argv):
-  cfg = config.Config(FLAG.config, mode=FLAGS.mode)
+  cfg = config.Config(FLAGS.config, mode=FLAGS.mode)
   sdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
   sender = mb_sender.MBSender(
     api_key=config.SMS_KEY, originator=cfg.sms.origin
