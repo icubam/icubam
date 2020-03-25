@@ -7,23 +7,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
     - uses: goanpeca/setup-miniconda@v1
       with:
-        auto-update-conda: true
-        python-version: '3.8'
-    - name: Info
+         activate-environment: anaconda-client-env
+         python-version: 3.8
+         auto-activate-base: false
+    - shell: bash -l {0}
       run: |
         conda info
+        conda list
         python --version
-    - name: Cache pip
-      uses: actions/cache@v1
-      with:
-        # Cache pip accordingly to https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#caching-dependencies
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
