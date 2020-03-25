@@ -15,15 +15,11 @@ jobs:
          auto-activate-base: false
     - shell: bash -l {0}
       run: |
-        conda update conda
         conda info
         python --version
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        sudo apt-get update
-        sudo apt-get install sqlite3
-        sqlite3 -version
     - name: Test with pytest
       run: |
         pip install pytest
