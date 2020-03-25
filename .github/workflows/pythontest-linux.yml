@@ -25,6 +25,7 @@ jobs:
         pip --version
         pip install -r requirements.txt
     - name: Test with pytest
+      shell: bash -l {0}
       run: |
         pip install pytest
         pytest .
