@@ -32,7 +32,8 @@ function add_marker (obj, map) {
 
 function getCenter(data) {
   if (data.length === 0) {
-    return {lat: 48, lng: 2.3}
+    // Paris lat-long
+    return {lat: 48.8566, lng: 2.3522}
   }
 
   let center = {lat: 0, lng: 0}
