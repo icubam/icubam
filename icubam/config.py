@@ -1,7 +1,8 @@
 """Manages config variables using .env file."""
-from dotenv import load_dotenv
-import os
+
+import logging
 import os.path
+from dotenv import load_dotenv
 
 import dotmap
 import toml
@@ -28,8 +29,10 @@ class Config:
 
     self.env = {}
     load_dotenv(verbose=True, dotenv_path=env_path)
+    logging.info(f"Loading env vars from: {env_path}.")
     for key in self.ENV_KEYS:
       self.env[key.upper()] = os.getenv(key)
+    logging.info(f"Loaded: {self.env}.")
 
   def _preprocess(self, conf):
     """Recursively selects the proper mode and enforces lower keys."""
