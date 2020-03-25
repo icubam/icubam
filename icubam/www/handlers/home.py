@@ -53,12 +53,13 @@ class HomeHandler(base.BaseHandler):
         logging.error('Did not find a city for ICU {}'.format(row.icu_id))
         continue
 
-      occupied_ratio = int(row.n_covid_occ) / row.total
+      total = int(row['total'])
+      occupied_ratio = int(row.n_covid_occ) / total if (total > 0) else 0
       result[city].append({
         'icu': row['icu_name'],
         'phone': str(phones.get(row['icu_id'], [''])[0]).lstrip('+'),
         'occ': int(row['n_covid_occ']),
-        'total': int(row['total']),
+        'total': total,
         'occupation': occupied_ratio,
         'color': get_color(occupied_ratio)
       })

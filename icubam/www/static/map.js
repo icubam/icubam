@@ -13,12 +13,21 @@ function add_marker (obj, map) {
     position: position,
     map: map,
     title: obj.label,
-    icon: {url: icon_url}
+    icon: {url: icon_url, scaledSize: new google.maps.Size(50, 50)}
   });
-  marker.addListener('click', function() {
-    infowindow.open(map, marker);
-  });
-  infowindow.open(map,marker);
+
+  let show = false
+  function toggle () {
+    show = !show
+    if (show) {
+      infowindow.open(map, marker);
+    } else {
+      infowindow.close(map, marker);
+    }
+  }
+  toggle()
+  marker.addListener('click', toggle)
+
 }
 
 function plotMap(data) {

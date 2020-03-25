@@ -52,7 +52,8 @@ class UpdateHandler(base.BaseHandler):
   async def post(self):
     def parse(param):
       parts = param.split('=')
-      return parts[0], int(parts[1])
+      value = int(parts[1]) if parts[1].isnumeric() else 0
+      return parts[0], value
 
     data = dict([parse(p) for p in self.request.body.decode().split('&')])
     data.update(token.decode(self.get_secure_cookie(self.COOKIE)))
