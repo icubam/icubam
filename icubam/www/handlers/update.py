@@ -9,7 +9,7 @@ from icubam.www import token
 
 def time_ago(ts) -> str:
   if ts is None:
-    return 'Jamais'
+    return 'jamais'
 
   delta = int(time.time() - int(ts))
   units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
