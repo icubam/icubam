@@ -1,12 +1,26 @@
 from absl import logging
+import datetime
 import json
+import time
 import tornado.web
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www import token
 
 
-def last_time()
+def time_ago(ts) -> str:
+  if ts is None:
+    return 'Jamais'
+
+  delta = int(time.time() - int(ts))
+  units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
+  for unit, name in sorted(units, reverse=True):
+    curr = delta // unit
+    if curr > 0:
+      plural = '' if curr == 1 else 's' # hack
+      return 'il y a {} {}{}'.format(curr, name, plural)
+  return 'à l\'instant'
+
 
 class UpdateHandler(base.BaseHandler):
 
@@ -39,11 +53,7 @@ class UpdateHandler(base.BaseHandler):
       if data[k] is None:
         data[k] = def_val
 
-    if update_ts is None:
-      data['since_update'] = 'Jamais'
-    else:
-      data['since_update'] = last_update
-
+    data['since_update'] = time_ago(last_update)
     return data
 
   async def get(self):
