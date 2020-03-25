@@ -4,16 +4,21 @@ import time
 from absl.testing import absltest
 from icubam.db import sqlite
 import sqlite3
-
+import tempfile
 
 class SQLiteDBTest(absltest.TestCase):
+  def create_tempdir(self):
+    tmp_folder = tempfile.TemporaryDirectory().name
+    os.mkdir(tmp_folder)
+    return tmp_folder
+
   def test_init(self):
     tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
   def test_icu_creation(self):
     tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
     sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
     icus = sqldb.get_icus()
     self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep1")
@@ -31,7 +36,7 @@ class SQLiteDBTest(absltest.TestCase):
 
   def test_user_creation(self):
     tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
     # Make sure you can't add a user with non-existant ICU
     with self.assertRaises(ValueError):
@@ -44,12 +49,12 @@ class SQLiteDBTest(absltest.TestCase):
     with self.assertRaises(sqlite3.IntegrityError):
       sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
     users = sqldb.get_users()
-    import ipdb; ipdb.set_trace()
-    print(users)
+#    import ipdb; ipdb.set_trace()
+#    print(users)
 
   # def test_bedcount_update(self):
   #   tmp_folder = self.create_tempdir()
-  #   sqldb = SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
+  #   sqldb = SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
   #   # Make sure you can't insert without a valid icu_id
   #   with self.assertRaises(ValueError):
