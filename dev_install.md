@@ -47,9 +47,10 @@ I0324 19:02:15.785090 139983874058048 server.py:49] Running WWWServer on port 88
 I0324 19:02:15.788751 139983874058048 server.py:51] http://localhost:8888/update?id=<A_VERY_LONG_ID>
 ```
 
-Just follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
+Follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 
 ## Running unit tests
 
-It requires `TOKEN_LOC` to be set with a valid `token.pickle` file in `icubam.ini` file.
-`python -m unittest`
+The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in `icubam.ini` file.
+
+To start the tests, run `python -m unittest`
