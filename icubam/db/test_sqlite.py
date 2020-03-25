@@ -7,48 +7,44 @@ import sqlite3
 import tempfile
 
 class SQLiteDBTest(absltest.TestCase):
-  def create_tempdir(self):
-    tmp_folder = tempfile.TemporaryDirectory().name
-    os.mkdir(tmp_folder)
-    return tmp_folder
 
   def test_init(self):
-    tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
+    with tempfile.TemporaryDirectory() as tmp_folder:
+        sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
   def test_icu_creation(self):
-    tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
-    sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
-    icus = sqldb.get_icus()
-    self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep1")
+    with tempfile.TemporaryDirectory() as tmp_folder:
+        sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
+        sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
+        icus = sqldb.get_icus()
+        self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep1")
 
-    sqldb.upsert_icu("ICU2", "dep2", "city2", 3.44, 42.3)
-    icus = sqldb.get_icus()
-    self.assertEqual(icus[icus["icu_name"] == "ICU2"].iloc[0]["dept"], "dep2")
+        sqldb.upsert_icu("ICU2", "dep2", "city2", 3.44, 42.3)
+        icus = sqldb.get_icus()
+        self.assertEqual(icus[icus["icu_name"] == "ICU2"].iloc[0]["dept"], "dep2")
 
-    sqldb.upsert_icu("ICU1", "dep3", "city3", 3.44, 42.3, "0103")
-    icus = sqldb.get_icus()
-    self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
-    self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
+        sqldb.upsert_icu("ICU1", "dep3", "city3", 3.44, 42.3, "0103")
+        icus = sqldb.get_icus()
+        self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
+        self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
 
 
 
   def test_user_creation(self):
-    tmp_folder = self.create_tempdir()
-    sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
+    with tempfile.TemporaryDirectory() as tmp_folder:
+        sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
-    # Make sure you can't add a user with non-existant ICU
-    with self.assertRaises(ValueError):
-      sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
+        # Make sure you can't add a user with non-existant ICU
+        with self.assertRaises(ValueError):
+          sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
 
-    # Check normal insertion
-    sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
-    sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
+        # Check normal insertion
+        sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
+        sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
 
-    with self.assertRaises(sqlite3.IntegrityError):
-      sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
-    users = sqldb.get_users()
+        with self.assertRaises(sqlite3.IntegrityError):
+          sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
+        users = sqldb.get_users()
 #    import ipdb; ipdb.set_trace()
 #    print(users)
 
