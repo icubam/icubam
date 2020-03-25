@@ -21,6 +21,7 @@ class WWWServer:
     self.config = config
     self.port = port
     self.routes = []
+    self.token_encoder = token.TokenEncoder(self.config)
     self.writing_queue = queues.Queue()
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.make_app()
@@ -34,7 +35,9 @@ class WWWServer:
     logging.info('{} serving on {}'.format(handler.__name__, route))
 
   def make_app(self):
-    self.add_handler(update.UpdateHandler, db=self.db, queue=self.writing_queue)
+    self.add_handler(
+      update.UpdateHandler, db=self.db, queue=self.writing_queue,
+      token_encoder=self.token_encoder)
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
     self.add_handler(show.ShowHandler, db=self.db)
     self.add_handler(show.DataJson, db=self.db)
@@ -48,7 +51,8 @@ class WWWServer:
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return '\n'.join(scheduler.MessageScheduler(self.db, None).urls)
+    return '\n'.join(scheduler.MessageScheduler(
+      self.db, None, self.token_encoder).urls)
 
   def run(self):
     logging.info('Running {} on port {}'.format(

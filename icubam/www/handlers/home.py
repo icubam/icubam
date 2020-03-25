@@ -35,7 +35,7 @@ class HomeHandler(base.BaseHandler):
     for city, rows in icus_df.groupby(self.CLUSTER_KEY):
       coords[city] = {'lat': rows.lat.mean(), 'lng': rows.long.mean()}
       for icuid in rows.icu_id.to_list():
-        cluster_id[icuid] = cityconfig
+        cluster_id[icuid] = city
     return coords, cluster_id
 
   def get_phones(self):

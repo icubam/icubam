@@ -37,8 +37,8 @@ class Config:
       if not isinstance(v, dict):
         result[k.lower()] = v
       else:
-        sub = v[self.mode] if self.mode in v else v
-        result[k.lower()] = self._select_mode(sub)
+        sub = v.get(self.mode, v)
+        result[k.lower()] = self._preprocess(sub)
     return result
 
   def __getattr__(self, key: str):
