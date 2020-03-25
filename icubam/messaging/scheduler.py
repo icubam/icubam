@@ -58,6 +58,9 @@ class MessageScheduler:
 
   def get_next_ping(self, ts=None):
     """Gets the timestamp of the next moment of sending messages."""
+    if not self.when:
+      return
+
     ts = int(time.time()) if ts is None else ts
     now = datetime.datetime.fromtimestamp(ts)
     today_fn = functools.partial(
