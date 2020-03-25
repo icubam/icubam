@@ -19,6 +19,8 @@ jobs:
         python --version
     - name: Install dependencies
       run: |
+        which python
+        pip --version
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
