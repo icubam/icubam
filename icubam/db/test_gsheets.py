@@ -4,12 +4,14 @@ from absl.testing import absltest
 
 
 class SQLiteDBTest(absltest.TestCase):
+  def setUp(self):
+    self.config = config.Config('resources/test.toml', mode='dev')
   def test_users(self):
-    shdb = gsheets.SheetsDB(config.TOKEN_LOC, config.SHEET_ID)
+    shdb = gsheets.SheetsDB(self.config.TOKEN_LOC, self.config.SHEET_ID)
     shdb.get_users()
 
   def test_icus(self):
-    shdb = gsheets.SheetsDB(config.TOKEN_LOC, config.SHEET_ID)
+    shdb = gsheets.SheetsDB(self.config.TOKEN_LOC, self.config.SHEET_ID)
     shdb.get_icus()
 
 

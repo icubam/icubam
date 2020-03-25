@@ -3,13 +3,15 @@ from icubam import config
 from icubam.db import gsheets
 from icubam.messaging import mb_sender
 
-print(config.SHEET_ID)
+flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
+flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
+FLAGS = flags.FLAGS
 
-
-def main(args):
-  sdb = gsheets.SheetsDB(config.TOKEN_LOC, config.SHEET_ID)
+def main(unused_argv):
+  cfg = config.Config(FLAG.config, mode=FLAGS.mode)
+  sdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
   sender = mb_sender.MBSender(
-    api_key=config.SMS_KEY, originator=config.SMS_ORIG
+    api_key=config.SMS_KEY, originator=cfg.sms.origin
   )
 
   users = sdb.get_users()

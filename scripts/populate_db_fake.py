@@ -1,13 +1,15 @@
 from absl import app
 from absl import flags
 from icubam.db import sqlite
+from icubam import config
 
-flags.DEFINE_string('db_path', 'test.db', 'File for the db.')
-FLAGS = flags.FLAGS
+flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
+flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 
 
 def main(unused_argv):
-  sdb = sqlite.SQLiteDB(FLAGS.db_path)
+  cfg = config.Config(FLAG.config, mode=FLAGS.mode)
+  sdb = sqlite.SQLiteDB(cfg.db.sqlite_path)
 
   sdb.upsert_icu(
     'A. Beclere', '92', 'Clamart', 48.788055555555545, 2.2547222222222216, 'test_tel')

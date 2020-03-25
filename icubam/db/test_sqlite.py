@@ -7,6 +7,10 @@ import sqlite3
 
 
 class SQLiteDBTest(absltest.TestCase):
+  def setUp(self):
+    super().setUp()
+    self.config = config.Config('resources/test.toml', mode='dev')
+
   def test_init(self):
     tmp_folder = self.create_tempdir()
     sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder.full_path, "test.db"))
@@ -26,8 +30,6 @@ class SQLiteDBTest(absltest.TestCase):
     icus = sqldb.get_icus()
     self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
     self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
-
-
 
   def test_user_creation(self):
     tmp_folder = self.create_tempdir()
