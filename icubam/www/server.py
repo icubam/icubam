@@ -12,6 +12,7 @@ from icubam.www import token
 from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import update
+from icubam.www.handlers import show
 
 
 class WWWServer:
@@ -35,6 +36,8 @@ class WWWServer:
   def make_app(self):
     self.add_handler(update.UpdateHandler, db=self.db, queue=self.writing_queue)
     self.add_handler(home.HomeHandler, db=self.db)
+    self.add_handler(show.ShowHandler, db=self.db)
+    self.add_handler(show.DataJson, db=self.db)
     self.add_handler(db.DBHandler, db=self.db)
     self.routes.append(
       (r"/static/(.*)",
