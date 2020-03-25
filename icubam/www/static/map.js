@@ -30,8 +30,24 @@ function add_marker (obj, map) {
 
 }
 
+function getCenter(data) {
+  if (data.length > 0) {
+    return {lat: 48, lng: 2.3}
+  }
+
+  let center = {lat: 0, lng: 0}
+  for (i =0; i < data.length; i++) {
+    center.lat = center.lat + data[i].lat
+    center.lng = center.lng + data[i].lng
+  }
+  center.lat =  center.lat / data.length
+  center.lng =  center.lng / data.length
+
+  return center
+}
+
 function plotMap(data) {
-  let center = {lat: data[0].lat, lng: data[0].lng};
+  const center = getCenter(data)
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
