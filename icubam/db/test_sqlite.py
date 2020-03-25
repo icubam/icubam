@@ -27,6 +27,9 @@ class SQLiteDBTest(absltest.TestCase):
         icus = sqldb.get_icus()
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
+        self.assertEqual(sqldb.get_icu_id_from_name("ICU1"), 1)
+        self.assertEqual(sqldb.get_icu_id_from_name("ICU2"), 2)
+
 
   def test_user_creation(self):
     with tempfile.TemporaryDirectory() as tmp_folder:

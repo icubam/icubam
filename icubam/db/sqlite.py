@@ -123,6 +123,16 @@ class SQLiteDB:
     self._conn.execute(query.format(**locals()))
     return self._conn.commit()
 
+  def get_icu_id_from_name(self, icu_name):
+    # Get the icu_id from icu_name:
+    query = """SELECT icu_id FROM icus
+               WHERE icu_name = '{icu_name}'"""
+    res = pd.read_sql_query(query.format(**locals()), self._conn)
+    if len(res) == 0:
+      raise ValueError(f"ICU {icu_name} not found.")
+    icu_id = res.iloc[0]["icu_id"]
+    return icu_id
+
   def get_icus(self):
     """Returns a pandas DF of bed counts."""
     return pd.read_sql_query("""SELECT * FROM icus""", self._conn)
