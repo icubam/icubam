@@ -8,74 +8,57 @@ from icubam.www import token
 
 
 def time_ago(ts) -> str:
-  if ts is None:
-    return 'jamais'
+    if ts is None:
+        return 'jamais'
 
-  delta = int(time.time() - int(ts))
-  units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
-  for unit, name in sorted(units, reverse=True):
-    curr = delta // unit
-    if curr > 0:
-      plural = '' if curr == 1 else 's' # hack
-      return 'il y a {} {}{}'.format(curr, name, plural)
-  return 'à l\'instant'
+    delta = int(time.time() - int(ts))
+    units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
+    for unit, name in sorted(units, reverse=True):
+        curr = delta // unit
+        if curr > 0:
+            plural = '' if curr == 1 else 's'  # hack
+            return 'il y a {} {}{}'.format(curr, name, plural)
+    return 'à l\'instant'
 
 
 class UpdateHandler(base.BaseHandler):
+    ROUTE = '/update'
+    QUERY_ARG = 'id'
 
-  ROUTE = '/update'
-  QUERY_ARG = 'id'
+    def initialize(self, db, queue, token_encoder):
+        self.db = db
+        self.queue = queue
+        self.token_encoder = token_encoder
 
-  def initialize(self, db, queue, token_encoder):
-    self.db = db
-    self.queue = queue
-    self.token_encoder = token_encoder
+    def get_icu_data_by_id(self, icu_id):
+        df = None
+        try:
+            df = self.db.get_bedcount_by_icu_id(icu_id)
+        except Exception as e:
+            logging.error(e)
+        result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
+        return result
 
-  def get_icu_data(self, icu_id, def_val=0):
-    df = self.db.get_bedcount()
+    @tornado.web.authenticated
+    async def get(self):
+        """Serves the page with a form to be filled by the user."""
+        icu_id = self.get_query_argument("icu_id", None, True)
+        if icu_id is None or self.get_icu_data_by_id(icu_id) == None:
+            return self.redirect('/error')
 
-    try:
-      data = None
-      last_update = None
-      for index, row in df[df.icu_id == icu_id].iterrows():
-        data = row.to_dict()
-        last_update = data['update_ts']
-        break
-    except Exception as e:
-      logging.error(e)
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
+        data = self.get_icu_data_by_id(icu_id)
 
-    if data is None:
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
+        # self.set_secure_cookie(self.COOKIE, user_token)
+        self.render('update_form.html', **data)
 
-    for k in data:
-      if data[k] is None:
-        data[k] = def_val
+    @tornado.web.authenticated
+    async def post(self):
+        def parse(param):
+            parts = param.split('=')
+            value = int(parts[1]) if parts[1].isnumeric() else 0
+            return parts[0], value
 
-    data['since_update'] = time_ago(last_update)
-    return data
-
-  async def get(self):
-    """Serves the page with a form to be filled by the user."""
-    user_token = self.get_query_argument(self.QUERY_ARG)
-    input_data = self.token_encoder.decode(user_token)
-
-    if input_data is None:
-      return self.redirect('/error')
-
-    data = self.get_icu_data(input_data['icu_id'])
-    data.update(input_data)
-
-    self.set_secure_cookie(self.COOKIE, user_token)
-    self.render('update_form.html', **data)
-
-  async def post(self):
-    def parse(param):
-      parts = param.split('=')
-      value = int(parts[1]) if parts[1].isnumeric() else 0
-      return parts[0], value
-
-    data = dict([parse(p) for p in self.request.body.decode().split('&')])
-    data.update(self.token_encoder.decode(self.get_secure_cookie(self.COOKIE)))
-    await self.queue.put(data)
-    self.redirect(home.HomeHandler.ROUTE)
+        data = dict([parse(p) for p in self.request.body.decode().split('&')])
+        data.update(self.token_encoder.decode(self.get_secure_cookie(self.COOKIE)))
+        await self.queue.put(data)
+        self.redirect(home.HomeHandler.ROUTE)

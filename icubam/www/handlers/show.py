@@ -1,12 +1,9 @@
-from absl import logging
-import json
 import tornado.web
+
 from icubam.www.handlers import base
-from icubam.www.handlers import home
-from icubam.www import token
 
 
-class DataJson(tornado.web.RequestHandler):
+class DataJson(base.BaseHandler):
     ROUTE = '/beds'
 
     def initialize(self, db):
@@ -16,6 +13,7 @@ class DataJson(tornado.web.RequestHandler):
         df = self.db.get_bedcount()
         return df
 
+    @tornado.web.authenticated
     def get(self):
         data = self.get_icu_data().to_dict(orient="records")
         self.write({"data": data})
@@ -27,6 +25,7 @@ class ShowHandler(base.BaseHandler):
     def initialize(self, db):
         self.db = db
 
-    async def get(self):
-        """Serves the page with a form to be filled by the user."""
+    @tornado.web.authenticated
+    def get(self):
+        """Serves the page beds"""
         self.render("show.html")

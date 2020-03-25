@@ -145,6 +145,13 @@ class SQLiteDB:
       self._conn,
     )
 
+  def get_bedcount_by_icu_id(self, icu_id):
+    """Returns a pandas DF of bed counts."""
+    return pd.read_sql_query(
+      "SELECT * FROM bed_updates WHERE icu_id = {} ORDER by ROWID DESC".format(icu_id),
+      self._conn,
+    )
+
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""
     return pd.read_sql_query(query, self._conn)

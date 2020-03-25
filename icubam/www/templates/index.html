@@ -1,23 +1,27 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/static/style.css">
-    <script type="text/javascript" src="/static/map.js"></script>
-    <title>ICUBAM</title>
-  </head>
-  <body class='bed_map'>
-    <h1>ICU Beds Availability Monitor</h1>
-    <div id="map"></div>
-    <script>
+{% extends "base.html" %}
+
+{% block links %}
+
+{% end %}
+
+{% block content %}
+<h1>ICU Beds Availability Monitor</h1>
+<div id="map"></div>
+
+{% end %}
+
+{% block scripts %}
+<script>
       let data = {% raw data %}
       function initMap () {
         plotMap(data)
       }
-    </script>
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap">
-    </script>
-  </body>
-</html>
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap">
+</script>
+<script type="text/javascript" src="/static/map.js"></script>
+
+</script>
+{% end %}
