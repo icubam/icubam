@@ -4,7 +4,6 @@ import time
 from absl import logging
 import tornado.ioloop
 from icubam.messaging import message
-from icubam.www import token
 from icubam.www.handlers import update
 
 
@@ -18,11 +17,13 @@ class MessageScheduler:
   def __init__(self,
                db,
                queue,
+               token_encoder,
                base_url: str = 'http://localhost:8888/',
                max_retries: int = 2,
                reminder_delay: int = 60*30,
                when=[(9, 30), (17, 0)]):
     self.db = db
+    self.token_encoder = token_encoder
     self.queue = queue
     self.base_url = base_url
     self.max_retries = max_retries
@@ -39,9 +40,10 @@ class MessageScheduler:
     users_df = self.db.get_users()
     self.messages = []
     for index, row in users_df.iterrows():
-      url = "{}{}?id={}".format(self.base_url,
-                                update.UpdateHandler.ROUTE.strip('/'),
-                                token.encode_icu(row.icu_id, row.icu_name))
+      url = "{}{}?id={}".format(
+        self.base_url,
+        update.UpdateHandler.ROUTE.strip('/'),
+        self.token_encoder.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row['name'], row['icu_name'], url)
       self.urls.append(url)
       self.messages.append(

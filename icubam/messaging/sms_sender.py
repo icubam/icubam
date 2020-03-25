@@ -1,8 +1,8 @@
 """MessageBird SMS Object"""
 import messagebird
 import nexmo
-
 from icubam import config
+
 
 class MBSender:
   """Initializes and wrap a MessageBird sender object."""
@@ -29,19 +29,11 @@ class NXSender:
       {"from": self._originator, "to": dest, "text": contents}
     )
 
-def get_sender(sms_carrier=None):
-  sms_carrier = sms_carrier or config.SMS_CARRIER
-  if sms_carrier == 'MB':
+def get_sender(config, sms_carrier=None):
+  sms_carrier = sms_carrier or config.sms.carrier
+  if sms_carrier.upper() == 'MB':
     return MBSender(config.MB_KEY)
-  if sms_carrier == 'NX':
+  if sms_carrier.upper() == 'NX':
     return NXSender(config.NX_KEY, config.NX_API)
   else:
     raise ValueError('Incorrect value in config: {config.SENDER}.')
-
-if __name__ == "__main__":
-  from icubam import config
-
-  ms = get_sender(sms_carrier='NX')
-  ms.send_message("33698158092", "test NX")
-  ms = get_sender(sms_carrier='MB')
-  ms.send_message("33698158092", "test MB")

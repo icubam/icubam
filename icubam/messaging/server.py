@@ -5,21 +5,25 @@ import tornado.web
 from icubam.db import sqlite
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
-from icubam import config
+from icubam.www import token
 
 
 class MessageServer:
   """Sends and schedule SMS."""
 
-  def __init__(self, db_path, port=8889):
-    self.db = sqlite.SQLiteDB(db_path)
+  def __init__(self, config, port=8889):
+    self.config = config
+    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.port = port
-    self.sender = sms_sender.get_sender(config.SMS_CARRIER)
+    self.sender = sms_sender.get_sender(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      base_url=config.BASE_URL,
       db=self.db,
       queue=self.queue,
+      token_encoder=token.TokenEncoder(self.config),
+      base_url=self.config.server.base_url,
+      max_retries=self.config.scheduler.max_retries,
+      reminder_delay=self.config.scheduler.reminder_delay
     )
 
   async def process(self):

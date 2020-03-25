@@ -11,9 +11,10 @@ class UpdateHandler(base.BaseHandler):
   ROUTE = '/update'
   QUERY_ARG = 'id'
 
-  def initialize(self, db, queue):
+  def initialize(self, db, queue, token_encoder):
     self.db = db
     self.queue = queue
+    self.token_encoder = token_encoder
 
   def get_icu_data(self, icu_id, def_val=0):
     df = self.db.get_bedcount()
@@ -38,7 +39,7 @@ class UpdateHandler(base.BaseHandler):
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
-    input_data = token.decode(user_token)
+    input_data = self.token_encoder.decode(user_token)
 
     if input_data is None:
       return self.redirect('/error')
@@ -56,6 +57,6 @@ class UpdateHandler(base.BaseHandler):
       return parts[0], value
 
     data = dict([parse(p) for p in self.request.body.decode().split('&')])
-    data.update(token.decode(self.get_secure_cookie(self.COOKIE)))
+    data.update(self.token_encoder.decode(self.get_secure_cookie(self.COOKIE)))
     await self.queue.put(data)
     self.redirect(home.HomeHandler.ROUTE)

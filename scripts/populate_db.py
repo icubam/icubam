@@ -5,10 +5,15 @@ from icubam.db import sqlite
 from icubam.db import gsheets
 from icubam.db import synchronizer
 
+flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
+flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
+FLAGS = flags.FLAGS
+
 
 def main(unused_argv):
-  shdb = gsheets.SheetsDB(config.TOKEN_LOC, config.SHEET_ID)
-  sqldb = sqlite.SQLiteDB(config.SQLITE_DB)
+  cfg = config.Config(FLAGS.config, mode=FLAGS.mode)
+  shdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
+  sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)
   sync = synchronizer.Synchronizer(shdb, sqldb)
   reply = (
     str(

@@ -28,8 +28,6 @@ class SQLiteDBTest(absltest.TestCase):
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
 
-
-
   def test_user_creation(self):
     with tempfile.TemporaryDirectory() as tmp_folder:
         sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
