@@ -11,11 +11,11 @@ FLAGS = flags.FLAGS
 
 def main(argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
-  ms = sms_send.get_sender(cfg, sms_carrier='TW')
+  ms = sms_sender.get_sender(cfg, sms_carrier='TW')
   ms.send_message("33698158092", "test TW")
-  ms = sms_send.get_sender(cfg, sms_carrier='NX')
+  ms = sms_sender.get_sender(cfg, sms_carrier='NX')
   ms.send_message("33698158092", "test NX")
-  ms = sms_send.get_sender(cfg, sms_carrier='MB')
+  ms = sms_sender.get_sender(cfg, sms_carrier='MB')
   ms.send_message("33698158092", "test MB")
 
 if __name__ == "__main__":
