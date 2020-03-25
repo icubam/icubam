@@ -3,6 +3,7 @@ import time
 
 from absl.testing import absltest
 from icubam.db import sqlite
+from icubam import config
 import sqlite3
 
 
