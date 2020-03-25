@@ -15,7 +15,7 @@ class UpdateHandler(base.BaseHandler):
     self.db = db
     self.queue = queue
 
-  def get_icu_data(self, icu_id, def_val=10):
+  def get_icu_data(self, icu_id, def_val=0):
     df = self.db.get_bedcount()
     try:
       data = None
