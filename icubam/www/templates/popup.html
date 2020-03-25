@@ -6,7 +6,10 @@
         {{obj['occ']}} / {{obj['total']}}
       </td>
       <td class='report-number'>
-        <a href="tel:+{{obj['phone']}}">+{{obj['phone']}}</a>
+        <a href="tel:+{{obj['phone']}}" class='not-underlined'>
+          &#x1F4DE;
+        </a>
+        <span class='show-on-hover'>+{{obj['phone']}}</span>
       </td>
     </tr>
   {% end %}
