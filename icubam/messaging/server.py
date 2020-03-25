@@ -5,19 +5,19 @@ import tornado.web
 from icubam.db import sqlite
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
-from icubam import config
 
 
 class MessageServer:
   """Sends and schedule SMS."""
 
-  def __init__(self, db_path, port=8889):
-    self.db = sqlite.SQLiteDB(db_path)
+  def __init__(self, config, port=8889):
+    self.config = config
+    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.port = port
-    self.sender = sms_sender.get_sender(config.SMS_CARRIER)
+    self.sender = sms_sender.get_sender(self.config.sms.carrier)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      base_url=config.BASE_URL,
+      base_url=self.config.server.base_url
       db=self.db,
       queue=self.queue,
     )

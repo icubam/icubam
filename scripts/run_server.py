@@ -9,7 +9,8 @@ from icubam.messaging import server as msg_server
 
 
 flags.DEFINE_integer('port', 8888, 'Port of the application.')
-flags.DEFINE_string('db_path', None, 'File for the db.')
+flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
+flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_string('server', 'www', 'File for the db.')
 FLAGS = flags.FLAGS
 
@@ -17,9 +18,9 @@ FLAGS = flags.FLAGS
 def main(argv):
   servers = {'www': www_server.WWWServer, 'message': msg_server.MessageServer}
   service = servers.get(FLAGS.server, None)
-  db_path = FLAGS.db_path or config.SQLITE_DB
+  cfg = config.Config(FLAGS.config, FLAGS.mode)
   if service is not None:
-    service(db_path, FLAGS.port).run()
+    service(cfg, FLAGS.port).run()
 
 
 if __name__ == '__main__':

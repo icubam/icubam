@@ -1,42 +1,47 @@
 """Manages config variables using .env file."""
 from dotenv import load_dotenv
-import configparser
-import toml
 import os
 import os.path
+
 import dotmap
-
-INI_PATH = 'icubam.ini'
-if not os.path.exists(INI_PATH):
-  raise Exception(f"Couldn't find INI file: {INI_PATH}")
-
-config = configparser.ConfigParser()
-config.read(INI_PATH)
-
-for var in config['DEFAULT']:
-  globals()[var.upper()] = config['DEFAULT'][var]
-
+import toml
 
 class Config:
+  """A class to read the configuration both from .env and from a toml file.
+
+  Upper keys are for the .env secrets and lower keys for the toml file.
+  """
 
   # All the secret keys
   ENV_KEYS = [
     'SHEET_ID', 'TOKEN_LOC', 'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET',
-    'GOOGLE_API_KEY']
+    'GOOGLE_API_KEY', 'MB_KEY', 'NX_KEY', 'NX_API']
 
-  def __init__(self, toml_config):
+  def __init__(self, toml_config, mode='dev'):
     self.toml_config = toml_config
+    self.mode = mode
     if not os.path.exists(toml_config):
       raise Exception(f"Couldn't find INI file: {toml_config}")
-    self.conf = dotmap.DotMap(toml.load(self.toml_config))
+    sub_conf = self._preprocess(toml.load(self.toml_config))
+    self.conf = dotmap.DotMap(sub_conf)
 
     self.env = {}
     load_dotenv(verbose=True)
     for key in self.ENV_KEYS:
       self.env[key.upper()] = os.getenv(key)
 
+  def _preprocess(self, conf):
+    """Recursively selects the proper mode and enforces lower keys."""
+    result = {}
+    for k, v in conf.items():
+      if not isinstance(v, dict):
+        result[k.lower()] = v
+      else:
+        sub = v[self.mode] if self.mode in v else v
+        result[k.lower()] = self._select_mode(sub)
+    return result
+
   def __getattr__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
-
     return self.conf.get(key)

@@ -22,7 +22,8 @@ class HomeHandler(base.BaseHandler):
   POPUP_TEMPLATE = 'popup.html'
   CLUSTER_KEY = 'dept'  # city
 
-  def initialize(self, db):
+  def initialize(self, config, db):
+    self.config = config
     self.db = db
     loader = tornado.template.Loader(self.get_template_path())
     self.popup_template = loader.load(self.POPUP_TEMPLATE)
@@ -34,7 +35,7 @@ class HomeHandler(base.BaseHandler):
     for city, rows in icus_df.groupby(self.CLUSTER_KEY):
       coords[city] = {'lat': rows.lat.mean(), 'lng': rows.long.mean()}
       for icuid in rows.icu_id.to_list():
-        cluster_id[icuid] = city
+        cluster_id[icuid] = cityconfig
     return coords, cluster_id
 
   def get_phones(self):
@@ -89,4 +90,6 @@ class HomeHandler(base.BaseHandler):
         'popup': self.popup_template.generate(beds=beds).decode()
       })
 
-    self.render("index.html", API_KEY=config.GOOGLE_API_KEY, data=json.dumps(data))
+    self.render("index.html",
+                API_KEY=self.config.GOOGLE_API_KEY,
+                data=json.dumps(data))

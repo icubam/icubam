@@ -6,13 +6,19 @@ title = "My TOML Config"
 origin = "ICUBAM"
 carrier = "nx"
 
-[database]
-sqlite_db = "test.db"
+[db]
+sqlite_path = "test.db"
 
 [server]
   [server.dev]
-  port = 8888
+  PORT = 8888  # will be lower cased when reading.
   base_url = "https://localhost"
   [server.prod]
   port = 443
   base_url = "https://test.icubam.net/"
+
+[scheduler]
+  [scheduler.prod]
+  max_retries = 3
+  [scheduler.dev]
+  max_retries = 1
