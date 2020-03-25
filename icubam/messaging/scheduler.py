@@ -56,8 +56,11 @@ class MessageScheduler:
       self.messages.append(
         message.Message(text, row.telephone, row.icu_id, row.icu_name))
 
-  def get_next_moment(self, ts=None):
+  def get_next_ping(self, ts=None):
     """Gets the timestamp of the next moment of sending messages."""
+    if not self.when:
+      return
+
     ts = int(time.time()) if ts is None else ts
     now = datetime.datetime.fromtimestamp(ts)
     today_fn = functools.partial(
@@ -77,14 +80,22 @@ class MessageScheduler:
   def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
     if delay is None:
-      delay = int(self.get_next_moment() - time.time())
+      if not self.when:
+        logging.warning('No ping time. Check config.')
+        return
+
+      delay = int(self.get_next_ping() - time.time())
     for msg in self.messages:
       self.schedule(msg, delay=delay)
 
   def schedule(self, msg, delay=None):
     """Schedule a message for a single user."""
     if delay is None:
-      delay = int(self.get_next_moment() - time.time())
+      if not self.when:
+        logging.warning('No ping time. Check config.')
+        return
+
+      delay = int(self.get_next_ping() - time.time())
     io_loop = tornado.ioloop.IOLoop.current()
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
     self.timeouts[msg.phone] = io_loop.call_later(delay, self.may_send, msg)
