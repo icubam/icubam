@@ -7,6 +7,13 @@ from icubam.messaging import message
 from icubam.www.handlers import update
 
 
+def parse_hour(hour, sep=':') -> tuple:
+  """Returns a tuple of integer from an hour like '14:34'."""
+  if not isinstance(hour, str):
+    return hour
+  return tuple([int(x) for x in hour.split(sep)])
+
+
 class MessageScheduler:
   """Schedules the sending of SMS to users."""
 
@@ -28,7 +35,7 @@ class MessageScheduler:
     self.base_url = base_url
     self.max_retries = max_retries
     self.reminder_delay = reminder_delay
-    self.when = when
+    self.when = [parse_hour(h) for h in when]
     self.phone_to_icu = {}
     self.messages = []
     self.urls = []  # for debug only
@@ -67,9 +74,10 @@ class MessageScheduler:
       next = today_fn(hour=hm[0], minute=hm[1]) + datetime.timedelta(1)
     return next.timestamp()
 
-  def schedule_all(self):
+  def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
-    delay = int(self.get_next_moment() - time.time())
+    if delay is None:
+      delay = int(self.get_next_moment() - time.time())
     for msg in self.messages:
       self.schedule(msg, delay=delay)
 
