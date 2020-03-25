@@ -31,7 +31,7 @@ function add_marker (obj, map) {
 }
 
 function getCenter(data) {
-  if (data.length > 0) {
+  if (data.length === 0) {
     return {lat: 48, lng: 2.3}
   }
 
