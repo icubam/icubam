@@ -25,6 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+        sudo apt-get update
         sudo apt-get install sqlite3
         sqlite3 -version
     - name: Test with pytest
