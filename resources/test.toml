@@ -1,0 +1,18 @@
+# Keys
+title = "My TOML Config"
+
+# Tables
+[sms]
+origin = "ICUBAM"
+carrier = "nx"
+
+[database]
+sqlite_db = "test.db"
+
+[server]
+  [server.dev]
+  port = 8888
+  base_url = "https://localhost"
+  [server.prod]
+  port = 443
+  base_url = "https://test.icubam.net/"
