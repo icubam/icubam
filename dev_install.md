@@ -11,7 +11,7 @@ Steps:
 - install deps with `pip install -r requirements.txt`
 - install the package in edit mode by running `pip install -e .`
 
-** Note: ** in addition to the python dependencies described in `requirements.txt`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
+**Note:** in addition to the python dependencies described in `requirements.txt`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
 
 ### Configuration
 
