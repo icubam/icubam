@@ -1,12 +1,16 @@
-function togglePopup (cluster_id) {
+function togglePopup (cluster_id, color) {
   var cluster = document.getElementById('cluster-' + cluster_id +'-cluster' )
   var full = document.getElementById('cluster-' + cluster_id +'-full' )
+  var box = document.getElementById('infowindow-' + cluster_id)
   if (cluster.style.display === "block" || cluster.style.display === "" ) {
     cluster.style.display = "none"
     full.style.display = "block"
+    box.style.borderStyle = 'solid'
+    box.style.borderColor = color
   } else {
     cluster.style.display = "block"
     full.style.display = "none"
+    box.style.borderStyle = 'none'
   }
 }
 

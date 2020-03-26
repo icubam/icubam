@@ -1,4 +1,5 @@
-<div id='infowindow-{{cluster}}' onclick='togglePopup("{{cluster}}")'>
+<div id='infowindow-{{cluster}}' onclick='togglePopup("{{cluster}}", "{{color}}")'
+  class='box-border'>
   {% for view in views %}
   <div class='popup-{{view["name"]}}' id='cluster-{{cluster}}-{{view["name"]}}'>
     <table class='bed-table'>
