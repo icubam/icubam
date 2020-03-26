@@ -25,6 +25,7 @@ class UpdateHandler(base.BaseHandler):
 
   ROUTE = '/update'
   QUERY_ARG = 'id'
+  SAVE_BUTTON_NAME = 'button_save'
 
   def initialize(self, db, queue, token_encoder):
     self.db = db
@@ -53,6 +54,7 @@ class UpdateHandler(base.BaseHandler):
         data[k] = def_val
 
     data['since_update'] = time_ago(last_update)
+    data['save_button'] = self.SAVE_BUTTON_NAME
     return data
 
   async def get(self):
@@ -72,10 +74,16 @@ class UpdateHandler(base.BaseHandler):
   async def post(self):
     def parse(param):
       parts = param.split('=')
+      if parts[0].startswith('button_'):
+        return None
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
 
-    data = dict([parse(p) for p in self.request.body.decode().split('&')])
-    data.update(self.token_encoder.decode(self.get_secure_cookie(self.COOKIE)))
-    await self.queue.put(data)
+    params_str = self.request.body.decode()
+    if self.SAVE_BUTTON_NAME in params_str:
+      data = dict(list(filter(None, [parse(p) for p in params_str.split('&')])))
+      data.update(self.token_encoder.decode(
+        self.get_secure_cookie(self.COOKIE)))
+      await self.queue.put(data)
+
     self.redirect(home.HomeHandler.ROUTE)
