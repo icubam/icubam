@@ -5,8 +5,8 @@
     <table class='bed-table'>
       {% for obj in view['beds'] %}
         <tr>
-          {% if obj['phone'] %}
           <td class='report-number'>{{obj['icu']}}</td>
+          {% if obj['phone'] %}
           <td style="background-color:{{obj['color']}}" class='report-number'>
             {{obj['occ']}} / {{obj['total']}}
           </td>
