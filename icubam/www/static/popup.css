@@ -1,3 +1,13 @@
+.popup-cluster {
+  display: block;
+  cursor: pointer;
+}
+
+.popup-full {
+  display: none;
+  cursor: pointer;
+}
+
 /* The popup bubble styling. */
 .popup-bubble {
   /* Position the bubble centred-above its parent. */
@@ -11,7 +21,6 @@
   border-radius: 5px;
   font-family: sans-serif;
   overflow-y: auto;
-  /* max-height: 60px; */
   box-shadow: 0px 2px 10px 1px rgba(0,0,0,0.5);
 }
 /* The parent of the bubble. A zero-height div at the top of the tip. */
@@ -44,5 +53,5 @@
   height: 0;
   position: absolute;
   /* The max width of the info window. */
-  width: 200px;
+  width: 400px;
 }

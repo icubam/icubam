@@ -91,13 +91,3 @@ body.bed_map {
 #icu_form {
   display: none;
 }
-
-.popup-cluster {
-  display: block;
-  cursor: pointer;
-}
-
-.popup-full {
-  display: none;
-  cursor: pointer;
-}
