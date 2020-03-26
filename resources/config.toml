@@ -1,5 +1,5 @@
 # Keys
-title = "My TOML Config"
+version='0.1'
 
 # Tables
 [sms]

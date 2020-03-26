@@ -106,4 +106,5 @@ class HomeHandler(base.BaseHandler):
     data.sort(key=lambda x: x['lat'], reverse=True)
     self.render("index.html",
                 API_KEY=self.config.GOOGLE_API_KEY,
-                data=json.dumps(data))
+                data=json.dumps(data),
+                version=self.config.version)
