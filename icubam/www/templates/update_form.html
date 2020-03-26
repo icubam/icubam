@@ -7,16 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="/static/update.js"></script>
   </head>
-
-  <body>
-    <div class='main-content'>
-
+  <body class='form-body'>
       <h1>Hôpital {{icu_name}}</h1>
+
+      <div class="buttons" id='navigation_buttons'>
+        <button class="btn btn-primary mb-2" onclick="navigateTo('{{home_route}}')">
+          Visualiser Carte
+        </button>
+        <button  type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
+          Saisir données
+        </button>
+      </div>
 
       <p>Dernière saisie: {{since_update}}</p>
 
-      <form action="/update" method="POST">
+      <form action="{{update_route}}" method="POST" id='icu_form'>
         <div class="form-row">
           <div class="form-elem positive">
             <label for="n_covid_free" class="form-label">Lits covid+ disponibles</label>
@@ -90,13 +97,9 @@
           </div>
         </div>
 
-
         <div class="buttons">
-          <button type="submit" class="btn btn-primary mb-2" name='{{save_button}}'>
+          <button type="submit" class="btn btn-primary mb-2">
             Enregistrer
-          </button>
-          <button type="submit" class="btn btn-warning mb-2">
-            Annuler (vers carte)
           </button>
         </div>
       </form>
