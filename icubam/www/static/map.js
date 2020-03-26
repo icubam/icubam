@@ -1,6 +1,6 @@
-function togglePopup () {
-  var cluster = document.getElementById("popup-cluster")
-  var full = document.getElementById("popup-full")
+function togglePopup (cluster_id) {
+  var cluster = document.getElementById('cluster-' + cluster_id +'-cluster' )
+  var full = document.getElementById('cluster-' + cluster_id +'-full' )
   if (cluster.style.display === "block") {
     cluster.style.display = "none"
     full.style.display = "block"
@@ -9,6 +9,8 @@ function togglePopup () {
     full.style.display = "none"
   }
 }
+
+
 
 function add_marker (obj, map) {
   const position = {lat: obj.lat, lng: obj.lng};

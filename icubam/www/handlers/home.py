@@ -89,6 +89,7 @@ class HomeHandler(base.BaseHandler):
         {'name': 'cluster', 'beds': [cluster]},
         {'name': 'full', 'beds': beds},
       ]
+      popup = self.popup_template.generate(cluster=city, views=views)
 
       data.append({
         'id': 'id_{}'.format(city.replace(' ', '_')),
@@ -97,7 +98,7 @@ class HomeHandler(base.BaseHandler):
         'lng': latlng['lng'],
         'color': cluster['color'],
         'free': str(cluster['free']),
-        'popup': self.popup_template.generate(views=views).decode(),
+        'popup': popup.decode(),
       })
 
     self.render("index.html",

@@ -83,12 +83,12 @@ body.bed_map {
   display: none;
 }
 
-#popup-cluster {
+.popup-cluster {
   display: block;
   cursor: pointer;
 }
 
-#popup-full {
+.popup-full {
   display: none;
   cursor: pointer;
 }
