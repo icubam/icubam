@@ -74,7 +74,7 @@ class UpdateHandler(base.BaseHandler):
   async def post(self):
     def parse(param):
       parts = param.split('=')
-      if parts[0].startswith('button_'):
+      if parts[0] == self.SAVE_BUTTON_NAME:
         return None
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
