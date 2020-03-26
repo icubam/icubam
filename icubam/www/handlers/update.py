@@ -31,25 +31,25 @@ class UpdateHandler(base.BaseHandler):
     self.token_encoder = token_encoder
 
   def get_icu_data_by_id(self, icu_id):
-    df = None
-    try:
-      df = self.db.get_bedcount_by_icu_id(icu_id)
-    except Exception as e:
-      logging.error(e)
-    result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
+    df = self.db.get_bedcount_by_icu_id(icu_id)
+    result = df.to_dict(orient="records")[0]
     return result
 
   @tornado.web.authenticated
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     icu_id = self.get_query_argument("icu_id", None, True)
-    if icu_id is None or self.get_icu_data_by_id(icu_id) == None:
-      return self.redirect('/error')
 
-    data = self.get_icu_data_by_id(icu_id)
+    try:
+      data = self.get_icu_data_by_id(icu_id)
+      data['since_update'] = time_ago(data["update_ts"])
+    except Exception as e:
+      logging.error(e)
+      self.redirect('/error')
+    finally:
+      self.render('update_form.html', **data)
 
     # self.set_secure_cookie(self.COOKIE, user_token)
-    self.render('update_form.html', **data)
 
   @tornado.web.authenticated
   async def post(self):
