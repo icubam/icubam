@@ -10,10 +10,6 @@ function togglePopup () {
   }
 }
 
-function clicked() {
-    alert("clicked cell at: " + $(this).cellIndex + ", " + $(this).parentNode.rowIndex);
-}
-
 function add_marker (obj, map) {
   const position = {lat: obj.lat, lng: obj.lng};
 

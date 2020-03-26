@@ -86,8 +86,8 @@ class HomeHandler(base.BaseHandler):
         continue
 
       views = [
-        {'name': 'cluster', 'beds': [cluster], 'display': '"block"'},
-        {'name': 'full', 'beds': beds, 'display': '"none"'},
+        {'name': 'cluster', 'beds': [cluster]},
+        {'name': 'full', 'beds': beds},
       ]
 
       data.append({
