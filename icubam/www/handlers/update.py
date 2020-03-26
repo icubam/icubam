@@ -79,11 +79,13 @@ class UpdateHandler(base.BaseHandler):
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
 
+    cookie_data = self.token_encoder.decode(
+      self.get_secure_cookie(self.COOKIE)))
+
     params_str = self.request.body.decode()
     if self.SAVE_BUTTON_NAME in params_str:
       data = dict(list(filter(None, [parse(p) for p in params_str.split('&')])))
-      data.update(self.token_encoder.decode(
-        self.get_secure_cookie(self.COOKIE)))
+      data.update(cookie_data)
       await self.queue.put(data)
 
     self.redirect(home.HomeHandler.ROUTE)
