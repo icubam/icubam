@@ -1,3 +1,19 @@
+function togglePopup () {
+  var cluster = document.getElementById("popup-cluster")
+  var full = document.getElementById("popup-full")
+  if (cluster.style.display === "block") {
+    cluster.style.display = "none"
+    full.style.display = "block"
+  } else {
+    cluster.style.display = "block"
+    full.style.display = "none"
+  }
+}
+
+function clicked() {
+    alert("clicked cell at: " + $(this).cellIndex + ", " + $(this).parentNode.rowIndex);
+}
+
 function add_marker (obj, map) {
   const position = {lat: obj.lat, lng: obj.lng};
 
@@ -13,7 +29,7 @@ function add_marker (obj, map) {
     position: position,
     map: map,
     title: obj.label,
-    icon: {url: icon_url, scaledSize: new google.maps.Size(50, 50)}
+    icon: {url: icon_url},
   });
 
   let show = false
@@ -25,9 +41,9 @@ function add_marker (obj, map) {
       infowindow.close(map, marker);
     }
   }
+
   toggle()
   marker.addListener('click', toggle)
-
 }
 
 function getCenter(data) {

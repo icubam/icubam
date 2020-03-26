@@ -59,8 +59,9 @@ class HomeHandler(base.BaseHandler):
         'icu': row['icu_name'],
         'phone': str(phones.get(row['icu_id'], [''])[0]).lstrip('+'),
         'occ': int(row['n_covid_occ']),
+        'free': int(row['n_covid_free']),
         'total': total,
-        'occupation': occupied_ratio,
+        'ratio': occupied_ratio,
         'color': get_color(occupied_ratio)
       })
     return result
@@ -74,21 +75,29 @@ class HomeHandler(base.BaseHandler):
     beds_per_city = self.get_beds_per_city(df, phones, cluster_id)
     data = []
     for city, beds in beds_per_city.items():
-      occupations = [x['occupation'] for x in beds]
-      occupation = sum(occupations) / len(occupations)
-      color = get_color(occupation)
+      cluster = {'icu': city, 'phone': None}
+      for key in ['occ', 'free', 'total', 'ratio']:
+        cluster[key] = sum([x[key] for x in beds])
+      cluster['ratio'] =  cluster['ratio'] / len(beds)
+      cluster['color'] = get_color(cluster['ratio'])
       latlng = coords.get(city, None)
       if not latlng:
         logging.error(f'Could not find location for {city}')
         continue
+
+      views = [
+        {'name': 'cluster', 'beds': [cluster], 'display': '"block"'},
+        {'name': 'full', 'beds': beds, 'display': '"none"'},
+      ]
 
       data.append({
         'id': 'id_{}'.format(city.replace(' ', '_')),
         'label': city,
         'lat': latlng['lat'],
         'lng': latlng['lng'],
-        'color': color,
-        'popup': self.popup_template.generate(beds=beds).decode()
+        'color': cluster['color'],
+        'free': str(cluster['free']),
+        'popup': self.popup_template.generate(views=views).decode(),
       })
 
     self.render("index.html",
