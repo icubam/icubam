@@ -78,3 +78,7 @@ body.bed_map {
   font-weight: bold;
   text-align: center;
 }
+
+#icu_form {
+  display: none;
+}

@@ -53,6 +53,8 @@ class UpdateHandler(base.BaseHandler):
         data[k] = def_val
 
     data['since_update'] = time_ago(last_update)
+    data['home_route'] = home.HomeHandler.ROUTE
+    data['update_route'] = self.ROUTE
     return data
 
   async def get(self):
@@ -70,12 +72,17 @@ class UpdateHandler(base.BaseHandler):
     self.render('update_form.html', **data)
 
   async def post(self):
+    """Reads the form and saves the data to DB"""
     def parse(param):
       parts = param.split('=')
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
 
-    data = dict([parse(p) for p in self.request.body.decode().split('&')])
-    data.update(self.token_encoder.decode(self.get_secure_cookie(self.COOKIE)))
+    cookie_data = self.token_encoder.decode(self.get_secure_cookie(self.COOKIE))
+
+    params_str = self.request.body.decode()
+    data = dict([parse(p) for p in params_str.split('&')])
+    data.update(cookie_data)
     await self.queue.put(data)
+
     self.redirect(home.HomeHandler.ROUTE)
