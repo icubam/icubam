@@ -1,7 +1,7 @@
 function togglePopup (cluster_id) {
   var cluster = document.getElementById('cluster-' + cluster_id +'-cluster' )
   var full = document.getElementById('cluster-' + cluster_id +'-full' )
-  if (cluster.style.display === "block") {
+  if (cluster.style.display === "block" || cluster.style.display === "" ) {
     cluster.style.display = "none"
     full.style.display = "block"
   } else {
