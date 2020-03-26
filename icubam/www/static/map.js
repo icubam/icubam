@@ -149,7 +149,7 @@ function plotMap(data) {
             stylers: [{color: '#bdbdbd'}]
           },
           {
-            featureType: '// Setup the click event listeners: simply set the map to Chicago.poi',
+            featureType: 'poi',
             elementType: 'geometry',
             stylers: [{color: '#eeeeee'}]
           },
@@ -162,7 +162,7 @@ function plotMap(data) {
             featureType: 'poi.park',
             elementType: 'geometry',
             stylers: [{color: '#e5e5e5'}]
-          },// Setup the click event listeners: simply set the map to Chicago.
+          },
           {
             featureType: 'poi.park',
             elementType: 'labels.text.fill',
