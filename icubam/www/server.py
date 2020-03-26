@@ -10,8 +10,9 @@ from icubam.messaging import scheduler
 from icubam.www import token
 from icubam.www.handlers import db
 from icubam.www.handlers import home
-from icubam.www.handlers import update
 from icubam.www.handlers import show
+from icubam.www.handlers import static
+from icubam.www.handlers import update
 
 
 class WWWServer:
@@ -42,11 +43,7 @@ class WWWServer:
     self.add_handler(show.ShowHandler, db=self.db)
     self.add_handler(show.DataJson, db=self.db)
     self.add_handler(db.DBHandler, db=self.db)
-    self.routes.append(
-      (r"/static/(.*)",
-      tornado.web.StaticFileHandler,
-      {"path": "icubam/www/static/"})
-    )
+    self.add_handler(static.NoCacheStaticFileHandler)
 
   @property
   def debug_str(self):
