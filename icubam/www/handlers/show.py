@@ -4,6 +4,7 @@ import tornado.web
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www import token
+from icubam.www.handlers.update import time_ago
 
 
 class DataJson(tornado.web.RequestHandler):
@@ -14,6 +15,7 @@ class DataJson(tornado.web.RequestHandler):
 
     def get_icu_data(self):
         df = self.db.get_bedcount()
+        df['since_update'] = df.update_ts.apply(time_ago)
         return df
 
     def get(self):
