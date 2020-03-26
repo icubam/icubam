@@ -101,6 +101,8 @@ class HomeHandler(base.BaseHandler):
         'popup': popup.decode(),
       })
 
+    # This sorts the from north to south, so as to avoid overlap on the north.
+    data.sort(key=lambda x: x['lat'], reverse=True)
     self.render("index.html",
                 API_KEY=self.config.GOOGLE_API_KEY,
                 data=json.dumps(data))

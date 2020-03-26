@@ -12,7 +12,7 @@ function togglePopup (cluster_id) {
 
 
 
-function add_marker (obj, map) {
+function addMarker (obj, map) {
   const position = {lat: obj.lat, lng: obj.lng};
 
   var infowindow = new google.maps.InfoWindow({
@@ -44,6 +44,14 @@ function add_marker (obj, map) {
   marker.addListener('click', toggle)
 }
 
+function addPopup (obj, map, Popup) {
+  var div = document.getElementById('map')
+  div.insertAdjacentHTML('beforeend', obj.popup);
+  var content = div.lastElementChild
+  popup = new Popup(new google.maps.LatLng(obj.lat, obj.lng), content)
+  popup.setMap(map);
+}
+
 function getCenter(data) {
   if (data.length === 0) {
     // Paris lat-long
@@ -66,7 +74,7 @@ function plotMap(data) {
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
-    styles:  [
+    styles: [
           {
             elementType: 'geometry',
             stylers: [{color: '#f5f5f5'}]
@@ -156,7 +164,10 @@ function plotMap(data) {
         ],
   });
 
+  var all_popups = []
+  Popup = createPopupClass();
   for (i = 0; i < data.length; i++) {
-    add_marker(data[i], map)
+    // addMarker(data[i], map)
+    all_popups.push(addPopup(data[i], map, Popup))
   }
 }
