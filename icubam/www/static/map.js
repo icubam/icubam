@@ -2,18 +2,37 @@ function togglePopup (cluster_id, color) {
   var cluster = document.getElementById('cluster-' + cluster_id +'-cluster' )
   var full = document.getElementById('cluster-' + cluster_id +'-full' )
   var box = document.getElementById('infowindow-' + cluster_id)
+
+  var subtitleFull = document.getElementById('subtitle-full')
+  var subtitleCluster = document.getElementById('subtitle-cluster')
+
   if (cluster.style.display === "block" || cluster.style.display === "" ) {
     cluster.style.display = "none"
     full.style.display = "block"
     box.style.borderStyle = 'solid'
     box.style.borderColor = color
+    subtitleFull.style.display = 'inline'
+    subtitleCluster.style.display = 'none'
+    showed.add(cluster_id)
+
   } else {
     cluster.style.display = "block"
     full.style.display = "none"
     box.style.borderStyle = 'none'
+    subtitleFull.style.display = 'none'
+    subtitleCluster.style.display = 'inline'
+    showed.delete(cluster_id)
   }
 }
 
+function toggleAll () {
+  all_showed = !all_showed
+  for (i = 0; i < data.length; i++) {
+    if ((!showed.has(data[i].label) && all_showed) || !all_showed) {
+      togglePopup(data[i].label, data[i].color)
+    }
+  }
+}
 
 
 function addMarker (obj, map) {

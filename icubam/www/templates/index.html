@@ -5,16 +5,28 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/popup.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script type="text/javascript" src="/static/popup.js"></script>
     <script type="text/javascript" src="/static/map.js"></script>
     <title>ICUBAM</title>
   </head>
   <body class='bed_map'>
     <h1>ICUBAM</h1>
-    <h2/>Lits covid occupés / Lits covid total</h2>
+    <div class='subtitles'>
+      <h2 id="subtitle-cluster"/>Lits disponibles</h2>
+      <h2 id="subtitle-full"/>Lits covid occupés / Lits covid total</h2>
+      <div class='button-container'>
+        <button onclick='toggleAll()' class='btn btn-primary toggle-button'>
+          Tout Montrer
+        </button>
+      </div>
+    </div>
+
     <div id="map"></div>
     <script>
       let data = {% raw data %}
+      let showed = new Set()
+      let all_showed = false
       function initMap () {
         plotMap(data)
       }

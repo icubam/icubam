@@ -90,3 +90,27 @@ body.bed_map {
 #icu_form {
   display: none;
 }
+
+#subtitle-cluster {
+  display: block;
+}
+
+#subtitle-full {
+  display: none;
+}
+
+.subtitles {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  margin-bottom: 3px;
+}
+
+.toggle-button {
+  height: 30px;
+}
