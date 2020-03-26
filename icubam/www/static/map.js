@@ -34,6 +34,34 @@ function toggleAll () {
   }
 }
 
+function CenterControl(controlDiv, map) {
+  // Set CSS for the control border.
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = '#fff';
+  controlUI.style.border = '2px solid #888';
+  controlUI.style.borderRadius = '3px';
+  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.marginBottom = '22px';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Clicker pour afficher';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior.
+  var controlText = document.createElement('div');
+  controlText.style.color = 'rgb(25,25,25)';
+  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  controlText.style.fontSize = '16px';
+  controlText.style.lineHeight = '38px';
+  controlText.style.paddingLeft = '5px';
+  controlText.style.paddingRight = '5px';
+  controlText.innerHTML = 'Tout montrer';
+  controlUI.appendChild(controlText);
+  controlUI.addEventListener('click', function() {
+    toggleAll();
+  });
+}
+
 
 function addMarker (obj, map) {
   const position = {lat: obj.lat, lng: obj.lng};
@@ -97,6 +125,7 @@ function plotMap(data) {
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
+    mapTypeControl: false,
     styles: [
           {
             elementType: 'geometry',
@@ -120,7 +149,7 @@ function plotMap(data) {
             stylers: [{color: '#bdbdbd'}]
           },
           {
-            featureType: 'poi',
+            featureType: '// Setup the click event listeners: simply set the map to Chicago.poi',
             elementType: 'geometry',
             stylers: [{color: '#eeeeee'}]
           },
@@ -133,7 +162,7 @@ function plotMap(data) {
             featureType: 'poi.park',
             elementType: 'geometry',
             stylers: [{color: '#e5e5e5'}]
-          },
+          },// Setup the click event listeners: simply set the map to Chicago.
           {
             featureType: 'poi.park',
             elementType: 'labels.text.fill',
@@ -193,4 +222,11 @@ function plotMap(data) {
     // addMarker(data[i], map)
     all_popups.push(addPopup(data[i], map, Popup))
   }
+
+  // Create the DIV to hold the control and call the CenterControl()
+  // constructor passing in this DIV.
+  var centerControlDiv = document.createElement('div');
+  var centerControl = new CenterControl(centerControlDiv, map);
+  centerControlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
 }
