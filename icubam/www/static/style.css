@@ -6,9 +6,10 @@
 h1 {
   margin-bottom: 0px;
 }
-h2 {
-  margin-top: 0px;
-  margin-bottom: 0px;
+h2, h3 {
+  padding: 0;
+  margin-top: 0px!important;
+  margin-bottom: 0px!important;
 }
 
 .form-row {
@@ -80,9 +81,9 @@ body.bed_map {
 }
 
 .report-number {
-  padding: 5px;
+  padding: 6px;
   margin: 8px;
-  font-size: 11px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
 }
@@ -91,12 +92,15 @@ body.bed_map {
   display: none;
 }
 
-.popup-cluster {
+#subtitle-cluster {
   display: block;
-  cursor: pointer;
 }
 
-.popup-full {
+#subtitle-full {
   display: none;
-  cursor: pointer;
+}
+
+.subtitles {
+  padding: 0;
+  margin: 0;
 }

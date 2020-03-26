@@ -1,4 +1,5 @@
-<div id='infowindow-popup' onclick='togglePopup("{{cluster}}")'>
+<div id='infowindow-{{cluster}}' onclick='togglePopup("{{cluster}}", "{{color}}")'
+  class='box-border'>
   {% for view in views %}
   <div class='popup-{{view["name"]}}' id='cluster-{{cluster}}-{{view["name"]}}'>
     <table class='bed-table'>
@@ -6,10 +7,14 @@
         <tr>
           {% if obj['phone'] %}
           <td class='report-number'>{{obj['icu']}}</td>
-          {% end %}
           <td style="background-color:{{obj['color']}}" class='report-number'>
             {{obj['occ']}} / {{obj['total']}}
           </td>
+          {% else %}
+            <td style="background-color:{{obj['color']}}" class='report-number'>
+              {{obj['free']}}
+            </td>
+          {% end %}
           {% if obj['phone'] %}
           <td class='report-number' onclick='togglePopup("{{cluster}}")'>
             <a href="tel:+{{obj['phone']}}" class='not-underlined'>

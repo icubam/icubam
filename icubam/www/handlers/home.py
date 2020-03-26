@@ -75,7 +75,7 @@ class HomeHandler(base.BaseHandler):
     beds_per_city = self.get_beds_per_city(df, phones, cluster_id)
     data = []
     for city, beds in beds_per_city.items():
-      cluster = {'icu': city, 'phone': None}
+      cluster = {'city': city, 'icu': city, 'phone': None}
       for key in ['occ', 'free', 'total', 'ratio']:
         cluster[key] = sum([x[key] for x in beds])
       cluster['ratio'] =  cluster['ratio'] / len(beds)
@@ -89,7 +89,8 @@ class HomeHandler(base.BaseHandler):
         {'name': 'cluster', 'beds': [cluster]},
         {'name': 'full', 'beds': beds},
       ]
-      popup = self.popup_template.generate(cluster=city, views=views)
+      popup = self.popup_template.generate(
+        cluster=cluster['city'], color=cluster['color'], views=views)
 
       data.append({
         'id': 'id_{}'.format(city.replace(' ', '_')),
@@ -101,6 +102,8 @@ class HomeHandler(base.BaseHandler):
         'popup': popup.decode(),
       })
 
+    # This sorts the from north to south, so as to avoid overlap on the north.
+    data.sort(key=lambda x: x['lat'], reverse=True)
     self.render("index.html",
                 API_KEY=self.config.GOOGLE_API_KEY,
                 data=json.dumps(data))
