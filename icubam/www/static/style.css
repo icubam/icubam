@@ -33,6 +33,19 @@
   border-color: #ff0000!important;
 }
 
+a.not-underlined {
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.show-on-hover {
+  display: none;
+}
+
+a:hover + .show-on-hover {
+  display: inline;
+}
+
 .form-control {
   width: 160px;
 }
@@ -64,4 +77,8 @@ body.bed_map {
   font-size: 13px;
   font-weight: bold;
   text-align: center;
+}
+
+#icu_form {
+  display: none;
 }

@@ -7,14 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="/static/update.js"></script>
   </head>
-
   <body>
     <div class='main-content'>
-
       <h1>Hôpital {{icu_name}}</h1>
 
-      <form action="/update" method="POST">
+      <div class="buttons" id='navigation_buttons'>
+        <button class="btn btn-primary mb-2" onclick="navigateTo('{{home_route}}')">
+          Visualiser Carte
+        </button>
+        <button  type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
+          Saisir données
+        </button>
+      </div>
+
+      <p>Dernière saisie: {{since_update}}</p>
+
+      <form action="{{update_route}}" method="POST" id='icu_form'>
         <div class="form-row">
           <div class="form-elem positive">
             <label for="n_covid_free" class="form-label">Lits covid+ disponibles</label>
@@ -46,7 +56,7 @@
 
         <div class="form-row">
           <div class="form-elem positive">
-            <label for="n_covid_healed" class="form-label">Sorties</label>
+            <label for="n_covid_healed" class="form-label">Sorties (cumulés)</label>
             <div>
               <input
                 class="form-control" type="number"
@@ -55,7 +65,7 @@
           </div>
 
           <div class="form-elem negative">
-            <label for="n_covid_deaths" class="form-label">Décès</label>
+            <label for="n_covid_deaths" class="form-label">Décès (cumulés)</label>
             <div>
               <input
               class="form-control" type="number"
@@ -66,7 +76,9 @@
 
         <div class="form-row">
           <div class="form-elem average">
-            <label for="n_covid_transfered" class="form-label">Transferts
+            <label for="n_covid_transfered" class="form-label">
+              Transferts (cumulés)<br/>
+              (vers autres réa)
             </label>
             <div>
               <input
@@ -77,7 +89,7 @@
           </div>
 
           <div class="form-elem negative">
-            <label for="n_covid_refused" class="form-label">Refus<br/>(manque de place)</label>
+            <label for="n_covid_refused" class="form-label">Refus (cumulés)<br/>(manque de place)</label>
             <div>
               <input
               class="form-control" type="number"
@@ -86,9 +98,10 @@
           </div>
         </div>
 
-
-        <div class="col-auto">
-          <button type="submit" class="btn btn-primary mb-2">Submit</button>
+        <div class="buttons">
+          <button type="submit" class="btn btn-primary mb-2">
+            Enregistrer
+          </button>
         </div>
       </form>
     </div>
