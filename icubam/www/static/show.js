@@ -19,16 +19,26 @@ $(document).ready(function() {
       color_min: "#C80000",
       color_mid: "#FFFFFF",
       color_max: "#10A54A"
-    }
+    },
+    "white-yellow-red": {
+      color_min: "#FFFFFF",
+      color_mid: "#e9f542",
+      color_max: "#C80000"
+    },
+    "white-lime-green": {
+      color_min: "#FFFFFF",
+      color_mid: "#7bf542",
+      color_max: "#10A54A"
+    },
+
   };
 
   $('#example').DataTable({
     "pageLength": -1,
     ajax: {
-      url: '/beds',
+     url: '/beds',
       data: function(d){
-            console.log(d)
-            return d
+            return d;
         },
     },
     /*columnDefs: [ {
@@ -41,6 +51,7 @@ $(document).ready(function() {
     columns: [
     //{data: 'icu_id'},
     {data: 'icu_name'},
+    {data: 'n_covid_tot'},
     {data: 'n_covid_occ'},
     {data: 'n_covid_free'},
     {data: 'n_ncovid_free'},
@@ -66,14 +77,14 @@ $(document).ready(function() {
     ],
 
     drawCallback: function () {
-      $("#example tbody td").not(':nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(6),:nth-child(7)').colorize({
+      $("#example tbody td").not(':nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(7),:nth-child(8)').colorize({
         themes: themes,
-        theme:"green-white-red"
+        theme:"white-yellow-red"
       });
 
-      $("#example tbody td").not(':nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(7)').colorize({
+      $("#example tbody td").not(':nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6),:nth-child(8)').colorize({
         themes: themes,
-        theme:"red-white-green"
+        theme:"white-lime-green"
       });
     }
   });
