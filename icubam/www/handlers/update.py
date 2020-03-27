@@ -1,10 +1,9 @@
-from absl import logging
-import json
 import time
-import tornado.web
+
+from absl import logging
+
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-from icubam.www import token
 
 
 def time_ago(ts) -> str:
@@ -31,31 +30,13 @@ class UpdateHandler(base.BaseHandler):
     self.queue = queue
     self.token_encoder = token_encoder
 
-  def get_icu_data(self, icu_id, def_val=0):
-    df = self.db.get_bedcount()
-
-    try:
-      data = None
-      last_update = None
-      for index, row in df[df.icu_id == icu_id].iterrows():
-        data = row.to_dict()
-        last_update = data['update_ts']
-        break
-    except Exception as e:
-      logging.error(e)
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-
-    if data is None:
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-
-    for k in data:
-      if data[k] is None:
-        data[k] = def_val
-
-    data['since_update'] = time_ago(last_update)
-    data['home_route'] = home.HomeHandler.ROUTE
-    data['update_route'] = self.ROUTE
-    return data
+  def get_icu_data_by_id(self, icu_id):
+    df = self.db.get_bedcount_by_icu_id(icu_id)
+    result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
+    result['since_update'] = time_ago(result["update_ts"])
+    result['home_route'] = home.HomeHandler.ROUTE
+    result['update_route'] = self.ROUTE
+    return result
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
@@ -65,14 +46,20 @@ class UpdateHandler(base.BaseHandler):
     if input_data is None:
       return self.redirect('/error')
 
-    data = self.get_icu_data(input_data['icu_id'])
-    data.update(input_data)
+    try:
+      data = self.get_icu_data_by_id(input_data['icu_id'])
+      data.update(input_data)
 
-    self.set_secure_cookie(self.COOKIE, user_token)
-    self.render('update_form.html', **data)
+      self.set_secure_cookie(self.COOKIE, user_token)
+      self.render('update_form.html', **data)
+
+    except Exception as e:
+      logging.error(e)
+      return self.redirect('/error')
 
   async def post(self):
     """Reads the form and saves the data to DB"""
+
     def parse(param):
       parts = param.split('=')
       value = int(parts[1]) if parts[1].isnumeric() else 0
