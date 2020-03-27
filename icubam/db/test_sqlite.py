@@ -60,7 +60,7 @@ class SQLiteDBTest(absltest.TestCase):
         # Generate some bed updates:
         for i in [1, 2]:
           for j in range(10):
-            time.sleep(0.01)
+            time.sleep(0.5) # Need to keep a delta of at least 0.5
             sqldb.update_bedcount(i, "test", 10, 9, 8, 7, 6, 5, 4)
         bedcount = sqldb.get_bedcount()
         self.assertLen(bedcount, 2)
@@ -74,12 +74,34 @@ class SQLiteDBTest(absltest.TestCase):
           self.assertEqual(
             bedcount[bedcount["icu_id"] == i].iloc[0]["update_ts"], max_ts
           )
+
+
+  def test_bedcount_where(self):
+    with tempfile.TemporaryDirectory() as tmp_folder:
+        sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
+
+        sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
+        sqldb.upsert_icu("ICU2", "dep1", "city1", 3.44, 42.3, "0102")
+
+        # Check that bedcounts can be select by icu_id:
         for i in range(10):
           sqldb.upsert_icu(f"ICU{i}", f"dep{i}", f"city{i}", 3.44, 42.3)
           sqldb.update_bedcount(i+1, "test", 10, 9, 8, 7, 6, 5, 4)
 
         beds = sqldb.get_bedcount(icu_ids=(1,2,4,7))
         self.assertEqual(len(beds), 4)
+
+        cur_time = int(time.time())
+        for i in range(10):
+          for j in range(10):
+            sqldb.update_bedcount(i+1, "test", 10, 9, 8, 7, 6, 5, 4, update_ts=cur_time + j)
+
+        max_time = sqldb.get_bedcount()['update_ts'].max()
+        # import ipdb; ipdb.set_trace()
+        new_max_time = sqldb.get_bedcount(max_ts=max_time - 3)['update_ts'].max()
+        self.assertEqual(new_max_time, max_time - 4)
+
+
 
 if __name__ == "__main__":
   absltest.main()

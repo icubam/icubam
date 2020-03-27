@@ -1,116 +1,107 @@
-<!DOCTYPE html>
-<html lang="fr" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>ICUBAM</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/style.css">
-    <script type="text/javascript" src="/static/update.js"></script>
-  </head>
-  <body>
-    <div class='main-content'>
-      <h1>Hôpital {{icu_name}}</h1>
+{% extends "base.html" %}
+{% block links %}
 
-      <div class="buttons" id='navigation_buttons'>
-        <button class="btn btn-primary mb-2" onclick="navigateTo('{{home_route}}')">
-          Visualiser Carte
-        </button>
-        <button  type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
-          Saisir données
-        </button>
-      </div>
+<script type="text/javascript" src="/static/update.js"></script>
+{% end %}
 
-      <p>Dernière saisie: {{since_update}}</p>
+{% block content %}
 
-      <form action="{{update_route}}" method="POST" id='icu_form'>
-        <div class="form-row">
-          <div class="form-elem positive">
-            <label for="n_covid_free" class="form-label">Lits covid+ disponibles</label>
-            <div>
-              <input
+<div class='main-content'>
+  <h1>Hôpital {{icu_name}}</h1>
+
+  <div class="buttons" id='navigation_buttons'>
+    <button class="btn btn-primary mb-2" onclick="navigateTo('{{home_route}}')">
+      Visualiser Carte
+    </button>
+    <button type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
+      Saisir données
+    </button>
+  </div>
+
+  <p>Dernière saisie: {{since_update}}</p>
+
+  <form action="{{update_route}}" method="POST" id='icu_form'>
+    <div class="form-row">
+      <div class="form-elem positive">
+        <label for="n_covid_free" class="form-label">Lits covid+ disponibles</label>
+        <div>
+          <input
               class="form-control" type="number"
               name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}">
-            </div>
-          </div>
-
-          <div class="form-elem positive">
-            <label for="n_ncovid_free" class="form-label">Lits covid- disponibles</label>
-            <div>
-              <input
-                class="form-control" type="number"
-                value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
-            </div>
-          </div>
-
-          <div class="form-elem negative">
-            <label for="n_covid_occ" class="form-label">Lits covid+ occupés</label>
-            <div>
-              <input
-                class="form-control" type="number"
-                value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
-            </div>
-          </div>
         </div>
+      </div>
 
-        <div class="form-row">
-          <div class="form-elem positive">
-            <label for="n_covid_healed" class="form-label">Sorties (cumulés)</label>
-            <div>
-              <input
-                class="form-control" type="number"
-                id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
-            </div>
-          </div>
-
-          <div class="form-elem negative">
-            <label for="n_covid_deaths" class="form-label">Décès (cumulés)</label>
-            <div>
-              <input
+      <div class="form-elem positive">
+        <label for="n_ncovid_free" class="form-label">Lits covid- disponibles</label>
+        <div>
+          <input
               class="form-control" type="number"
-              id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
-            </div>
-          </div>
+              value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
         </div>
+      </div>
 
-        <div class="form-row">
-          <div class="form-elem average">
-            <label for="n_covid_transfered" class="form-label">
-              Transferts (cumulés)<br/>
-              (vers autres réa)
-            </label>
-            <div>
-              <input
-                class="form-control" type="number"
-                id="n_covid_transfered" name='n_covid_transfered'
-                value="{{n_covid_transfered}}">
-            </div>
-          </div>
-
-          <div class="form-elem negative">
-            <label for="n_covid_refused" class="form-label">Refus (cumulés)<br/>(manque de place)</label>
-            <div>
-              <input
+      <div class="form-elem negative">
+        <label for="n_covid_occ" class="form-label">Lits covid+ occupés</label>
+        <div>
+          <input
               class="form-control" type="number"
-              id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
-            </div>
-          </div>
+              value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
         </div>
-
-        <div class="buttons">
-          <button type="submit" class="btn btn-primary mb-2">
-            Enregistrer
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
 
+    <div class="form-row">
+      <div class="form-elem positive">
+        <label for="n_covid_healed" class="form-label">Sorties (cumulés)</label>
+        <div>
+          <input
+              class="form-control" type="number"
+              id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
+        </div>
+      </div>
 
-   <!-- Optional JavaScript -->
-   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-</html>
+      <div class="form-elem negative">
+        <label for="n_covid_deaths" class="form-label">Décès (cumulés)</label>
+        <div>
+          <input
+              class="form-control" type="number"
+              id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-elem average">
+        <label for="n_covid_transfered" class="form-label">
+          Transferts (cumulés)<br/>
+          (vers autres réa)
+        </label>
+        <div>
+          <input
+              class="form-control" type="number"
+              id="n_covid_transfered" name='n_covid_transfered'
+              value="{{n_covid_transfered}}">
+        </div>
+      </div>
+
+      <div class="form-elem negative">
+        <label for="n_covid_refused" class="form-label">Refus (cumulés)<br/>(manque de place)</label>
+        <div>
+          <input
+              class="form-control" type="number"
+              id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="submit" class="btn btn-primary mb-2">
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</div>
+
+{% end %}
+
+
