@@ -19,7 +19,6 @@ class UploadHandler(tornado.web.RequestHandler):
     self.upload_path = upload_path
 
   def post(self):
-    print(self.request.files)
     file = self.request.files["file"][0]
     file_path = self.gen_path(file["filename"])
 

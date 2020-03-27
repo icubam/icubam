@@ -30,10 +30,6 @@ class SQLiteDBTest(absltest.TestCase):
         self.assertEqual(sqldb.get_icu_id_from_name("ICU1"), 1)
         self.assertEqual(sqldb.get_icu_id_from_name("ICU2"), 2)
 
-        for i in range(10):
-          sqldb.upsert_icu(f"ICU{i}", f"dep{i}", f"city{i}", 3.44, 42.3)
-        icus = sqldb.get_icus(icu_ids=(1,2,4,7))
-        self.assertEqual(len(icus), 4)
 
   def test_user_creation(self):
     with tempfile.TemporaryDirectory() as tmp_folder:
@@ -78,6 +74,12 @@ class SQLiteDBTest(absltest.TestCase):
           self.assertEqual(
             bedcount[bedcount["icu_id"] == i].iloc[0]["update_ts"], max_ts
           )
+        for i in range(10):
+          sqldb.upsert_icu(f"ICU{i}", f"dep{i}", f"city{i}", 3.44, 42.3)
+          sqldb.update_bedcount(i+1, "test", 10, 9, 8, 7, 6, 5, 4)
+
+        beds = sqldb.get_bedcount(icu_ids=(1,2,4,7))
+        self.assertEqual(len(beds), 4)
 
 if __name__ == "__main__":
   absltest.main()
