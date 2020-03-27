@@ -151,11 +151,12 @@ class SQLiteDB:
     """Returns a pandas DF of bed counts."""
     query = """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
        AS sub"""
+
     if icu_ids:
-      import ipdb; ipdb.set_trace()
-      icu_list = ",".join(icu_ids).rstrip(',')
+      icu_list = ",".join(map(str, icu_ids)).rstrip(',')
       query += f""" WHERE icu_id IN ({icu_list})"""
-    query += """ GROUP BY icu_id;"""
+
+    query += """ GROUP BY icu_id"""
     return pd.read_sql_query(query, self._conn)
 
   def pd_execute(self, query):
