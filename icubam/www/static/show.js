@@ -36,17 +36,11 @@ $(document).ready(function() {
   $('#example').DataTable({
     "pageLength": -1,
     ajax: {
-     url: '/beds',
+      url: '/beds',
       data: function(d){
-            return d;
+            return d
         },
     },
-    /*columnDefs: [ {
-        "targets": 0,
-        "data": "icu_id",
-        "render": function ( data, type, row, meta ) {
-              return '<a href="update?id='+row.icu_id+'"><span class="glyphicon glyphicon-edit aria-hidden="true"">modify </span></a>'; }
-    } ],*/
 
     columns: [
     //{data: 'icu_id'},
@@ -68,10 +62,8 @@ $(document).ready(function() {
 
     columnDefs: [
       {
-        // targets: [5],
         createdCell: function (td, cellData, rowData, rowIndex, colIndex) {
-          console.log(td);
-          $(td).colorize();
+          $(td).colorize()
         }
       },
     ],
@@ -91,3 +83,4 @@ $(document).ready(function() {
 
 
 });
+
