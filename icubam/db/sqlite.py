@@ -17,46 +17,46 @@ class SQLiteDB:
     """Initializes the database."""
     self._metadata = MetaData()
     self._icus = Table(
-        'icus',
+        "icus",
         self._metadata,
-        Column('icu_id', Integer, primary_key=True),
-        Column('icu_name', String, unique=True),
-        Column('dept', String),
-        Column('city', String),
-        Column('lat', Float),
-        Column('long', Float),
-        Column('telephone', String),
+        Column("icu_id", Integer, primary_key=True),
+        Column("icu_name", String, unique=True),
+        Column("dept", String),
+        Column("city", String),
+        Column("lat", Float),
+        Column("long", Float),
+        Column("telephone", String),
     )
 
     self._users = Table(
-        'users',
+        "users",
         self._metadata,
-        Column('user_id', Integer, primary_key=True),
-        Column('icu_id', Integer, ForeignKey('icus.icu_id')),
-        Column('name', String),
-        Column('telephone', String),
-        Column('description', String),
-        UniqueConstraint('icu_id', 'telephone'),
+        Column("user_id", Integer, primary_key=True),
+        Column("icu_id", Integer, ForeignKey("icus.icu_id")),
+        Column("name", String),
+        Column("telephone", String),
+        Column("description", String),
+        UniqueConstraint("icu_id", "telephone"),
     )
 
     self._bed_updates = Table(
-        'bed_updates',
+        "bed_updates",
         self._metadata,
-        Column('icu_id', Integer),
-        Column('icu_name', String),
-        Column('n_covid_occ', Integer),
-        Column('n_covid_free', Integer),
-        Column('n_ncovid_free', Integer),
-        Column('n_covid_deaths', Integer),
-        Column('n_covid_healed', Integer),
-        Column('n_covid_refused', Integer),
-        Column('n_covid_transfered', Integer),
-        Column('message', String),
+        Column("icu_id", Integer, ForeignKey("icus.icu_id")),
+        Column("icu_name", String),
+        Column("n_covid_occ", Integer),
+        Column("n_covid_free", Integer),
+        Column("n_ncovid_free", Integer),
+        Column("n_covid_deaths", Integer),
+        Column("n_covid_healed", Integer),
+        Column("n_covid_refused", Integer),
+        Column("n_covid_transfered", Integer),
+        Column("message", String),
         # This can be a timestamp.
-        Column('update_ts', Integer),
+        Column("update_ts", Integer),
     )
 
-    self._engine = create_engine('sqlite:///' + db_path)
+    self._engine = create_engine("sqlite:///" + db_path)
     # Only create tables that don't exist.
     self._metadata.create_all(self._engine, checkfirst=True)
     self._conn = self._engine.connect()
@@ -68,11 +68,11 @@ class SQLiteDB:
       city: str,
       lat: float,
       long: float,
-      telephone: str = 'NULL',
+      telephone: str = "NULL",
   ):
     """Add or update an ICU."""
-    # If not then add. We don't use SQLAlchemy doesn't yet support on conflict
-    # update for SQLite.
+    # If not then add. We don't use SQLAlchemy as it doesn't yet support on
+    # conflict update for SQLite.
     query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
                             VALUES
                             ('{icu_name}', '{dept}', '{city}',
@@ -95,7 +95,7 @@ class SQLiteDB:
     res = pd.read_sql_query(query.format(**locals()), self._conn)
     if len(res) == 0:
       raise ValueError(f"ICU {icu_name} not present when adding user {name}.")
-    icu_id = res.iloc[0]['icu_id']
+    icu_id = res.iloc[0]["icu_id"]
 
     # Insert the user:
     ins = self._users.insert().values(
@@ -119,7 +119,7 @@ class SQLiteDB:
     query = """SELECT count(icu_id) as n_icu FROM icus
                WHERE icu_id = '{icu_id}'"""
     res = pd.read_sql_query(query.format(**locals()), self._conn)
-    if res.iloc[0]['n_icu'] == 0:
+    if res.iloc[0]["n_icu"] == 0:
       raise ValueError(f"ICU {icu_id} does not exists.")
 
     ts = update_ts or int(time.time())
@@ -133,7 +133,8 @@ class SQLiteDB:
         n_covid_healed=n_covid_healed,
         n_covid_refused=n_covid_refused,
         n_covid_transfered=n_covid_transfered,
-        update_ts=ts)
+        update_ts=ts,
+    )
     return self._conn.execute(ins)
 
   def get_icu_id_from_name(self, icu_name: str):
@@ -143,7 +144,7 @@ class SQLiteDB:
     res = pd.read_sql_query(query.format(**locals()), self._conn)
     if len(res) == 0:
       raise ValueError(f"ICU {icu_name} not found.")
-    icu_id = res.iloc[0]['icu_id']
+    icu_id = res.iloc[0]["icu_id"]
     return icu_id
 
   def get_icus(self):
@@ -167,12 +168,12 @@ class SQLiteDB:
 
     # This is gross and should be replaced by SQL abstractions:
     if icu_ids or max_ts:
-      query += ' WHERE '
+      query += " WHERE "
       if icu_ids:
-        icu_list = ','.join(map(str, icu_ids)).rstrip(',')
+        icu_list = ",".join(map(str, icu_ids)).rstrip(",")
         query += f"""icu_id IN ({icu_list})"""
         if max_ts:
-          query += ' AND '
+          query += " AND "
       if max_ts:
         query += f"""update_ts < {max_ts}"""
 
