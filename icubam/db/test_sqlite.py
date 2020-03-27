@@ -90,6 +90,8 @@ class SQLiteDBTest(absltest.TestCase):
 
         beds = sqldb.get_bedcount(icu_ids=(1,2,4,7))
         self.assertEqual(len(beds), 4)
+        beds = sqldb.get_bedcount(icu_ids=[1,2,4,7])
+        self.assertEqual(len(beds), 4)
 
         cur_time = int(time.time())
         for i in range(10):

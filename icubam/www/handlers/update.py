@@ -31,7 +31,7 @@ class UpdateHandler(base.BaseHandler):
     self.token_encoder = token_encoder
 
   def get_icu_data_by_id(self, icu_id):
-    df = self.db.get_bedcount_by_icu_id(icu_id)
+    df = self.db.get_bedcount(icu_ids=list(icu_id))
     result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
     result['since_update'] = time_ago(result["update_ts"])
     result['home_route'] = home.HomeHandler.ROUTE
