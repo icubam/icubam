@@ -3,5 +3,8 @@
 {% block content %}
 <div>
   <h2>Oops! Something went wrong.</h2>
+  {% if status_code  and message %}
+    Error: {{status_code }} {{ message }}
+  {% end %}
 </div>
 {% end %}

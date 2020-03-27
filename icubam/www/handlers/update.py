@@ -1,5 +1,6 @@
 import time
 
+import tornado
 from absl import logging
 
 from icubam.www.handlers import base
@@ -44,8 +45,7 @@ class UpdateHandler(base.BaseHandler):
     input_data = self.token_encoder.decode(user_token)
 
     if input_data is None:
-      return self.redirect('/error')
-
+      raise tornado.web.HTTPError(400,"ERROR with arguments")
     try:
       data = self.get_icu_data_by_id(input_data['icu_id'])
       data.update(input_data)
