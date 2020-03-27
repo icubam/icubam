@@ -25,13 +25,14 @@ class UpdateHandler(base.BaseHandler):
   ROUTE = '/update'
   QUERY_ARG = 'id'
 
-  def initialize(self, db, queue, token_encoder):
+  def initialize(self, config, db, queue, token_encoder):
+    self.config = config
     self.db = db
     self.queue = queue
     self.token_encoder = token_encoder
 
   def get_icu_data_by_id(self, icu_id):
-    df = self.db.get_bedcount_by_icu_id(icu_id)
+    df = self.db.get_bedcount(icu_ids=[icu_id,])
     result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
     result['since_update'] = time_ago(result["update_ts"])
     result['home_route'] = home.HomeHandler.ROUTE
@@ -49,6 +50,7 @@ class UpdateHandler(base.BaseHandler):
     try:
       data = self.get_icu_data_by_id(input_data['icu_id'])
       data.update(input_data)
+      data.update(version=self.config.version)
 
       self.set_secure_cookie(self.COOKIE, user_token)
       self.render('update_form.html', **data)
