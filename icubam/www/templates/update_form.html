@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block links %}
-<link rel="stylesheet" href="/static/style.css">
-<script type="text/javascript" src="/static/update.js"></script>
+<link rel="stylesheet" href="/static/style.css?v={{version}}">
+<script type="text/javascript" src="/static/update.js?v={{version}}"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 {% end %}
 
@@ -98,6 +98,9 @@
     <div class="buttons">
       <button type="submit" class="btn btn-primary mb-2">
         Enregistrer
+      </button>
+      <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
+        Annuler
       </button>
     </div>
   </form>
