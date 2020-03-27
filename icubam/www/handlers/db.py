@@ -12,6 +12,7 @@ class DBHandler(base.BaseHandler):
     keys = ['users', 'bedcount', 'icus']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
+  @tornado.web.authenticated
   def get(self, collection):
     get_fn = self.get_fns.get(collection, None)
     do_csv = self.get_query_argument('csv', default=None)
