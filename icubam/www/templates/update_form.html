@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block links %}
 
+{% block links %}
+<link rel="stylesheet" href="/static/style.css">
 <script type="text/javascript" src="/static/update.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 {% end %}
 
 {% block content %}
-
 <div class='main-content'>
   <h1>Hôpital {{icu_name}}</h1>
 
@@ -13,7 +14,7 @@
     <button class="btn btn-primary mb-2" onclick="navigateTo('{{home_route}}')">
       {{ _('Display map') }}
     </button>
-    <button type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
+    <button  type="submit" class="btn btn-danger mb-2" onclick="toggleForm()">
       {{ _('Enter data') }}
     </button>
   </div>
@@ -26,8 +27,8 @@
         <label for="n_covid_free" class="form-label">{{ _('Available COVID+ beds') }}</label>
         <div>
           <input
-              class="form-control" type="number"
-              name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}">
+          class="form-control" type="number"
+          name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}">
         </div>
       </div>
 
@@ -35,8 +36,8 @@
         <label for="n_ncovid_free" class="form-label">{{ _('Available COVID- beds') }}</label>
         <div>
           <input
-              class="form-control" type="number"
-              value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
+            class="form-control" type="number"
+            value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
         </div>
       </div>
 
@@ -44,8 +45,8 @@
         <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}</label>
         <div>
           <input
-              class="form-control" type="number"
-              value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
+            class="form-control" type="number"
+            value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
         </div>
       </div>
     </div>
@@ -55,8 +56,8 @@
         <label for="n_covid_healed" class="form-label">{{ _('Discharged (cumulative)') }}</label>
         <div>
           <input
-              class="form-control" type="number"
-              id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
+            class="form-control" type="number"
+            id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
         </div>
       </div>
 
@@ -64,8 +65,8 @@
         <label for="n_covid_deaths" class="form-label">{{ _('Deceased (cumulative)') }}</label>
         <div>
           <input
-              class="form-control" type="number"
-              id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
+          class="form-control" type="number"
+          id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
         </div>
       </div>
     </div>
@@ -78,9 +79,9 @@
         </label>
         <div>
           <input
-              class="form-control" type="number"
-              id="n_covid_transfered" name='n_covid_transfered'
-              value="{{n_covid_transfered}}">
+            class="form-control" type="number"
+            id="n_covid_transfered" name='n_covid_transfered'
+            value="{{n_covid_transfered}}">
         </div>
       </div>
 
@@ -91,8 +92,8 @@
         </label>
         <div>
           <input
-              class="form-control" type="number"
-              id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
+          class="form-control" type="number"
+          id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
         </div>
       </div>
     </div>
@@ -104,7 +105,4 @@
     </div>
   </form>
 </div>
-
 {% end %}
-
-
