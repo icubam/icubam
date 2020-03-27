@@ -10,22 +10,22 @@ class DataJson(base.BaseHandler):
   ROUTE = '/beds'
 
   def initialize(self, db):
-	  self.db = db
+    self.db = db
 
   def get_icu_data(self):
-	  df = self.db.get_bedcount()
-	  df['since_update'] = df.update_ts.apply(time_ago)
-	  n_covid_tot = df['n_covid_free'] + df['n_covid_occ']
-	  df.insert(1, 'n_covid_tot', n_covid_tot)
-	  return df
+    df = self.db.get_bedcount()
+    df['since_update'] = df.update_ts.apply(time_ago)
+    n_covid_tot = df['n_covid_free'] + df['n_covid_occ']
+    df.insert(1, 'n_covid_tot', n_covid_tot)
+    return df
 
   @tornado.web.authenticated
   def get(self):
     data = self.get_icu_data().to_dict(orient="records")
-	  # icu_id = self.db.get_icu_id_from_name("Troyes")
-	  # tmp = self.db.get_update_ts(icu_ids=[icu_id])
-	  # print(tmp.describe())
-	  # print(tmp.head())
+    # icu_id = self.db.get_icu_id_from_name("Troyes")
+    # tmp = self.db.get_update_ts(icu_ids=[icu_id])
+    #  print(tmp.describe())
+    # print(tmp.head())
     self.write({"data": data})
 
 
