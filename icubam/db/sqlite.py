@@ -5,6 +5,8 @@ import sqlite3
 import time
 import pandas as pd
 
+from typing import Sequence
+
 
 class SQLiteDB:
   """Wraps SQLite DB for bed counts."""
@@ -124,7 +126,7 @@ class SQLiteDB:
     self._conn.execute(query.format(**locals()))
     return self._conn.commit()
 
-  def get_icu_id_from_name(self, icu_name):
+  def get_icu_id_from_name(self, icu_name: str):
     # Get the icu_id from icu_name:
     query = """SELECT icu_id FROM icus
                WHERE icu_name = '{icu_name}'"""
@@ -148,7 +150,7 @@ class SQLiteDB:
       self._conn,
     )
 
-  def get_bedcount(self, icu_ids=None, max_ts=None):
+  def get_bedcount(self, icu_ids: Sequence = None, max_ts=None):
     """Returns a pandas DF of bed counts."""
     query = """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
        AS sub"""
@@ -166,13 +168,6 @@ class SQLiteDB:
 
     query += """ GROUP BY icu_id"""
     return pd.read_sql_query(query, self._conn)
-
-  def get_bedcount_by_icu_id(self, icu_id):
-    """Returns a pandas DF of bed counts."""
-    return pd.read_sql_query(
-      "SELECT * FROM bed_updates WHERE icu_id = {} ORDER by ROWID DESC".format(icu_id),
-      self._conn,
-    )
 
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""
