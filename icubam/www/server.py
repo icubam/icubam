@@ -14,6 +14,7 @@ from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
+from icubam.www.handlers.error import ErrorHandler
 
 
 class WWWServer:
@@ -66,6 +67,7 @@ class WWWServer:
     settings = {
       "cookie_secret": self.config.SECRET_COOKIE,
       "login_url": "/error",
+      "default_handler_class": ErrorHandler
     }
     app = tornado.web.Application(self.routes, **settings)
     app.listen(self.port)
