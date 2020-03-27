@@ -60,7 +60,7 @@ class SQLiteDBTest(absltest.TestCase):
         # Generate some bed updates:
         for i in [1, 2]:
           for j in range(10):
-            # time.sleep(0.5) # Need to keep a delta of at least 0.5
+            time.sleep(0.5) # Need to keep a delta of at least 0.5
             sqldb.update_bedcount(i, "test", 10, 9, 8, 7, 6, 5, 4)
         bedcount = sqldb.get_bedcount()
         self.assertLen(bedcount, 2)
