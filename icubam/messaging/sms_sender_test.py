@@ -11,10 +11,12 @@ class SmsSenderTest(unittest.TestCase):
     self.config = config.Config('resources/test.toml', mode='dev')
 
   def test_from_string(self):
-    self.assertIsInstance(sms_sender.get(self.config, 'TW'), sms_sender.TWSender)
-    self.assertIsInstance(sms_sender.get(self.config, 'MB'), sms_sender.MBSender)
-    self.assertIsInstance(sms_sender.get(self.config, 'NX'), sms_sender.NXSender)
-    self.assertIsInstance(sms_sender.get(self.config, 'nx'), sms_sender.NXSender)
+    self.assertIsInstance(
+      sms_sender.get(self.config, 'MB'), sms_sender.MBSender)
+    self.assertIsInstance(
+      sms_sender.get(self.config, 'NX'), sms_sender.NXSender)
+    self.assertIsInstance(
+      sms_sender.get(self.config, 'nx'), sms_sender.NXSender)
     self.assertIsInstance(
       sms_sender.get(self.config, 'Fake'), sms_sender.FakeSender)
     self.assertIsInstance(
