@@ -147,13 +147,17 @@ class SQLiteDB:
       self._conn,
     )
 
-  def get_bedcount(self):
+  def get_bedcount(self, icu_ids=None):
     """Returns a pandas DF of bed counts."""
-    return pd.read_sql_query(
-      """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
-       AS sub GROUP BY icu_id;""",
-      self._conn,
-    )
+    query = """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
+       AS sub"""
+
+    if icu_ids:
+      icu_list = ",".join(map(str, icu_ids)).rstrip(',')
+      query += f""" WHERE icu_id IN ({icu_list})"""
+
+    query += """ GROUP BY icu_id"""
+    return pd.read_sql_query(query, self._conn)
 
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""

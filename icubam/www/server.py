@@ -13,6 +13,7 @@ from icubam.www.handlers import home
 from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
+from icubam.www.handlers import upload_csv
 
 
 class WWWServer:
@@ -26,34 +27,40 @@ class WWWServer:
     self.writing_queue = queues.Queue()
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.make_app()
-    self.callbacks = [
-      queue_writer.QueueWriter(self.writing_queue, self.db)
-    ]
+    self.callbacks = [queue_writer.QueueWriter(self.writing_queue, self.db)]
 
   def add_handler(self, handler, **kwargs):
-    route = os.path.join('/', handler.ROUTE)
+    route = os.path.join("/", handler.ROUTE)
     self.routes.append((route, handler, kwargs))
-    logging.info('{} serving on {}'.format(handler.__name__, route))
+    logging.info("{} serving on {}".format(handler.__name__, route))
 
   def make_app(self):
     self.add_handler(
-      update.UpdateHandler, db=self.db, queue=self.writing_queue,
-      token_encoder=self.token_encoder)
+      update.UpdateHandler,
+      db=self.db,
+      queue=self.writing_queue,
+      token_encoder=self.token_encoder,
+    )
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
     self.add_handler(show.ShowHandler, db=self.db)
     self.add_handler(show.DataJson, db=self.db)
     self.add_handler(db.DBHandler, db=self.db)
+    self.add_handler(
+      upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
+    )
     self.add_handler(static.NoCacheStaticFileHandler)
 
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return '\n'.join(scheduler.MessageScheduler(
-      self.db, None, self.token_encoder).urls)
+    return "\n".join(
+      scheduler.MessageScheduler(self.db, None, self.token_encoder).urls
+    )
 
   def run(self):
-    logging.info('Running {} on port {}'.format(
-      self.__class__.__name__, self.port))
+    logging.info(
+      "Running {} on port {}".format(self.__class__.__name__, self.port)
+    )
     logging.info(self.debug_str)
 
     settings = {
