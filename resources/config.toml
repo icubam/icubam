@@ -3,8 +3,12 @@ version='0.1'
 
 # Tables
 [sms]
-origin = "ICUBAM"
-carrier = "TW"
+  [sms.dev]
+  origin = "ICUBAM"
+  carrier = "FAKE"
+  [sms.prod]
+  origin = "ICUBAM"
+  carrier = "TW"
 
 [db]
 sqlite_path = "icubam.db"

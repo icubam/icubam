@@ -1,9 +1,21 @@
 """SMS Sender Abstraction"""
+from app import logging
 import messagebird
 import nexmo
 from twilio.rest import Client as TWCLient
 
 from icubam import config
+
+
+class FakeSender:
+  """Just say send, but does nothing."""
+
+  def send_message(self, dest, contents):
+    message = self._client.message_create(
+      self._originator, dest, contents, {"reference": "Foobar"}
+    )
+    return message
+
 
 class MBSender:
   """Initializes and wrap a MessageBird sender object."""
