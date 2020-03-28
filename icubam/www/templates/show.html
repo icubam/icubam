@@ -15,11 +15,13 @@
         <tr>
             <!--<th width="10px">Modify</th>-->
             <th>{{ _('Name') }}</th>
+            <th>{{ _('COVID total') }}</th>
             <th>{{ _('COVID occupied') }}</th>
             <th>{{ _('COVID available') }}</th>
             <th>{{ _('non-COVID available') }}</th>
             <th>{{ _('COVID deceased') }}</th>
             <th>{{ _('COVID healed') }}</th>
+            <th>{{ _('Last entry')}}</th>
             <!--
             <th>n_covid_refused</th>
             <th>n_covid_transfered</th>
@@ -47,7 +49,6 @@
 <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 
-<script type="text/javascript" charset="utf8" src="/static/show.js">
-
-</script>
+<script type="text/javascript" charset="utf8" src="/static/colorize-table.js"></script>
+<script type="text/javascript" charset="utf8" src="/static/show.js"></script>
 {% end %}
