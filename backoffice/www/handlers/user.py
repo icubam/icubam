@@ -3,7 +3,6 @@ from tornado_sqlalchemy import SessionMixin
 
 from backoffice.model.user import User
 from backoffice.www.handlers.base import BaseBOHandler
-from icubam.www.handlers import base
 
 
 class CreateUserHandler(SessionMixin, BaseBOHandler):

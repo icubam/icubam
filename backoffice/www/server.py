@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from tornado_sqlalchemy import SQLAlchemy
 
 from backoffice.model.user import Base
+from backoffice.www.handlers.home import HomeBOHandler
 from backoffice.www.handlers.login import LoginHandler
 from backoffice.www.handlers.user import ListUserHandler, UserJson, CreateUserHandler
 
@@ -32,6 +33,7 @@ class BackOfficeServer:
     self.add_handler(ListUserHandler)
     self.add_handler(UserJson)
     self.add_handler(CreateUserHandler)
+    self.add_handler(HomeBOHandler)
 
   def run(self):
     logging.info(

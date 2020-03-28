@@ -13,7 +13,7 @@ class LoginHandler(BaseBOHandler):
 
   def post(self):
     self.set_secure_cookie("user", self.get_argument("name"))
-    self.redirect("/")
+    self.redirect("/list_users")
 
 class AuthLogoutHandler(BaseBOHandler):
   def get(self):
