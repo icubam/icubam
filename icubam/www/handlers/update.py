@@ -31,10 +31,15 @@ class UpdateHandler(base.BaseHandler):
     self.queue = queue
     self.token_encoder = token_encoder
 
-  def get_icu_data_by_id(self, icu_id):
+  def get_icu_data_by_id(self, icu_id, def_val=0):
+    print(icu_id)
     df = self.db.get_bedcount(icu_ids=[icu_id,])
-    result = df.to_dict(orient="records")[0] if df is not None and not df.empty else None
-    result['since_update'] = time_ago(result["update_ts"])
+    if not df.empty:
+      result = df.to_dict(orient="records")[0]
+      result['since_update'] = time_ago(result["update_ts"])
+    else:
+      result = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
+      result = {'since_update': 'jamais'}
     result['home_route'] = home.HomeHandler.ROUTE
     result['update_route'] = self.ROUTE
     return result
@@ -47,17 +52,19 @@ class UpdateHandler(base.BaseHandler):
     if input_data is None:
       return self.redirect('/error')
 
-    try:
-      data = self.get_icu_data_by_id(input_data['icu_id'])
-      data.update(input_data)
-      data.update(version=self.config.version)
+    # try:
+    print(input_data)
+    data = self.get_icu_data_by_id(input_data['icu_id'])
+    print(f"Data: {data}")
+    data.update(input_data)
+    data.update(version=self.config.version)
 
-      self.set_secure_cookie(self.COOKIE, user_token)
-      self.render('update_form.html', **data)
+    self.set_secure_cookie(self.COOKIE, user_token)
+    self.render('update_form.html', **data)
 
-    except Exception as e:
-      logging.error(e)
-      return self.redirect('/error')
+    # except Exception as e:
+    #   logging.error(e)
+    #   return self.redirect('/error')
 
   async def post(self):
     """Reads the form and saves the data to DB"""
