@@ -32,11 +32,11 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
 
   def test_update_form(self):
     response = self.fetch(update.UpdateHandler.ROUTE)
-    self.assertEqual(response.code, 400)
+    self.assertEqual(response.code, 404)
 
     url_prefix = "{}?id=".format(update.UpdateHandler.ROUTE)
     response = self.fetch(url_prefix + "123")
-    self.assertEqual(response.code, 400)
+    self.assertEqual(response.code, 404)
 
     encoder = token.TokenEncoder(self.config)
     response = self.fetch(url_prefix + encoder.encode_icu('test_icu', 123))
