@@ -3,7 +3,7 @@ import logging
 import os
 import time
 import pandas as pd
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, join
 from sqlalchemy import Table, Column, MetaData, ForeignKey, UniqueConstraint
 from sqlalchemy import Float, Integer, String
 from sqlalchemy.sql import select, text
@@ -37,6 +37,7 @@ class SQLiteDB:
         Column("name", String),
         Column("telephone", String),
         Column("description", String),
+        Column("email", String),
         UniqueConstraint("icu_id", "telephone"),
     )
 
@@ -61,6 +62,17 @@ class SQLiteDB:
     # Only create tables that don't exist.
     self._metadata.create_all(self._engine, checkfirst=True)
     self._conn = self._engine.connect()
+    self.maybe_migrate()
+
+  def maybe_migrate(self):
+    """Migrates database tables and columns."""
+    conn = self._conn
+    # SQLite doesn't support IF NOT EXISTS. Instead, we ignore the exception
+    # which arises if the field is present.
+    try:
+      conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR"))
+    except Exception:
+      pass
 
   def upsert_icu(
       self,
@@ -86,21 +98,29 @@ class SQLiteDB:
                             telephone=excluded.telephone"""
     self._conn.execute(query.format(**locals()))
 
-  def add_user(self, icu_name: str, name: str, telephone: str,
-               description: str):
+  def add_user(self,
+               icu_name: str,
+               name: str,
+               telephone: str,
+               description: str,
+               email: str = "NULL"):
     """Add a user."""
 
     # Get the icu_id from icu_name:
-    query = """SELECT icu_id FROM icus
-               WHERE icu_name = '{icu_name}'"""
-    res = pd.read_sql_query(query.format(**locals()), self._conn)
-    if len(res) == 0:
+    icus = self._icus.c
+    s = select([icus.icu_id]).where(icus.icu_name == icu_name)
+    res = self._conn.execute(s).fetchone()
+    if not res:
       raise ValueError(f"ICU {icu_name} not present when adding user {name}.")
-    icu_id = res.iloc[0]["icu_id"]
+    icu_id = res["icu_id"]
 
     # Insert the user:
     ins = self._users.insert().values(
-        icu_id=icu_id, name=name, telephone=telephone, description=description)
+        icu_id=icu_id,
+        name=name,
+        telephone=telephone,
+        description=description,
+        email=email)
     self._conn.execute(ins)
 
   def update_bedcount(
@@ -153,14 +173,18 @@ class SQLiteDB:
     return pd.read_sql_query("""SELECT * FROM icus""", self._conn)
 
   def get_users(self):
-    """Returns a pandas DF of bed counts."""
-    return pd.read_sql_query(
-        """SELECT users.icu_id, icu_name, name, users.telephone, description
-           FROM users
-           JOIN icus
-           ON users.icu_id = icus.icu_id""",
-        self._conn,
-    )
+    """Returns a pandas DF of users."""
+    users = self._users
+    icus = self._icus
+    stmt = select([
+        users.c.icu_id,
+        icus.c.icu_name,
+        users.c.name,
+        users.c.telephone,
+        users.c.description,
+        users.c.email,
+    ]).select_from(users.join(icus))
+    return pd.read_sql_query(stmt, self._conn)
 
   def get_bedcount(self, icu_ids: Sequence = None, max_ts=None):
     """Returns a pandas DF of bed counts."""

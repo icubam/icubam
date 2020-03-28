@@ -3,6 +3,7 @@ import time
 
 from absl.testing import absltest
 from icubam.db import sqlite
+import pandas as pd
 import sqlalchemy.exc
 import tempfile
 
@@ -33,19 +34,33 @@ class SQLiteDBTest(absltest.TestCase):
 
   def test_user_creation(self):
     with tempfile.TemporaryDirectory() as tmp_folder:
-        sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
+      sqldb = sqlite.SQLiteDB(os.path.join(tmp_folder, "test.db"))
 
-        # Make sure you can't add a user with non-existant ICU
-        with self.assertRaises(ValueError):
-          sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
-
-        # Check normal insertion
-        sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
+      # Make sure you can't add a user with non-existant ICU
+      with self.assertRaises(ValueError):
         sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
 
-        with self.assertRaises(sqlalchemy.exc.IntegrityError):
-          sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
-        users = sqldb.get_users()
+      # Check normal insertion
+      sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
+      sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur", "bob@test.org")
+
+      with self.assertRaises(sqlalchemy.exc.IntegrityError):
+        sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
+
+      # No email.
+      sqldb.add_user("ICU1", "Alice", "+33612345678", "Docteur")
+
+      users = sqldb.get_users()
+      pd.testing.assert_frame_equal(
+          users,
+          pd.DataFrame({
+              "icu_id": [1, 1],
+              "icu_name": ["ICU1", "ICU1"],
+              "name": ["Bob", "Alice"],
+              "telephone": ["+33698158092", "+33612345678"],
+              "description": ["Chercheur", "Docteur"],
+              "email": ["bob@test.org", "NULL"],
+          }))
 
   def test_bedcount_update(self):
     with tempfile.TemporaryDirectory() as tmp_folder:

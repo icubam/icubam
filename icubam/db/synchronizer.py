@@ -9,7 +9,8 @@ class Synchronizer:
 
   If the ICU name is already present, or the user telephone is already present,
   then it will *not* get updated.  If there is no existing row then
-  a new row with the ICU or user info will get added."""
+  a new row with the ICU or user info will get added.
+  """
 
   def __init__(self, sheets_db, sqlite_db):
     self._shdb = sheets_db
@@ -21,12 +22,12 @@ class Synchronizer:
       icu = row[1]
       try:
         self._sqldb.upsert_icu(
-          icu["icu_name"],
-          icu["dept"],
-          icu["city"],
-          icu["lat"],
-          icu["long"],
-          icu["telephone"],
+            icu["icu_name"],
+            icu["dept"],
+            icu["city"],
+            icu["lat"],
+            icu["long"],
+            icu["telephone"],
         )
         logging.info("Added ICU {}".format(icu["icu_name"]))
       except ValueError as e:
@@ -39,9 +40,8 @@ class Synchronizer:
     for row in users.iterrows():
       user = row[1]
       try:
-        self._sqldb.add_user(
-          user["icu_name"], user["name"], user["tel"], user["description"]
-        )
+        self._sqldb.add_user(user["icu_name"], user["name"], user["tel"],
+                             user["description"], users.get("email", "NULL"))
         logging.info("Added user {}".format(user["name"]))
       except ValueError as e:
         logging.error(e)
