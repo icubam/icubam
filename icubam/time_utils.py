@@ -36,10 +36,12 @@ def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
 
 
 def localwise_time_ago(ts, locale, ts_reference=None):
-  count, unit = time_ago(ts, ts_reference)
-  local_units = locale.translate(unit, unit, count)
-  return locale.translate("{delta} {units} ago").format(
-    delta=count, units=local_units)
+  count, units = time_ago(ts, ts_reference)
+  template = "{delta} {units} ago"
+  if locale is not None:
+    units = locale.translate(units, units, count)
+    template = locale.translate(template)
+  return template.format(delta=count, units=units)
 
 
 def parse_hour(hour, sep=':') -> Tuple[str, str]:
