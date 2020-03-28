@@ -48,15 +48,13 @@ class UpdateHandler(base.BaseHandler):
     if input_data is None:
       return self.set_status(404)
 
-    # try:
-    print(input_data)
-    data = self.get_icu_data_by_id(input_data['icu_id'])
-    print(f"Data: {data}")
-    data.update(input_data)
-    data.update(version=self.config.version)
+    try:
+      data = self.get_icu_data_by_id(input_data['icu_id'])
+      data.update(input_data)
+      data.update(version=self.config.version)
 
-    self.set_secure_cookie(self.COOKIE, user_token)
-    self.render('update_form.html', **data)
+      self.set_secure_cookie(self.COOKIE, user_token)
+      self.render('update_form.html', **data)
 
     except Exception as e:
       logging.error(e)
