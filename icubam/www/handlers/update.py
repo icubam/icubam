@@ -60,7 +60,7 @@ class UpdateHandler(base.BaseHandler):
     input_data = self.token_encoder.decode(user_token)
 
     if input_data is None:
-      return self.redirect('/error')
+      return self.set_status(400)
 
     try:
       data = self.get_icu_data_by_id(input_data['icu_id'])
@@ -72,7 +72,7 @@ class UpdateHandler(base.BaseHandler):
 
     except Exception as e:
       logging.error(e)
-      return self.redirect('/error')
+      return self.set_status(400)
 
   async def post(self):
     """Reads the form and saves the data to DB"""
