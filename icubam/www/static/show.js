@@ -43,14 +43,14 @@ $(document).ready(function() {
     },
 
     columns: [
-    {data: 'icu_name'},
-    {data: 'n_covid_tot'},
-    {data: 'n_covid_occ'},
-    {data: 'n_covid_free'},
-    {data: 'n_ncovid_free'},
-    {data: 'n_covid_deaths'},
-    {data: 'n_covid_healed'},
-    {data: 'since_update'},
+      {data: 'icu_name'},
+      {data: 'n_covid_tot'},
+      {data: 'n_covid_occ'},
+      {data: 'n_covid_free'},
+      {data: 'n_ncovid_free'},
+      {data: 'n_covid_deaths'},
+      {data: 'n_covid_healed'},
+      {data: 'since_update'},
     ],
 
 
