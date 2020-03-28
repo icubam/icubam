@@ -1,61 +1,79 @@
 """SQLite storage backend wrapper."""
 import logging
 import os
-import sqlite3
 import time
 import pandas as pd
+from sqlalchemy import create_engine, desc
+from sqlalchemy import Table, Column, MetaData, ForeignKey, UniqueConstraint
+from sqlalchemy import Float, Integer, String
+from sqlalchemy.sql import select, text
+
+from typing import Sequence
 
 
 class SQLiteDB:
   """Wraps SQLite DB for bed counts."""
 
   def __init__(self, db_path: str):
-    """Given a token file and a sheet id, loads the sheet to be queried."""
-    self._db_path = db_path
-
-    if os.path.exists(db_path):
-      self._conn = sqlite3.connect(db_path)
-    else:
-      self._conn = sqlite3.connect(db_path)
-      self._create_table()
-
-  def _create_table(self):
-    self._conn.execute(
-      """CREATE TABLE icus
-                          (icu_id INTEGER NOT NULL PRIMARY KEY,
-                           icu_name TEXT UNIQUE, dept TEXT, city TEXT, lat REAL,
-                           long REAL, telephone TEXT )"""
+    """Initializes the database."""
+    self._metadata = MetaData()
+    self._icus = Table(
+        "icus",
+        self._metadata,
+        Column("icu_id", Integer, primary_key=True),
+        Column("icu_name", String, unique=True),
+        Column("dept", String),
+        Column("city", String),
+        Column("lat", Float),
+        Column("long", Float),
+        Column("telephone", String),
     )
 
-    self._conn.execute(
-      """CREATE TABLE users
-                          (user_id INTEGER NOT NULL PRIMARY KEY, icu_id INTEGER,
-                           name TEXT, telephone TEXT, description TEXT,
-                           UNIQUE(icu_id, telephone))"""
+    self._users = Table(
+        "users",
+        self._metadata,
+        Column("user_id", Integer, primary_key=True),
+        Column("icu_id", Integer, ForeignKey("icus.icu_id")),
+        Column("name", String),
+        Column("telephone", String),
+        Column("description", String),
+        UniqueConstraint("icu_id", "telephone"),
     )
-    self._conn.execute(
-      """CREATE TABLE bed_updates
-                          (icu_id INTEGER, icu_name TEXT,
-                          n_covid_occ INTEGER, n_covid_free INTEGER,
-                          n_ncovid_free INTEGER, n_covid_deaths INTEGER,
-                          n_covid_healed INTEGER, n_covid_refused INTEGER,
-                          n_covid_transfered INTEGER, message TEXT,
-                          update_ts INTEGER)"""
+
+    self._bed_updates = Table(
+        "bed_updates",
+        self._metadata,
+        Column("icu_id", Integer, ForeignKey("icus.icu_id")),
+        Column("icu_name", String),
+        Column("n_covid_occ", Integer),
+        Column("n_covid_free", Integer),
+        Column("n_ncovid_free", Integer),
+        Column("n_covid_deaths", Integer),
+        Column("n_covid_healed", Integer),
+        Column("n_covid_refused", Integer),
+        Column("n_covid_transfered", Integer),
+        Column("message", String),
+        # This can be a timestamp.
+        Column("update_ts", Integer),
     )
-    self._conn.commit()
+
+    self._engine = create_engine("sqlite:///" + db_path)
+    # Only create tables that don't exist.
+    self._metadata.create_all(self._engine, checkfirst=True)
+    self._conn = self._engine.connect()
 
   def upsert_icu(
-    self,
-    icu_name: str,
-    dept: str,
-    city: str,
-    lat: float,
-    long: float,
-    telephone: str = "NULL",
+      self,
+      icu_name: str,
+      dept: str,
+      city: str,
+      lat: float,
+      long: float,
+      telephone: str = "NULL",
   ):
     """Add or update an ICU."""
-
-    # If not then add:
+    # If not then add. We don't use SQLAlchemy as it doesn't yet support on
+    # conflict update for SQLite.
     query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
                             VALUES
                             ('{icu_name}', '{dept}', '{city}',
@@ -67,11 +85,9 @@ class SQLiteDB:
                             long=excluded.long,
                             telephone=excluded.telephone"""
     self._conn.execute(query.format(**locals()))
-    self._conn.commit()
 
-  def add_user(
-    self, icu_name: str, name: str, telephone: str, description: str
-  ):
+  def add_user(self, icu_name: str, name: str, telephone: str,
+               description: str):
     """Add a user."""
 
     # Get the icu_id from icu_name:
@@ -83,24 +99,22 @@ class SQLiteDB:
     icu_id = res.iloc[0]["icu_id"]
 
     # Insert the user:
-    query = """INSERT INTO users (icu_id, name, telephone, description)
-                        VALUES
-                        ({icu_id}, '{name}', '{telephone}', '{description}')"""
-    self._conn.execute(query.format(**locals()))
-    self._conn.commit()
+    ins = self._users.insert().values(
+        icu_id=icu_id, name=name, telephone=telephone, description=description)
+    self._conn.execute(ins)
 
   def update_bedcount(
-    self,
-    icu_id: int,
-    icu_name: str,
-    n_covid_occ: int,
-    n_covid_free: int,
-    n_ncovid_free: int,
-    n_covid_deaths: int,
-    n_covid_healed: int,
-    n_covid_refused: int,
-    n_covid_transfered: int,
-    update_ts: int = None,
+      self,
+      icu_id: int,
+      icu_name: str,
+      n_covid_occ: int,
+      n_covid_free: int,
+      n_ncovid_free: int,
+      n_covid_deaths: int,
+      n_covid_healed: int,
+      n_covid_refused: int,
+      n_covid_transfered: int,
+      update_ts: int = None,
   ):
     """Updates the bedcount information for a specific hospital."""
     query = """SELECT count(icu_id) as n_icu FROM icus
@@ -110,21 +124,21 @@ class SQLiteDB:
       raise ValueError(f"ICU {icu_id} does not exists.")
 
     ts = update_ts or int(time.time())
-    query = """INSERT INTO bed_updates (icu_id, icu_name,
-                            n_covid_occ, n_covid_free, n_ncovid_free,
-                            n_covid_deaths, n_covid_healed,
-                            n_covid_refused, n_covid_transfered,
-                            update_ts)
-                            VALUES
-                            ({icu_id}, '{icu_name}', {n_covid_occ},
-                             {n_covid_free}, {n_ncovid_free}, {n_covid_deaths},
-                             {n_covid_healed}, {n_covid_refused},
-                             {n_covid_transfered}, {ts})"""
+    ins = self._bed_updates.insert().values(
+        icu_id=icu_id,
+        icu_name=icu_name,
+        n_covid_occ=n_covid_occ,
+        n_covid_free=n_covid_free,
+        n_ncovid_free=n_ncovid_free,
+        n_covid_deaths=n_covid_deaths,
+        n_covid_healed=n_covid_healed,
+        n_covid_refused=n_covid_refused,
+        n_covid_transfered=n_covid_transfered,
+        update_ts=ts,
+    )
+    return self._conn.execute(ins)
 
-    self._conn.execute(query.format(**locals()))
-    return self._conn.commit()
-
-  def get_icu_id_from_name(self, icu_name):
+  def get_icu_id_from_name(self, icu_name: str):
     # Get the icu_id from icu_name:
     query = """SELECT icu_id FROM icus
                WHERE icu_name = '{icu_name}'"""
@@ -141,38 +155,24 @@ class SQLiteDB:
   def get_users(self):
     """Returns a pandas DF of bed counts."""
     return pd.read_sql_query(
-      """SELECT users.icu_id, icu_name, name, users.telephone, description
-         FROM users
-         JOIN icus
-         ON users.icu_id = icus.icu_id""",
-      self._conn,
+        """SELECT users.icu_id, icu_name, name, users.telephone, description
+           FROM users
+           JOIN icus
+           ON users.icu_id = icus.icu_id""",
+        self._conn,
     )
 
-  def get_bedcount(self, icu_ids=None, max_ts=None):
+  def get_bedcount(self, icu_ids: Sequence = None, max_ts=None):
     """Returns a pandas DF of bed counts."""
-    query = """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
-       AS sub"""
-
-    # This is gross and should be replaced by SQL abstractions:
-    if icu_ids or max_ts:
-      query += " WHERE "
-      if icu_ids:
-        icu_list = ",".join(map(str, icu_ids)).rstrip(',')
-        query += f"""icu_id IN ({icu_list})"""
-        if max_ts:
-          query += " AND "
-      if max_ts:
-        query += f"""update_ts < {max_ts}"""
-
-    query += """ GROUP BY icu_id"""
+    sub = select([self._bed_updates]).order_by(desc(text("ROWID")))
+    if icu_ids:
+      sub = sub.where(self._bed_updates.c.icu_id.in_(icu_ids))
+    if max_ts:
+      # Equilavent to self._bed_updates.c.update_ts < max_ts, but this doesn't
+      # seem to work properly (i.e. rows are not filtered).
+      sub = sub.where(text(f"""update_ts < {max_ts}"""))
+    query = select([sub]).group_by("icu_id")
     return pd.read_sql_query(query, self._conn)
-
-  def get_bedcount_by_icu_id(self, icu_id):
-    """Returns a pandas DF of bed counts."""
-    return pd.read_sql_query(
-      "SELECT * FROM bed_updates WHERE icu_id = {} ORDER by ROWID DESC".format(icu_id),
-      self._conn,
-    )
 
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""

@@ -7,8 +7,8 @@ class DBHandler(base.BaseHandler):
 
   ROUTE = '/db/(.*)'
 
-  def initialize(self, db):
-    self.db = db
+  def initialize(self, config, db):
+    super().initialize(config, db)
     keys = ['users', 'bedcount', 'icus']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
@@ -19,7 +19,10 @@ class DBHandler(base.BaseHandler):
     max_ts = self.get_query_argument('max_ts', default=None)
     if get_fn is not None:
       if do_csv:
-        self.write(get_fn(max_ts=max_ts).to_csv())
+        if collection == 'get_bedcount':
+          self.write(get_fn(max_ts=max_ts).to_csv())
+        else:
+          self.write(get_fn().to_csv())
       else:
         self.write(get_fn().to_html())
     else:

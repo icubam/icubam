@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block links %}
-<link rel="stylesheet" href="/static/style.css">
-<script type="text/javascript" src="/static/update.js"></script>
+<link rel="stylesheet" href="/static/style.css?v={{version}}">
+<script type="text/javascript" src="/static/update.js?v={{version}}"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 {% end %}
 
@@ -24,7 +24,7 @@
   <form action="{{update_route}}" method="POST" id='icu_form'>
     <div class="form-row">
       <div class="form-elem positive">
-        <label for="n_covid_free" class="form-label">{{ _('Available COVID+ beds') }}</label>
+        <label for="n_covid_free" class="form-label">{{ _('Available COVID+ beds') }}(*)</label>
         <div>
           <input
           class="form-control" type="number"
@@ -33,7 +33,7 @@
       </div>
 
       <div class="form-elem positive">
-        <label for="n_ncovid_free" class="form-label">{{ _('Available COVID- beds') }}</label>
+        <label for="n_ncovid_free" class="form-label">{{ _('Available COVID- beds') }}(*)</label>
         <div>
           <input
             class="form-control" type="number"
@@ -42,7 +42,7 @@
       </div>
 
       <div class="form-elem negative">
-        <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}</label>
+        <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}(*)</label>
         <div>
           <input
             class="form-control" type="number"
@@ -98,7 +98,12 @@
       </div>
     </div>
 
+    <p>(*) {{_('equiped with artificial respirator')}}.</p>
+
     <div class="buttons">
+      <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
+        {{ _('Cancel') }}
+      </button>
       <button type="submit" class="btn btn-primary mb-2">
         {{ _('Submit') }}
       </button>

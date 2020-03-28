@@ -23,8 +23,7 @@ class HomeHandler(base.BaseHandler):
   CLUSTER_KEY = 'dept'  # city
 
   def initialize(self, config, db):
-    self.config = config
-    self.db = db
+    super().initialize(config, db)
     loader = tornado.template.Loader(self.get_template_path())
     self.popup_template = loader.load(self.POPUP_TEMPLATE)
 
@@ -87,7 +86,7 @@ class HomeHandler(base.BaseHandler):
 
       views = [
         {'name': 'cluster', 'beds': [cluster]},
-        {'name': 'full', 'beds': beds},
+        {'name': 'full', 'beds': sorted(beds, key=lambda x: x['icu'])},
       ]
       popup = self.popup_template.generate(
         cluster=cluster['city'], color=cluster['color'], views=views)

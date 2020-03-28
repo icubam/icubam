@@ -5,13 +5,7 @@ from absl import logging
 import tornado.ioloop
 from icubam.messaging import message
 from icubam.www.handlers import update
-
-
-def parse_hour(hour, sep=':') -> tuple:
-  """Returns a tuple of integer from an hour like '14:34'."""
-  if not isinstance(hour, str):
-    return hour
-  return tuple([int(x) for x in hour.split(sep)])
+from icubam import time_utils
 
 
 class MessageScheduler:
@@ -35,7 +29,7 @@ class MessageScheduler:
     self.base_url = base_url
     self.max_retries = max_retries
     self.reminder_delay = reminder_delay
-    self.when = [parse_hour(h) for h in when]
+    self.when = [time_utils.parse_hour(h) for h in when]
     self.phone_to_icu = {}
     self.messages = []
     self.urls = []  # for debug only
@@ -52,30 +46,9 @@ class MessageScheduler:
         update.UpdateHandler.ROUTE.strip('/'),
         self.token_encoder.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row['name'], row['icu_name'], url)
-      self.urls.append(url)
+      self.urls.append(f'{row.icu_name}: {url}')
       self.messages.append(
         message.Message(text, row.telephone, row.icu_id, row.icu_name))
-
-  def get_next_ping(self, ts=None):
-    """Gets the timestamp of the next moment of sending messages."""
-    if not self.when:
-      return
-
-    ts = int(time.time()) if ts is None else ts
-    now = datetime.datetime.fromtimestamp(ts)
-    today_fn = functools.partial(
-      datetime.datetime, year=now.year, month=now.month, day=now.day)
-    next = None
-    sorted_moments = sorted(self.when)
-    for hm in sorted_moments:
-      curr = today_fn(hour=hm[0], minute=hm[1])
-      if curr > now:
-        next = curr
-        break
-    if next is None:
-      hm = sorted_moments[0]
-      next = today_fn(hour=hm[0], minute=hm[1]) + datetime.timedelta(1)
-    return next.timestamp()
 
   def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
@@ -84,7 +57,7 @@ class MessageScheduler:
         logging.warning('No ping time. Check config.')
         return
 
-      delay = int(self.get_next_ping() - time.time())
+      delay = int(time_utils.get_next_timestamp(self.when) - time.time())
     for msg in self.messages:
       self.schedule(msg, delay=delay)
 
@@ -95,7 +68,7 @@ class MessageScheduler:
         logging.warning('No ping time. Check config.')
         return
 
-      delay = int(self.get_next_ping() - time.time())
+      delay = int(time_utils.get_next_timestamp(self.when) - time.time())
     io_loop = tornado.ioloop.IOLoop.current()
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
     self.timeouts[msg.phone] = io_loop.call_later(delay, self.may_send, msg)
