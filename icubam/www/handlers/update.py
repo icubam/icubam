@@ -4,20 +4,7 @@ from absl import logging
 
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-
-
-def time_ago(ts) -> str:
-  if ts is None:
-    return 'jamais'
-
-  delta = int(time.time() - int(ts))
-  units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
-  for unit, name in sorted(units, reverse=True):
-    curr = delta // unit
-    if curr > 0:
-      plural = '' if curr == 1 else 's' # hack
-      return 'il y a {} {}{}'.format(curr, name, plural)
-  return 'à l\'instant'
+from icubam import time_utils
 
 
 class UpdateHandler(base.BaseHandler):
@@ -26,25 +13,32 @@ class UpdateHandler(base.BaseHandler):
   QUERY_ARG = 'id'
 
   def initialize(self, config, db, queue, token_encoder):
-    self.config = config
-    self.db = db
+    super().initialize(config, db)
     self.queue = queue
     self.token_encoder = token_encoder
 
   def get_icu_data_by_id(self, icu_id, def_val=0):
-    print(icu_id)
     df = self.db.get_bedcount(icu_ids=[icu_id,])
-    if not df.empty:
-      result = df.to_dict(orient="records")[0]
-      result['since_update'] = time_ago(result["update_ts"])
-    else:
-      print("Empty")
-      result = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-      print(result)
-      result['since_update'] =  "never"
-    result['home_route'] = home.HomeHandler.ROUTE
-    result['update_route'] = self.ROUTE
-    return result
+    data = None
+    last_update = None
+    # In case there is a weird corner case, we don't want to crash the form:
+    try:
+      data = df.to_dict(orient='records')[0]
+      last_update = data['update_ts']
+    except Exception as e:
+      logging.error(e)
+      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
+    if data is None:
+      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
+    for k in data:
+      if data[k] is None:
+        data[k] = def_val
+
+    data['since_update'] = time_utils.localwise_time_ago(
+      last_update, self.get_user_locale())
+    data['home_route'] = home.HomeHandler.ROUTE
+    data['update_route'] = self.ROUTE
+    return data
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
@@ -52,7 +46,7 @@ class UpdateHandler(base.BaseHandler):
     input_data = self.token_encoder.decode(user_token)
 
     if input_data is None:
-      return self.redirect('/error')
+      return self.set_status(404)
 
     # try:
     print(input_data)
@@ -64,9 +58,9 @@ class UpdateHandler(base.BaseHandler):
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
 
-    # except Exception as e:
-    #   logging.error(e)
-    #   return self.redirect('/error')
+    except Exception as e:
+      logging.error(e)
+      return self.set_status(404)
 
   async def post(self):
     """Reads the form and saves the data to DB"""

@@ -7,8 +7,8 @@ class DBHandler(base.BaseHandler):
 
   ROUTE = '/db/(.*)'
 
-  def initialize(self, db):
-    self.db = db
+  def initialize(self, config, db):
+    super().initialize(config, db)
     keys = ['users', 'bedcount', 'icus']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
