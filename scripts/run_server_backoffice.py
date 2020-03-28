@@ -5,7 +5,6 @@ from absl import flags
 
 from backoffice.www.server import BackOfficeServer
 from icubam import config
-from icubam.messaging import server as msg_server
 
 flags.DEFINE_integer('port', 8889, 'Port of the application.')
 flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')

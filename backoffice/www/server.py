@@ -43,12 +43,14 @@ class BackOfficeServer:
     settings = {
       "cookie_secret": self.config.SECRET_COOKIE,
       "login_url": "/login",
+      "static_path": "backoffice/www/static",
+      "db": self.db
     }
     tornado.locale.load_translations('icubam/www/translations')
     app = tornado.web.Application(self.routes, **settings)
     app.listen(self.port)
 
     io_loop = tornado.ioloop.IOLoop.current()
-    #for callback_obj in self.callbacks:
-      #io_loop.spawn_callback(callback_obj.process)
+    # for callback_obj in self.callbacks:
+    # io_loop.spawn_callback(callback_obj.process)
     io_loop.start()

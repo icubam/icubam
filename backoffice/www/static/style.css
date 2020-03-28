@@ -1,0 +1,106 @@
+.main-content {
+  margin: 20px;
+  max-width: 600px;
+}
+
+h1 {
+  margin-bottom: 0px;
+}
+h2, h3 {
+  padding: 0;
+  margin-top: 0px!important;
+  margin-bottom: 0px!important;
+}
+
+.form-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.form-elem {
+  display: flex;
+  margin-right: 20px;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.form-control:valid {
+  border-width: 3px!important;
+}
+
+.positive .form-control:valid {
+  border-color: green!important;
+}
+
+.average .form-control:valid {
+  border-color: orange!important;
+}
+
+.negative .form-control:valid {
+  border-color: #ff0000!important;
+}
+
+a.not-underlined {
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.show-on-hover {
+  display: none;
+}
+
+a:hover + .show-on-hover {
+  display: inline;
+}
+
+.form-control {
+  width: 160px;
+}
+
+#map {
+  height: 100%;
+}
+
+.bed-table {
+  max-width: 350px;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.bed_map {
+  height: 90%;
+  margin: 10px;
+  padding: 0;
+}
+
+.report-number {
+  padding: 6px;
+  margin: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#icu_form {
+  display: none;
+}
+
+#subtitle-cluster {
+  display: block;
+}
+
+#subtitle-full {
+  display: none;
+}
+
+.subtitles {
+  padding: 0;
+  margin: 0;
+}
