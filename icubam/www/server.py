@@ -38,6 +38,7 @@ class WWWServer:
   def make_app(self):
     self.add_handler(
       update.UpdateHandler,
+      config=self.config,
       db=self.db,
       queue=self.writing_queue,
       token_encoder=self.token_encoder,

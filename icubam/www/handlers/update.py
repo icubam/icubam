@@ -25,7 +25,8 @@ class UpdateHandler(base.BaseHandler):
   ROUTE = '/update'
   QUERY_ARG = 'id'
 
-  def initialize(self, db, queue, token_encoder):
+  def initialize(self, config, db, queue, token_encoder):
+    self.config = config
     self.db = db
     self.queue = queue
     self.token_encoder = token_encoder
@@ -64,6 +65,7 @@ class UpdateHandler(base.BaseHandler):
     try:
       data = self.get_icu_data_by_id(input_data['icu_id'])
       data.update(input_data)
+      data.update(version=self.config.version)
 
       self.set_secure_cookie(self.COOKIE, user_token)
       self.render('update_form.html', **data)

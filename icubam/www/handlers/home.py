@@ -87,7 +87,7 @@ class HomeHandler(base.BaseHandler):
 
       views = [
         {'name': 'cluster', 'beds': [cluster]},
-        {'name': 'full', 'beds': beds},
+        {'name': 'full', 'beds': sorted(beds, key=lambda x: x['icu'])},
       ]
       popup = self.popup_template.generate(
         cluster=cluster['city'], color=cluster['color'], views=views)
