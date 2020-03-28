@@ -40,13 +40,23 @@
             value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
         </div>
       </div>
+    </div>
 
+    <div class="form-row">
       <div class="form-elem negative">
         <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}</label>
         <div>
           <input
             class="form-control" type="number"
             value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
+        </div>
+      </div>
+      <div class="form-elem negative">
+        <label for="n_ncovid_occ" class="form-label">{{ _('Occupied COVID- beds') }}</label>
+        <div>
+          <input
+            class="form-control" type="number"
+            value="{{n_ncovid_occ}}" name="n_ncovid_occ" id="n_ncovid_occ">
         </div>
       </div>
     </div>
