@@ -1,4 +1,5 @@
 from typing import Optional, Tuple, Union
+import functools
 import time
 import datetime
 
@@ -10,13 +11,23 @@ UNITS = [
 ]
 
 
-def time_ago(ts: Optional[Union[int, float]]) -> Tuple[int, str]:
-  """Returns the timedelta and its unit between now and the timestamp."""
+def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
+  """Returns how long ago when ts compared to ts_reference.
+
+  Args:
+   ts: the timestamp (int, float or None) we want to know how long ago it was.
+   ts_reference: the reference timestamp, setting the zero. If not set, we use
+    the current timestamp.
+
+  Returns:
+    A tuple (count, unit), corresponding to the most significant time unit.
+    For instance (3, 'hour') for 3 hours ago. (27, 'second') for 27 seconds ago.
+  """
   if ts is None:
     return -1, 'never'
 
-  delta = int(time.time() - int(ts))
-
+  ts_reference = time.time() if ts_reference is None else ts_reference
+  delta = int(ts_reference - int(ts))
   for unit, name in sorted(UNITS, reverse=True):
     curr = delta // unit
     if curr > 0:
@@ -24,28 +35,31 @@ def time_ago(ts: Optional[Union[int, float]]) -> Tuple[int, str]:
   return curr, 'now'
 
 
-def localwise_time_ago(ts, locale):
-  count, unit = time_ago(ts)
+def localwise_time_ago(ts, locale, ts_reference=None):
+  count, unit = time_ago(ts, ts_reference)
   local_units = locale.translate(unit, unit, count)
   return locale.translate("{delta} {units} ago").format(
     delta=count, units=local_units)
 
 
-def parse_hour(hour, sep=':') -> tuple:
+def parse_hour(hour, sep=':') -> Tuple[str, str]:
   """Returns a tuple of integer from an hour like '14:34'."""
   if not isinstance(hour, str):
     return hour
-  return tuple([int(x) for x in hour.split(sep)])
+  try:
+    return tuple([int(x) for x in hour.split(sep)])
+  except Exception as e:
+    return "", ""
 
 
-def get_next_timestamp(pings, ts=None):
-  """Gets the timestamp of the next ping in the list based on ts (or now).
+def get_next_timestamp(hours, ts=None):
+  """Gets the timestamp of the next hour in the list based on ts (or now).
 
   Args:
-   pings: a list of tuples (hour, minute)
+   hours: a list of tuples (hour, minute)
    ts: an optional timestamp. If none, use the current timestamp.
   """
-  if not pings:
+  if not hours:
     return None
 
   ts = int(time.time()) if ts is None else ts
@@ -53,7 +67,7 @@ def get_next_timestamp(pings, ts=None):
   today_fn = functools.partial(
     datetime.datetime, year=now.year, month=now.month, day=now.day)
   next = None
-  sorted_moments = sorted(self.when)
+  sorted_moments = sorted(hours)
   for hm in sorted_moments:
     curr = today_fn(hour=hm[0], minute=hm[1])
     if curr > now:

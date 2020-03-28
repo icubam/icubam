@@ -6,19 +6,6 @@ from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam import time_utils
 
-# def time_ago(ts) -> str:
-#   if ts is None:
-#     return 'jamais'
-#
-#   delta = int(time.time() - int(ts))
-#   units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
-#   for unit, name in sorted(units, reverse=True):
-#     curr = delta // unit
-#     if curr > 0:
-#       plural = '' if curr == 1 else 's' # hack
-#       return 'il y a {} {}{}'.format(curr, name, plural)
-#   return 'à l\'instant'
-
 
 class UpdateHandler(base.BaseHandler):
 

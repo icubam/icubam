@@ -13,12 +13,12 @@ class DataJson(base.BaseHandler):
   def get_icu_data(self):
     """Get bedcounts and augment it with extra information."""
     df = self.db.get_bedcount() # query data from db
-    # insert column at last positon applying 'time_ago' to the column 'update_ts'
     time_ago_fn = functools.partial(
       time_utils.localwise_time_ago, locale=self.get_user_locale())
     df['since_update'] = df.update_ts.apply(time_ago_fn)
     n_covid_tot = df['n_covid_free'] + df['n_covid_occ']
-    # insert column at position 1 of dataframe by pushing columns to the right
+    # Inserts a column at last position applying 'time_ago' to the column
+    # 'update_ts'
     df.insert(1, 'n_covid_tot', n_covid_tot)
     return df
 
