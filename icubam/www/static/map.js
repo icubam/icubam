@@ -28,7 +28,8 @@ function togglePopup (cluster_id, color) {
 function toggleAll () {
   all_showed = !all_showed
   for (i = 0; i < data.length; i++) {
-    if ((!showed.has(data[i].label) && all_showed) || !all_showed) {
+    if ((!showed.has(data[i].label) && all_showed) ||
+        (!all_showed && (showed.has(data[i].label)))) {
       togglePopup(data[i].label, data[i].color)
     }
   }
