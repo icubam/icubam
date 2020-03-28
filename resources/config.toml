@@ -1,10 +1,15 @@
 # Keys
-version='0.1'
+default_locale='fr-fr'
+version='0.1.1'
 
 # Tables
 [sms]
-origin = "ICUBAM"
-carrier = "TW"
+  [sms.dev]
+  origin = "ICUBAM"
+  carrier = "FAKE"
+  [sms.prod]
+  origin = "ICUBAM"
+  carrier = "TW"
 
 [db]
 sqlite_path = "icubam.db"
@@ -12,7 +17,7 @@ sqlite_path = "icubam.db"
 [server]
   [server.dev]
   PORT = 8888  # will be lower cased when reading.
-  base_url = "https://localhost:8888/"
+  base_url = "http://localhost:8888/"
   upload_dir = "uploads/"
   [server.prod]
   port = 443

@@ -35,7 +35,7 @@ class WWWServer:
     self.routes.append((route, handler, kwargs))
     logging.info("{} serving on {}".format(handler.__name__, route))
 
-  def make_app(self):
+  def make_routes(self):
     self.add_handler(
       update.UpdateHandler,
       config=self.config,
@@ -44,20 +44,32 @@ class WWWServer:
       token_encoder=self.token_encoder,
     )
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
-    self.add_handler(show.ShowHandler, db=self.db)
-    self.add_handler(show.DataJson, db=self.db)
-    self.add_handler(db.DBHandler, db=self.db)
+    self.add_handler(show.ShowHandler, config=self.config, db=self.db)
+    self.add_handler(show.DataJson, config=self.config, db=self.db)
+    self.add_handler(db.DBHandler, config=self.config, db=self.db)
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
     self.add_handler(static.NoCacheStaticFileHandler)
 
+  def make_app(self, cookie_secret=None):
+    if cookie_secret is None:
+      cookie_secret = self.config.SECRET_COOKIE
+    self.make_routes()
+    settings = {
+      "cookie_secret": cookie_secret,
+      "login_url": "/error",
+    }
+    tornado.locale.load_translations('icubam/www/translations')
+    return tornado.web.Application(self.routes, **settings)
+
+
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return "\n".join(
-      scheduler.MessageScheduler(self.db, None, self.token_encoder).urls
-    )
+    schedule = scheduler.MessageScheduler(
+      self.db, None, self.token_encoder, base_url=self.config.server.base_url)
+    return "\n".join(schedule.urls)
 
   def run(self):
     logging.info(
@@ -65,12 +77,7 @@ class WWWServer:
     )
     logging.info(self.debug_str)
 
-    settings = {
-      "cookie_secret": self.config.SECRET_COOKIE,
-      "login_url": "/error",
-    }
-    tornado.locale.load_translations('icubam/www/translations')
-    app = tornado.web.Application(self.routes, **settings)
+    app = self.make_app()
     app.listen(self.port)
 
     io_loop = tornado.ioloop.IOLoop.current()
