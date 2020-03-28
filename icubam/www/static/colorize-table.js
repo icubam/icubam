@@ -15,9 +15,9 @@
                     color_max: "#10A54A"
                 },
                 "blue-white-red": {
-                  color_min: "#312F9D",
-                  color_mid: "#FFFFFF",
-                  color_max: "#C80000"
+                    color_min: "#312F9D",
+                    color_mid: "#FFFFFF",
+                    color_max: "#C80000"
                 }
             },
             theme: "default",

@@ -43,7 +43,6 @@ $(document).ready(function() {
     },
 
     columns: [
-    //{data: 'icu_id'},
     {data: 'icu_name'},
     {data: 'n_covid_tot'},
     {data: 'n_covid_occ'},
@@ -52,21 +51,8 @@ $(document).ready(function() {
     {data: 'n_covid_deaths'},
     {data: 'n_covid_healed'},
     {data: 'since_update'},
-    /*
-    {data: 'n_covid_refused'},
-    {data: 'n_covid_transfered'},
-    {data: 'message'},
-    {data: 'update_ts'},
-    */
     ],
 
-    columnDefs: [
-      {
-        createdCell: function (td, cellData, rowData, rowIndex, colIndex) {
-          $(td).colorize()
-        }
-      },
-    ],
 
     drawCallback: function () {
       $("#example tbody td").not(':nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(7),:nth-child(8)').colorize({
