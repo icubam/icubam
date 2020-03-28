@@ -38,8 +38,10 @@ class UpdateHandler(base.BaseHandler):
       result = df.to_dict(orient="records")[0]
       result['since_update'] = time_ago(result["update_ts"])
     else:
+      print("Empty")
       result = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-      result = {'since_update': 'jamais'}
+      print(result)
+      result['since_update'] =  "never"
     result['home_route'] = home.HomeHandler.ROUTE
     result['update_route'] = self.ROUTE
     return result
