@@ -1,6 +1,7 @@
 from absl import logging
 import os.path
 import tornado.ioloop
+import tornado.locale
 from tornado import queues
 import tornado.web
 
@@ -37,6 +38,7 @@ class WWWServer:
   def make_app(self):
     self.add_handler(
       update.UpdateHandler,
+      config=self.config,
       db=self.db,
       queue=self.writing_queue,
       token_encoder=self.token_encoder,
@@ -67,6 +69,7 @@ class WWWServer:
       "cookie_secret": self.config.SECRET_COOKIE,
       "login_url": "/error",
     }
+    tornado.locale.load_translations('icubam/www/translations')
     app = tornado.web.Application(self.routes, **settings)
     app.listen(self.port)
 

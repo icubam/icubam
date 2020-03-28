@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block links %}
+<link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 {% end %}
 
 {% block content %}
@@ -11,14 +14,14 @@
         <thead>
         <tr>
             <!--<th width="10px">Modify</th>-->
-            <th>icu_name</th>
-            <th>n_covid_tot</th>
-            <th>n_covid_occ</th>
-            <th>n_covid_free</th>
-            <th>n_ncovid_free</th>
-            <th>n_covid_deaths</th>
-            <th>n_covid_healed</th>
-            <th>Dernière entrée</th>
+            <th>{{ _('Name') }}</th>
+            <th>{{ _('COVID total') }}</th>
+            <th>{{ _('COVID occupied') }}</th>
+            <th>{{ _('COVID available') }}</th>
+            <th>{{ _('non-COVID available') }}</th>
+            <th>{{ _('COVID deceased') }}</th>
+            <th>{{ _('COVID healed') }}</th>
+            <th>{{ _('Last update')}}</th>
             <!--
             <th>n_covid_refused</th>
             <th>n_covid_transfered</th>
@@ -34,6 +37,15 @@
 
 
 {% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
 <script type="text/javascript" charset="utf8"
         src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 
