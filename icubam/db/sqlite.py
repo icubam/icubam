@@ -17,7 +17,6 @@ class SQLiteDB:
 
     if os.path.exists(db_path):
       self._conn = sqlite3.connect(db_path)
-      self._create_table()
     else:
       self._conn = sqlite3.connect(db_path)
       self._create_table()
