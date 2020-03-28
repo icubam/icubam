@@ -55,9 +55,9 @@ class WWWServer:
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return "\n".join(
-      scheduler.MessageScheduler(self.db, None, self.token_encoder).urls
-    )
+    schedule = scheduler.MessageScheduler(
+      self.db, None, self.token_encoder, base_url=self.config.server.base_url)
+    return "\n".join(schedule.urls)
 
   def run(self):
     logging.info(
