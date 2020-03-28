@@ -49,10 +49,10 @@ COPY . ./
 
 # copy deploy configurations
 COPY $CONFIGS_FILE .
-RUN tar zxvf $CONFIGS_FILE
-RUN cp deploy_configs/icubam.env resources
-RUN cp deploy_configs/icubam.toml resources
-RUN rm $CONFIGS_FILE
+RUN  mkdir tmpconfigs && tar xxf $CONFIGS_FILE -C tmpconfigs --strip-components 1
+RUN cp tmpconfigs/icubam.env resources
+RUN cp tmpconfigs/icubam.toml resources
+RUN rm -rf $CONFIGS_FILE tmpconfigs
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
