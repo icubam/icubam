@@ -3,9 +3,10 @@ import logging
 import os
 import time
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy import Table, Column, MetaData, ForeignKey, UniqueConstraint
 from sqlalchemy import Float, Integer, String
+from sqlalchemy.sql import select, text
 
 from typing import Sequence
 
@@ -163,21 +164,14 @@ class SQLiteDB:
 
   def get_bedcount(self, icu_ids: Sequence = None, max_ts=None):
     """Returns a pandas DF of bed counts."""
-    query = """SELECT * FROM (SELECT * FROM bed_updates ORDER by ROWID DESC)
-       AS sub"""
-
-    # This is gross and should be replaced by SQL abstractions:
-    if icu_ids or max_ts:
-      query += " WHERE "
-      if icu_ids:
-        icu_list = ",".join(map(str, icu_ids)).rstrip(",")
-        query += f"""icu_id IN ({icu_list})"""
-        if max_ts:
-          query += " AND "
-      if max_ts:
-        query += f"""update_ts < {max_ts}"""
-
-    query += """ GROUP BY icu_id"""
+    sub = select([self._bed_updates]).order_by(desc(text("ROWID")))
+    if icu_ids:
+      sub = sub.where(self._bed_updates.c.icu_id.in_(icu_ids))
+    if max_ts:
+      # Equilavent to self._bed_updates.c.update_ts < max_ts, but this doesn't
+      # seem to work properly (i.e. rows are not filtered).
+      sub = sub.where(text(f"""update_ts < {max_ts}"""))
+    query = select([sub]).group_by("icu_id")
     return pd.read_sql_query(query, self._conn)
 
   def pd_execute(self, query):
