@@ -15,7 +15,7 @@ class MessageServer:
     self.config = config
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.port = port
-    self.sender = sms_sender.get_sender(self.config)
+    self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
       db=self.db,
@@ -30,7 +30,7 @@ class MessageServer:
   async def process(self):
     async for msg in self.queue:
       try:
-        self.sender.send_message(msg.phone, msg.text)
+        self.sender.send(msg.phone, msg.text)
       finally:
         self.queue.task_done()
 
