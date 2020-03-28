@@ -32,7 +32,7 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
 
   def test_update_form(self):
     response = self.fetch(update.UpdateHandler.ROUTE)
-    self.assertEqual(response.code, 404)
+    self.assertEqual(response.code, 400)
 
     url_prefix = "{}?id=".format(update.UpdateHandler.ROUTE)
     response = self.fetch(url_prefix + "123")
