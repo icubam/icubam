@@ -30,7 +30,7 @@ class UpdateHandler(base.BaseHandler):
     self.queue = queue
     self.token_encoder = token_encoder
 
-  def get_icu_data_by_id(self, icu_id):
+  def get_icu_data_by_id(self, icu_id, def_val=0):
     df = self.db.get_bedcount()
     try:
       data = None
@@ -49,7 +49,6 @@ class UpdateHandler(base.BaseHandler):
         data[k] = def_val
 
     data['since_update'] = time_ago(last_update)
-    data['save_button'] = self.SAVE_BUTTON_NAME
     data['home_route'] = home.HomeHandler.ROUTE
     data['update_route'] = self.ROUTE
     return data
