@@ -29,7 +29,7 @@ class MessageScheduler:
     self.base_url = base_url
     self.max_retries = max_retries
     self.reminder_delay = reminder_delay
-    self.when = [time_ago.parse_hour(h) for h in when]
+    self.when = [time_utils.parse_hour(h) for h in when]
     self.phone_to_icu = {}
     self.messages = []
     self.urls = []  # for debug only
