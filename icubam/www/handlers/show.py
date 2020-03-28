@@ -1,6 +1,9 @@
 import tornado.web
-
+from tornado import escape
 from icubam.www.handlers import base
+from icubam.www.handlers import home
+from icubam.www import token
+from icubam.www.handlers import update
 
 
 class DataJson(base.BaseHandler):
@@ -11,6 +14,9 @@ class DataJson(base.BaseHandler):
 
   def get_icu_data(self):
     df = self.db.get_bedcount()
+    df['since_update'] = df.update_ts.apply(update.time_ago)
+    n_covid_tot = df['n_covid_free'] + df['n_covid_occ']
+    df.insert(1, 'n_covid_tot', n_covid_tot)
     return df
 
   @tornado.web.authenticated
@@ -26,6 +32,6 @@ class ShowHandler(base.BaseHandler):
     self.db = db
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     """Serves the page with a form to be filled by the user."""
     self.render("show.html")
