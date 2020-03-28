@@ -44,9 +44,9 @@ class WWWServer:
       token_encoder=self.token_encoder,
     )
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
-    self.add_handler(show.ShowHandler, db=self.db)
-    self.add_handler(show.DataJson, db=self.db)
-    self.add_handler(db.DBHandler, db=self.db)
+    self.add_handler(show.ShowHandler, config=self.config, db=self.db)
+    self.add_handler(show.DataJson, config=self.config, db=self.db)
+    self.add_handler(db.DBHandler, config=self.config, db=self.db)
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
@@ -67,9 +67,9 @@ class WWWServer:
   @property
   def debug_str(self):
     """Only for debug to be able to connect for now. To be removed."""
-    return "\n".join(
-      scheduler.MessageScheduler(self.db, None, self.token_encoder).urls
-    )
+    schedule = scheduler.MessageScheduler(
+      self.db, None, self.token_encoder, base_url=self.config.server.base_url)
+    return "\n".join(schedule.urls)
 
   def run(self):
     logging.info(

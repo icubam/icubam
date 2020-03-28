@@ -4,20 +4,7 @@ from absl import logging
 
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-
-
-def time_ago(ts) -> str:
-  if ts is None:
-    return 'jamais'
-
-  delta = int(time.time() - int(ts))
-  units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
-  for unit, name in sorted(units, reverse=True):
-    curr = delta // unit
-    if curr > 0:
-      plural = '' if curr == 1 else 's' # hack
-      return 'il y a {} {}{}'.format(curr, name, plural)
-  return 'à l\'instant'
+from icubam import time_utils
 
 
 class UpdateHandler(base.BaseHandler):
@@ -26,8 +13,7 @@ class UpdateHandler(base.BaseHandler):
   QUERY_ARG = 'id'
 
   def initialize(self, config, db, queue, token_encoder):
-    self.config = config
-    self.db = db
+    super().initialize(config, db)
     self.queue = queue
     self.token_encoder = token_encoder
 
@@ -49,7 +35,8 @@ class UpdateHandler(base.BaseHandler):
       if data[k] is None:
         data[k] = def_val
 
-    data['since_update'] = time_ago(last_update)
+    data['since_update'] = time_utils.localwise_time_ago(
+      last_update, self.get_user_locale())
     data['home_route'] = home.HomeHandler.ROUTE
     data['update_route'] = self.ROUTE
     return data
