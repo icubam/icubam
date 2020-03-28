@@ -1,12 +1,11 @@
 # Keys
-version='0.1'
-default_locale='fr-fr'
-version='0.1.1'
+  default_locale='fr-fr'
+  version='0.1.1'
 
 # Tables
 [sms]
-origin = "ICUBAM"
-carrier = "TW"
+  origin = "ICUBAM"
+  carrier = "TW"
 
 [db]
 sqlite_path = "icubam.db"
