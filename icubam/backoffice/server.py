@@ -34,7 +34,6 @@ class BackOfficeServer:
 
     settings = {
       "cookie_secret": self.config.SECRET_COOKIE,
-      #"login_url": "/login",
       "static_path": "icubam//www/static",
       "db": self.db
     }
