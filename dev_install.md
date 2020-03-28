@@ -57,3 +57,22 @@ Follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `.env` file.
 
 To start the tests, install `pytest` and run `pytest`
+
+## Docker install
+
+First, install Docker on your host (check official [documentation](https://docs.docker.com/)).
+
+To build the ICUBAM Docker image
+    
+```
+./docker_build deploy_configs.tgz 1.0 dev
+```
+    
+To launch the container
+
+```
+./docker_run icubam:1.0 9000
+``` 
+
+To activate the server, use `docker logs CONTIANER_ID` to retrevie the URL and open the URL. Replace the port after 
+localhost with the public port chosen for the container (9000 in the example above).  

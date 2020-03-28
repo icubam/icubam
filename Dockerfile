@@ -11,8 +11,13 @@ ENV TERM linux
 ENV BASH_ENV ~/.bashrc
 SHELL ["/bin/bash", "-c"]
 
+# comment out the line in the default .bashrc that does an early exit if not in
+# interactive mode. It should be noted that the -i option of docker run does
+# not launch the shell in interactive mode. CCheck Dockerfile.3 for a demo.
+RUN sed -e '/[\ -z \"\$PS1\"\ ]\ &&\ return/ s/^#*/#/' -i /root/.bashrc
+
 # General installs in the docker
-RUN apt-get -y update && apt-get -y dist-upgrade
+RUN apt-get -y update && apt-get -y upgrade
 
 RUN apt-get -y install \
     apt-utils \
@@ -53,8 +58,7 @@ RUN rm $CONFIGS_FILE
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
 RUN conda env create -f environment.yml
 
-# Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "icubam", "/bin/bash", "-c"]
-
-## default command
-CMD ["conda", "run", "-n", "icubam", "./start_server.sh"]
+# default commend when entering the container
+ENTRYPOINT ["/bin/bash", "-c"]
+# default command
+CMD ["./start_server.sh"]

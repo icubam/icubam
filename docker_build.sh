@@ -8,7 +8,7 @@ then
 	  echo "   where IMAGE_VERSION is the version number for the Docker image being built"
 	  echo "   where ENV can be dev, prod"
       echo ""
-      echo "   example: $0 ../configs_deply.tgz 1.0 dev"
+      echo "   example: $0 deploy_configs.tgz 1.0 dev"
 	  exit
 fi
 
