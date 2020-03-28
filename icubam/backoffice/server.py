@@ -7,6 +7,7 @@ from absl import logging
 from tornado_sqlalchemy import SQLAlchemy
 
 from icubam.backoffice.handlers.home import HomeBOHandler
+from icubam.backoffice.handlers.user import ListUserHandler, UserJson
 
 
 class BackOfficeServer:
@@ -26,6 +27,8 @@ class BackOfficeServer:
 
   def make_app(self):
     self.add_handler(HomeBOHandler)
+    self.add_handler(ListUserHandler)
+    self.add_handler(UserJson)
 
   def run(self):
     logging.info(
@@ -34,8 +37,7 @@ class BackOfficeServer:
 
     settings = {
       "cookie_secret": self.config.SECRET_COOKIE,
-      #"login_url": "/login",
-      "static_path": "icubam//www/static",
+      "static_path": "icubam/backoffice/static",
       "db": self.db
     }
     tornado.locale.load_translations('icubam/www/translations')
