@@ -1,5 +1,6 @@
 # Keys
 version='0.1'
+default_locale='fr-fr'
 
 # Tables
 [sms]
