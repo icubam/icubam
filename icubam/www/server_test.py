@@ -17,7 +17,7 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
 
   def get_app(self):
     www_server = server.WWWServer(self.config, port=8888)
-    return www_server.make_app()
+    return www_server.make_app(cookie_secret='secret')
 
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)

@@ -52,10 +52,12 @@ class WWWServer:
     )
     self.add_handler(static.NoCacheStaticFileHandler)
 
-  def make_app(self):
+  def make_app(self, cookie_secret=None):
+    if cookie_secret is None:
+      cookie_secret = self.config.SECRET_COOKIE
     self.make_routes()
     settings = {
-      "cookie_secret": self.config.SECRET_COOKIE,
+      "cookie_secret": cookie_secret,
       "login_url": "/error",
     }
     tornado.locale.load_translations('icubam/www/translations')
