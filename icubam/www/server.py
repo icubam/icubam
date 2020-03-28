@@ -44,9 +44,9 @@ class WWWServer:
       token_encoder=self.token_encoder,
     )
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
-    self.add_handler(show.ShowHandler, db=self.db)
-    self.add_handler(show.DataJson, db=self.db)
-    self.add_handler(db.DBHandler, db=self.db)
+    self.add_handler(show.ShowHandler, config=self.config, db=self.db)
+    self.add_handler(show.DataJson, config=self.config, db=self.db)
+    self.add_handler(db.DBHandler, config=self.config, db=self.db)
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )

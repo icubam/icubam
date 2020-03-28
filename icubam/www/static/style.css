@@ -88,6 +88,11 @@ html {
   text-align: center;
 }
 
+.modal-icu-name {
+  text-align: left;
+}
+
+
 #icu_form {
   display: none;
 }

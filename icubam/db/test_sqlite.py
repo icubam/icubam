@@ -3,7 +3,7 @@ import time
 
 from absl.testing import absltest
 from icubam.db import sqlite
-import sqlite3
+import sqlalchemy.exc
 import tempfile
 
 class SQLiteDBTest(absltest.TestCase):
@@ -43,7 +43,7 @@ class SQLiteDBTest(absltest.TestCase):
         sqldb.upsert_icu("ICU1", "dep1", "city1", 3.44, 42.3, "0102")
         sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
 
-        with self.assertRaises(sqlite3.IntegrityError):
+        with self.assertRaises(sqlalchemy.exc.IntegrityError):
           sqldb.add_user("ICU1", "Bob", "+33698158092", "Chercheur")
         users = sqldb.get_users()
 
