@@ -25,7 +25,7 @@ class BackOfficeServer(base_server.BaseServer):
     settings = {
       "cookie_secret": cookie_secret,
       "static_path": "icubam/backoffice/static",
-      "login_url": "/error",
+      "login_url": "/login",
     }
     tornado.locale.load_translations('icubam/backoffice/translations')
     self.make_routes()
