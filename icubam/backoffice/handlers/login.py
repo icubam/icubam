@@ -29,6 +29,7 @@ class LoginBOHandler(BaseBOHandler):
     password = self.get_argument("password", "")
     authenticate = self._authenticate(email, password)
     if authenticate[0]:
+      # TODO(fpquintao): Set the cookie with the user id.
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(email))
       return self.redirect(self.get_argument("next", "/"))
     # Failed to login, GET page again with the error message.
