@@ -24,11 +24,12 @@ class BackOfficeServer(base_server.BaseServer):
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
+    path = os.path.dirname(os.path.abspath(__file__))
     settings = {
       "cookie_secret": cookie_secret,
-      "static_path": "icubam/backoffice/static",
+      "static_path": os.path.join(path, 'static'),
       "login_url": "/login",
     }
-    tornado.locale.load_translations('icubam/backoffice/translations')
+    tornado.locale.load_translations(os.path.join(path, 'translations'))
     self.make_routes()
     return tornado.web.Application(self.routes, **settings)
