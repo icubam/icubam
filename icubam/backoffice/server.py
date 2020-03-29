@@ -5,43 +5,30 @@ import tornado.ioloop
 import tornado.locale
 import tornado.web
 
-from icubam.backoffice.handlers.home import HomeBOHandler
-from icubam.backoffice.handlers.login import LoginBOHandler
-from icubam.db import sqlite
+from icubam.backoffice.handlers import (home,login)
+from icubam import base_server
 
 
-class BackOfficeServer:
+class BackOfficeServer(base_server.BaseServer):
   """Serves and manipulates the Backoffice ICUBAM."""
 
   def __init__(self, config, port):
-    self.config = config
+    super().__init__(config, port)
     self.port = port if port is not None else self.config.backoffice.port
-    self.routes = []
-    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
-    self.make_app()
 
-  def add_handler(self, handler, **kwargs):
-    route = os.path.join("/", handler.ROUTE)
-    self.routes.append((route, handler, kwargs))
-    logging.info("{} serving on {}".format(handler.__name__, route))
+  def make_routes(self):
+    self.add_handler(home.HomeBOHandler, config=self.config, db=self.db)
+    self.add_handler(home.LoginBOHandler, config=self.config, db=self.db)
 
-  def make_app(self):
-    self.add_handler(HomeBOHandler)
-    self.add_handler(LoginBOHandler)
 
-  def run(self):
-    logging.info(
-      "Running {} on port {}".format(self.__class__.__name__, self.port)
-    )
-
+  def make_app(self, cookie_secret=None):
+    if cookie_secret is None:
+      cookie_secret = self.config.SECRET_COOKIE
     settings = {
-      "cookie_secret": self.config.SECRET_COOKIE,
-      "static_path": "icubam//www/static",
-      "db": self.db
+      "cookie_secret": cookie_secret,
+      "static_path": "icubam/backoffice/static",
+      "login_url": "/login",
     }
-    tornado.locale.load_translations('icubam/www/translations')
-    app = tornado.web.Application(self.routes, **settings)
-    app.listen(self.port)
-
-    io_loop = tornado.ioloop.IOLoop.current()
-    io_loop.start()
+    tornado.locale.load_translations('icubam/backoffice/translations')
+    self.make_routes()
+    return tornado.web.Application(self.routes, **settings)

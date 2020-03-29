@@ -24,15 +24,19 @@ sqlite_path = "icubam.db"
   base_url = "https://test.icubam.net/"
   upload_dir = "uploads/"
 
-[scheduler]
-  [scheduler.prod]
-  max_retries = 1
-  reminder_delay = 1800  # 30 minutes in seconds
-  ping = ['9:30', '17:30']
-  [scheduler.dev]
-  max_retries = 3
-  reminder_delay = 45
-  ping = ['12:30', '17:30', '14:12']
+[messaging]
+  port = 8889
+  [scheduler]
+    [scheduler.prod]
+    max_retries = 1
+    reminder_delay = 1800  # 30 minutes in seconds
+    ping = ['9:30', '17:30']
+    [scheduler.dev]
+    max_retries = 3
+    reminder_delay = 45
+    ping = ['12:30', '17:30', '14:12']
+
+
 
 [backoffice]
   port = 8890
