@@ -1,9 +1,9 @@
 import tornado.escape
 
-from icubam.backoffice.handlers.base import BaseBOHandler
+from icubam.backoffice.handlers.base import BaseHandler
 
 
-class LoginBOHandler(BaseBOHandler):
+class LoginHandler(BaseHandler):
 
   ROUTE= "/login"
 
@@ -33,4 +33,4 @@ class LoginBOHandler(BaseBOHandler):
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(email))
       return self.redirect(self.get_argument("next", "/"))
     # Failed to login, GET page again with the error message.
-    return self.redirect("/login" + self._makeErrorMessage(authenticate[1]))
+    return self.redirect(self.ROUTE + self._makeErrorMessage(authenticate[1]))

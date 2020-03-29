@@ -1,8 +1,8 @@
-from icubam.backoffice.handlers.base import BaseBOHandler
+from icubam.backoffice.handlers.base import BaseHandler
 
 import tornado.web
 
-class HomeBOHandler(BaseBOHandler):
+class HomeHandler(BaseHandler):
   ROUTE = '/'
 
   @tornado.web.authenticated
