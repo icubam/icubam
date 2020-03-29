@@ -18,14 +18,13 @@ class UpdateHandler(base.BaseHandler):
     self.token_encoder = token_encoder
 
   def get_icu_data_by_id(self, icu_id, def_val=0):
-    df = self.db.get_bedcount()
+    df = self.db.get_bedcount(icu_ids=[icu_id,])
+    data = None
+    last_update = None
+    # In case there is a weird corner case, we don't want to crash the form:
     try:
-      data = None
-      last_update = None
-      for index, row in df[df.icu_id == icu_id].iterrows():
-        data = row.to_dict()
-        last_update = data['update_ts']
-        break
+      data = df.to_dict(orient='records')[0]
+      last_update = data['update_ts']
     except Exception as e:
       logging.error(e)
       data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
