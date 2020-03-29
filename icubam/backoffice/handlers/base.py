@@ -2,7 +2,7 @@ import tornado.locale
 import tornado.web
 
 
-class BaseBOHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""
 
   COOKIE = 'user'
