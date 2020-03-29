@@ -6,6 +6,7 @@ import tornado.locale
 import tornado.web
 
 from icubam.backoffice.handlers.home import HomeBOHandler
+from icubam.backoffice.handlers.login import LoginBOHandler
 from icubam.db import sqlite
 
 
@@ -26,6 +27,7 @@ class BackOfficeServer:
 
   def make_app(self):
     self.add_handler(HomeBOHandler)
+    self.add_handler(LoginBOHandler)
 
   def run(self):
     logging.info(

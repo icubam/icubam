@@ -5,4 +5,8 @@ class HomeBOHandler(BaseBOHandler):
   ROUTE = '/'
 
   def get(self):
-    self.render("home.html")
+    if self.get_current_user():
+      return self.render("home.html")
+
+    # No user logged in, redirects to the login page.
+    return self.redirect("/login")
