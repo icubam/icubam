@@ -7,7 +7,7 @@ from absl import logging
 from tornado_sqlalchemy import SQLAlchemy
 
 from icubam.backoffice.handlers.home import HomeBOHandler
-from icubam.backoffice.handlers.user import ListUserHandler, UserJson
+from icubam.backoffice.handlers.user import ListUserHandler, UserJson, AddUserHandler
 
 
 class BackOfficeServer:
@@ -29,6 +29,7 @@ class BackOfficeServer:
     self.add_handler(HomeBOHandler)
     self.add_handler(ListUserHandler)
     self.add_handler(UserJson)
+    self.add_handler(AddUserHandler)
 
   def run(self):
     logging.info(

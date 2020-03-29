@@ -13,12 +13,11 @@ FLAGS = flags.FLAGS
 
 def main(unused_argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode)
-
   engine = create_engine("sqlite+pysqlite:///{}".format(cfg.db.sqlite_path), encoding='utf-8', echo=True)
   metadata = Base.metadata
   metadata.create_all(engine)
 
-  user = User(name="admin")
+  user = User(name="admin", mail="mail")
   Session = sessionmaker(bind=engine)
   session = Session()
   session.add(user)

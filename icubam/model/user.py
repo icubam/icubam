@@ -10,3 +10,4 @@ class User(Base, Serializer):
   __tablename__ = 'user'
   id = Column(Integer, primary_key=True)
   name = Column('name', String(255))
+  mail = Column('mail', String(255))
