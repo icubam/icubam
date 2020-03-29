@@ -36,3 +36,6 @@ jobs:
         python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
         pip install pytest
         pytest .
+        pip install -e .
+        python scripts/populate_db_fake.py --mode=dev
+        timeout 5 python scripts/run_server.py || echo "Normal timeout" | grep "Normal timeout"

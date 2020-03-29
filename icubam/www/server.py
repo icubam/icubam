@@ -1,3 +1,4 @@
+import os.path
 from absl import logging
 import tornado.locale
 from tornado import queues
@@ -24,6 +25,7 @@ class WWWServer(base_server.BaseServer):
     self.writing_queue = queues.Queue()
     self.callbacks = [
       queue_writer.QueueWriter(self.writing_queue, self.db).process]
+    self.path = home.HomeHandler.PATH
 
   def make_routes(self):
     self.add_handler(
@@ -32,15 +34,17 @@ class WWWServer(base_server.BaseServer):
       db=self.db,
       queue=self.writing_queue,
       token_encoder=self.token_encoder,
+
     )
-    self.add_handler(home.HomeHandler, config=self.config, db=self.db)
-    self.add_handler(show.ShowHandler, config=self.config, db=self.db)
-    self.add_handler(show.DataJson, config=self.config, db=self.db)
-    self.add_handler(db.DBHandler, config=self.config, db=self.db)
+    kwargs = dict(config=self.config, db=self.db)
+    self.add_handler(home.HomeHandler, **kwargs)
+    self.add_handler(show.ShowHandler, **kwargs)
+    self.add_handler(show.DataJson, **kwargs)
+    self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
-    self.add_handler(static.NoCacheStaticFileHandler)
+    self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):
     # TODO(olivier): remove this when we have a backoffice.
@@ -52,7 +56,7 @@ class WWWServer(base_server.BaseServer):
       "cookie_secret": cookie_secret,
       "login_url": "/error",
     }
-    tornado.locale.load_translations('icubam/www/translations')
+    tornado.locale.load_translations(os.path.join(self.path, 'translations'))
     return tornado.web.Application(self.routes, **settings)
 
   @property
