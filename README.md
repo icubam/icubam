@@ -21,14 +21,12 @@ qu'ils peuvent remplir en 15 secondes, montre en main.
 
 ## More information about ICUBAM
 
-This software is currently running live.  It collects data sent by 97 doctors
-in 41 ICU wards in the Easter France region.
+This software stack is currently being used by the ICU system in Eastern France to help manage the COVID crisis.
 
-The project started on March 28th. The initial idea was provided by an ICU
-doctor, Dr. Kimounn. It fleshed out live during the Covid crisis in Eastern
-France. It answers an urgent need for finding available ICU beds in a saturated
+The project was co-built between ICU Doctors from CHRU Nancy/Université de Loraine with and engineers from INRIA & Polytechnique. It was fleshed out live during the Covid crisis in Eastern
+France to answer an urgent need for finding available ICU beds in a saturated
 and deteriorating situation. At the time of writing, 5 engineers are working
-full-time, 7 days a week, on the project.
+full-time, 7 days a week, on the project, in direct contact with the team of ICU doctors on the ground.
 
 Most of the data handled by ICUBAM is less than 1 hour old. ICUBAM integrates
 with the ministry of health's back-end system for
@@ -39,3 +37,5 @@ This software is open-source and made available on
 [GitHUb](https://github.com/icubam/icubam).
 
 It will soon be released as a one-click deployable docker container.
+
+Last updated: Mar. 29 2020.
