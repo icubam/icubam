@@ -47,8 +47,11 @@ class MessageScheduler:
         self.token_encoder.encode_icu(row.icu_id, row.icu_name))
       text = self.MESSAGE_TEMPLATE.format(row['name'], row['icu_name'], url)
       self.urls.append(f'{row.icu_name}: {url}')
-      self.messages.append(
-        message.Message(text, row.telephone, row.icu_id, row.icu_name))
+      self.messages.append(message.Message(text,
+                                           row['user_id'],
+                                           row['telephone'],
+                                           row['icu_id'],
+                                           row['icu_name']))
 
   def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
@@ -71,7 +74,16 @@ class MessageScheduler:
       delay = int(time_utils.get_next_timestamp(self.when) - time.time())
     io_loop = tornado.ioloop.IOLoop.current()
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
-    self.timeouts[msg.phone] = io_loop.call_later(delay, self.may_send, msg)
+    self.timeouts[msg.user_id] = io_loop.call_later(delay, self.may_send, msg)
+
+  def unschedule(self, user_id):
+    timeout = self.timeouts.pop(user_id, None)
+    if timeout is None:
+      logging.info(f'No timeout for user {user_id}')
+      return
+
+    io_loop = tornado.ioloop.IOLoop.current()
+    io_loop.remove_timeout(timeout)
 
   async def may_send(self, msg):
     # This message was never sent: send it!

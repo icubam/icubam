@@ -3,6 +3,7 @@ import dataclasses
 @dataclasses.dataclass
 class Message:
   text: str
+  user_id: int
   phone: str
   icu_id: int
   icu_name: str
