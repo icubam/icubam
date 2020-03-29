@@ -28,8 +28,8 @@ def main(unused_argv):
   sdb.update_bedcount(4, 'Beaujon', 5, 6, 12, 200, 34, 7, 1)
   sdb.update_bedcount(5, 'Bicetre', 9, 2, 12, 200, 34, 44, 1)
 
-  sdb.add_user('Bicetre', 'user1', '336666666', 'wtf')
-  sdb.add_user('Avicenne', 'user2', '336699999', 'wthjhf')
+  sdb.add_user('Bicetre', 'user1', '+336666666', 'wtf')
+  sdb.add_user('Avicenne', 'user2', '+336699999', 'wthjhf')
 
 
 if __name__ == "__main__":
