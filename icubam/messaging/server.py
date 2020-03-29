@@ -16,6 +16,7 @@ class MessageServer(base_server.BaseServer):
 
   def __init__(self, config, port=8889):
     super().__init__(config, port)
+    self.port = port if port is not None else self.config.messaging.port
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     components = urllib.parse.urlparse(self.config.server.base_url)
@@ -47,4 +48,3 @@ class MessageServer(base_server.BaseServer):
   def run(self, delay=None):
     self.scheduler.schedule_all(delay)
     super().run()
-    

@@ -11,10 +11,6 @@ from icubam import time_utils
 class MessageScheduler:
   """Schedules the sending of SMS to users."""
 
-  MESSAGE_TEMPLATE = (
-    "Bonjour {},\nvoici le lien à suivre pour mettre à jour les données covid"
-    " de {} sur ICUBAM: {}")
-
   def __init__(self,
                db,
                queue,
@@ -32,26 +28,20 @@ class MessageScheduler:
     self.when = [time_utils.parse_hour(h) for h in when]
     self.phone_to_icu = {}
     self.messages = []
-    self.urls = []  # for debug only
     self.timeouts = {}
     self.build_messages()
+    self.updater = updater.Updater(self.config, None)
 
   def build_messages(self):
     """Build the messages to be sent to each user depending on its ICU."""
     users_df = self.db.get_users()
     self.messages = []
     for index, row in users_df.iterrows():
-      url = "{}{}?id={}".format(
-        self.base_url,
-        update.UpdateHandler.ROUTE.strip('/'),
-        self.token_encoder.encode_icu(row.icu_id, row.icu_name))
-      text = self.MESSAGE_TEMPLATE.format(row['name'], row['icu_name'], url)
-      self.urls.append(f'{row.icu_name}: {url}')
-      self.messages.append(message.Message(text,
-                                           row['user_id'],
-                                           row['telephone'],
-                                           row['icu_id'],
-                                           row['icu_name']))
+      url = self.updater.get_url(row.icu_id. row.icu_name)
+      msg = message.Message(
+        row.icu_id, row.icu_name, row.telephone, row.user_id, row.name)
+      msg.build(url)
+      self.messages.append(msg)
 
   def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
