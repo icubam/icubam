@@ -22,7 +22,7 @@ class WWWServer:
 
   def __init__(self, config, port):
     self.config = config
-    self.port = port
+    self.port = port if port is not None else self.config.server.port
     self.routes = []
     self.token_encoder = token.TokenEncoder(self.config)
     self.writing_queue = queues.Queue()
