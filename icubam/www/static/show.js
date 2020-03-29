@@ -51,6 +51,7 @@ $(document).ready(function() {
       {data: 'n_covid_deaths'},
       {data: 'n_covid_healed'},
       {data: 'since_update'},
+      {data: 'update_ts'},
     ],
 
 
