@@ -5,6 +5,7 @@ from absl import logging
 import tornado.ioloop
 from icubam.messaging import message
 from icubam.www.handlers import update
+from icubam.www import updater
 from icubam import time_utils
 
 
@@ -12,6 +13,7 @@ class MessageScheduler:
   """Schedules the sending of SMS to users."""
 
   def __init__(self,
+               config,
                db,
                queue,
                token_encoder,
@@ -19,6 +21,7 @@ class MessageScheduler:
                max_retries: int = 2,
                reminder_delay: int = 60*30,
                when=[(9, 30), (17, 0)]):
+    self.config = config
     self.db = db
     self.token_encoder = token_encoder
     self.queue = queue
@@ -29,17 +32,20 @@ class MessageScheduler:
     self.phone_to_icu = {}
     self.messages = []
     self.timeouts = {}
-    self.build_messages()
     self.updater = updater.Updater(self.config, None)
+    self.build_messages()
 
   def build_messages(self):
     """Build the messages to be sent to each user depending on its ICU."""
     users_df = self.db.get_users()
     self.messages = []
     for index, row in users_df.iterrows():
-      url = self.updater.get_url(row.icu_id. row.icu_name)
+      print(row)
+      url = self.updater.get_url(row.icu_id, row.icu_name)
+      # TODO(olivier): fix when user-id is in
+      user_id = row.telephone
       msg = message.Message(
-        row.icu_id, row.icu_name, row.telephone, row.user_id, row.name)
+        row.icu_id, row.icu_name, row.telephone, user_id, row.name)
       msg.build(url)
       self.messages.append(msg)
 
