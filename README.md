@@ -6,16 +6,16 @@
 
 ICUBAM's goal is to provide real-time information on intensive care unit (ICU)
 bed availability in French hospitals. Data is directly obtained from doctors
-working inside ICU by sending them SMS with a http link to a form that they can
+working inside ICU by sending them SMS with a HTTP link to a form that they can
 fill in 15 seconds.
 
 ### French
 
-ICUBAM a pour objectif the fournir des informations en temps réel sur la
+ICUBAM a pour objectif de fournir des informations en temps réel sur la
 disponibilité des lits dans les unités de soin intensif (USI) des hôpitaux
-français. Les données sont obtenues directemnt des médecins qui travaillent
-dans les USI en leur envoyant des SMS avec un lien http vers un formulaire
-qu'ils peuvent remplire en 15 secondes, montre en main.
+français. Les données sont obtenues directement des médecins qui travaillent
+dans les USI en leur envoyant des SMS avec un lien HTTP vers un formulaire
+qu'ils peuvent remplir en 15 secondes, montre en main.
 
 ![map](/images/map.jpg)
 
@@ -31,7 +31,7 @@ and deteriorating situation. At the time of writing, 5 engineers are working
 full-time, 7 days a week, on the project.
 
 Most of the data handled by ICUBAM is less than 1 hour old. ICUBAM integrates
-with the ministry of health's backend for
+with the ministry of health's back-end system for
 - sending data upstream to inform authorities,
 - and retrieving data to synchronise with other data sources.
 
