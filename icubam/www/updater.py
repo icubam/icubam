@@ -1,5 +1,3 @@
-"""Helper class for dealing with updating the counts."""
-
 from  absl import logging
 
 from icubam import time_utils
@@ -8,6 +6,7 @@ from icubam.www import token
 
 
 class Updater:
+  """Helper class for dealing with updating the counts."""
 
   ROUTE = '/update'
 

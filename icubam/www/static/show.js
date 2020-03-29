@@ -66,7 +66,6 @@ $(document).ready(function() {
       },
     ],
 
-
     drawCallback: function () {
 
       $("#example tbody td").filter(':nth-child(6)').colorize({
