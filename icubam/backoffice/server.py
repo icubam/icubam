@@ -13,13 +13,13 @@ class BackOfficeServer(base_server.BaseServer):
   """Serves and manipulates the Backoffice ICUBAM."""
 
   def __init__(self, config, port):
-    port = port if port is not None else self.config.backoffice.port
     super().__init__(config, port)
+    self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self):
-    self.add_handler(home.HomeBOHandler(self.config, self.config, self.db))
+    self.add_handler(home.HomeBOHandler, config=self.config, db=self.db)
 
-  def make_app(self, cookie_secret):
+  def make_app(self, cookie_secret=None):
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
     settings = {

@@ -1,5 +1,3 @@
-import urllib.parse
-
 from absl import logging
 from tornado import queues
 import tornado.routing
@@ -16,10 +14,9 @@ class MessageServer(base_server.BaseServer):
 
   def __init__(self, config, port=8889):
     super().__init__(config, port)
+    self.port = port if port is not None else self.config.messaging.port
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
-    components = urllib.parse.urlparse(self.config.server.base_url)
-    self.hosts = set([components.hostname, 'localhost', "127.0.0.1"])
     self.scheduler = scheduler.MessageScheduler(
       db=self.db,
       queue=self.queue,
@@ -32,10 +29,7 @@ class MessageServer(base_server.BaseServer):
     self.callbacks = [self.process]
 
   def make_app(self):
-    hosts = [h.replace('.', '\.') for h in self.hosts]
-    return tornado.web.Application(
-      tornado.routing.HostMatches(r'({})'.format('|'.join(hosts))),
-      self.routes)
+    return tornado.web.Application(self.routes)
 
   async def process(self):
     async for msg in self.queue:

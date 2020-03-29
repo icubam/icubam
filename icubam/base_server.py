@@ -33,5 +33,5 @@ class BaseServer:
     app.listen(self.port)
     io_loop = tornado.ioloop.IOLoop.current()
     for callback_obj in self.callbacks:
-      io_loop.spawn_callback(callback_obj.process)
+      io_loop.spawn_callback(callback_obj)
     io_loop.start()

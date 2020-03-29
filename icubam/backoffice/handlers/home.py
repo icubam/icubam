@@ -5,4 +5,4 @@ class HomeBOHandler(BaseBOHandler):
   ROUTE = '/'
 
   def get(self):
-    self.render("home.html")
+    return self.render("home.html")

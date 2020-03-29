@@ -17,11 +17,13 @@ from icubam.www.handlers import upload_csv
 class WWWServer(base_server.BaseServer):
   """Serves and manipulates the ICUBAM data."""
 
-  def __init__(self, config, port):
+  def __init__(self, config, port=None):
     super().__init__(config, port)
+    self.port = port if port is not None else self.config.server.port
     self.token_encoder = token.TokenEncoder(self.config)
     self.writing_queue = queues.Queue()
-    self.callbacks = [queue_writer.QueueWriter(self.writing_queue, self.db)]
+    self.callbacks = [
+      queue_writer.QueueWriter(self.writing_queue, self.db).process]
 
   def make_routes(self):
     self.add_handler(
