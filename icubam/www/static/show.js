@@ -3,6 +3,12 @@
 http://live.datatables.net/siqoreko/26/edit
 https://github.com/gryevns/jquery-colorize
 */
+
+function make_link (url, anchor) {
+  return '<a href=' + url + '>' + anchor + '</a>'
+}
+
+
 $(document).ready(function() {
   var themes = {
     "default": {
@@ -52,6 +58,12 @@ $(document).ready(function() {
       {data: 'n_covid_healed'},
       {data: 'since_update'},
       {data: 'update_ts'},
+      {
+        data: 'link',
+        render: function ( data, type, full, meta ) {
+          return make_link(full.link, 'update')
+        }
+      },
     ],
 
 
@@ -70,4 +82,3 @@ $(document).ready(function() {
   });
 
 });
-

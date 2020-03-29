@@ -3,12 +3,17 @@ import tornado.web
 from tornado import escape
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-from icubam.www import token
+from icubam.www.handlers import update
+from icubam.www import updater
 from icubam import time_utils
 
 
 class DataJson(base.BaseHandler):
   ROUTE = '/beds'
+
+  def initialize(self, config, db):
+    super().initialize(config, db)
+    self.updater = updater.Updater(self.config, self.db)
 
   def get_icu_data(self):
     """Get bedcounts and augment it with extra information."""
@@ -25,6 +30,8 @@ class DataJson(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     data = self.get_icu_data().to_dict(orient="records")
+    for v in data:
+      v['link'] = self.updater.get_url(v['icu_id'], v['icu_name'])
     self.write({"data": data})
 
 
