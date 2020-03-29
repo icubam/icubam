@@ -12,7 +12,10 @@ version='0.1.1'
   carrier = "TW"
 
 [db]
-sqlite_path = "icubam.db"
+  [db.dev]
+  sqlite_path = "test.db"
+  [db.prod]
+  sqlite_path = "icubam.db"
 
 [server]
   [server.dev]
