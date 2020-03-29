@@ -5,7 +5,7 @@ import tornado.ioloop
 import tornado.locale
 import tornado.web
 
-from icubam.backoffice.handlers import home
+from icubam.backoffice.handlers import (home,login)
 from icubam import base_server
 
 
@@ -17,7 +17,9 @@ class BackOfficeServer(base_server.BaseServer):
     self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self):
-    self.add_handler(home.HomeBOHandler, config=self.config, db=self.db)
+    self.add_handler(home.HomeHandler, config=self.config, db=self.db)
+    self.add_handler(login.LoginHandler, config=self.config, db=self.db)
+
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
