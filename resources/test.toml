@@ -3,8 +3,12 @@ title = "My TOML Config"
 
 # Tables
 [sms]
-origin = "ICUBAM"
-carrier = "nx"
+  [sms.dev]
+  origin = "ICUBAM"
+  carrier = "FAKE"
+  [sms.prod]
+  origin = "ICUBAM"
+  carrier = "TW"
 
 [db]
 sqlite_path = "test.db"
