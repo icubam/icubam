@@ -1,4 +1,4 @@
-# ICU Bed Activity Monitor (ICUBAM)
+# ICU Bed Activity Monitor (ICUBAM) :bed: :hospital:
 
 ## Short description
 
