@@ -36,3 +36,6 @@ version='0.1.1'
   max_retries = 3
   reminder_delay = 45
   ping = ['12:30', '17:30', '14:12']
+
+[backoffice]
+  port = 8890
