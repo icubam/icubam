@@ -27,6 +27,7 @@ class BackOfficeServer(base_server.BaseServer):
       "static_path": "icubam/backoffice/static",
       "login_url": "/login",
     }
-    tornado.locale.load_translations('icubam/backoffice/translations')
+    path = os.path.dirname(os.path.abspath(__file__))
+    tornado.locale.load_translations(os.path.join(path, 'translations'))
     self.make_routes()
     return tornado.web.Application(self.routes, **settings)

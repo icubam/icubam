@@ -1,3 +1,4 @@
+import os.path
 from absl import logging
 import tornado.locale
 from tornado import queues
@@ -52,7 +53,8 @@ class WWWServer(base_server.BaseServer):
       "cookie_secret": cookie_secret,
       "login_url": "/error",
     }
-    tornado.locale.load_translations('icubam/www/translations')
+    path = os.path.dirname(os.path.abspath(__file__))
+    tornado.locale.load_translations(os.path.join(path, 'translations'))
     return tornado.web.Application(self.routes, **settings)
 
   @property
