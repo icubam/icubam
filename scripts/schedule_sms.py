@@ -8,7 +8,7 @@ from icubam.messaging import server
 
 flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
 flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
+flags.DEFINE_enum('mode', 'dev', ['prod', 'dev', 'staging'], 'Run mode.')
 flags.DEFINE_integer('delay', None, 'time in seconds to schedule next batch.')
 FLAGS = flags.FLAGS
 
