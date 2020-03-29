@@ -5,7 +5,7 @@ import time
 import pandas as pd
 from sqlalchemy import create_engine, desc, join
 from sqlalchemy import Table, Column, MetaData, ForeignKey, UniqueConstraint
-from sqlalchemy import Float, Integer, String
+from sqlalchemy import Boolean, Float, Integer, String
 from sqlalchemy.sql import select, text
 
 from typing import Sequence
@@ -27,6 +27,7 @@ class SQLiteDB:
         Column("lat", Float),
         Column("long", Float),
         Column("telephone", String),
+        Column("active", Boolean, default=True, server_default=text("1")),
     )
 
     self._users = Table(
@@ -64,38 +65,45 @@ class SQLiteDB:
     self._conn = self._engine.connect()
     self.maybe_migrate()
 
+  def _maybe_execute(self, stmt):
+    """Executes the statement ignoring the exceptions."""
+    try:
+      self._conn.execute(stmt)
+    except Exception as e:
+      logging.error(e)
+
   def maybe_migrate(self):
     """Migrates database tables and columns."""
-    conn = self._conn
     # SQLite doesn't support IF NOT EXISTS. Instead, we ignore the exception
     # which arises if the field is present.
-    try:
-      conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR"))
-    except Exception:
-      pass
+    self._maybe_execute("ALTER TABLE users ADD COLUMN email VARCHAR")
+    self._maybe_execute(
+        "ALTER TABLE bed_updates ADD COLUMN n_ncovid_free INTEGER")
+    self._maybe_execute("ALTER TABLE icus ADD COLUMN active BOOLEAN DEFAULT 1")
 
-  def upsert_icu(
-      self,
-      icu_name: str,
-      dept: str,
-      city: str,
-      lat: float,
-      long: float,
-      telephone: str = "NULL",
-  ):
+  def upsert_icu(self,
+                 icu_name: str,
+                 dept: str,
+                 city: str,
+                 lat: float,
+                 long: float,
+                 telephone: str = "NULL",
+                 active: bool = True):
     """Add or update an ICU."""
     # If not then add. We don't use SQLAlchemy as it doesn't yet support on
     # conflict update for SQLite.
-    query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
-                            VALUES
-                            ('{icu_name}', '{dept}', '{city}',
-                             {lat}, {long}, '{telephone}')
-                            ON CONFLICT(icu_name) DO UPDATE SET
-                            dept=excluded.dept,
-                            city=excluded.city,
-                            lat=excluded.lat,
-                            long=excluded.long,
-                            telephone=excluded.telephone"""
+    active = int(active)
+    query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone,
+                                 active)
+               VALUES ('{icu_name}', '{dept}', '{city}', {lat}, {long},
+                       '{telephone}', {active})
+               ON CONFLICT(icu_name) DO UPDATE SET
+                 dept=excluded.dept,
+                 city=excluded.city,
+                 lat=excluded.lat,
+                 long=excluded.long,
+                 telephone=excluded.telephone,
+                 active=excluded.active"""
     self._conn.execute(query.format(**locals()))
 
   def add_user(self,

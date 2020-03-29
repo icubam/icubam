@@ -20,14 +20,17 @@ class SQLiteDBTest(absltest.TestCase):
         icus = sqldb.get_icus()
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep1")
 
-        sqldb.upsert_icu("ICU2", "dep2", "city2", 3.44, 42.3)
+        sqldb.upsert_icu("ICU2", "dep2", "city2", 3.44, 42.3, active=False)
         icus = sqldb.get_icus()
         self.assertEqual(icus[icus["icu_name"] == "ICU2"].iloc[0]["dept"], "dep2")
+        self.assertEqual(
+            icus[icus["icu_name"] == "ICU2"].iloc[0]["active"], False)
 
         sqldb.upsert_icu("ICU1", "dep3", "city3", 3.44, 42.3, "0103")
         icus = sqldb.get_icus()
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["dept"], "dep3")
         self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["telephone"], "0103")
+        self.assertEqual(icus[icus["icu_name"] == "ICU1"].iloc[0]["active"], 1)
         self.assertEqual(sqldb.get_icu_id_from_name("ICU1"), 1)
         self.assertEqual(sqldb.get_icu_id_from_name("ICU2"), 2)
 
