@@ -3,15 +3,17 @@
 ## Installing
 
 This explains how to run a local instance of `icubam` on a developer's machine. We use conda to setup a virtual 
-environment and install the required packages. Conda/miniconda [installation](https://docs.conda.io/en/latest/miniconda.html).
+environment and install the required packages with pip. 
+We use conda ([installation](https://docs.conda.io/en/latest/miniconda.html)), but you might choose virtualenv.
 
 Steps:
 
-- create a conda environment and install the packages (e.g. `conda env create -f environment.yml`)
+- create a conda environment (e.g. `conda create -n icubam python=3.8`)
 - activate the environment (`conda activate icubam`)
-- install the package in edit mode by running `conda develop .`
+- install deps with `pip install -r requirements.txt`
+- install the package in edit mode by running `pip install -e .`
 
-**Note:** in addition to the python dependencies described in `environment.yml`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
+**Note:** in addition to the python dependencies described in `requirements.txt`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
 
 ### Configuration
 
@@ -35,7 +37,7 @@ TW_API=
 Create a fake database in order to be able to play with it:
 `python scripts/populate_db_fake.py`
 
-The databse will be named `icubam.db`.
+The databse will be named `icubam.db` and is generated in the current folder.
 
 If required, change the DB path property in the default `resources/config.toml` file, or update the provided toml 
 configuration file.
@@ -45,8 +47,6 @@ configuration file.
 Start the server locally:
 `python scripts/run_server.py`
 
-Note: by default, the server uses the config toml file `resources/config.toml` and the environment variables in `.env`.
-Alternative files can be used by providing the command line parameters `--config=...` and/or `--dotenv_path=...`
 
 Will produce the following logs:
 ```
@@ -57,6 +57,14 @@ I0324 19:02:15.788751 139983874058048 server.py:51] http://localhost:8888/update
 ```
 
 Follow the proposed link above to activate the web app `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
+
+Note: by default, the server uses the config toml file `resources/config.toml` and the environment variables in `.env`.
+Alternative files can be used by providing the command line parameters `--config=...` and/or `--dotenv_path=...`
+
+For example
+```
+python3 scripts/run_server.py --port 8888 --dotenv_path=/home/icubam/resources/icubam.env --config=/home/icubam/resources/icubam.toml
+```
 
 ## Running unit tests
 
@@ -80,6 +88,11 @@ To launch the container (providing the host's port to map the tornado server's d
 ```
 ./docker_run icubam:1.0 9000
 ``` 
+The command will display the long version of the container ID and exit after a few seconds. The xcontainer ID and 
+status can be retrieved with the command
+```
+docker ps
+```
 
-To activate the server, use `docker logs CONTIANER_ID` to retrevie the URL and open the URL. Replace the port after 
+To activate the server, use `docker logs CONTAINER_ID` to retrieve the URL and open the URL. Replace the port after 
 localhost with the public port chosen for the container (9000 in the example above).  
