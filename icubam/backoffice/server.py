@@ -18,7 +18,7 @@ class BackOfficeServer(base_server.BaseServer):
 
   def make_routes(self):
     self.add_handler(home.HomeBOHandler, config=self.config, db=self.db)
-    self.add_handler(home.LoginBOHandler, config=self.config, db=self.db)
+    self.add_handler(login.LoginBOHandler, config=self.config, db=self.db)
 
 
   def make_app(self, cookie_secret=None):

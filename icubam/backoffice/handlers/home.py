@@ -1,12 +1,12 @@
 from icubam.backoffice.handlers.base import BaseBOHandler
 
+import tornado.web
 
 class HomeBOHandler(BaseBOHandler):
   ROUTE = '/'
 
+  @tornado.web.authenticated
   def get(self):
-    if self.get_current_user():
-      return self.render("home.html")
-
-    # No user logged in, redirects to the login page.
-    return self.redirect("/login")
+    # This is an authenticated handler, so Tornado will redirect to the login
+    # page if no cookie is set
+    return self.render("home.html")
