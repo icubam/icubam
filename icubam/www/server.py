@@ -2,7 +2,7 @@ from absl import logging
 import tornado.locale
 from tornado import queues
 import tornado.web
-
+from icubam import base_server
 from icubam.db import queue_writer
 from icubam.messaging import scheduler
 from icubam.www import token
@@ -12,14 +12,12 @@ from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
-from icubam import base_server
 
 
 class WWWServer(base_server.BaseServer):
   """Serves and manipulates the ICUBAM data."""
 
   def __init__(self, config, port):
-    port = port if port is not None else self.config.server.port
     super().__init__(config, port)
     self.token_encoder = token.TokenEncoder(self.config)
     self.writing_queue = queues.Queue()
@@ -43,6 +41,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(static.NoCacheStaticFileHandler)
 
   def make_app(self, cookie_secret=None):
+    # TODO(olivier): remove this when we have a backoffice.
     logging.info(self.debug_str)
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
