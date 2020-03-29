@@ -12,6 +12,7 @@ from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
+from icubam.www.handlers import plot
 
 
 class WWWServer(base_server.BaseServer):
@@ -38,6 +39,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
+    self.add_handler(plot.PlotHandler, **kwargs)
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):

@@ -9,7 +9,8 @@ from icubam.www.handlers import base
 class PlotHandler(base.BaseHandler):
   ROUTE = '/plot'
 
-  def initialize(self, db):
+  def initialize(self, config, db):
+    super().initialize(config, db)
     self.db = db
 
   @tornado.web.authenticated
