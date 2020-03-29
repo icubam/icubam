@@ -9,7 +9,7 @@ from icubam.messaging import server as msg_server
 from icubam.www import server as www_server
 
 
-flags.DEFINE_integer('port', 8888, 'Port of the application.')
+flags.DEFINE_integer('port', None, 'Port of the application.')
 flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
 flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
 flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')

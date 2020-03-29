@@ -1,9 +1,7 @@
-from tornado_sqlalchemy import SessionMixin
-
 from icubam.backoffice.handlers.base import BaseBOHandler
 
 
-class HomeBOHandler(SessionMixin, BaseBOHandler):
+class HomeBOHandler(BaseBOHandler):
   ROUTE = '/'
 
   def get(self):

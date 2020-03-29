@@ -14,7 +14,7 @@ class BackOfficeServer:
 
   def __init__(self, config, port):
     self.config = config
-    self.port = port
+    self.port = port if port is not None else self.config.backoffice.port
     self.routes = []
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.make_app()
