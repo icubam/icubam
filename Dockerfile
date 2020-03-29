@@ -48,11 +48,14 @@ WORKDIR /home/icubam
 COPY . ./
 
 # copy deploy configurations
-COPY $CONFIGS_FILE .
-RUN  mkdir tmpconfigs && tar xxf $CONFIGS_FILE -C tmpconfigs --strip-components 1
-RUN cp tmpconfigs/icubam.env resources
-RUN cp tmpconfigs/icubam.toml resources
-RUN rm -rf $CONFIGS_FILE tmpconfigs
+# COPY $CONFIGS_FILE .
+# RUN  mkdir tmpconfigs && tar xxf $CONFIGS_FILE -C tmpconfigs --strip-components 1
+# RUN cp tmpconfigs/icubam.env resources
+# RUN cp tmpconfigs/icubam.toml resources
+# RUN cp tmpconfigs/token.pickle resources
+# RUN rm -rf $CONFIGS_FILE tmpconfigs
+RUN  mkdir data
+RUN  mkdir resources
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
