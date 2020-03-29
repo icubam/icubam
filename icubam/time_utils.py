@@ -35,8 +35,11 @@ def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
   return curr, 'now'
 
 
-def localwise_time_ago(ts, locale, ts_reference=None):
+def localewise_time_ago(ts, locale, ts_reference=None):
   count, units = time_ago(ts, ts_reference)
+  if count <= 0:
+    return locale.translate(units) if locale else units
+
   template = "{delta} {units} ago"
   if locale is not None:
     units = locale.translate(units, units, count)

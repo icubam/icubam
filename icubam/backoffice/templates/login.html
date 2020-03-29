@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Custom styles for this template -->
+<link href="signin.css" rel="stylesheet">
+
+
+<div class="row h-50 align-self-center">
+ <div class="col-6 align-self-center">
+  <form action="/login" method="post" class="form-signin">
+   <label for="inputEmail" class="sr-only">Email address</label>
+   <input type="email" id="email" class="form-control" placeholder="Email address" name="email" required autofocus>
+   <label for="inputPassword" class="sr-only">Password</label>
+   <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
+   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+   <div>
+     <p>{{error}}</p>
+   </div>
+  </form>
+ </div>
+</div>
+
+{% end %}
