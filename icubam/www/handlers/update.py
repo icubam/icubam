@@ -1,5 +1,3 @@
-import time
-
 from absl import logging
 
 from icubam.www.handlers import base
