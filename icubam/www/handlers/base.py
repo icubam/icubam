@@ -7,6 +7,7 @@ class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""
 
   COOKIE = 'id'
+  PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
   def initialize(self, config, db):
     self.config = config
