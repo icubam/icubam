@@ -18,7 +18,10 @@ class PlotHandler(base.BaseHandler):
     """Serves a page with a table gathering current bedcount data with some extra information."""
     data = {}
     figures = []
+    bedcount = self.db.get_bedcount(get_history=True)
 
+    sums = bedcount.sum()
+    print(sums)
     for _ in range(3):
       x = [i for i in range(10)]
       y = np.random.random(10)
