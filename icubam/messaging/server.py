@@ -18,6 +18,7 @@ class MessageServer(base_server.BaseServer):
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
+      config=self.config,
       db=self.db,
       queue=self.queue,
       token_encoder=token.TokenEncoder(self.config),
