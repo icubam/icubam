@@ -11,6 +11,10 @@ class LoginBOHandler(BaseBOHandler):
     return "?error={}".format(error)
 
   def _authenticate(self, email, password):
+    if not email:
+        return (False, "Please enter your email")
+    if not password:
+        return (False, "Please enter your password")
     # TODO(fpquintao): validate the user in the database.
     return (True, "")
 
