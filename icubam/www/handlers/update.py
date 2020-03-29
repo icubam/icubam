@@ -35,7 +35,7 @@ class UpdateHandler(base.BaseHandler):
       if data[k] is None:
         data[k] = def_val
 
-    data['since_update'] = time_utils.localwise_time_ago(
+    data['since_update'] = time_utils.localewise_time_ago(
       last_update, self.get_user_locale())
     data['home_route'] = home.HomeHandler.ROUTE
     data['update_route'] = self.ROUTE

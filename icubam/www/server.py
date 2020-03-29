@@ -27,7 +27,6 @@ class WWWServer:
     self.token_encoder = token.TokenEncoder(self.config)
     self.writing_queue = queues.Queue()
     self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
-    self.make_app()
     self.callbacks = [queue_writer.QueueWriter(self.writing_queue, self.db)]
 
   def add_handler(self, handler, **kwargs):
