@@ -56,7 +56,8 @@ RUN rm -rf $CONFIGS_FILE tmpconfigs
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
-RUN conda env create -f environment.yml
+RUN conda create -n icubam python=3.8
+RUN conda activate icubam && pip install -r requirements.txt && pip install -e .
 
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]

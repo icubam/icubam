@@ -4,7 +4,7 @@
 # and add current module (icubam) in edit/develop mode
 conda init bash
 conda activate icubam
-conda develop .
+pip install -e .
 
 # generate fake DB and overide default/empty one
 python scripts/populate_db_fake.py
