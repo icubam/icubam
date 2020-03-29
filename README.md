@@ -21,6 +21,9 @@ qu'ils peuvent remplire en 15 secondes, montre en main.
 
 ## More information about ICUBAM
 
+This software is currently running live for the Eastern France. It collects
+data sent by 97 doctors in 41 ICU wards.
+
 The project started on March 28th. The initial idea was provided by an ICU
 doctor, Dr. Kimounn. It fleshed out live during the Covid crisis in Eastern
 France. It answers an urgent need for finding available ICU beds in a saturated
