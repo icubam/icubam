@@ -38,4 +38,5 @@ This software is open-source and made available on
 
 It will soon be released as a one-click deployable docker container.
 
+You can contact the team for deployment information or general experience sharing at contact@icubam.net
 Last updated: Mar. 29 2020.
