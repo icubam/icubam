@@ -1,12 +1,12 @@
 import os.path
 
+from absl import logging
 import tornado.ioloop
 import tornado.locale
 import tornado.web
-from absl import logging
-from tornado_sqlalchemy import SQLAlchemy
 
 from icubam.backoffice.handlers.home import HomeBOHandler
+from icubam.db import sqlite
 
 
 class BackOfficeServer:
@@ -16,7 +16,7 @@ class BackOfficeServer:
     self.config = config
     self.port = port
     self.routes = []
-    self.db = SQLAlchemy("sqlite+pysqlite:///{}".format(self.config.db.sqlite_path))
+    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
     self.make_app()
 
   def add_handler(self, handler, **kwargs):
