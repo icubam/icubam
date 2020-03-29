@@ -57,7 +57,16 @@ $(document).ready(function() {
       {data: 'n_covid_deaths'},
       {data: 'n_covid_healed'},
       {data: 'since_update'},
-      {data: 'update_ts'},
+      {
+        data: 'update_ts',
+        render: function(data, type, full, meta) {
+          if(type == 'display') {
+            return Date(1000 * meta.since_update)
+          } else {
+            return data
+          }
+        }
+      },
       {
         data: 'link',
         render: function ( data, type, full, meta ) {
