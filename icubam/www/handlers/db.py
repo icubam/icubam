@@ -11,7 +11,7 @@ class DBHandler(base.BaseHandler):
 
   def initialize(self, config, db):
     super().initialize(config, db)
-    keys = ['users', 'bed_counts', 'icus']
+    keys = ['users', 'bed_counts', 'icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
   @tornado.web.authenticated
