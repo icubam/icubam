@@ -235,6 +235,9 @@ class Store:
   def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
     session = self._session()
+    # Admins can manage all ICUs.
+    if self._is_admin(session, manager_user_id):
+      return session.query(ICU).all()
     user = self._get_user(session, manager_user_id)
     return user.managed_icus if user else []
 
