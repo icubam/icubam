@@ -1,3 +1,4 @@
+from absl import logging
 import collections
 import json
 import os.path
@@ -68,6 +69,10 @@ class HomeHandler(base.BaseHandler):
 
   def center_map(self):
     icu_data = self.token_encoder.decode(self.get_secure_cookie(self.COOKIE))
+    if icu_data is None:
+      logging.error('Cookie cannot be decoded.')
+      return None
+
     df = self.icus_df
     icu = df[df.icu_id == icu_data['icu_id']].to_dict(orient='records')
     if not icu:
@@ -86,7 +91,7 @@ class HomeHandler(base.BaseHandler):
     for city, beds in beds_per_city.items():
       cluster = {'city': city, 'icu': city, 'phone': None}
       for key in ['occ', 'free', 'total', 'ratio']:
-        cluster[key] = sum([x[key] for x in beds])
+        cluster[key] = sum([x[key] for x       in beds])
       cluster['ratio'] =  cluster['ratio'] / len(beds)
       cluster['color'] = get_color(cluster['ratio'])
       latlng = coords.get(city, None)
