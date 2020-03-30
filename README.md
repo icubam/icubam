@@ -9,7 +9,7 @@ bed availability in French hospitals. Data is directly obtained from doctors
 working inside ICU by sending them SMS with a HTTP link to a form that they can
 fill in 15 seconds.
 
-### French
+### Français
 
 ICUBAM a pour objectif de fournir des informations en temps réel sur la
 disponibilité des lits dans les unités de soin intensif (USI) des hôpitaux
@@ -44,4 +44,6 @@ It will soon be released as a one-click deployable docker container.
 You can contact the team for deployment information or general experience
 sharing at contact@icubam.net.
 
-Last updated: Mar. 29 2020.
+This project is a collaboration between INRIA, Polytechnique, CHRU Nancy & Université de Lorraine
+
+Last updated: Mar. 30 2020.
