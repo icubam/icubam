@@ -86,7 +86,7 @@ configuration)
 To launch the container (providing the host's port to map the tornado server's defaut port 8888)
 
 ```
-./docker_run icubam:1.0 9000
+./docker_run.sh icubam:1.0 9000
 ``` 
 The command will display the long version of the container ID and exit after a few seconds. The xcontainer ID and 
 status can be retrieved with the command
