@@ -91,7 +91,7 @@ class HomeHandler(base.BaseHandler):
     for city, beds in beds_per_city.items():
       cluster = {'city': city, 'icu': city, 'phone': None}
       for key in ['occ', 'free', 'total', 'ratio']:
-        cluster[key] = sum([x[key] for x       in beds])
+        cluster[key] = sum([x[key] for x in beds])
       cluster['ratio'] =  cluster['ratio'] / len(beds)
       cluster['color'] = get_color(cluster['ratio'])
       latlng = coords.get(city, None)
