@@ -497,3 +497,11 @@ def create_store_for_sqlite_db(cfg) -> Store:
 def get_column_names(obj):
   """Returns the columns of a given class."""
   return list(obj.__mapper__.columns.keys())
+
+def to_dict(obj):
+  """Turns a Base instance into a dictionary."""
+  columns = get_column_names(obj)
+  result = {}
+  for col in columns:
+    result[col] = getattr(obj, col)
+  return result

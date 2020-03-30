@@ -6,6 +6,13 @@ from icubam.www.handlers import home
 from icubam.www import token
 
 
+def apply_default(data: dict, value: int, prefix: str):
+  """Applies default values to undefined entries of a dict matching a prefix."""
+  for k in data:
+    if data[k] is None and k.startswith(prefix):
+      data[k] = value
+
+
 class Updater:
   """Helper class for dealing with updating the counts."""
 
@@ -31,21 +38,12 @@ class Updater:
 
   def get_icu_data_by_id(self, icu_id, locale=None, def_val=0):
     """Returns the dictionary of counts for the given icu."""
-    logging.info('test')
-    data = self.db.get_bed_count_for_icu(icu_id)
-    data = data if data is not None else store.BedCount()
+    bed_count = self.db.get_bed_count_for_icu(icu_id)
+    bed_count = bed_count if bed_count is not None else store.BedCount()
     # In case there is a weird corner case, we don't want to crash the form:
-    try:
-      last_update = data['update_ts']
-    except Exception as e:
-      logging.error(e)
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-    if data is None:
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-    for k in data:
-      if data[k] is None:
-        data[k] = def_val
-
+    last_update = bed_count.last_modified
+    data = store.to_dict(bed_count)
+    apply_default(data, value=def_val, prefix='n_')
     data['since_update'] = time_utils.localewise_time_ago(last_update, locale)
     data['home_route'] = home.HomeHandler.ROUTE
     data['update_route'] = self.ROUTE
