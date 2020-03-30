@@ -88,6 +88,16 @@ class StoreSynchronizer:
       icu_name = icu_dict["name"]
       region = icu_dict.pop('region', None)
       db_icu = self._icus.get(icu_name, None)
+
+      # Maybe create region first.
+      if region is not None:
+        if region not in self._regions:
+          region_obj = store.Region(name=region)
+          self._regions[region] = region_obj
+        icu_dict['region_id'] = self._regions[region].region_id
+        logging.info("Adding Region {}".format(region))
+
+      # Update icu now
       if db_icu is not None:
         self._store.update_icu(
           self._managers[db_icu.icu_id], db_icu.icu_id, icu_dict)
@@ -98,11 +108,6 @@ class StoreSynchronizer:
         self._store.assign_user_as_icu_manager(
           self._default_admin, self._default_admin, icu_id)
         logging.info("Adding ICU {}".format(icu_name))
-        if region is not None and region not in self._regions:
-          region_obj = store.Region(name=region)
-          self._regions[region] = region_obj
-          self._store.add_region(self._default_admin, region_obj)
-          logging.info("Adding Region {}".format(region))
 
   def sync_users(self):
     users_df = self._shdb.get_users()
