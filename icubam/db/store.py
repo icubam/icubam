@@ -1,4 +1,5 @@
 """Data store for ICUBAM."""
+from absl import logging
 from contextlib import contextmanager
 from datetime import datetime
 import hashlib
@@ -491,3 +492,8 @@ def create_store_for_sqlite_db(cfg) -> Store:
   """
   engine = create_engine("sqlite:///" + cfg.db.sqlite_path)
   return Store(engine, salt=cfg.DB_SALT)
+
+
+def get_column_names(obj):
+  """Returns the columns of a given class."""
+  return list(obj.__mapper__.columns.keys())
