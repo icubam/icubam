@@ -11,9 +11,9 @@ class Synchronizer:
   then it will *not* get updated.  If there is no existing row then
   a new row with the ICU or user info will get added."""
 
-  def __init__(self, sheets_db, sqlite_db):
+  def __init__(self, sheets_db, store):
     self._shdb = sheets_db
-    self._sqldb = sqlite_db
+    self._store = store
 
   def sync_icus(self):
     icus = self._shdb.get_icus()
