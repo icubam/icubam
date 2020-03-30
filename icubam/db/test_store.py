@@ -196,6 +196,30 @@ class SQLiteDBTest(absltest.TestCase):
     with self.assertRaises(ValueError):
       self.do_test_update_user(icu_id, self.manager_user_id)
 
+  def test_assign_user_to_icu(self):
+    store = self.store
+    manager_user_id = self.manager_user_id
+    user_id = self.store.add_user(User(name="user"))
+
+    icu_id = self.add_icu()
+    self.assertFalse(store.can_edit_bed_count(user_id, icu_id))
+
+    # Manager is not managing the ICU and request should fail.
+    with self.assertRaises(ValueError):
+      store.assign_user_to_icu(manager_user_id, user_id, icu_id)
+
+    store.assign_user_as_icu_manager(self.admin_user_id, manager_user_id,
+                                     icu_id)
+    store.assign_user_to_icu(manager_user_id, user_id, icu_id)
+    self.assertTrue(store.can_edit_bed_count(user_id, icu_id))
+
+  def test_assign_user_to_icu_admin(self):
+    store = self.store
+    user_id = self.manager_user_id
+    icu_id = self.add_icu()
+    store.assign_user_to_icu(self.admin_user_id, user_id, icu_id)
+    self.assertTrue(store.can_edit_bed_count(user_id, icu_id))
+
   def test_remove_user_from_icu(self):
     store = self.store
     icu_id = self.add_icu()
