@@ -23,10 +23,11 @@
 {% block scripts %}
 <script>
   let data = {% raw data %}
+  let center = {% raw center %}
   let showed = new Set()
   let all_showed = false
   function initMap () {
-    plotMap(data)
+    plotMap(data, center)
   }
 </script>
 <script async defer

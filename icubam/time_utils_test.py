@@ -23,6 +23,15 @@ class TimeUtilsTest(absltest.TestCase):
     self.assertEqual(time_utils.parse_hour("23h12", sep='h'), (23, 12))
     self.assertEqual(time_utils.parse_hour("wqw"), ("", ""))
 
+  def test_localewise_time_ago(self):
+    ref = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
+    self.assertEqual(time_utils.localewise_time_ago(None, None, ref), 'never')
+    ts = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
+    self.assertEqual(time_utils.localewise_time_ago(ts, None, ref), 'now')
+    ts = datetime.datetime(2020, 3, 27, 16, 25).timestamp()
+    self.assertEqual(
+      time_utils.localewise_time_ago(ts, None, ref), '5 minute ago')
+
   def test_get_next_timestamp(self):
     pings = [(12, 8), (14, 51)]
     ts = datetime.datetime(2020, 3, 26, 4, 0).timestamp()
