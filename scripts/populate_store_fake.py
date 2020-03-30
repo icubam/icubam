@@ -22,6 +22,13 @@ def main(unused_argv):
           is_admin=True,
           password_hash=store.get_password_hash('password')))
 
+  manager_user_id = store.add_user(
+      User(
+          name='manager',
+          telephone='+33222222222',
+          email='manager@test.org',
+          password_hash=store.get_password_hash('manager')))
+
   region_id = store.add_region(admin_user_id, Region(name='Paris'))
 
   def add_icu(name, dept, city, lat, long, telephone, n_covid_occ, n_covid_free,
@@ -59,6 +66,7 @@ def main(unused_argv):
   store.add_user_to_icu(
       admin_user_id, icu_id,
       User(name='user2', telephone='+336699999', description='desc2'))
+  store.assign_user_as_icu_manager(admin_user_id, manager_user_id, icu_id)
 
   add_icu('Beaujon', '93', 'Bobigny', 48.90833333333333, 2.310277777777777,
           'test_tel', 5, 6, 12, 200, 34, 7, 1)
