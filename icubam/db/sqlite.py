@@ -96,7 +96,7 @@ class SQLiteDB:
     res = pd.read_sql_query(query.format(**locals()), self._conn)
     if len(res) == 0:
       raise ValueError(f"ICU {icu_name} not present when adding user {name}.")
-    icu_id = res.iloc[0]["icu_id"]
+    icu_id = int(res.iloc[0]["icu_id"])
 
     # Insert the user:
     ins = self._users.insert().values(
@@ -186,4 +186,3 @@ class SQLiteDB:
 
   def execute(self, query):
     self._conn.execute(query)
-    self._conn.commit()

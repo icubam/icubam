@@ -1,8 +1,10 @@
 from unittest import mock
 import tornado.testing
+import urllib
+
 from icubam import config
 from icubam.backoffice import server
-from icubam.backoffice.handlers import (home, login)
+from icubam.backoffice.handlers import (home, login, logout)
 
 
 class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
@@ -29,3 +31,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     path = "{0}?error={1}".format(login.LoginHandler.ROUTE, error_reason)
     response = self.fetch(path)
     self.assertTrue(error_reason in response.effective_url)
+
+  def test_logout(self):
+    response = self.fetch(logout.LogoutHandler.ROUTE)
+    self.assertEqual(response.code, 200)

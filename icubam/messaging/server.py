@@ -18,6 +18,7 @@ class MessageServer(base_server.BaseServer):
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
+      config=self.config,
       db=self.db,
       queue=self.queue,
       token_encoder=token.TokenEncoder(self.config),
@@ -26,6 +27,7 @@ class MessageServer(base_server.BaseServer):
       reminder_delay=self.config.scheduler.reminder_delay,
       when=self.config.scheduler.ping,
     )
+    print([m.text for m in self.scheduler.messages])
     self.callbacks = [self.process]
 
   def make_app(self):
