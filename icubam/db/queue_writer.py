@@ -1,3 +1,6 @@
+from absl import logging
+from icubam.db import store
+
 class QueueWriter:
   """Processes an input queue and write the incoming data to DB."""
 
@@ -8,6 +11,11 @@ class QueueWriter:
   async def process(self):
     async for item in self.queue:
       try:
-        self.db.update_bedcount(**item)
+        icu_id = item.pop('icu_id', None)
+        if icu_id is None:
+          logging.error('Missing ICU in {}'.format(item))
+        item.pop('icu_name', None)
+        print(item)
+        self.db.update_bed_count_for_icu(icu_id, store.BedCount(**item))
       finally:
         self.queue.task_done()

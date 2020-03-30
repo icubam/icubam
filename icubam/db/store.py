@@ -422,6 +422,10 @@ class Store:
 
   # Bed count related methods.
 
+  def get_bed_counts(self) -> Iterable[BedCount]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session().query(BedCount).all()
+
   def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
