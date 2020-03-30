@@ -133,7 +133,8 @@ class Store:
 
   def __init__(self, engine, salt=''):
     if salt is None:
-      raise ValueError("Undefined salt. Check you envs.")
+      logging.warning('DB_SALT is not defined. Falling back to default')
+      salt = ''
 
     Base.metadata.create_all(engine)
     self._session = sessionmaker(bind=engine)
