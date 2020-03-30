@@ -27,18 +27,17 @@ class StoreHandler(BaseHandler, metaclass=abc.ABCMeta):
   def postForUser(self, user):
     pass
 
-  @tornado.web.authenticated
-  def get(self):
+  def validate_and_call(self, callback):
     user = self.get_logged_user()
     if not user:
       self.set_status(401)
       return self.write("Unauthorized")
-    return self.getForUser(user)
+    return callback(user)
+
+  @tornado.web.authenticated
+  def get(self):
+    return self.validate_and_call(self.getForUser)
 
   @tornado.web.authenticated
   def post(self):
-    user = self.get_logged_user()
-    if not user:
-      self.set_status(401)
-      return self.write("Unauthorized")
-    return self.postForUser(user)
+    return self.validate_and_call(self.postForUser)

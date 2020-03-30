@@ -17,6 +17,7 @@ class LoginHandler(BaseHandler):
       return None, "Password not provided"
 
     userid = self.store.auth_user(email, password)
+    print(userid)
     if not userid or userid < 0:
       return None, "Authentication failed"
 

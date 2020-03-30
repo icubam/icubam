@@ -11,6 +11,7 @@ class MockDb:
     self.user = "marie@ministere.fr"
 
   def auth_user(self, email: str, password: str) -> int:
+    print(email, password)
     if email == self.user:
       return 1
     return 0
@@ -21,7 +22,6 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def setUp(self):
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
     self.server = server.BackOfficeServer(self.config, port=8889)
-    self.server.db = MockDb()
     super().setUp()
 
   def get_app(self):
@@ -42,6 +42,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.assertTrue(error_reason in response.effective_url)
 
   def test_login_valid_user(self):
+    self.server.store = MockDb()
     request = {"email": "marie@ministere.fr", "password": "123"}
     body = urllib.parse.urlencode(request)
     response = self.fetch(login.LoginHandler.ROUTE, method="POST", body=body)

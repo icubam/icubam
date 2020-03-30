@@ -33,6 +33,5 @@ class BaseHandler(tornado.web.RequestHandler):
         'Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
 
   async def options(self):
-    """The options method is important for the preflight CORS requests."""
     self.set_status(200)
     self.finish()
