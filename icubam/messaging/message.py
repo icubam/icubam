@@ -13,7 +13,7 @@ class Message:
     self.user_name = user_name
     self.icu_id = icu_id
     self.icu_name = icu_name
-    self.attemps = 0
+    self.attempts = 0
     self.first_sent = None
 
   def reset(self):

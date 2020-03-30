@@ -180,4 +180,3 @@ class SQLiteDB:
 
   def execute(self, query):
     self._conn.execute(query)
-    # self._conn.commit()
