@@ -1,4 +1,5 @@
 """Data store for ICUBAM."""
+from absl import logging
 from contextlib import contextmanager
 from datetime import datetime
 import hashlib
@@ -33,7 +34,8 @@ class User(Base):
   user_id = Column(Integer, primary_key=True)
   name = Column(String)
   # Telephone and email should be unique for each user.
-  telephone = Column(String, unique=True)
+  # TODO(olivier): removing for now.
+  telephone = Column(String)  # , unique=True)
   email = Column(String)
   description = Column(String)
   # Strong hash of the password. Used for admin and manager users.
@@ -131,9 +133,14 @@ class ICU(Base):
 class Store:
   """Provides high level access to the data store."""
 
-  def __init__(self, engine):
+  def __init__(self, engine, salt=''):
+    if salt is None:
+      logging.warning('DB_SALT is not defined. Falling back to default')
+      salt = ''
+
     Base.metadata.create_all(engine)
     self._session = sessionmaker(bind=engine)
+    self._salt = salt.encode()
 
   @contextmanager
   def session_scope(self, session=None):
@@ -181,6 +188,10 @@ class Store:
   def get_icu(self, icu_id: int) -> Optional[ICU]:
     """Returns the ICU with the specified ID."""
     return self._session().query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
+
+  def get_icus(self) -> Iterable[ICU]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session().query(ICU).all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):
     """Updates an existing ICU.
@@ -231,6 +242,13 @@ class Store:
     return user.managed_icus if user else []
 
   # User related methods.
+
+  def add_default_admin(self) -> int:
+    """Creates a default 'admin/admin' user."""
+    name = 'admin'
+    hash = self.get_password_hash(name)
+    return self.add_user(
+      User(name=name, email=name, password_hash=hash, is_admin=True))
 
   def add_user(self, user: User) -> int:
     """Adds a new user and returns it ID.
@@ -333,9 +351,8 @@ class Store:
   # Authentication related methods.
 
   def get_password_hash(self, password: str) -> str:
-    # Salt should come from config.
-    return hashlib.pbkdf2_hmac("sha256", bytes(password, "utf-8"), b"salt",
-                               100000).hex()
+    return hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf8"), self._salt, 100000).hex()
 
   def auth_user(self, email: str, password: str) -> int:
     """Authenticates a user using email and password.
@@ -468,6 +485,14 @@ class Store:
                                         latest.c.rowid == BedCount.rowid).all()
 
 
-def create_store_for_sqlite_db(db_path):
-  """Cretes a store for the SQLite database with the specified path."""
-  return Store(create_engine("sqlite:///" + db_path))
+def create_store_for_sqlite_db(cfg) -> Store:
+  """Creates a store for the SQLite database with the specified path.
+
+  Args:
+   cfg: A config.Config instance
+
+  Returns:
+   A Store.
+  """
+  engine = create_engine("sqlite:///" + cfg.db.sqlite_path)
+  return Store(engine, salt=cfg.DB_SALT)
