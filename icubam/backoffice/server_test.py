@@ -32,18 +32,6 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     response = self.fetch(path)
     self.assertTrue(error_reason in response.effective_url)
 
-  def test_login_valid_user(self):
-    request = {"email": "manager@test.org", "password": "manager"}
-    body = urllib.parse.urlencode(request)
-    response = self.fetch(login.LoginHandler.ROUTE, method="POST", body=body)
-    self.assertEqual(response.code, 200)
-
-  def test_login_invalid_user(self):
-    request = {"email": "claire@ministere.fr", "password": "123"}
-    body = urllib.parse.urlencode(request)
-    response = self.fetch(login.LoginHandler.ROUTE, method="POST", body=body)
-    self.assertEqual(response.code, 400)
-
   def test_logout(self):
     response = self.fetch(logout.LogoutHandler.ROUTE)
     self.assertEqual(response.code, 200)
