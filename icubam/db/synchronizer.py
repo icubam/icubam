@@ -63,7 +63,7 @@ class StoreSynchronizer:
     # the spreadsheet has no ID, it's all keyed by name
     self._icus = {icu.name: icu for icu in self._store.get_icus()}
     self._users = {user.telephone: user for user in self._store.get_users()}
-    self._regions = {x.name: x for x in self._store.get_regions()}
+    self._regions = {x.name: x.region_id for x in self._store.get_regions()}
 
     # Gather the managers and admins
     self._managers = dict()
@@ -94,10 +94,11 @@ class StoreSynchronizer:
       # Maybe create region first.
       if region is not None:
         if region not in self._regions:
-          region_obj = store.Region(name=region)
-          self._regions[region] = region_obj
+          region_id = self._store.add_region(
+            self._default_admin, store.Region(name=region))
+          self._regions[region] = region_id
           logging.info("Adding Region {}".format(region))
-        icu_dict['region_id'] = self._regions[region].region_id
+        icu_dict['region_id'] = self._regions[region]
 
       # Update icu now
       if db_icu is not None:
