@@ -1,8 +1,10 @@
 """Runs the webserver."""
 
+import logging
 from absl import app
 from absl import flags
 import tornado
+import tornado.log
 from icubam import config
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
@@ -18,6 +20,9 @@ FLAGS = flags.FLAGS
 
 
 def main(argv):
+  logging.getLogger('tornado.access').setLevel(logging.DEBUG)
+  logging.getLogger('tornado.application').setLevel(logging.DEBUG)
+  tornado.log.enable_pretty_logging()
   servers = {
     'www': www_server.WWWServer,
     'message': msg_server.MessageServer,
