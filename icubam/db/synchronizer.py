@@ -28,7 +28,7 @@ class Synchronizer:
       if user.is_admin and self._default_admin is None:
         self._default_admin = user.user_id
       for icu in user.managed_icus:
-        self._manager[icu.icu_id] = user.user_id
+        self._managers[icu.icu_id] = user.user_id
 
     # Make sure there is at least one admin
     if self._default_admin is None:
@@ -56,21 +56,26 @@ class Synchronizer:
 
   def sync_users(self):
     users_df = self._shdb.get_users()
-    icus_df.rename(columns={'tel': 'telephone'}, inplace=True)
-    for _, user in users.iterrows():
+    users_df.rename(columns={'tel': 'telephone'}, inplace=True)
+    for _, user in users_df.iterrows():
       values = user.to_dict()
       icu_name = values.pop('icu_name')
-      icu_id = self._icus.get(icu_name, None)
+      icu = self._icus.get(icu_name, None)
+      if icu is None:
+        logging.error('ICU {} not found in DB. Skipping'.format(icu_name))
+        continue
+      icu_id = icu.icu_id
+
       db_user = self._users.get(user['name'], None)
-
       if db_user is not None:
-        icuid = db_user.icus[0] if db_user.icus else None
-        m_id = self._default_admin if icuid is None else self._managers[icuid]
-
-        self._store.update_user(m_id, db_user.user_id, **values)
+        manager_id = self._managers.get(icu_id, self._default_admin)
+        self._store.update_user(manager_id, db_user.user_id, **values)
         if icu_id not in db_users.icus:
-          self._store.assign_user_to_icu(m_id, db_user.user_ud, icu_id)
+          self._store.assign_user_to_icu(manager_id, db_user.user_ud, icu_id)
         logging.info("Updating user {}".format(db_user.name))
       else:
-        self.store.add_user_to_icu(
-          self._default_admin, icu_id, User(**user.to_dict()))
+        try:
+          self._store.add_user_to_icu(
+            self._default_admin, icu_id, store.User(**values))
+        except Exception as e:
+          logging.error("Cannot add user to icu: {}. Skipping".format(e))
