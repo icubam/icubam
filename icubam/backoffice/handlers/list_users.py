@@ -17,8 +17,5 @@ class ListUsersHandler(BaseHandler):
   @tornado.web.authenticated
   def get(self):
     managed_users = self.store.get_managed_users(self.user.user_id)
-    output = []
-    for managed in managed_users:
-        output.append(self._cleanUser(managed))
-
+    output = [self._cleanUser(user) for user in managed_users]
     self.render("list_users.html", users=output)
