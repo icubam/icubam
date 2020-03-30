@@ -29,16 +29,11 @@ class UpdateHandler(base.BaseHandler):
 
     data = self.updater.get_icu_data_by_id(
       input_data['icu_id'], locale=self.get_user_locale())
-    try:
-      data.update(input_data)
-      data.update(version=self.config.version)
+    data.update(input_data)
+    data.update(version=self.config.version)
 
-      self.set_secure_cookie(self.COOKIE, user_token)
-      self.render('update_form.html', **data)
-
-    except Exception as e:
-      logging.error(e)
-      return self.set_status(404)
+    self.set_secure_cookie(self.COOKIE, user_token)
+    self.render('update_form.html', **data)
 
   async def post(self):
     """Reads the form and saves the data to DB"""

@@ -84,7 +84,7 @@ class HomeHandler(base.BaseHandler):
       phone = '' if icu.telephone is None else icu.telephone
       total = covid_occ + covid_fre
       occupied_ratio = covid_occ / total if (total > 0) else 0
-      result[city].append({
+      result[cluster_id].append({
         'icu': icu.name,
         'phone': phone.lstrip('+'),
         'occ': covid_occ,
@@ -121,7 +121,7 @@ class HomeHandler(base.BaseHandler):
         cluster[key] = sum([x[key] for x in beds])
       cluster['ratio'] =  cluster['ratio'] / len(beds)
       cluster['color'] = get_color(cluster['ratio'])
-      latlng = coords.get(city, None)
+      latlng = city_coords.get(city, None)
       if not latlng:
         logging.error(f'Could not find location for {city}')
         continue
