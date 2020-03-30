@@ -16,7 +16,8 @@ class Config:
   # All the secret keys
   ENV_KEYS = [
     'SHEET_ID', 'TOKEN_LOC', 'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET',
-    'GOOGLE_API_KEY', 'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API']
+    'GOOGLE_API_KEY', 'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API',
+    'DB_SALT']
 
   def __init__(self, toml_config, mode='dev', env_path=None):
     """If env_path is None, it will try to find it by itself."""

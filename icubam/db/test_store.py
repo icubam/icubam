@@ -6,6 +6,7 @@ from absl.testing import absltest
 from datetime import datetime, timedelta
 import icubam.db.store as db_store
 from icubam.db.store import Store, BedCount, ICU, Region, User
+from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 
@@ -422,5 +423,5 @@ class SQLiteDBTest(absltest.TestCase):
 
   def test_create_store_for_sqlite_db(self):
     with tempfile.TemporaryDirectory() as tmp_folder:
-      store = db_store.create_store_for_sqlite_db(
-          os.path.join(tmp_folder, "test.db"))
+      cfg = config.Config('resources/test.toml')
+      store = db_store.create_store_for_sqlite_db(cfg)
