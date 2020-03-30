@@ -80,6 +80,7 @@ class BedCount(Base):
   icu_id = Column(Integer, ForeignKey("icus.icu_id"))
   n_covid_occ = Column(Integer)
   n_covid_free = Column(Integer)
+  n_ncovid_occ = Column(Integer)
   n_ncovid_free = Column(Integer)
   n_covid_deaths = Column(Integer)
   n_covid_healed = Column(Integer)

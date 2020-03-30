@@ -303,6 +303,7 @@ class SQLiteDBTest(absltest.TestCase):
         icu_id=icu_id,
         n_covid_occ=1,
         n_covid_free=2,
+        n_ncovid_occ=8,
         n_ncovid_free=3,
         n_covid_deaths=4,
         n_covid_healed=5,
@@ -313,6 +314,7 @@ class SQLiteDBTest(absltest.TestCase):
     bed_count = store.get_bed_count_for_icu(icu_id)
     self.assertEqual(bed_count.n_covid_occ, 1)
     self.assertEqual(bed_count.n_covid_free, 2)
+    self.assertEqual(bed_count.n_ncovid_occ, 8)
     self.assertEqual(bed_count.n_ncovid_free, 3)
     self.assertEqual(bed_count.n_covid_deaths, 4)
     self.assertEqual(bed_count.n_covid_healed, 5)
@@ -328,6 +330,7 @@ class SQLiteDBTest(absltest.TestCase):
         icu_id=icu_id,
         n_covid_occ=7,
         n_covid_free=6,
+        n_ncovid_occ=8,
         n_ncovid_free=5,
         n_covid_deaths=4,
         n_covid_healed=3,
@@ -338,6 +341,7 @@ class SQLiteDBTest(absltest.TestCase):
     bed_count = store.get_bed_count_for_icu(icu_id)
     self.assertEqual(bed_count.n_covid_occ, 7)
     self.assertEqual(bed_count.n_covid_free, 6)
+    self.assertEqual(bed_count.n_ncovid_occ, 8)
     self.assertEqual(bed_count.n_ncovid_free, 5)
     self.assertEqual(bed_count.n_covid_deaths, 4)
     self.assertEqual(bed_count.n_covid_healed, 3)
