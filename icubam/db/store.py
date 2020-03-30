@@ -342,9 +342,6 @@ class Store:
     """
     raise NotImplementedError()
 
-  def logout_user():
-    raise NotImplementedError()
-
   # Region related methods.
 
   def add_region(self, admin_user_id: int, region: Region) -> int:

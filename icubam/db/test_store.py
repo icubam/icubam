@@ -13,8 +13,7 @@ from sqlalchemy.exc import IntegrityError
 class SQLiteDBTest(absltest.TestCase):
 
   def setUp(self):
-    engine = create_engine("sqlite:///:memory:", echo=True)
-    store = Store(engine)
+    store = Store(create_engine("sqlite:///:memory:", echo=True))
     self.admin_user_id = store.add_user(
         User(
             name="admin",
