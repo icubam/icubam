@@ -59,6 +59,7 @@ class StoreSynchronizer:
     self._shdb = sheets_db
     self._store = store_db
 
+  def prepare(self):
     # the spreadsheet has no ID, it's all keyed by name
     self._icus = {icu.name: icu for icu in self._store.get_icus()}
     self._users = {user.telephone: user for user in self._store.get_users()}
@@ -81,6 +82,7 @@ class StoreSynchronizer:
       logging.info("Admin Found!")
 
   def sync_icus(self):
+    self.prepare()
     icus_df = self._shdb.get_icus()
     icus_df.rename(columns={'icu_name': 'name'}, inplace=True)
     for _, icu in icus_df.iterrows():
@@ -110,6 +112,7 @@ class StoreSynchronizer:
         logging.info("Adding ICU {}".format(icu_name))
 
   def sync_users(self):
+    self.prepare()
     users_df = self._shdb.get_users()
     users_df.rename(columns={'tel': 'telephone'}, inplace=True)
     for _, user in users_df.iterrows():
@@ -132,5 +135,6 @@ class StoreSynchronizer:
         try:
           self._store.add_user_to_icu(
             self._default_admin, icu_id, store.User(**values))
+          logging.info("Inserting user {}".format(values['name']))
         except Exception as e:
           logging.error("Cannot add user to icu: {}. Skipping".format(e))
