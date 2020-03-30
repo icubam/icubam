@@ -286,6 +286,15 @@ class Store:
     with self.session_scope() as session:
       session.execute(icu_users.insert().values(user_id=user_id, icu_id=icu_id))
 
+  def remove_user_from_icu(self, manager_user_id: int, user_id: int,
+                           icu_id: int):
+    """Removes an existing assignment of user to an ICU."""
+    if not self.manages_icu(manager_user_id, icu_id):
+      raise ValueError("Only managers can remove users from an ICU.")
+    with self.session_scope() as session:
+      session.execute(icu_users.delete().where(
+          icu_users.c.user_id == user_id).where(icu_users.c.icu_id == icu_id))
+
   def enable_user(self, manager_user_id: int, user_id: int, is_active=True):
     """Enables the user with the specified ID."""
     self.update_user(manager_user_id, user_id, {"is_active": is_active})

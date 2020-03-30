@@ -196,6 +196,23 @@ class SQLiteDBTest(absltest.TestCase):
     with self.assertRaises(ValueError):
       self.do_test_update_user(icu_id, self.manager_user_id)
 
+  def test_remove_user_from_icu(self):
+    store = self.store
+    icu_id = self.add_icu()
+    # Add a new user to the ICU.
+    manager_user_id = self.manager_user_id
+    store.assign_user_as_icu_manager(self.admin_user_id, manager_user_id,
+                                     icu_id)
+    user_id = self.store.add_user_to_icu(manager_user_id, icu_id,
+                                         User(name="user"))
+    self.assertTrue(store.can_edit_bed_count(user_id, icu_id))
+    # Now remove the assignment.
+    store.remove_user_from_icu(manager_user_id, user_id, icu_id)
+    # User should lose access.
+    self.assertFalse(store.can_edit_bed_count(user_id, icu_id))
+    # Removing a non-existent assignment is a no-op.
+    store.remove_user_from_icu(manager_user_id, user_id, icu_id)
+
   def test_get_managed_users(self):
     store = self.store
     admin_user_id = self.admin_user_id
