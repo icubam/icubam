@@ -34,7 +34,8 @@ class User(Base):
   user_id = Column(Integer, primary_key=True)
   name = Column(String)
   # Telephone and email should be unique for each user.
-  telephone = Column(String, unique=True)
+  # TODO(olivier): removing for now.
+  telephone = Column(String)  # , unique=True)
   email = Column(String)
   description = Column(String)
   # Strong hash of the password. Used for admin and manager users.

@@ -94,8 +94,8 @@ class StoreSynchronizer:
         if region not in self._regions:
           region_obj = store.Region(name=region)
           self._regions[region] = region_obj
+          logging.info("Adding Region {}".format(region))
         icu_dict['region_id'] = self._regions[region].region_id
-        logging.info("Adding Region {}".format(region))
 
       # Update icu now
       if db_icu is not None:
