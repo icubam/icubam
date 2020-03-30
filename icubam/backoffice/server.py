@@ -20,6 +20,15 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
     self.add_handler(login.LoginHandler, config=self.config, db=self.db)
 
+    for folder in ['dist', 'pages', 'plugins']:
+      self.routes.append(
+        (
+          r"/{}/(.*)".format(folder),
+          tornado.web.StaticFileHandler,
+          {"path": os.path.join(path, 'static', folder)}
+        )
+      )
+
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
