@@ -44,7 +44,7 @@ class MessageScheduler:
       # TODO(olivier): fix when user-id is in
       user_id = row.telephone
       msg = message.Message(
-        row.icu_id, row.icu_name, row.telephone, user_id, row.name)
+        row['icu_id'], row['icu_name'], row['telephone'], user_id, row['name'])
       msg.build(url)
       self.messages.append(msg)
 
