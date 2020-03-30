@@ -1,6 +1,7 @@
 __pycache__/
 # Compiled python modules.
 *.pyc
+.pytest_cache/
 
 # Setuptools distribution folder.
 /dist/
