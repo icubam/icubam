@@ -48,7 +48,10 @@ class Synchronizer:
           self._managers[db_icu.icu_id], db_icu.icu_id, icu)
         logging.info("Updating ICU {}".format(icu_name))
       else:
-        self._store.add_icu(self._default_admin, store.ICU(**icu.to_dict()))
+        icu_id = self._store.add_icu(
+          self._default_admin, store.ICU(**icu.to_dict()))
+        self._store.assign_user_as_icu_manager(
+          self._default_admin, self._default_admin, icu_id)
         logging.info("Adding ICU {}".format(icu_name))
 
   def sync_users(self):
