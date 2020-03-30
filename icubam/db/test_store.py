@@ -1,33 +1,34 @@
+import os
+import tempfile
+import time
+
 from absl.testing import absltest
 from datetime import datetime, timedelta
+import icubam.db.store as db_store
 from icubam.db.store import Store, BedCount, ICU, Region, User
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
-import time
 
 
 class SQLiteDBTest(absltest.TestCase):
 
   def setUp(self):
     engine = create_engine("sqlite:///:memory:", echo=True)
-    self.store = Store(engine)
-    # Add an admin user.
-    with self.store.session_scope() as session:
-      admin = User(
-          name="admin",
-          telephone="1",
-          email="admin@test.org",
-          is_active=True,
-          is_admin=True)
-      manager = User(
-          name="manager",
-          telephone="2",
-          email="manager@test.org",
-          is_active=True)
-      session.add_all([admin, manager])
-      session.commit()
-      self.admin_user_id = admin.user_id
-      self.manager_user_id = manager.user_id
+    store = Store(engine)
+    self.admin_user_id = store.add_user(
+        User(
+            name="admin",
+            telephone="1",
+            email="admin@test.org",
+            is_active=True,
+            is_admin=True))
+    self.manager_user_id = store.add_user(
+        User(
+            name="manager",
+            telephone="2",
+            email="manager@test.org",
+            is_active=True))
+    self.store = store
 
   # Helper functions.
   def add_region(self, name="region"):
@@ -358,3 +359,8 @@ class SQLiteDBTest(absltest.TestCase):
     # user2 can only view ICU3.
     user_id2 = store.add_user_to_icu(admin_user_id, icu_id3, User(name="user2"))
     self.assertDictEqual(get_values(user_id2), {"icu3": 5})
+
+  def test_create_store_for_sqlite_db(self):
+    with tempfile.TemporaryDirectory() as tmp_folder:
+      store = db_store.create_store_for_sqlite_db(
+          os.path.join(tmp_folder, "test.db"))

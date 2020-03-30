@@ -2,7 +2,7 @@
 from contextlib import contextmanager
 from datetime import datetime
 import hashlib
-from sqlalchemy import desc, func
+from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy import Boolean, Float, DateTime, Integer, String
@@ -228,6 +228,20 @@ class Store:
 
   # User related methods.
 
+  def add_user(self, user: User) -> int:
+    """Adds a new user and returns it ID.
+
+    Args:
+      user: a User object. user_id field should not be set.
+
+    Returns:
+      ID of the user.
+    """
+    with self.session_scope() as session:
+      session.add(user)
+      session.commit()
+      return user.user_id
+
   def add_user_to_icu(self, manager_user_id: int, icu_id: int,
                       user: User) -> int:
     """Adds a new user and assigns it with the specified ICU.
@@ -242,11 +256,7 @@ class Store:
     """
     if not self.manages_icu(manager_user_id, icu_id):
       raise ValueError("User does not own the ICU.")
-    with self.session_scope() as session:
-      session.add(user)
-      session.commit()
-      user_id = user.user_id
-    # This is not atomic.
+    user_id = self.add_user(user)
     self.assign_user_to_icu(manager_user_id, user_id, icu_id)
     return user_id
 
@@ -442,3 +452,8 @@ class Store:
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
+
+
+def create_store_for_sqlite_db(db_path):
+  """Cretes a store for the SQLite database with the specified path."""
+  return Store(create_engine("sqlite:///" + db_path))
