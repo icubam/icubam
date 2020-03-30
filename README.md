@@ -17,7 +17,7 @@ français. Les données sont obtenues directement des médecins qui travaillent
 dans les USI en leur envoyant des SMS avec un lien HTTP vers un formulaire
 qu'ils peuvent remplir en 15 secondes, montre en main.
 
-![map](/images/map.jpg)
+![map](https://icubam.github.io/assets/images/map.jpg)
 
 ## More information about ICUBAM
 
