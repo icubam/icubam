@@ -40,12 +40,11 @@ class MessageScheduler:
     users_df = self.db.get_users()
     self.messages = []
     for index, row in users_df.iterrows():
-      print(row)
       url = self.updater.get_url(row.icu_id, row.icu_name)
       # TODO(olivier): fix when user-id is in
       user_id = row.telephone
       msg = message.Message(
-        row.icu_id, row.icu_name, row.telephone, user_id, row.name)
+        row['icu_id'], row['icu_name'], row['telephone'], user_id, row['name'])
       msg.build(url)
       self.messages.append(msg)
 
