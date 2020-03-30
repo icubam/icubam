@@ -39,6 +39,8 @@ class Updater:
   def get_icu_data_by_id(self, icu_id, locale=None, def_val=0):
     """Returns the dictionary of counts for the given icu."""
     bed_count = self.db.get_bed_count_for_icu(icu_id)
+    print(icu_id)
+    print(bed_count)
     bed_count = bed_count if bed_count is not None else store.BedCount()
     # In case there is a weird corner case, we don't want to crash the form:
     last_update = bed_count.last_modified

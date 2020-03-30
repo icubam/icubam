@@ -3,6 +3,7 @@ from absl import logging
 from contextlib import contextmanager
 from datetime import datetime
 import hashlib
+import pandas as pd
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import ForeignKey, UniqueConstraint
@@ -431,9 +432,10 @@ class Store:
     return self._session().query(BedCount).filter(
       BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
 
-  def update_bed_count_for_icu(self, user_id: int, bed_count: BedCount):
+  def update_bed_count_for_icu(
+      self, user_id: int, bed_count: BedCount, force=False):
     """Updates the latest bed count for the specified ICU."""
-    if not self.can_edit_bed_count(user_id, bed_count.icu_id):
+    if not self.can_edit_bed_count(user_id, bed_count.icu_id) and not force:
       raise ValueError("User cannot edit bed count for the ICU.")
     with self.session_scope() as session:
       session.add(bed_count)
@@ -509,3 +511,7 @@ def to_dict(obj):
   for col in columns:
     result[col] = getattr(obj, col)
   return result
+
+
+def to_pandas(objs) -> pd.DataFrame:
+  return pd.DataFrame([to_dict(x) for x in objs])

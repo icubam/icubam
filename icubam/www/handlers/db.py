@@ -1,6 +1,8 @@
 import tornado.web
 from icubam.www.handlers import base
 from icubam.www.handlers import home
+from icubam.db import store
+
 
 
 class DBHandler(base.BaseHandler):
@@ -9,7 +11,7 @@ class DBHandler(base.BaseHandler):
 
   def initialize(self, config, db):
     super().initialize(config, db)
-    keys = ['users', 'bedcount', 'icus']
+    keys = ['users', 'bed_counts', 'icus']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
   @tornado.web.authenticated
@@ -24,6 +26,6 @@ class DBHandler(base.BaseHandler):
         else:
           self.write(get_fn().to_csv())
       else:
-        self.write(get_fn().to_html())
+        self.write(store.to_pandas(get_fn()).to_html())
     else:
       self.redirect(home.HomeHandler.ROUTE)

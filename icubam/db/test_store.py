@@ -311,6 +311,7 @@ class StoreTest(absltest.TestCase):
                                     User(name="user"))
     bed_count = store.get_bed_count_for_icu(icu_id)
     self.assertIsNone(bed_count)
+
     bed_count = BedCount(
         icu_id=icu_id,
         n_covid_occ=1,
