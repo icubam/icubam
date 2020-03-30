@@ -11,6 +11,7 @@ class BaseHandler(tornado.web.RequestHandler):
   def initialize(self, config, db):
     self.config = config
     self.db = db
+    # TODO(olivier): this should come from the server.
     self.store = create_store_for_sqlite_db(self.config.db.sqlite_path)
 
   def get_template_path(self):
