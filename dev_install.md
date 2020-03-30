@@ -80,7 +80,7 @@ To build the ICUBAM Docker image (providing the config file archive, the image v
 configuration)
     
 ```
-./docker_build deploy_configs.tgz 1.0 dev
+./docker_build.sh deploy_configs.tgz 1.0 dev
 ```
     
 To launch the container (providing the host's port to map the tornado server's defaut port 8888)
