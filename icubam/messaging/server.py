@@ -27,6 +27,7 @@ class MessageServer(base_server.BaseServer):
       reminder_delay=self.config.scheduler.reminder_delay,
       when=self.config.scheduler.ping,
     )
+    print([m.text for m in self.scheduler.messages])
     self.callbacks = [self.process]
 
   def make_app(self):
