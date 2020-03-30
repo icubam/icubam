@@ -265,6 +265,10 @@ class Store:
     """Returns the user with the specified ID."""
     return self._get_user(self._session(), user_id)
 
+  def get_users(self) -> Iterable[User]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session().query(User).all()
+
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
 
