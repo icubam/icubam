@@ -5,18 +5,22 @@ from icubam.backoffice.handlers.base import BaseHandler
 
 class LoginHandler(BaseHandler):
 
-  ROUTE= "/login"
+  ROUTE = "/login"
 
   def _makeErrorMessage(self, error):
     return "?error={}".format(error)
 
-  def _authenticate(self, email, password):
+  def authenticate(self, email, password):
     if not email:
-        return (False, "Please enter your email")
+      return None, "Email not provided"
     if not password:
-        return (False, "Please enter your password")
-    # TODO(fpquintao): validate the user in the database.
-    return (True, "")
+      return None, "Password not provided"
+
+    userid = self.store.auth_user(email, password)
+    if not userid or userid < 0:
+      return None, "Authentication failed"
+
+    return userid, ""
 
   def get(self):
     # User already logged in, just redirect to the home.
@@ -25,12 +29,10 @@ class LoginHandler(BaseHandler):
     return self.render("login.html", error=self.get_argument("error", ""))
 
   def post(self):
-    email = self.get_argument("email", "")
-    password = self.get_argument("password", "")
-    authenticate = self._authenticate(email, password)
-    if authenticate[0]:
-      # TODO(fpquintao): Set the cookie with the user id.
-      self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(email))
+    userid, error = self.authenticate(
+      self.get_body_argument("email", ""), self.get_body_argument("password", ""))
+    if userid:
+      self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", "/"))
     # Failed to login, GET page again with the error message.
-    return self.redirect(self.ROUTE + self._makeErrorMessage(authenticate[1]))
+    return self.redirect(self.ROUTE + self._makeErrorMessage(error))
