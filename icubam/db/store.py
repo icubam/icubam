@@ -35,7 +35,8 @@ class User(Base):
   user_id = Column(Integer, primary_key=True)
   name = Column(String)
   # Telephone and email should be unique for each user.
-  telephone = Column(String, unique=True)
+  # TODO(olivier): removing for now.
+  telephone = Column(String)  # , unique=True)
   email = Column(String)
   description = Column(String)
   # Strong hash of the password. Used for admin and manager users.
@@ -235,6 +236,9 @@ class Store:
   def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
     session = self._session()
+    # Admins can manage all ICUs.
+    if self._is_admin(session, manager_user_id):
+      return session.query(ICU).all()
     user = self._get_user(session, manager_user_id)
     return user.managed_icus if user else []
 
