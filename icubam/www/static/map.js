@@ -121,8 +121,8 @@ function getCenter(data) {
   return center
 }
 
-function plotMap(data) {
-  const center = getCenter(data)
+function plotMap(data, center) {
+  center = center === null ? getCenter(data) : center
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
