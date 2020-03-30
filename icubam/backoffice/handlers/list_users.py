@@ -1,10 +1,11 @@
 import json
 import tornado.escape
+import tornado.web
 
-from icubam.backoffice.handlers.store import StoreHandler
+from icubam.backoffice.handlers.base import BaseHandler
 
 
-class ListUsersHandler(StoreHandler):
+class ListUsersHandler(BaseHandler):
 
   ROUTE = "/list_users"
 
@@ -13,8 +14,9 @@ class ListUsersHandler(StoreHandler):
     user.password_hash = ""
     return user
 
-  def getForUser(self, user):
-    managed_users = self.store.get_managed_users(user.user_id)
+  @tornado.web.authenticated
+  def get(self):
+    managed_users = self.store.get_managed_users(self.user.user_id)
     output = []
     for managed in managed_users:
         output.append(self._cleanUser(managed))

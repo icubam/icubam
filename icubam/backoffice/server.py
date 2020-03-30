@@ -19,8 +19,8 @@ class BackOfficeServer(base_server.BaseServer):
   def make_routes(self, path):
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
     self.add_handler(login.LoginHandler, config=self.config, db=self.db)
-    self.add_handler(login.LogoutHandler, config=self.config, db=self.db)
-    self.add_handler(list_users.ListUesrsHandler, config=self.config, db=self.db)
+    self.add_handler(logout.LogoutHandler, config=self.config, db=self.db)
+    self.add_handler(list_users.ListUsersHandler, config=self.config, db=self.db)
 
 
     for folder in ['dist', 'pages', 'plugins']:

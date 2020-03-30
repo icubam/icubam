@@ -13,12 +13,21 @@ class BaseHandler(tornado.web.RequestHandler):
     self.db = db
     # TODO(olivier): this should come from the server.
     self.store = create_store_for_sqlite_db(self.config.db.sqlite_path)
+    self.user = None
 
   def get_template_path(self):
     return 'icubam/backoffice/templates/'
 
   def get_current_user(self):
-    return self.get_secure_cookie(self.COOKIE)
+    if self.user is not None:
+      return self.user
+
+    userid = self.get_secure_cookie(self.COOKIE)
+    if not userid:
+      return None
+
+    self.user = self.store.get_user(int(tornado.escape.json_decode(userid)))
+    return self.user
 
   def get_user_locale(self):
     locale = self.get_query_argument('hl', default=self.config.locale)
