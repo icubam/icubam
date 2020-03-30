@@ -113,10 +113,17 @@ class SQLiteDBTest(absltest.TestCase):
     icu_id1 = self.add_icu("icu1")
     store.assign_user_as_icu_manager(admin_user_id, user_id, icu_id1)
 
+    icus = store.get_managed_icus(user_id)
+    self.assertItemsEqual([icu.name for icu in icus], ["icu1"])
+
     icu_id2 = self.add_icu("icu2")
     store.assign_user_as_icu_manager(admin_user_id, user_id, icu_id2)
 
     icus = store.get_managed_icus(user_id)
+    self.assertItemsEqual([icu.name for icu in icus], ["icu1", "icu2"])
+
+    # Admins should be able to manage all ICUs.
+    icus = store.get_managed_icus(admin_user_id)
     self.assertItemsEqual([icu.name for icu in icus], ["icu1", "icu2"])
 
   def test_enable_icu_admin(self):
