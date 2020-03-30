@@ -141,6 +141,15 @@ class SQLiteDBTest(absltest.TestCase):
     store.disable_icu(user_id, icu_id)
     self.assertFalse(store.get_icu(icu_id).is_active)
 
+  def test_get_users(self):
+    store = self.store
+    store.add_user(User(name="user1"))
+    store.add_user(User(name="user2"))
+    users = store.get_users()
+    # admin and manager already exist. See setUp.
+    self.assertItemsEqual([user.name for user in users],
+                          ["user1", "user2", "admin", "manager"])
+
   def do_test_add_user_to_icu(self, icu_id, manager_user_id):
     user = User(
         name="user",
