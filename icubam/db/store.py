@@ -34,7 +34,7 @@ class User(Base):
   name = Column(String)
   # Telephone and email should be unique for each user.
   telephone = Column(String, unique=True)
-  email = Column(String, unique=True)
+  email = Column(String)
   description = Column(String)
   # Strong hash of the password. Used for admin and manager users.
   password_hash = Column(String)
@@ -264,6 +264,10 @@ class Store:
   def get_user(self, user_id: int) -> User:
     """Returns the user with the specified ID."""
     return self._get_user(self._session(), user_id)
+
+  def get_users(self) -> Iterable[User]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session().query(User).all()
 
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
