@@ -2,6 +2,7 @@ from absl import app
 from absl import flags
 from icubam import config
 from icubam.db import sqlite
+from icubam.db import store
 from icubam.db import gsheets
 from icubam.db import synchronizer
 
@@ -14,7 +15,8 @@ FLAGS = flags.FLAGS
 def main(unused_argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
   shdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
-  sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)
+  # sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)
+  sqldb = store.create_store_for_sqlite_db(cfg)
   sync = synchronizer.Synchronizer(shdb, sqldb)
   reply = (
     str(

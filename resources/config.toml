@@ -13,7 +13,7 @@ version='0.1.2'
 
 [db]
   [db.dev]
-  sqlite_path = "test.db"
+  sqlite_path = "test2.db"
   [db.prod]
   sqlite_path = "icubam.db"
 
