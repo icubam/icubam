@@ -12,7 +12,7 @@ FLAGS = flags.FLAGS
 
 def main(unused_argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode)
-  store = db_store.create_store_for_sqlite_db(cfg.db.sqlite_path)
+  store = db_store.create_store_for_sqlite_db(cfg)
 
   admin_user_id = store.add_user(
       User(
