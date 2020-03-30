@@ -1,6 +1,7 @@
 from  absl import logging
 
 from icubam import time_utils
+from icubam.db import store
 from icubam.www.handlers import home
 from icubam.www import token
 
@@ -23,18 +24,18 @@ class Updater:
 
   def get_urls(self):
     result = []
-    for index, row in self.db.get_users().iterrows():
-      result.append(self.get_url(row.icu_id, row.icu_name))
+    for user in self.db.get_users():
+      for icu in user.icus:
+        result.append(self.get_url(icu.icu_id, icu.name))
     return result
 
   def get_icu_data_by_id(self, icu_id, locale=None, def_val=0):
     """Returns the dictionary of counts for the given icu."""
-    df = self.db.get_bedcount(icu_ids=[icu_id,])
-    data = None
-    last_update = None
+    logging.info('test')
+    data = self.db.get_bed_count_for_icu(icu_id)
+    data = data if data is not None else store.BedCount()
     # In case there is a weird corner case, we don't want to crash the form:
     try:
-      data = df.to_dict(orient='records')[0]
       last_update = data['update_ts']
     except Exception as e:
       logging.error(e)

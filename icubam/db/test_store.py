@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 
 
-class SQLiteDBTest(absltest.TestCase):
+class StoreTest(absltest.TestCase):
 
   def setUp(self):
     store = Store(create_engine("sqlite:///:memory:", echo=True))
@@ -309,6 +309,8 @@ class SQLiteDBTest(absltest.TestCase):
     icu_id = self.add_icu()
     user_id = store.add_user_to_icu(self.admin_user_id, icu_id,
                                     User(name="user"))
+    bed_count = store.get_bed_count_for_icu(icu_id)
+    self.assertIsNone(bed_count)
     bed_count = BedCount(
         icu_id=icu_id,
         n_covid_occ=1,

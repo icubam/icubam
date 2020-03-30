@@ -421,10 +421,10 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_count_for_icu(self, icu_id: int) -> BedCount:
+  def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
-        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date))[0]
+      BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
 
   def update_bed_count_for_icu(self, user_id: int, bed_count: BedCount):
     """Updates the latest bed count for the specified ICU."""
