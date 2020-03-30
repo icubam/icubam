@@ -27,9 +27,9 @@ class UpdateHandler(base.BaseHandler):
     if input_data is None:
       return self.set_status(404)
 
+    data = self.updater.get_icu_data_by_id(
+      input_data['icu_id'], locale=self.get_user_locale())
     try:
-      data = self.updater.get_icu_data_by_id(
-        input_data['icu_id'], locale=self.get_user_locale())
       data.update(input_data)
       data.update(version=self.config.version)
 
