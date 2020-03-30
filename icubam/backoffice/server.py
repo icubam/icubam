@@ -5,7 +5,7 @@ import tornado.ioloop
 import tornado.locale
 import tornado.web
 
-from icubam.backoffice.handlers import (home,login)
+from icubam.backoffice.handlers import (home,list_users,login, logout)
 from icubam import base_server
 
 
@@ -19,7 +19,8 @@ class BackOfficeServer(base_server.BaseServer):
   def make_routes(self):
     self.add_handler(home.HomeHandler, config=self.config, db=self.db)
     self.add_handler(login.LoginHandler, config=self.config, db=self.db)
-
+    self.add_handler(logout.LogoutHandler, config=self.config, db=self.db)
+    self.add_handler(list_users.ListUsersHandler, config=self.config, db=self.db)
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:

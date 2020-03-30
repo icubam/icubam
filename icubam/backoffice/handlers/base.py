@@ -1,5 +1,6 @@
 import tornado.locale
 import tornado.web
+from icubam.db.store import create_store_for_sqlite_db
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -10,6 +11,7 @@ class BaseHandler(tornado.web.RequestHandler):
   def initialize(self, config, db):
     self.config = config
     self.db = db
+    self.store = create_store_for_sqlite_db(self.config.db.sqlite_path)
 
   def get_template_path(self):
     return 'icubam/backoffice/templates/'
@@ -21,3 +23,16 @@ class BaseHandler(tornado.web.RequestHandler):
     locale = self.get_query_argument('hl', default=self.config.locale)
     # We fallback to Accept-Language header.
     return tornado.locale.get(locale) if locale else None
+
+  def set_default_headers(self):
+    self.set_header("Access-Control-Allow-Credentials", True)
+    self.set_header("Access-Control-Allow-Origin", "*")
+    self.set_header(
+        "Access-Control-Allow-Headers", "x-requested-with, Content-Type")
+    self.set_header(
+        'Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+
+  async def options(self):
+    """The options method is important for the preflight CORS requests."""
+    self.set_status(200)
+    self.finish()

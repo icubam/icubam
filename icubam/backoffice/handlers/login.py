@@ -16,7 +16,7 @@ class LoginHandler(BaseHandler):
     if not password:
       return None, "Password not provided"
 
-    userid = self.db.auth_user(email, password)
+    userid = self.store.auth_user(email, password)
     if not userid or userid < 0:
       return None, "Authentication failed"
 
@@ -30,10 +30,9 @@ class LoginHandler(BaseHandler):
 
   def post(self):
     userid, error = self.authenticate(
-      self.get_argument("email", ""), self.get_argument("password", ""))
+      self.get_body_argument("email", ""), self.get_body_argument("password", ""))
     if userid:
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", "/"))
-
     # Failed to login, GET page again with the error message.
     return self.redirect(self.ROUTE + self._makeErrorMessage(error))
