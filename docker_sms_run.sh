@@ -18,10 +18,10 @@ echo '   replace the default port 8888 in the URL with the defined port'
 echo '========================================='
 
 docker run -dt -p 9000:8888 \
-    --name icubam-sms
+    --name icubam-sms \
     --mount type=bind,source="$(pwd)"/resources/icubam-docker.env,target=/home/icubam/resources/icubam.env \
     --mount type=bind,source="$(pwd)"/resources/icubam-docker.toml,target=/home/icubam/resources/icubam.toml \
     --mount type=bind,source="$(pwd)"/resources/icubam.db,target=/home/icubam/resources/icubam.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
     $1  \
-    start_server_sms.sh
+    ./start_server_sms.sh
