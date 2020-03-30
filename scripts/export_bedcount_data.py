@@ -17,7 +17,6 @@ def main(argv):
     )
   sqldb = sqlite.SQLiteDB(FLAGS.db_path)
   data = sqldb.get_bedcount()
-  __import__('pdb').set_trace()
   data.to_hdf(FLAGS.out_path, 'data')
 
 if __name__ == "__main__":
