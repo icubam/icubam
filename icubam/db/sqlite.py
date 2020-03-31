@@ -154,7 +154,7 @@ class SQLiteDB:
     return pd.read_sql_query("""SELECT * FROM icus""", self._conn)
 
   def get_users(self):
-    """Returns a pandas DF of bed counts."""
+    """Returns a pandasfor migration DF of bed counts."""
     return pd.read_sql_query(
         """SELECT users.icu_id, icu_name, name, users.telephone, description
            FROM users
