@@ -1,30 +1,45 @@
 # Keys
-version='0.1'
+default_locale='fr-fr'
+version='0.1.2'
 
 # Tables
 [sms]
-origin = "ICUBAM"
-carrier = "TW"
+  [sms.dev]
+  origin = "ICUBAM"
+  carrier = "FAKE"
+  [sms.prod]
+  origin = "ICUBAM"
+  carrier = "TW"
 
 [db]
-sqlite_path = "icubam.db"
+  [db.dev]
+  sqlite_path = "test.db"
+  [db.prod]
+  sqlite_path = "icubam.db"
 
 [server]
   [server.dev]
   PORT = 8888  # will be lower cased when reading.
-  base_url = "https://localhost:8888/"
+  base_url = "http://localhost:8888/"
   upload_dir = "uploads/"
   [server.prod]
   port = 443
   base_url = "https://test.icubam.net/"
   upload_dir = "uploads/"
 
-[scheduler]
-  [scheduler.prod]
-  max_retries = 1
-  reminder_delay = 1800  # 30 minutes in seconds
-  ping = ['9:30', '17:30']
-  [scheduler.dev]
-  max_retries = 3
-  reminder_delay = 45
-  ping = ['12:30', '17:30', '14:12']
+[messaging]
+  port = 8889
+  [scheduler]
+    [scheduler.prod]
+    max_retries = 1
+    reminder_delay = 1800  # 30 minutes in seconds
+    ping = ['9:30', '17:30']
+    [scheduler.dev]
+    max_retries = 3
+    reminder_delay = 45
+    ping = ['12:30', '17:30', '14:12']
+
+
+
+[backoffice]
+  port = 8890

@@ -1,9 +1,11 @@
+from absl import logging
 import collections
 import json
 import os.path
 import tornado.web
 import tornado.template
 from icubam.www.handlers import base
+from icubam.www import token
 from icubam import config
 
 
@@ -23,25 +25,24 @@ class HomeHandler(base.BaseHandler):
   CLUSTER_KEY = 'dept'  # city
 
   def initialize(self, config, db):
-    self.config = config
-    self.db = db
+    super().initialize(config, db)
     loader = tornado.template.Loader(self.get_template_path())
+    self.token_encoder = token.TokenEncoder(self.config)
     self.popup_template = loader.load(self.POPUP_TEMPLATE)
+    self.icus_df = self.db.get_icus()
 
   def get_city_data(self):
-    icus_df = self.db.get_icus()
     coords = dict()
     cluster_id = dict()  # the city for each icu
-    for city, rows in icus_df.groupby(self.CLUSTER_KEY):
+    for city, rows in self.icus_df.groupby(self.CLUSTER_KEY):
       coords[city] = {'lat': rows.lat.mean(), 'lng': rows.long.mean()}
       for icuid in rows.icu_id.to_list():
         cluster_id[icuid] = city
     return coords, cluster_id
 
   def get_phones(self):
-    users_df = self.db.get_icus()
     result = collections.defaultdict(list)
-    for index, row in users_df.iterrows():
+    for index, row in self.icus_df.iterrows():
       result[row['icu_id']].append(row['telephone'])
     return result
 
@@ -65,6 +66,19 @@ class HomeHandler(base.BaseHandler):
         'color': get_color(occupied_ratio)
       })
     return result
+
+  def center_map(self):
+    icu_data = self.token_encoder.decode(self.get_secure_cookie(self.COOKIE))
+    if icu_data is None:
+      logging.error('Cookie cannot be decoded.')
+      return None
+
+    df = self.icus_df
+    icu = df[df.icu_id == icu_data['icu_id']].to_dict(orient='records')
+    if not icu:
+      return None
+
+    return {'lat': icu[0].get('lat', None), 'lng': icu[0].get('long', None)}
 
   @tornado.web.authenticated
   def get(self):
@@ -104,7 +118,9 @@ class HomeHandler(base.BaseHandler):
 
     # This sorts the from north to south, so as to avoid overlap on the north.
     data.sort(key=lambda x: x['lat'], reverse=True)
+    center = self.center_map()
     self.render("index.html",
                 API_KEY=self.config.GOOGLE_API_KEY,
+                center=json.dumps(center),
                 data=json.dumps(data),
                 version=self.config.version)

@@ -28,7 +28,8 @@ function togglePopup (cluster_id, color) {
 function toggleAll () {
   all_showed = !all_showed
   for (i = 0; i < data.length; i++) {
-    if ((!showed.has(data[i].label) && all_showed) || !all_showed) {
+    if ((!showed.has(data[i].label) && all_showed) ||
+        (!all_showed && (showed.has(data[i].label)))) {
       togglePopup(data[i].label, data[i].color)
     }
   }
@@ -120,8 +121,8 @@ function getCenter(data) {
   return center
 }
 
-function plotMap(data) {
-  const center = getCenter(data)
+function plotMap(data, center) {
+  center = center === null ? getCenter(data) : center
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,

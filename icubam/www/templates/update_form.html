@@ -24,7 +24,7 @@
   <form action="{{update_route}}" method="POST" id='icu_form'>
     <div class="form-row">
       <div class="form-elem positive">
-        <label for="n_covid_free" class="form-label">{{ _('Available COVID+ beds') }}</label>
+        <label for="n_covid_free" class="form-label">{{ _('Available COVID+ beds') }}(*)</label>
         <div>
           <input
           class="form-control" type="number"
@@ -33,7 +33,7 @@
       </div>
 
       <div class="form-elem positive">
-        <label for="n_ncovid_free" class="form-label">{{ _('Available COVID- beds') }}</label>
+        <label for="n_ncovid_free" class="form-label">{{ _('Available COVID- beds') }}(*)</label>
         <div>
           <input
             class="form-control" type="number"
@@ -44,7 +44,7 @@
 
     <div class="form-row">
       <div class="form-elem negative">
-        <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}</label>
+        <label for="n_covid_occ" class="form-label">{{ _('Occupied COVID+ beds') }}(*)</label>
         <div>
           <input
             class="form-control" type="number"
@@ -108,12 +108,14 @@
       </div>
     </div>
 
+    <p>(*) {{_('equiped with artificial respirator')}}.</p>
+
     <div class="buttons">
+      <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
+        {{ _('Cancel') }}
+      </button>
       <button type="submit" class="btn btn-primary mb-2">
         {{ _('Submit') }}
-      </button>
-      <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
-        Annuler
       </button>
     </div>
   </form>

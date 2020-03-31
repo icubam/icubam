@@ -4,55 +4,20 @@ from absl import logging
 
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-
-
-def time_ago(ts) -> str:
-  if ts is None:
-    return 'jamais'
-
-  delta = int(time.time() - int(ts))
-  units = [(86400, 'jour'), (3600, 'heure'), (60, 'minute'), (1, 'seconde')]
-  for unit, name in sorted(units, reverse=True):
-    curr = delta // unit
-    if curr > 0:
-      plural = '' if curr == 1 else 's' # hack
-      return 'il y a {} {}{}'.format(curr, name, plural)
-  return 'à l\'instant'
+from icubam.www import token
+from icubam.www import updater
 
 
 class UpdateHandler(base.BaseHandler):
 
-  ROUTE = '/update'
+  ROUTE = updater.Updater.ROUTE
   QUERY_ARG = 'id'
 
-  def initialize(self, config, db, queue, token_encoder):
-    self.config = config
-    self.db = db
+  def initialize(self, config, db, queue):
+    super().initialize(config, db)
     self.queue = queue
-    self.token_encoder = token_encoder
-
-  def get_icu_data_by_id(self, icu_id, def_val=0):
-    df = self.db.get_bedcount()
-    try:
-      data = None
-      last_update = None
-      for index, row in df[df.icu_id == icu_id].iterrows():
-        data = row.to_dict()
-        last_update = data['update_ts']
-        break
-    except Exception as e:
-      logging.error(e)
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-    if data is None:
-      data = {x: def_val for x in df.columns.to_list() if x.startswith('n_')}
-    for k in data:
-      if data[k] is None:
-        data[k] = def_val
-
-    data['since_update'] = time_ago(last_update)
-    data['home_route'] = home.HomeHandler.ROUTE
-    data['update_route'] = self.ROUTE
-    return data
+    self.updater = updater.Updater(self.config, self.db)
+    self.token_encoder = token.TokenEncoder(self.config)
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
@@ -60,10 +25,11 @@ class UpdateHandler(base.BaseHandler):
     input_data = self.token_encoder.decode(user_token)
 
     if input_data is None:
-      return self.redirect('/error')
+      return self.set_status(404)
 
     try:
-      data = self.get_icu_data_by_id(input_data['icu_id'])
+      data = self.updater.get_icu_data_by_id(
+        input_data['icu_id'], locale=self.get_user_locale())
       data.update(input_data)
       data.update(version=self.config.version)
 
@@ -72,7 +38,7 @@ class UpdateHandler(base.BaseHandler):
 
     except Exception as e:
       logging.error(e)
-      return self.redirect('/error')
+      return self.set_status(404)
 
   async def post(self):
     """Reads the form and saves the data to DB"""

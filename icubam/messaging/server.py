@@ -1,23 +1,24 @@
 from absl import logging
-import tornado.ioloop
 from tornado import queues
+import tornado.routing
 import tornado.web
-from icubam.db import sqlite
+
+from icubam import base_server
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
 from icubam.www import token
 
 
-class MessageServer:
+class MessageServer(base_server.BaseServer):
   """Sends and schedule SMS."""
 
   def __init__(self, config, port=8889):
-    self.config = config
-    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
-    self.port = port
-    self.sender = sms_sender.get_sender(self.config)
+    super().__init__(config, port)
+    self.port = port if port is not None else self.config.messaging.port
+    self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
+      config=self.config,
       db=self.db,
       queue=self.queue,
       token_encoder=token.TokenEncoder(self.config),
@@ -26,18 +27,19 @@ class MessageServer:
       reminder_delay=self.config.scheduler.reminder_delay,
       when=self.config.scheduler.ping,
     )
+    print([m.text for m in self.scheduler.messages])
+    self.callbacks = [self.process]
+
+  def make_app(self):
+    return tornado.web.Application(self.routes)
 
   async def process(self):
     async for msg in self.queue:
       try:
-        self.sender.send_message(msg.phone, msg.text)
+        self.sender.send(msg.phone, msg.text)
       finally:
         self.queue.task_done()
 
   def run(self, delay=None):
-    logging.info("Running {}".format(self.__class__.__name__))
-    app = tornado.web.Application([])
-    io_loop = tornado.ioloop.IOLoop.current()
-    io_loop.spawn_callback(self.process)
     self.scheduler.schedule_all(delay)
-    io_loop.start()
+    super().run()

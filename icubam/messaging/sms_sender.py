@@ -1,54 +1,84 @@
 """SMS Sender Abstraction"""
+import abc
+import inspect
+import sys
+
+from absl import logging
 import messagebird
 import nexmo
 from twilio.rest import Client as TWCLient
 
-from icubam import config
 
-class MBSender:
+class Sender(abc.ABC):
+  """Base class for senders."""
+  def __init__(self, config):
+    self.config = config
+    self._originator = self.config.sms.origin
+
+  @abc.abstractmethod
+  def send(self, dest, contents):
+    return
+
+
+class FakeSender(Sender):
+  """Just log the message but does nothing real."""
+
+  def send(self, dest, contents):
+    logging.info('Sending {} to {}'.format(contents, dest))
+
+
+class MBSender(Sender):
   """Initializes and wrap a MessageBird sender object."""
 
-  def __init__(self, api_key, originator="ICUBAM"):
-    self._api_key = api_key
-    self._originator = originator
-    self._client = messagebird.Client(api_key)
+  def __init__(self, config):
+    super().__init__(config)
+    self._api_key = self.config.MB_KEY
+    self._client = messagebird.Client(self._api_key)
 
-  def send_message(self, dest, contents):
+  def send(self, dest, contents):
     message = self._client.message_create(
       self._originator, dest, contents, {"reference": "Foobar"}
     )
     return message
 
 
-class NXSender:
-  def __init__(self, key, secret, originator="ICUBAM"):
-    self._originator = originator
-    self._client = nexmo.Client(key=key, secret=secret)
+class NXSender(Sender):
+  def __init__(self, config):
+    super().__init__(config)
+    self._client = nexmo.Client(
+      key=self.config.NX_KEY, secret=self.config.NX_API)
 
-  def send_message(self, dest, contents):
+  def send(self, dest, contents):
     return self._client.send_message(
       {"from": self._originator, "to": dest, "text": contents}
     )
 
 
-class TWSender:
-  def __init__(self, key, secret, originator="ICUBAM"):
-    self._originator = originator
-    # import ipdb; ipdb.set_trace()
-    self._client = TWCLient(key, secret)
+class TWSender(Sender):
+  def __init__(self, config):
+    super().__init__(config)
+    self._client = TWCLient(self.config.TW_KEY, self.config.TW_API)
 
-  def send_message(self, dest, contents):
-    self._client.messages.create(to=f"+{dest}", from_=self._originator, body=contents)
+  def send(self, dest, contents):
+    self._client.messages.create(
+      to=f"+{dest}", from_=self._originator, body=contents)
 
 
 
-def get_sender(config, sms_carrier=None):
+def get(config, sms_carrier=None):
+  """Returns the sender based on the name of the sms_carrier.
+
+  Here the name of the carrier should match the name of the sender object,
+  that is if the sender object is 'XXSender' the carrier name should be 'XX'
+  """
   sms_carrier = sms_carrier or config.sms.carrier
-  if sms_carrier.upper() == 'MB':
-    return MBSender(config.MB_KEY)
-  if sms_carrier.upper() == 'NX':
-    return NXSender(config.NX_KEY, config.NX_API)
-  if sms_carrier.upper() == 'TW':
-    return TWSender(config.TW_KEY, config.TW_API)
+  cls_name = "{}Sender".format(sms_carrier)
+  obj = None
+  for key, member in inspect.getmembers(sys.modules[__name__]):
+    if key.upper() == "{}Sender".format(sms_carrier).upper():
+      obj = member
+      break
+  if obj is not None:
+    return obj(config)
   else:
-    raise ValueError('Incorrect sms carrier: {sms_carrier}.')
+    raise ValueError(f'Incorrect sms carrier: {sms_carrier}.')
