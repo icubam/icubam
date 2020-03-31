@@ -22,7 +22,6 @@ TOKEN_LOC=
 SECRET_COOKIE=random_secret
 JWT_SECRET=another_secret
 GOOGLE_API_KEY=
-NX_API=
 TW_KEY=
 TW_API=
 ```
