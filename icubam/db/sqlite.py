@@ -27,6 +27,7 @@ class SQLiteDB:
         Column("lat", Float),
         Column("long", Float),
         Column("telephone", String),
+        Column("region", String),
     )
 
     self._users = Table(

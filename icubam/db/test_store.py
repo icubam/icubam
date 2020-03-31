@@ -149,6 +149,12 @@ class StoreTest(absltest.TestCase):
     store.disable_icu(user_id, icu_id)
     self.assertFalse(store.get_icu(icu_id).is_active)
 
+  def test_get_admins(self):
+    store = self.store
+    store.add_user(User(name="user1"))
+    store.add_user(User(name="user2"))
+    self.assertEqual(len(store.get_admins()), 1)
+
   def test_get_users(self):
     store = self.store
     store.add_user(User(name="user1"))
