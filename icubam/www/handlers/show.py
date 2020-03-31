@@ -5,7 +5,6 @@ from tornado import escape
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www.handlers import update
-from icubam.db import store
 from icubam.www import updater
 from icubam import time_utils
 
@@ -23,7 +22,7 @@ class DataJson(base.BaseHandler):
     bedcounts = self.db.get_bed_counts()
     data = []
     for count in bedcounts:
-      curr = store.to_dict(count)
+      curr = count.to_dict()
 
       last = count.last_modified
       if last is not None:
