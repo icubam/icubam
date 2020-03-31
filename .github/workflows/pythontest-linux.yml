@@ -49,4 +49,4 @@ jobs:
       run: |
         # Emit pickled gsheets testing credentials from CI secret
         ./docker_build.sh 1.0
-        timeout 5 /docker_run.sh icubam:1.0 9000 dev || echo "Normal timeout" | grep "Normal timeout"
+        timeout 5 ./docker_run.sh icubam:1.0 9000 dev || echo "Normal timeout" | grep "Normal timeout"
