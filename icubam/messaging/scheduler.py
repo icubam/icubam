@@ -1,8 +1,11 @@
+from absl import logging
+import dataclasses
 import datetime
 import functools
 import time
-from absl import logging
 import tornado.ioloop
+from typing import Optional
+
 from icubam.messaging import message
 from icubam.www.handlers import update
 from icubam.www import updater
@@ -43,7 +46,7 @@ class MessageScheduler:
       return -1
 
     return int(time_utils.get_next_timestamp(self.when) - time.time())
-io_loop.call_later(delay, self.may_send, msg)
+
   def schedule_message(
       self, msg: message.Message, delay: Optional[int]) -> bool:
     """Schedules a message to be sent later."""
@@ -55,7 +58,7 @@ io_loop.call_later(delay, self.may_send, msg)
     when = delay + time.time()
     key = msg.user_id, msg.icu_id
     timeout = self.timeouts.get(key, None)
-    if timeout not None and when > timeout.when:
+    if timeout is not None and when > timeout.when:
       logging.info(f'A message is schedule before {when}, Skipping scheduling.')
       return False
 
@@ -84,7 +87,7 @@ io_loop.call_later(delay, self.may_send, msg)
     users = self.db.get_users()
     for user in users:
       for icu in user.icus:
-        self.schedule(user, icu_id, delay=delay)
+        self.schedule(user, icu.icu_id, delay=delay)
 
   def unschedule(self, user_id: int, icu_id: int):
     timeout = self.timeouts.pop((user_id, icu_id), None)
@@ -131,6 +134,6 @@ io_loop.call_later(delay, self.may_send, msg)
     result = []
     for user in users:
       for icu in user.icus:
-        url = self.updater.get_user_url(user, icu_id)
-        result.append(message.Message(icu_id, user, url))
+        url = self.updater.get_user_url(user, icu.icu_id)
+        result.append(message.Message(icu.icu_id, user, url))
     return result

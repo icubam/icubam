@@ -4,7 +4,7 @@ class Message:
     "Bonjour {},\nvoici le lien à suivre pour mettre à jour les données covid"
     " de {} sur ICUBAM: {}")
 
-  def __init__(self, icu_id, user, url: text):
+  def __init__(self, icu_id, user, url: str):
     self.icu_id = icu_id
     self.phone = user.telephone
     self.user_id = user.user_id
