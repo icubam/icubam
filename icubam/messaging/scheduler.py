@@ -31,7 +31,7 @@ class MessageScheduler:
     self.when = [time_utils.parse_hour(h) for h in when]
     self.phone_to_icu = {}
     self.messages = []
-    self.timeouts = {}
+    self.timeouts = {}  # Keyed by (user_id, icu_id)
     self.updater = updater.Updater(self.config, None)
     self.build_messages()
 
@@ -70,6 +70,15 @@ class MessageScheduler:
     io_loop = tornado.ioloop.IOLoop.current()
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
     self.timeouts[msg.phone] = io_loop.call_later(delay, self.may_send, msg)
+
+  def unschedule(self, user_id):
+    timeout = self.timeouts.pop(user_id, None)
+    if timeout is None:
+      logging.info(f'No timeout for user {user_id}')
+      return
+
+    io_loop = tornado.ioloop.IOLoop.current()
+    io_loop.remove_timeout(timeout)
 
   async def may_send(self, msg):
     # This message was never sent: send it!

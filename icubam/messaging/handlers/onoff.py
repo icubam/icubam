@@ -7,6 +7,7 @@ from icubam.www.handlers import base
 @dataclasses.dataclass
 class OnOffRequest:
   user_id: int = None
+  icu_id: int = None
   schedule: bool = True
 
   def to_json(self):
@@ -16,9 +17,9 @@ class OnOffRequest:
     self.__init__(**json.loads(encoded))
 
 
-class SilenceHandler(base.BaseHandler):
+class OnOffHandler(base.BaseHandler):
 
-  ROUTE = '/update'
+  ROUTE = '/onoff'
 
   def initialize(self, config, db, scheduler):
     super().initialize(config, db)
