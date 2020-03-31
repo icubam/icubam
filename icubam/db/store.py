@@ -291,6 +291,10 @@ class Store:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session().query(User).all()
 
+  def get_admins(self) -> Iterable[User]:
+    """Returns all admins, e.g. sync. Do not use in user facing code."""
+    return self._session().query(User).filter(User.is_admin).all()
+
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
 
