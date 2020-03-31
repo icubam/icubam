@@ -135,6 +135,10 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     self.assertGreater(len(self.scheduler.timeouts), len(names) + 1)
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
+  def test_schedule_all(self):
+    self.assertGreater(len(self.scheduler.messages), 0)
+
+  @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   @tornado.testing.gen_test
   async def test_do_send(self):
     msg = message.Message(self.icu, self.user, url='url')
