@@ -39,3 +39,14 @@ jobs:
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
         timeout 5 python scripts/run_server.py || echo "Normal timeout" | grep "Normal timeout"
+    - name: Test Dockerfile build
+      shell: bash -l {0}
+      env:
+        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
+        TOKEN_LOC: token.pickle
+        SHEET_ID: ${{ secrets.SHEET_ID }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      run: |
+        # Emit pickled gsheets testing credentials from CI secret
+        ./docker_build.sh 1.0
+        timeout 5 /docker_run.sh icubam:1.0 9000 dev || echo "Normal timeout" | grep "Normal timeout"
