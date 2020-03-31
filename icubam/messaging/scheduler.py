@@ -93,7 +93,7 @@ io_loop.call_later(delay, self.may_send, msg)
       return
 
     io_loop = tornado.ioloop.IOLoop.current()
-    io_loop.remove_timeout(timeout.timeout)
+    io_loop.remove_timeout(timeout.time)
     logging.info(f'Unscheduling message for {user_id} in {icu_id}.')
 
   async def may_send(self, msg):
