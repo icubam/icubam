@@ -111,7 +111,8 @@ class HomeHandler(base.BaseHandler):
   def get(self):
     self.icus = {x.icu_id: x for x in self.db.get_icus()}
     city_coords = self.get_coords()
-    bedcounts = self.db.get_bed_counts()
+    # TODO(olivier): pass the user here!
+    bedcounts = self.db.get_visible_bed_counts_for_user(None, force=True)
     beds_per_city = self.get_beds_per_city(bedcounts)
     data = []
     for city, beds in beds_per_city.items():
