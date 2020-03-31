@@ -1,9 +1,6 @@
 #
 FROM ubuntu:18.04
 
-ARG CONFIGS_FILE=deploy_configs.tgz
-ARG BUILD_TARGET=dev
-
 # silence error messages
 ENV TERM linux
 
@@ -47,13 +44,6 @@ WORKDIR /home/icubam
 # copy all files (alternatively, git clone with commit or wget)
 COPY . ./
 
-# copy deploy configurations
-# COPY $CONFIGS_FILE .
-# RUN  mkdir tmpconfigs && tar xxf $CONFIGS_FILE -C tmpconfigs --strip-components 1
-# RUN cp tmpconfigs/icubam.env resources
-# RUN cp tmpconfigs/icubam.toml resources
-# RUN cp tmpconfigs/token.pickle resources
-# RUN rm -rf $CONFIGS_FILE tmpconfigs
 RUN  mkdir data
 RUN  mkdir resources
 
