@@ -8,7 +8,6 @@ from typing import List, Dict
 from icubam.www.handlers import base
 from icubam.www import token
 from icubam import config
-from icubam.db import store
 
 
 def get_color(value):
@@ -36,7 +35,7 @@ class HomeHandler(base.BaseHandler):
   def groupby(self):
     result = collections.defaultdict(list)
     for icu in self.icus.values():
-      icu_dict = store.to_dict(icu)
+      icu_dict = icu.to_dict()
       key = icu_dict.get(self.CLUSTER_KEY, None)
       if key is None:
         logging.error('icu {} has no {}'.format(icu.icu_id, self.CLUSTER_KEY))
