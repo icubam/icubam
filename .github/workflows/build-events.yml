@@ -2,8 +2,8 @@ name: Emit Master Push Events to icubam_deploy
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - v**-rc
 
 jobs:
   send_request:
