@@ -102,8 +102,8 @@ class StoreSynchronizer:
 
       # Update icu now
       if db_icu is not None:
-        self._store.update_icu(
-          self._managers[db_icu.icu_id], db_icu.icu_id, icu_dict)
+        manager = self._managers.get(db_icu.icu_id, self._default_admin)
+        self._store.update_icu(manager, db_icu.icu_id, icu_dict)
         logging.info("Updating ICU {}".format(icu_name))
       else:
         new_icu = store.ICU(**icu_dict)
