@@ -18,7 +18,7 @@ echo 'Attention:'
 echo '   replace the default port 8888 in the URL with the defined port'
 echo '========================================='
 
-docker run -it -p $2:8888 \
+docker run -d -p $2:8888 \
     --name icubam-server \
     --mount type=bind,source="$(pwd)"/resources/icubam-docker.env,target=/home/icubam/resources/icubam.env \
     --mount type=bind,source="$(pwd)"/resources/icubam-docker.toml,target=/home/icubam/resources/icubam.toml \
