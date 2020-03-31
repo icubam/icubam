@@ -76,7 +76,7 @@ class MessageScheduler:
     if not user.is_active or icu_id not in user_icus:
       user_id = user.user_id
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
-      return
+      return False
 
     url = self.updater.get_user_url(user, icu_id)
     msg = message.Message(icu_id, user, url)
@@ -96,7 +96,7 @@ class MessageScheduler:
       return
 
     io_loop = tornado.ioloop.IOLoop.current()
-    io_loop.remove_timeout(timeout.time)
+    io_loop.remove_timeout(timeout.timeout)
     logging.info(f'Unscheduling message for {user_id} in {icu_id}.')
 
   async def may_send(self, msg):
