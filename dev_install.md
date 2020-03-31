@@ -1,4 +1,4 @@
-# Developer install 
+# Developer install
 
 ## Installing
 
@@ -19,13 +19,9 @@ Create a `resources/.env` file containing the following keys:
 ```
 SHEET_ID=
 TOKEN_LOC=
-SMS_KEY=
-SECRET_COOKIE=
-JWT_SECRET=
+SECRET_COOKIE=random_secret
+JWT_SECRET=another_secret
 GOOGLE_API_KEY=
-MB_KEY= 
-NX_KEY= 
-NX_API= 
 TW_KEY=
 TW_API=
 DB_SALT=

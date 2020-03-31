@@ -6,10 +6,10 @@ import os
 import pandas as pd
 import tornado.web
 import tempfile
+from icubam import time_utils
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.db import store
-
 
 def _get_headers(collection, asked_file_type):
   if asked_file_type not in {'csv', 'hdf'}:
@@ -39,8 +39,11 @@ class DBHandler(base.BaseHandler):
 
   def initialize(self, config, db):
     super().initialize(config, db)
-    keys = ['users', 'bed_counts', 'icus', 'regions']
+    keys = ['users', 'icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
+    self.get_fns['all_bedcounts'] = self.db.get_bed_counts
+    self.get_fns['bedcounts'] = functools.partial(
+      self.db.get_visible_bed_counts_for_user, user_id=None, force=True)
 
   @tornado.web.authenticated
   def get(self, collection):
@@ -51,8 +54,11 @@ class DBHandler(base.BaseHandler):
     if get_fn is None:
       self.redirect(home.HomeHandler.ROUTE)
 
-    if collection == 'bed_counts':
-      get_fn = functools.partial(get_fn, max_ts=max_ts)
+    if 'bedcounts' in collection:
+      if isinstance(max_ts, str) and max_ts.isnumeric():
+        max_ts = datetime.datetime.fromtimestamp(int(max_ts))
+      get_fn = functools.partial(get_fn, max_date=max_ts)
+
     data = store.to_pandas(get_fn())
 
     for k, v in _get_headers(collection, file_format).items():
