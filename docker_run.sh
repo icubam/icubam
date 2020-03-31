@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # check that all required parameters are provided
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
 	  echo "usage: $0 IMAGE_NAME PORT ENV"
 	  echo "   where IMAGE_NAME is the image name and tage to use"
@@ -24,6 +24,6 @@ docker run -it -p $2:8888 \
     --mount type=bind,source="$(pwd)"/resources/icubam-docker.toml,target=/home/icubam/resources/icubam.toml \
     --mount type=bind,source="$(pwd)"/resources/icubam.db,target=/home/icubam/resources/icubam.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
-    --env ENV_MODE=$3
+    --env ENV_MODE=$3 \
      $1  \
     ./start_server.sh

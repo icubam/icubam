@@ -4,7 +4,6 @@
 # and add current module (icubam) in edit/develop mode
 conda init bash
 conda activate icubam
-pip install -e .
 
 # launch the server
 echo "launch icubam server in mode $ENV_MODE"
