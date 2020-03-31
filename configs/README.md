@@ -1,6 +1,7 @@
 # Docker deployment
 
-Folder used so store nginx/certbot configuration files for ssl connection support.
+Folder used to store nginx/certbot configuration files for ssl connection support (not used directly by icubam).
+
 Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the docker-compose.yml.
 
 Depending on the deployment server name, changes to the `nginx/app.conf` file are required.

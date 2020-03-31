@@ -11,3 +11,4 @@ resources
 docker_build.sh
 docker_run.sh
 docker_sms_run.sh
+configs

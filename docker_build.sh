@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # check that all required parameters are provided
-if [ $# -ne 3 ]
+if [ $# -ne 1 ]
 then
 	  echo "usage: $0 IMAGE_VERSION"
 	  echo "   where IMAGE_VERSION is the version number for the Docker image being built"
@@ -10,5 +10,5 @@ then
 	  exit
 fi
 
-docker build -f Dockerfile  -t="icubam:$2" . --build-arg BUILD_TARGET=$2
+docker build -f Dockerfile  -t="icubam:$1" .
 
