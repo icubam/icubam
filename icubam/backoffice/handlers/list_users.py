@@ -16,7 +16,7 @@ class ListUsersHandler(BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    if self.get_current_user().is_admin:
+    if self.user.is_admin:
       users = self.store.get_users()
     else:
       users = self.store.get_managed_users(self.user.user_id)
