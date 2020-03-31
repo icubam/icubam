@@ -1,16 +1,16 @@
-import tempfile
-import logging
 import datetime
 import io
+import logging
 import os
+import tempfile
 
 import pandas as pd
 import tornado.web
 
-from icubam.www.handlers import base
-from icubam.www.handlers import home
+from icubam.www.handlers import base, home
 
 access_log = logging.getLogger('tornado.access')
+
 
 def _get_headers(collection, asked_file_type):
   if asked_file_type not in {'csv', 'hdf'}:
@@ -26,6 +26,7 @@ def _get_headers(collection, asked_file_type):
     'Content-Disposition': f'attachment; filename={filename}'
   }
   return headers
+
 
 class DBHandler(base.BaseHandler):
 
