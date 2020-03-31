@@ -102,7 +102,15 @@ localhost with the public port chosen for the container (9000 in the example abo
 
 ## Docker compose
 
-To launch the complete install (server, sms server, nginx, certbot containers), use the docker-compose command
+The complete application's containers can be launched using docker compose, either in a full version that also starts 
+nginx and certbot for managin ssl connections (to deploy on à clean VM/host), or just the containers for the app 
+and sms servers in case the VM/host used for the deployment already handles ingress communications (e.g., nginx 
+deployed on the VM/host).
+The two compose files are
+- docker-compose.yml for the full version
+- docker-compose-core.yml for the app only containers version
+
+To launch the complete install (server, sms server, nginx, certbot containers), use the `docker-compose -f FILE up` command
 
 Note:
 - the proper nginx configuration file should be setup in `configs/nginx`
