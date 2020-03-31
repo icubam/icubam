@@ -1,5 +1,3 @@
-import dataclasses
-
 class Message:
 
   TEMPLATE = (
