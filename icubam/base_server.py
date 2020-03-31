@@ -2,7 +2,7 @@ from absl import logging
 import os.path
 import tornado.ioloop
 import tornado.web
-from icubam.db import sqlite
+from icubam.db import store
 
 
 class BaseServer:
@@ -12,7 +12,7 @@ class BaseServer:
     self.config = config
     self.port = port
     self.routes = []
-    self.db = sqlite.SQLiteDB(self.config.db.sqlite_path)
+    self.db = store.create_store_for_sqlite_db(self.config)
     self.routes = []
     self.callbacks = []
 
