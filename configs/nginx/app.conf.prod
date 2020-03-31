@@ -16,7 +16,7 @@ server {
         root /var/www/certbot;
     }
 
-    if ($host = sed-webtests.paris.inria.fr) {
+    if ($host = WEB_HOSTNAME) {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
