@@ -31,9 +31,11 @@ def _get_headers(collection, asked_file_type):
 class DBHandler(base.BaseHandler):
 
   ROUTE = '/db/(.*)'
+  API_COOKIE = 'api'
 
   def get_current_user(self):
-    return self.request.get_query_argument('API_KEY', None)
+    # TODO(olivier): verifies that the key is valid.
+    return self.get_query_argument('API_KEY', None)
 
   def initialize(self, config, db):
     super().initialize(config, db)
@@ -42,30 +44,25 @@ class DBHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self, collection):
+    file_format = self.get_query_argument('format', default=None)
+    max_ts = self.get_query_argument('max_ts', default=None)
+
     get_fn = self.get_fns.get(collection, None)
     if get_fn is None:
       self.redirect(home.HomeHandler.ROUTE)
 
     if collection == 'bed_counts':
       get_fn = functools.partial(get_fn, max_ts=max_ts)
-
-    hdf = self.get_query_argument('hdf', default=None)
-    csv = self.get_query_argument('csv', default=None)
-    max_ts = self.get_query_argument('max_ts', default=None)
     data = store.to_pandas(get_fn())
 
-    asked_file_type = None
-    if hdf: asked_file_type = 'hdf'
-    if csv: asked_file_type = 'csv'
-
-    for k, v in _get_headers(collection, asked_file_type).items():
+    for k, v in _get_headers(collection, file_format).items():
       self.set_header(k, v)
 
-    if asked_file_type == 'csv':
+    if file_format == 'csv':
       stream = io.StringIO()
       data.to_csv(stream, index=False)
       self.write(stream.getvalue())
-    elif asked_file_type == 'hdf':
+    elif file_format == 'hdf':
       with tempfile.NamedTemporaryFile() as f:
         tmp_path = f.name
       data.to_hdf(
@@ -77,3 +74,5 @@ class DBHandler(base.BaseHandler):
       with open(tmp_path, 'rb') as f:
         self.write(f.read())
       os.remove(tmp_path)
+    else:
+      self.write(data.to_html())
