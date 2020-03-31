@@ -19,7 +19,7 @@ class DataJson(base.BaseHandler):
   def get_icu_data(self) -> List[Dict]:
     """Get bedcounts and augment it with extra information."""
     locale = self.get_user_locale()
-    # TODO(olivier):s pas the user here
+    # TODO(olivier): pass the user here!
     bedcounts = self.db.get_visible_bed_counts_for_user(None, force=True)
     data = []
     for count in bedcounts:
