@@ -71,16 +71,11 @@ class Migrator:
     df = self.old_db.get_bedcount(get_history=True).sort_values('update_ts')
     logging.info('migrating {} bedcounts'.format(df.shape[0]))
     new_icus = {i.name: i for i in self.new_db.get_icus()}
-    creations = dict()
     for _, bc_row in df.iterrows():
       counts = bc_row.to_dict()
       icu_name = counts.pop('icu_name', None)
 
       counts['last_modified'] = datetime.fromtimestamp(counts.pop('update_ts'))
-      # First time is creation time.
-      created = creations.get(counts['icu_id'], None)
-      if created is None:
-        counts['create_date'] = counts['last_modified']
-
+      counts['create_date'] = counts['last_modified']
       new_bedcount = store.BedCount(**counts)
       self.new_db.update_bed_count_for_icu(None, new_bedcount, force=True)
