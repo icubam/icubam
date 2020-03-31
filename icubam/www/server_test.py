@@ -1,3 +1,4 @@
+import json
 from unittest import mock
 import tornado.testing
 from icubam import config
@@ -6,6 +7,7 @@ from icubam.www import token
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www.handlers import update
+from icubam.www.handlers import sanity_checks
 
 
 class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
@@ -41,3 +43,12 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     encoder = token.TokenEncoder(self.config)
     response = self.fetch(url_prefix + encoder.encode_icu('test_icu', 123))
     self.assertEqual(response.code, 200)
+
+  def test_sanity_checks(self):
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = 'anything'
+      response = self.fetch(sanity_checks.SanityChecksHandler.ROUTE)
+    self.assertEqual(response.code, 200)
+    body = json.loads(response.body)
+    self.assertEqual(set(body.keys()), {'data'})
+    self.assertEqual(set(body['data'].keys()), {'package', 'db', 'server'})
