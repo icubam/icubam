@@ -23,6 +23,10 @@ class Updater:
     self.db = db
     self.token_encoder = token.TokenEncoder(self.config)
 
+  def get_user_url(self, user, icu_id: str) -> str:
+    icu_name = {i.icu_id: i.name for i in user.icus}.get(icu_id, '-')
+    return self.get_url(icu_id, icu_name)
+
   def get_url(self, icu_id: str, icu_name: str) -> str:
     return "{}{}?id={}".format(
       self.config.server.base_url,

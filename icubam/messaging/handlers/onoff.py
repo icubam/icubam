@@ -22,9 +22,7 @@ class OnOffHandler(tornado.web.RequestHandler):
 
   ROUTE = '/onoff'
 
-  def initialize(self, config, db, scheduler):
-    self.db = db
-    self.config = config
+  def initialize(self, scheduler):
     self.scheduler = scheduler
 
   def post(self):
@@ -40,6 +38,13 @@ class OnOffHandler(tornado.web.RequestHandler):
       self.set_status(400)
       return logging.error(f"Incomplete request: {body_str}")
 
-    if request.on:
-      self.scheduler.unschedule(user_id)
-    if request.off
+    if not request.on:
+      self.scheduler.unschedule(request.user_id, request.icu_id)
+      return
+
+    user = self.db.get_user(request.user_id)
+    if user is None:
+      self.set_status(400)
+      return logging.error("Unknown user {}".format(user.user_id))
+
+    self.scheduler.schedule(user, request.icu_id)

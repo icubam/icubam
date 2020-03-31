@@ -35,30 +35,6 @@ class MessageScheduler:
     # Values: Tuple(timeout handle, timestamp)
     self.timeouts = {}
     self.updater = updater.Updater(self.config, None)
-    self.build_messages()
-
-  def build_messages(self):
-    """Build the messages to be sent to each user depending on its ICU."""
-    users = self.db.get_users()
-    self.messages = []
-    for user in users:
-      for icu in user.icus:
-        url = self.updater.get_url(icu.icu_id, icu.name)
-        msg = message.Message(
-          icu.icu_id, icu.name, user.telephone, user.user_id, user.name)
-        msg.build(url)
-        self.messages.append(msg)
-
-  def schedule_all(self, delay=None):
-    """Schedules messages for all the users."""
-    if delay is None:
-      if not self.when:
-        logging.warning('No ping time. Check config.')
-        return
-
-      delay = int(time_utils.get_next_timestamp(self.when) - time.time())
-    for msg in self.messages:
-      self.schedule_message(msg, delay=delay)
 
   def computes_delay(self, delay=None) -> int:
     """Computes the delay if None."""
@@ -66,49 +42,51 @@ class MessageScheduler:
       return int(delay)
 
     if not self.when:
-      # TODO(olivier): double check what happens with negative delays
       logging.warning('No ping time. Check config.')
       return -1
 
     return int(time_utils.get_next_timestamp(self.when) - time.time())
 
-  def schedule_message(self, msg, delay=None):
-    """Schedule a message for a single user."""
-    # TODO(olivier): change this when user_id is in
-    key = msg.phone
-
+  def schedule_message(
+      self, msg: message.Message, delay: Optional[int]) -> bool:
+    """Schedules a message to be sent later."""
     delay = self.computes_delay(delay)
-    io_loop = tornado.ioloop.IOLoop.current()
+    if delay < 0:
+      logging.error("Negative delay for scheduling: skipping")
+      return False
 
     when = delay + time.time()
+    key = msg.user_id, msg.icu_id
     timeout_when = self.timeouts.get(key, None)
-
-    if timeout_when is None:
-      self.timeouts[key] = (io_loop.call_later(delay, self.may_send, msg), when)
-      logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
-    elif when < timeout_when[1]:
-      self.unschedule(msg.user_id, msg.icu_id)
-      self.timeouts[key] = (io_loop.call_later(delay, self.may_send, msg), when)
-      logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
-    else:
+    if timeout_when not None and when > timeout_when[1]:
       logging.info(f'A message is schedule before {when}, Skipping scheduling.')
+      return False
 
-  def schedule(self, user_id: int, icu_id: int, delay: Optional[int] = None):
-    user = self.db.get_user(user_id)
-    if user is None:
-      return logging.error(f"Unknown user {user_id}")
+    io_loop = tornado.ioloop.IOLoop.current()
+    if timeout_when is not None:
+      self.unschedule(msg.user_id, msg.icu_id)
 
-    icus = {icu.icu_id: icu for icu in users.icus}
-    if not user.is_active or icu_id not in icus:
-      logging.info(f"User {user_id} from ICU {icu_id} cannot receive messages.")
+    self.timeouts[key] = (io_loop.call_later(delay, self.may_send, msg), when)
+    logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
+    return True
+
+  def schedule(self, user, icu_id: int, delay: Optional[int] = None) -> bool:
+    user_icus = {i.icu_id: i for i in user.icus}
+    if not user.is_active or icu_id not in user_icus:
+      user_id = user.user_id
+      logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return
 
-    url = self.updater.get_url(row.icu_id, row.icu_name)
-    user_id = row.telephone
-    msg = message.Message(
-      row['icu_id'], row['icu_name'], row['telephone'], user_id, row['name'])
-    msg.build(url)
-    self.
+    url = self.updater.get_user_url(user, icu_id)
+    msg = message.Message(icu_id, user, url)
+    return self.schedule_message(msg, delay)
+
+  def schedule_all(self, delay=None):
+    """Schedules messages for all the users."""
+    users = self.db.get_users()
+    for user in users:
+      for icu in user.icus:
+        self.schedule(user, icu_id, delay=delay)
 
   def unschedule(self, user_id: int, icu_id: int):
     timeout = self.timeouts.pop((user_id, icu_id), None)
@@ -119,13 +97,6 @@ class MessageScheduler:
     io_loop = tornado.ioloop.IOLoop.current()
     io_loop.remove_timeout(timeout)
     logging.info(f'Unscheduling message for {user_id} in {icu_id}.')
-
-  def on_off(self, user_id: int, icu_id: int, on: bool, delay):
-    """Switching the user on and off."""
-    if not on:
-      self.unschedule(user_id, icu_id)
-    elif (user_id, icu_id) in self.timeouts:
-      logging.info('')
 
   async def may_send(self, msg):
     # This message was never sent: send it!
@@ -153,4 +124,15 @@ class MessageScheduler:
       msg.icu_name, msg.attempts, self.max_retries + 1))
     if self.queue is not None:
       await self.queue.put(msg)
-    self.schedule(msg, delay=self.reminder_delay)
+    self.schedule_message(msg, delay=self.reminder_delay)
+
+  @property
+  def messages(self):
+    """For debug purpose only"""
+    users = self.db.get_users()
+    result = []
+    for user in users:
+      for icu in user.icus:
+        url = self.updater.get_user_url(user, icu_id)
+        result.append(message.Message(icu_id, user, url))
+    return result
