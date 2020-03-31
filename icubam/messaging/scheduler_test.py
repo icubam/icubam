@@ -91,7 +91,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_schedule(self):
     self.assertEqual(len(self.scheduler.timeouts), 0)
-    delay = 100
+    delay = 200
     success = self.scheduler.schedule(self.user, self.icu, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 1)
