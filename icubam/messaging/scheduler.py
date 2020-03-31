@@ -134,5 +134,5 @@ class MessageScheduler:
     for user in users:
       for icu in user.icus:
         url = self.updater.get_user_url(user, icu.icu_id)
-        result.append(message.Message(icu.icu_id, user, url))
+        result.append(message.Message(icu, user, url))
     return result
