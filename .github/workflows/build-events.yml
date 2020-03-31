@@ -11,5 +11,5 @@ jobs:
     steps:
     - shell: bash -l {0}
       run: |
-        curl -XPOST -u "${{secrets.NOTIFY_DEPLOY_USERNAME}}:${{secrets.NOTIFY_DEPLOY_PAT}}" -H "Accept: application/vnd.github.everest-preview+json"  -H "Content-Type: application/json" https://api.github.com/repos/icubam/icubam_deploy/dispatches --data '{"event_type": "icubam_master_update"}'
+              curl -XPOST -u "${{secrets.NOTIFY_DEPLOY_USERNAME}}:${{secrets.NOTIFY_DEPLOY_PAT}}" -H "Accept: application/vnd.github.everest-preview+json"  -H "Content-Type: application/json" https://api.github.com/repos/icubam/icubam_deploy/dispatches --data '{"event_type": "icubam_master_update", "client_payload": {"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
        
