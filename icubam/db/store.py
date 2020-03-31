@@ -308,6 +308,10 @@ class Store:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session().query(User).all()
 
+  def get_admins(self) -> Iterable[User]:
+    """Returns all admins, e.g. sync. Do not use in user facing code."""
+    return self._session().query(User).filter(User.is_admin).all()
+
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
 
@@ -478,7 +482,8 @@ class Store:
 
   def get_visible_bed_counts_for_user(self,
                                       user_id,
-                                      max_date: datetime = None
+                                      max_date: datetime = None,
+                                      force=False
                                      ) -> Iterable[BedCount]:
     """Returns the latest bed counts of ICS that are visible to the user.
 
@@ -490,7 +495,7 @@ class Store:
     sub = session.query(BedCount.rowid, BedCount.icu_id,
                         BedCount.create_date).order_by(
                             desc(BedCount.create_date))
-    if not self._is_admin(session, user_id):
+    if not force and not self._is_admin(session, user_id):
       # Fetch the IDs of ICUs that user is assigned to.
       user_icu_ids = session.query(
           icu_users.c.icu_id).filter(icu_users.c.user_id == user_id)
