@@ -48,6 +48,12 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
         # Emit pickled gsheets testing credentials from CI secret
+        python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
+        # generate fake db
+        python scripts/populate_db_fake.py --mode=dev
+        mv icubam.db resources
+        # build docker image
         ./docker_build.sh 1.0
+        echo $SHEET_ID
         ./docker_run.sh icubam:1.0 8888 dev
         timeout 5 docker logs icubam-server | grep activate || echo "Normal timeout" | grep "Normal timeout"
