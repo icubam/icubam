@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>Add/create users</h1>
+  <form action="/user" method="post">
+   <div class="col-25">
+     <label for="exampleName1">Name</label>
+     <input type="text" id="name" name="name"
+       class="form-control"
+       placeholder="Name"
+       value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
+   </div>
+
+    <div class="form-row">
+     <div class="col-25">
+       <label for="exampleInputEmail1">Email address</label>
+       <input type="email" id="email" name="email"
+         class="form-control"
+         size="30"
+         placeholder="name@site.com"
+         value="{% if user.email %}{{user.email}}{% end %}" required>
+     </div>
+     <div class="col-25">
+       <label for="exampleInputPassword1">Password</label>
+       <input type="password" id="password" name="password"
+         class="form-control"
+         placeholder="Password" size="20" required>
+     </div>
+    </div>
+
+    <div class=""col-9"">
+      <label for="validationCustom04">Phone</label>
+      <input type="tel" id="telephone" name="telephone"
+        class="form-control"
+        pattern="^\+\d{0,13}"
+        title='Phone Number (Format: +332222222)'
+        placeholder="+33 7 3333 333"
+        value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  {% if error %}
+   <div class="alert alert-danger" role="alert">
+     {{error}}
+   </div>
+  {% end %}
+</div>
+
+{% end %}
