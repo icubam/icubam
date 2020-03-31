@@ -6,33 +6,46 @@
   <form action="/user" method="post">
    <div class="col-25">
      <label for="exampleName1">Name</label>
-     <input type="text" class="form-control" id="name" name="name" placeholder="Name" size="30" required autofocus>
+     <input type="text" id="name" name="name"
+       class="form-control"
+       placeholder="Name"
+       value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
    </div>
 
     <div class="form-row">
      <div class="col-25">
        <label for="exampleInputEmail1">Email address</label>
-       <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" size="30" placeholder="Enter email" required>
+       <input type="email" id="email" name="email"
+         class="form-control"
+         size="30"
+         placeholder="name@site.com"
+         value="{% if user.email %}{{user.email}}{% end %}" required>
      </div>
      <div class="col-25">
        <label for="exampleInputPassword1">Password</label>
-       <input type="password" class="form-control" id="password" name="password" placeholder="Password" size="20" required>
+       <input type="password" id="password" name="password"
+         class="form-control"
+         placeholder="Password" size="20" required>
      </div>
     </div>
 
-    <div class="form-row">
-       <div class=""col-2"">
-         <label for="validationCustom03">Country code</label>
-         <input type="text" class="form-control" id="country_code" name="country_code" placeholder="+33" required>
-       </div>
-       <div class=""col-9"">
-         <label for="validationCustom04">Phone</label>
-         <input type="text" class="form-control" id="phone" name="phone" placeholder="7 333 333" required>
-       </div>
-     </div>
+    <div class=""col-9"">
+      <label for="validationCustom04">Phone</label>
+      <input type="tel" id="telephone" name="telephone"
+        class="form-control"
+        pattern="^\+\d{0,13}"
+        title='Phone Number (Format: +332222222)'
+        placeholder="+33 7 3333 333"
+        value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
+    </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
+  {% if error %}
+   <div class="alert alert-danger" role="alert">
+     {{error}}
+   </div>
+  {% end %}
 </div>
 
 {% end %}

@@ -15,27 +15,33 @@ class UserHandler(BaseHandler):
   @tornado.web.authenticated
   def get(self):
     # TODO(fred): load the ICUs to show in the form.
-    self.render("user.html", icus=[])
+    self.render("user.html", icus=[], user=User(), error="")
 
-  def error(self, error_message):
-    return self.redirect(self.ROUTE + "?error={}".format(error_message))
+  def error(self, error_message, user):
+    self.render("user.html", icus=[], user=user, error=error_message)
 
   @tornado.web.authenticated
   def post(self):
-    input = {}
-    for argument in ["name", "email", "password", "country_code", "phone"]:
-      value = self.get_body_argument(argument, "")
-      if not value:
-        return self.error("Missing info {}".format(argument))
-      input[argument] = value
+    # We first create a potential user object, because if the validation fails,
+    # we send it back to the client and the client can re-fill the form with
+    # the info that was sent.
+    user = User(name=self.get_body_argument("name", ""),
+      telephone=self.get_body_argument("telephone", ""),
+      email=self.get_body_argument("email", ""),
+      password_hash=self.store.get_password_hash(
+        self.get_body_argument("password", "")))
 
-    country_code = input.get("country_code")
-    phone = "+{}{}".format(country_code.replace('+', ''), input.get("phone"))
+    if not user.name:
+      return self.error("Missing or invalid user name", user)
 
-    user = User(name=input.get("name"),
-      telephone=phone,
-      email=input.get("email"),
-      password_hash=self.store.get_password_hash(input.get("password")))
+    if not user.email:
+      return self.error("Missing or invalid user email", user)
+
+    if not user.password_hash:
+      return self.error("Missing or invalid password", user)
+
+    if not user.telephone:
+      return self.error("Missing or invalid telephone", user)
 
     try:
       # TODO(fred): we have to call add_user_to_icu as well.
