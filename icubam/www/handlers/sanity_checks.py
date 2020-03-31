@@ -10,7 +10,18 @@ from icubam.www import updater
 
 
 def _agg_iterable(x: Iterable, attr: str, agg=sum):
-  """For each item in an iterable, get an attribute and aggregate"""
+  """For each item in an iterable, get an attribute and aggregate
+
+  Example
+  -------
+  >>> from collections import namedtuple
+  >>> Obj = namedtuple('Obj', ('a', 'b'))
+  >>> Obj(1, 2)
+  Obj(a=1, b=2)
+  >>> x = [Obj(1, 2), Obj(5, 4)]
+  >>> _agg_iterable(x, 'a', sum)
+  6
+  """
   return agg([getattr(el, attr) for el in x])
 
 
