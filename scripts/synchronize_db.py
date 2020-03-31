@@ -9,7 +9,7 @@ from icubam.db import synchronizer
 flags.DEFINE_string("config", "resources/config.toml", "Config file.")
 flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
 flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
-flags.DEFINE_bool('newdb', False, 'Old sqliteDB or new Store.')
+flags.DEFINE_bool('newdb', True, 'Old sqliteDB or new Store.')
 FLAGS = flags.FLAGS
 
 
