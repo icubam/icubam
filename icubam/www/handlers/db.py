@@ -44,7 +44,7 @@ class DBHandler(base.BaseHandler):
     self.get_fns['all_bedcounts'] = functools.partial(
       self.db.get_bed_counts, force=True)
     self.get_fns['bedcounts'] = functools.partial(
-      self.db.get_visible_bed_counts_for_user, user=None, force=True)
+      self.db.get_visible_bed_counts_for_user, user_id=None, force=True)
 
   @tornado.web.authenticated
   def get(self, collection):
@@ -52,6 +52,7 @@ class DBHandler(base.BaseHandler):
     max_ts = self.get_query_argument('max_ts', default=None)
 
     get_fn = self.get_fns.get(collection, None)
+    print('hey', get_fn)
     if get_fn is None:
       self.redirect(home.HomeHandler.ROUTE)
 
