@@ -484,7 +484,7 @@ class Store:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     query = self._session().query(BedCount)
     if max_ts is not None:
-      d = datetime.fromtimestamp(max_date) if max_ts.isnumeric() else max_date
+      d = datetime.fromtimestamp(max_date) if max_date.isnumeric() else max_date
       query = query.filter(BedCount.last_modified <= d)
     return query.all()
 
@@ -540,7 +540,7 @@ class Store:
       sub = sub.filter(BedCount.icu_id.in_(region_icu_ids.subquery()))
 
     if max_date:
-      d = datetime.fromtimestamp(max_date) if max_ts.isnumeric() else max_date
+      d = datetime.fromtimestamp(max_date) if max_date.isnumeric() else max_date
       sub = sub.filter(BedCount.create_date < d)
 
     sub = sub.subquery()
