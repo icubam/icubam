@@ -50,4 +50,3 @@ if __name__ == "__main__":
   )
   if reply == 'yes i understand':
     app.run(main)
-
