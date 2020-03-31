@@ -56,8 +56,7 @@ class MessageScheduler:
       return False
 
     when = delay + time.time()
-    key = msg.user_id, msg.icu_id
-    timeout = self.timeouts.get(key, None)
+    timeout = self.timeouts.get(msg.key, None)
     if timeout is not None and when > timeout.when:
       logging.info(f'A message is schedule before {when}, Skipping scheduling.')
       return False
@@ -67,19 +66,19 @@ class MessageScheduler:
       self.unschedule(msg.user_id, msg.icu_id)
 
     handle = io_loop.call_later(delay, self.may_send, msg)
-    self.timeouts[key] = ScheduledMessage(handle, msg, when)
+    self.timeouts[msg.key] = ScheduledMessage(handle, msg, when)
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
     return True
 
-  def schedule(self, user, icu_id: int, delay: Optional[int] = None) -> bool:
+  def schedule(self, user, icu, delay: Optional[int] = None) -> bool:
     user_icus = {i.icu_id: i for i in user.icus}
-    if not user.is_active or icu_id not in user_icus:
-      user_id = user.user_id
+    if not user.is_active or icu.icu_id not in user_icus:
+      user_id, icu_id = user.user_id, icu.icu_id
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return False
 
-    url = self.updater.get_user_url(user, icu_id)
-    msg = message.Message(icu_id, user, url)
+    url = self.updater.get_user_url(user, icu.icu_id)
+    msg = message.Message(icu, user, url)
     return self.schedule_message(msg, delay)
 
   def schedule_all(self, delay=None):
@@ -87,7 +86,7 @@ class MessageScheduler:
     users = self.db.get_users()
     for user in users:
       for icu in user.icus:
-        self.schedule(user, icu.icu_id, delay=delay)
+        self.schedule(user, icu, delay=delay)
 
   def unschedule(self, user_id: int, icu_id: int):
     timeout = self.timeouts.pop((user_id, icu_id), None)
@@ -112,7 +111,7 @@ class MessageScheduler:
     if uptodate or (msg.attempts > self.max_retries):
       msg.reset()
       # This message will be sent again at the next session.
-      return self.schedule(msg)
+      return self.schedule_message(msg)
     else:
       await self.do_send(msg)
 

@@ -11,4 +11,4 @@ class ConfigTestCase(unittest.TestCase):
     cfg = config.Config(self.TEST_CONFIG_PATH, mode=mode)
     self.assertEqual(cfg.db.sqlite_path, 'test.db')
     self.assertEqual(cfg.server.port, 8888)
-    self.assertEqual(cfg.scheduler.max_retries, 1)
+    self.assertEqual(cfg.scheduler.max_retries, 3)
