@@ -18,15 +18,7 @@ class MessageServer(base_server.BaseServer):
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      config=self.config,
-      db=self.db,
-      queue=self.queue,
-      token_encoder=token.TokenEncoder(self.config),
-      base_url=self.config.server.base_url,
-      max_retries=self.config.scheduler.max_retries,
-      reminder_delay=self.config.scheduler.reminder_delay,
-      when=self.config.scheduler.ping,
-    )
+      config=self.config, db=self.db, queue=self.queue)
     print([m.text for m in self.scheduler.messages])
     self.callbacks = [self.process]
 
