@@ -1,5 +1,6 @@
 from absl.testing import absltest
 from datetime import datetime
+import tornado.testing
 from unittest import mock
 
 from icubam.db import store
@@ -15,17 +16,18 @@ class MockQueue:
   def __init__(self):
     self.data = []
 
-  def put(self, data):
+  async def put(self, data):
     self.data.append(data)
 
 
-class SchedulerTestCase(absltest.TestCase):
+class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
   def setUp(self):
+    super().setUp()
     self.config = config.Config('resources/test.toml')
     self.db = store.create_store_for_sqlite_db(self.config)
     self.queue = MockQueue()
-    self.scheduler =  scheduler.MessageScheduler(
+    self.scheduler = scheduler.MessageScheduler(
       self.config, self.db, self.queue)
 
     self.admin = self.db.add_default_admin()
@@ -45,7 +47,7 @@ class SchedulerTestCase(absltest.TestCase):
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_schedule_message(self):
-    msg = message.Message(self.icu.icu_id, self.user, url='url')
+    msg = message.Message(self.icu, self.user, url='url')
     self.assertEqual(len(self.scheduler.timeouts), 0)
     delay = 100
     success = self.scheduler.schedule_message(msg, delay=delay)
@@ -74,7 +76,7 @@ class SchedulerTestCase(absltest.TestCase):
     userid = self.db.add_user_to_icu(self.admin, self.icu.icu_id, user)
     user = self.db.get_user(userid)
     offset = 100
-    msg2 = message.Message(self.icu.icu_id, user, url='url')
+    msg2 = message.Message(self.icu, user, url='url')
     success = self.scheduler.schedule_message(msg2, delay=delay+offset)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -82,7 +84,7 @@ class SchedulerTestCase(absltest.TestCase):
     icu = store.ICU(name='anothericu')
     icuid = self.db.add_icu(self.admin, store.ICU(name='my_icu'))
     self.db.assign_user_to_icu(self.admin, self.user.user_id, icuid)
-    msg3 = message.Message(icuid, self.user, url='url')
+    msg3 = message.Message(icu, self.user, url='url')
     success = self.scheduler.schedule_message(msg3, delay=delay+offset)
     self.assertEqual(len(self.scheduler.timeouts), 3)
 
@@ -90,7 +92,7 @@ class SchedulerTestCase(absltest.TestCase):
   def test_schedule(self):
     self.assertEqual(len(self.scheduler.timeouts), 0)
     delay = 100
-    success = self.scheduler.schedule(self.user, self.icu.icu_id, delay=delay)
+    success = self.scheduler.schedule(self.user, self.icu, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 1)
 
@@ -98,7 +100,7 @@ class SchedulerTestCase(absltest.TestCase):
     user1 = store.User(name='jacqueline', telephone='12333')
     userid1 = self.db.add_user_to_icu(self.admin, self.icu.icu_id, user1)
     user1 = self.db.get_user(userid1)
-    success = self.scheduler.schedule(user1, self.icu.icu_id, delay=delay)
+    success = self.scheduler.schedule(user1, self.icu, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -106,7 +108,7 @@ class SchedulerTestCase(absltest.TestCase):
     user2 = store.User(name='armand', telephone='127313')
     userid2 = self.db.add_user(user2)
     user2 = self.db.get_user(userid2)
-    success = self.scheduler.schedule(user2, self.icu.icu_id, delay=delay)
+    success = self.scheduler.schedule(user2, self.icu, delay=delay)
     self.assertFalse(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -114,7 +116,7 @@ class SchedulerTestCase(absltest.TestCase):
     user3 = store.User(name='armande', telephone='15313', is_active=False)
     userid3 = self.db.add_user_to_icu(self.admin, self.icu.icu_id, user3)
     user3 = self.db.get_user(userid3)
-    success = self.scheduler.schedule(user3, self.icu.icu_id, delay=delay)
+    success = self.scheduler.schedule(user3, self.icu, delay=delay)
     self.assertFalse(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -130,9 +132,21 @@ class SchedulerTestCase(absltest.TestCase):
     # We are not sure about what is the db. But at least it should send to the
     # newly built users.
     # TODO(olivier): do better here
-    self.assertGreater(len(self.scheduler.timeouts), len(names)+1)
+    self.assertGreater(len(self.scheduler.timeouts), len(names) + 1)
 
-
+  @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
+  @tornado.testing.gen_test
+  async def test_do_send(self):
+    msg = message.Message(self.icu, self.user, url='url')
+    await self.scheduler.do_send(msg)
+    # response = self.wait()
+    self.assertEqual(len(self.queue.data), 1)
+    self.assertEqual(msg.first_sent, fake_now)
+    self.assertEqual(msg.attempts, 1)
+    self.assertEqual(len(self.scheduler.timeouts), 1)
+    timeout = self.scheduler.timeouts.get(msg.key, None)
+    self.assertIsNotNone(timeout)
+    self.assertEqual(timeout.when, self.scheduler.reminder_delay + fake_now)
 
 
 if __name__ == '__main__':

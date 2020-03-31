@@ -19,6 +19,12 @@ class OnOffRequest:
 
 
 class OnOffHandler(tornado.web.RequestHandler):
+  """This handler is used to activate of deactivate the reception of messages.
+
+  Two tests cases are when a new user is created, the message server should be
+  informed so that she starts receving messages, and when a user opt-out, she
+  should be removed from there.
+  """
 
   ROUTE = '/onoff'
 
@@ -47,4 +53,10 @@ class OnOffHandler(tornado.web.RequestHandler):
       self.set_status(400)
       return logging.error("Unknown user {}".format(user.user_id))
 
-    self.scheduler.schedule(user, request.icu_id)
+    icu = {i.icu_id: icu for i in user.icus}.get(request.icu_id, None)
+    if icu is None:
+      self.set_status(400)
+      return logging.error("User {} does not belong to ICU {}".format(
+        user.user_id, request.icu_id))
+
+    self.scheduler.schedule(user, icu, request.delay)
