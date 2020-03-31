@@ -9,30 +9,27 @@ from icubam.www import updater
 from icubam import time_utils
 
 
+@dataclasses.dataclass
+class ScheduledMessage:
+  timeout: object = None
+  msg: message.Message = None
+  when: int = -1
+
+
 class MessageScheduler:
   """Schedules the sending of SMS to users."""
 
-  def __init__(self,
-               config,
-               db,
-               queue,
-               token_encoder,
-               base_url: str = 'http://localhost:8888/',
-               max_retries: int = 2,
-               reminder_delay: int = 60*30,
-               when=[(9, 30), (17, 0)]):
+  def __init__(self, config, db, queue):
     self.config = config
     self.db = db
-    self.token_encoder = token_encoder
     self.queue = queue
-    self.base_url = base_url
-    self.max_retries = max_retries
-    self.reminder_delay = reminder_delay
-    self.when = [time_utils.parse_hour(h) for h in when]
-    self.phone_to_icu = {}
-    self.messages = []
-    # Keys: by (user_id, icu_id)
-    # Values: Tuple(timeout handle, timestamp)
+    self.base_url = self.config.server.base_url
+    self.max_retries = self.config.scheduler.max_retries
+    self.reminder_delay = self.config.scheduler.reminder_delay
+    pings = self.config.scheduler.ping
+    self.when = [time_utils.parse_hour(h) for h in pings]
+
+    # Keys: by (user_id, icu_id), value is ScheduledMessage
     self.timeouts = {}
     self.updater = updater.Updater(self.config, None)
 
@@ -46,7 +43,7 @@ class MessageScheduler:
       return -1
 
     return int(time_utils.get_next_timestamp(self.when) - time.time())
-
+io_loop.call_later(delay, self.may_send, msg)
   def schedule_message(
       self, msg: message.Message, delay: Optional[int]) -> bool:
     """Schedules a message to be sent later."""
@@ -57,16 +54,17 @@ class MessageScheduler:
 
     when = delay + time.time()
     key = msg.user_id, msg.icu_id
-    timeout_when = self.timeouts.get(key, None)
-    if timeout_when not None and when > timeout_when[1]:
+    timeout = self.timeouts.get(key, None)
+    if timeout not None and when > timeout.when:
       logging.info(f'A message is schedule before {when}, Skipping scheduling.')
       return False
 
     io_loop = tornado.ioloop.IOLoop.current()
-    if timeout_when is not None:
+    if timeout is not None:
       self.unschedule(msg.user_id, msg.icu_id)
 
-    self.timeouts[key] = (io_loop.call_later(delay, self.may_send, msg), when)
+    handle = io_loop.call_later(delay, self.may_send, msg)
+    self.timeouts[key] = ScheduledMessage(handle, msg, when)
     logging.info('Scheduling {} in {}s.'.format(msg.icu_name, delay))
     return True
 
@@ -95,7 +93,7 @@ class MessageScheduler:
       return
 
     io_loop = tornado.ioloop.IOLoop.current()
-    io_loop.remove_timeout(timeout)
+    io_loop.remove_timeout(timeout.timeout)
     logging.info(f'Unscheduling message for {user_id} in {icu_id}.')
 
   async def may_send(self, msg):
