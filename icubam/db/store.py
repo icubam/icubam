@@ -3,6 +3,7 @@ from absl import logging
 from contextlib import contextmanager
 from datetime import datetime
 import hashlib
+import pandas as pd
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import ForeignKey, UniqueConstraint
@@ -426,14 +427,23 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_count_for_icu(self, icu_id: int) -> BedCount:
+  def get_bed_counts(self, max_ts: str = None) -> Iterable[BedCount]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    query = self._session().query(BedCount)
+    if max_ts is not None:
+      date = datetime.fromtimestamp(max_ts) if max_ts.isnumeric() else max_ts
+      query = query.filter(BedCount.last_modified <= date)
+    return query.all()
+
+  def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
-        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date))[0]
+      BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
 
-  def update_bed_count_for_icu(self, user_id: int, bed_count: BedCount):
+  def update_bed_count_for_icu(
+      self, user_id: int, bed_count: BedCount, force=False):
     """Updates the latest bed count for the specified ICU."""
-    if not self.can_edit_bed_count(user_id, bed_count.icu_id):
+    if not self.can_edit_bed_count(user_id, bed_count.icu_id) and not force:
       raise ValueError("User cannot edit bed count for the ICU.")
     with self.session_scope() as session:
       session.add(bed_count)
@@ -496,3 +506,20 @@ def create_store_for_sqlite_db(cfg) -> Store:
   """
   engine = create_engine("sqlite:///" + cfg.db.sqlite_path)
   return Store(engine, salt=cfg.DB_SALT)
+
+
+def get_column_names(obj):
+  """Returns the columns of a given class."""
+  return list(obj.__mapper__.columns.keys())
+
+def to_dict(obj):
+  """Turns a Base instance into a dictionary."""
+  columns = get_column_names(obj)
+  result = {}
+  for col in columns:
+    result[col] = getattr(obj, col)
+  return result
+
+
+def to_pandas(objs) -> pd.DataFrame:
+  return pd.DataFrame([to_dict(x) for x in objs])
