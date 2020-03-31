@@ -57,7 +57,10 @@ class MessageScheduler:
 
     when = delay + time.time()
     timeout = self.timeouts.get(msg.key, None)
-    if timeout is not None and when > timeout.when:
+    # To make cope with small delays, we add a safe margin.
+    # TODO(olivier): find a better solution.
+    margin = 10
+    if timeout is not None and when > timeout.when + margin:
       logging.info(f'A message is schedule before {when}, Skipping scheduling.')
       return False
 
@@ -105,7 +108,9 @@ class MessageScheduler:
 
     # Otherwise check if it has been answered or sent too many times.
     bed_count = self.db.get_bed_count_for_icu(msg.icu_id)
-    last_update = None if bed_count is None else bed_count.last_modified
+    last_update = None
+    if bed_count is not None and bed_count.last_modified is not None:
+      last_update = bed_count.last_modified.timestamp()
     uptodate = (last_update is not None) and (last_update > msg.first_sent)
     # The message has been answered or too many tries, send for next session.
     if uptodate or (msg.attempts > self.max_retries):
@@ -134,5 +139,5 @@ class MessageScheduler:
     for user in users:
       for icu in user.icus:
         url = self.updater.get_user_url(user, icu.icu_id)
-        result.append(message.Message(icu.icu_id, user, url))
+        result.append(message.Message(icu, user, url))
     return result
