@@ -52,7 +52,6 @@ class DBHandler(base.BaseHandler):
     max_ts = self.get_query_argument('max_ts', default=None)
 
     get_fn = self.get_fns.get(collection, None)
-    print('hey', get_fn)
     if get_fn is None:
       self.redirect(home.HomeHandler.ROUTE)
 
