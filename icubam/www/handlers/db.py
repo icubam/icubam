@@ -36,13 +36,6 @@ class DBHandler(base.BaseHandler):
     keys = ['users', 'bedcount', 'icus']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
 
-
-  def prepare(self):
-    file_name = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%M')
-    self.set_header(
-      "Content-Disposition", f"attachment; filename=bedcount_{file_name}.h5"
-    )
-
   @tornado.web.authenticated
   def get(self, collection):
     get_fn = self.get_fns.get(collection, None)
