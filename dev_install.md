@@ -76,17 +76,20 @@ To start the tests, install `pytest` and run `pytest`
 
 First, install Docker on your host (check official [documentation](https://docs.docker.com/)).
 
-To build the ICUBAM Docker image (providing the config file archive, the image version number and the target 
-configuration)
+To build the ICUBAM Docker image, just provide the image version number.
     
 ```
-./docker_build.sh deploy_configs.tgz 1.0 dev
+./docker_build.sh 1.0 
 ```
     
-To launch the container (providing the host's port to map the tornado server's defaut port 8888)
-
+To launch the container, provide the image to use, the target port and the targeted environment (dev, prod)
+ 
+Notes:
+- the script assumes the tornado server is launched on port 8888)
+- the script assumes that the required configuration files are proprerly installed
+  
 ```
-./docker_run.sh icubam:1.0 9000
+./docker_run.sh icubam:1.0 9000 dev
 ``` 
 The command will display the long version of the container ID and exit after a few seconds. The xcontainer ID and 
 status can be retrieved with the command
@@ -96,3 +99,16 @@ docker ps
 
 To activate the server, use `docker logs CONTAINER_ID` to retrieve the URL and open the URL. Replace the port after 
 localhost with the public port chosen for the container (9000 in the example above).  
+
+## Docker compose
+
+To launch the complete install (server, sms server, nginx, certbot containers), use the docker-compose command
+
+Note:
+- the proper nginx configuration file should be setup in `configs/nginx`
+- the proper environment should be set in the `docker-compose.yml` file
+- the icubam configuration files (database, toml, en) should be set at the expected location (check the mount directives in the yml file).
+
+```
+docker-compose up
+```
