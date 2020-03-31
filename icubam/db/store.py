@@ -13,7 +13,24 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
 from typing import Iterable, Optional
 
-Base = declarative_base()
+
+class Base(object):
+  """Base with helper methods."""
+
+  def _get_column_names(self):
+    """Returns the columns of the table."""
+    return list(self.__mapper__.columns.keys())
+
+  def to_dict(self):
+    """Turns a Base instance into a dictionary."""
+    columns = self._get_column_names()
+    result = {}
+    for col in columns:
+      result[col] = getattr(self, col)
+    return result
+
+
+Base = declarative_base(cls=Base)
 
 # Users that are assigned to an ICU.
 icu_users = Table(
@@ -134,10 +151,10 @@ class ICU(Base):
 class Store:
   """Provides high level access to the data store."""
 
-  def __init__(self, engine, salt=''):
+  def __init__(self, engine, salt=""):
     if salt is None:
-      logging.warning('DB_SALT is not defined. Falling back to default')
-      salt = ''
+      logging.warning("DB_SALT is not defined. Falling back to default")
+      salt = ""
 
     Base.metadata.create_all(engine)
     self._session = sessionmaker(bind=engine)
@@ -246,10 +263,10 @@ class Store:
 
   def add_default_admin(self) -> int:
     """Creates a default 'admin/admin' user."""
-    name = 'admin'
+    name = "admin"
     hash = self.get_password_hash(name)
     return self.add_user(
-      User(name=name, email=name, password_hash=hash, is_admin=True))
+        User(name=name, email=name, password_hash=hash, is_admin=True))
 
   def add_user(self, user: User) -> int:
     """Adds a new user and returns it ID.
@@ -352,8 +369,8 @@ class Store:
   # Authentication related methods.
 
   def get_password_hash(self, password: str) -> str:
-    return hashlib.pbkdf2_hmac(
-        "sha256", password.encode("utf8"), self._salt, 100000).hex()
+    return hashlib.pbkdf2_hmac("sha256", password.encode("utf8"), self._salt,
+                               100000).hex()
 
   def auth_user(self, email: str, password: str) -> int:
     """Authenticates a user using email and password.
@@ -438,10 +455,12 @@ class Store:
   def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
-      BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
+        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
 
-  def update_bed_count_for_icu(
-      self, user_id: int, bed_count: BedCount, force=False):
+  def update_bed_count_for_icu(self,
+                               user_id: int,
+                               bed_count: BedCount,
+                               force=False):
     """Updates the latest bed count for the specified ICU."""
     if not self.can_edit_bed_count(user_id, bed_count.icu_id) and not force:
       raise ValueError("User cannot edit bed count for the ICU.")
@@ -508,18 +527,5 @@ def create_store_for_sqlite_db(cfg) -> Store:
   return Store(engine, salt=cfg.DB_SALT)
 
 
-def get_column_names(obj):
-  """Returns the columns of a given class."""
-  return list(obj.__mapper__.columns.keys())
-
-def to_dict(obj):
-  """Turns a Base instance into a dictionary."""
-  columns = get_column_names(obj)
-  result = {}
-  for col in columns:
-    result[col] = getattr(obj, col)
-  return result
-
-
 def to_pandas(objs) -> pd.DataFrame:
-  return pd.DataFrame([to_dict(x) for x in objs])
+  return pd.DataFrame([x.to_dict() for x in objs])
