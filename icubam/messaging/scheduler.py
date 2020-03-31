@@ -39,16 +39,15 @@ class MessageScheduler:
 
   def build_messages(self):
     """Build the messages to be sent to each user depending on its ICU."""
-    users_df = self.db.get_users()
+    users = self.db.get_users()
     self.messages = []
-    for index, row in users_df.iterrows():
-      url = self.updater.get_url(row.icu_id, row.icu_name)
-      # TODO(olivier): fix when user-id is in
-      user_id = row.telephone
-      msg = message.Message(
-        row['icu_id'], row['icu_name'], row['telephone'], user_id, row['name'])
-      msg.build(url)
-      self.messages.append(msg)
+    for user in users:
+      for icu in user.icus:
+        url = self.updater.get_url(icu.icu_id, icu.name)
+        msg = message.Message(
+          icu.icu_id, icu.name, user.telephone, user.user_id, user.name)
+        msg.build(url)
+        self.messages.append(msg)
 
   def schedule_all(self, delay=None):
     """Schedules messages for all the users."""
@@ -134,12 +133,8 @@ class MessageScheduler:
       return await self.do_send(msg)
 
     # Otherwise check if it has been answered or sent too many times.
-    df = self.db.get_bedcount()
-    last_update = df[df.icu_id == msg.icu_id].update_ts
-    try:
-      last_update = int(last_update.iloc[0])
-    except:
-      last_update = None
+    bed_count = self.db.get_bed_count_for_icu(msg.icu_id)
+    last_update = None if bed_count is None else bed_count.last_modified
     uptodate = (last_update is not None) and (last_update > msg.first_sent)
     # The message has been answered or too many tries, send for next session.
     if uptodate or (msg.attempts > self.max_retries):
