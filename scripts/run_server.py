@@ -2,7 +2,6 @@
 
 from absl import app
 from absl import flags
-import tornado
 from icubam import config
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
