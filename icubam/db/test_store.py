@@ -5,12 +5,13 @@ import time
 from absl.testing import absltest
 from datetime import datetime, timedelta
 import icubam.db.store as db_store
-from icubam.db.store import Store, BedCount, ICU, Region, User
+from icubam.db.store import Store, BedCount, ExternalClient, ICU, Region, User
+from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 
 
-class SQLiteDBTest(absltest.TestCase):
+class StoreTest(absltest.TestCase):
 
   def setUp(self):
     store = Store(create_engine("sqlite:///:memory:", echo=True))
@@ -113,10 +114,17 @@ class SQLiteDBTest(absltest.TestCase):
     icu_id1 = self.add_icu("icu1")
     store.assign_user_as_icu_manager(admin_user_id, user_id, icu_id1)
 
+    icus = store.get_managed_icus(user_id)
+    self.assertItemsEqual([icu.name for icu in icus], ["icu1"])
+
     icu_id2 = self.add_icu("icu2")
     store.assign_user_as_icu_manager(admin_user_id, user_id, icu_id2)
 
     icus = store.get_managed_icus(user_id)
+    self.assertItemsEqual([icu.name for icu in icus], ["icu1", "icu2"])
+
+    # Admins should be able to manage all ICUs.
+    icus = store.get_managed_icus(admin_user_id)
     self.assertItemsEqual([icu.name for icu in icus], ["icu1", "icu2"])
 
   def test_enable_icu_admin(self):
@@ -140,6 +148,12 @@ class SQLiteDBTest(absltest.TestCase):
 
     store.disable_icu(user_id, icu_id)
     self.assertFalse(store.get_icu(icu_id).is_active)
+
+  def test_get_admins(self):
+    store = self.store
+    store.add_user(User(name="user1"))
+    store.add_user(User(name="user2"))
+    self.assertEqual(len(store.get_admins()), 1)
 
   def test_get_users(self):
     store = self.store
@@ -308,6 +322,9 @@ class SQLiteDBTest(absltest.TestCase):
     icu_id = self.add_icu()
     user_id = store.add_user_to_icu(self.admin_user_id, icu_id,
                                     User(name="user"))
+    bed_count = store.get_bed_count_for_icu(icu_id)
+    self.assertIsNone(bed_count)
+
     bed_count = BedCount(
         icu_id=icu_id,
         n_covid_occ=1,
@@ -413,7 +430,104 @@ class SQLiteDBTest(absltest.TestCase):
     user_id2 = store.add_user_to_icu(admin_user_id, icu_id3, User(name="user2"))
     self.assertDictEqual(get_values(user_id2), {"icu3": 5})
 
+  def test_add_external_client(self):
+    store = self.store
+    external_client_id, access_key = store.add_external_client(
+        self.admin_user_id,
+        ExternalClient(name="client", email="client@test.org"))
+
+    self.assertEqual(external_client_id, 1)
+    self.assertTrue(access_key.key)
+    self.assertEqual(access_key.key_hash,
+                     store.get_access_key_hash(access_key.key))
+
+    external_client = store.get_external_client(external_client_id)
+    self.assertEqual(external_client.name, "client")
+    self.assertEqual(external_client.email, "client@test.org")
+    self.assertEqual(external_client.access_key_hash, access_key.key_hash)
+    self.assertIsNotNone(external_client.create_date)
+    self.assertEqual(external_client.last_modified, external_client.create_date)
+    self.assertTrue(external_client.access_key_valid)
+
+  def test_update_external_client(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    external_client_id, _ = store.add_external_client(
+        admin_user_id, ExternalClient(name="foo"))
+
+    now = datetime.now()
+    expiration_date = now + timedelta(minutes=1)
+
+    store.update_external_client(admin_user_id, external_client_id, {
+        "name": "bar",
+        "email": "bar@test.org",
+        "expiration_date": expiration_date
+    })
+
+    external_client = store.get_external_client(external_client_id)
+    self.assertEqual(external_client.name, "bar")
+    self.assertEqual(external_client.email, "bar@test.org")
+    self.assertEqual(external_client.expiration_date, expiration_date)
+    self.assertTrue(external_client.access_key_valid)
+
+    store.update_external_client(admin_user_id, external_client_id,
+                                 {"expiration_date": now})
+    external_client = store.get_external_client(external_client_id)
+    self.assertFalse(external_client.access_key_valid)
+
+  def test_get_external_clients(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    store.add_external_client(admin_user_id, ExternalClient(name="client1"))
+    store.add_external_client(admin_user_id, ExternalClient(name="client2"))
+    external_clients = store.get_external_clients()
+    self.assertItemsEqual(
+        [external_client.name for external_client in external_clients],
+        ["client1", "client2"])
+    self.assertNotEqual(external_clients[0].access_key_hash,
+                        external_clients[1].access_key_hash)
+
+  def test_reset_external_client_access_key(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    external_client_id, access_key = store.add_external_client(
+        admin_user_id,
+        ExternalClient(
+            name="client",
+            expiration_date=datetime.now() + timedelta(minutes=1)))
+
+    new_access_key = store.reset_external_client_access_key(
+        admin_user_id, external_client_id)
+
+    self.assertTrue(new_access_key.key)
+    self.assertNotEqual(new_access_key.key, access_key.key)
+    self.assertEqual(new_access_key.key_hash,
+                     store.get_access_key_hash(new_access_key.key))
+
+    external_client = store.get_external_client(external_client_id)
+    self.assertEqual(external_client.access_key_hash, new_access_key.key_hash)
+    self.assertIsNone(external_client.expiration_date)
+    self.assertTrue(external_client.access_key_valid)
+
+  def test_auth_external_client(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    external_client_id1, access_key1 = store.add_external_client(
+        admin_user_id, ExternalClient(name="client1"))
+    external_client_id2, access_key2 = store.add_external_client(
+        admin_user_id, ExternalClient(name="client2"))
+
+    external_client_id = store.auth_external_client(access_key1.key)
+    self.assertEqual(external_client_id, external_client_id1)
+
+    external_client_id = store.auth_external_client(access_key2.key)
+    self.assertEqual(external_client_id, external_client_id2)
+
+    self.assertIsNone(store.auth_external_client("test"))
+
   def test_create_store_for_sqlite_db(self):
-    with tempfile.TemporaryDirectory() as tmp_folder:
-      store = db_store.create_store_for_sqlite_db(
-          os.path.join(tmp_folder, "test.db"))
+    cfg = config.Config(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../../resources/test.toml"))
+    store = db_store.create_store_for_sqlite_db(cfg)

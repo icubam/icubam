@@ -1,7 +1,10 @@
 """Data store for ICUBAM."""
+from absl import logging
 from contextlib import contextmanager
+import dataclasses
 from datetime import datetime
 import hashlib
+import pandas as pd
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import ForeignKey, UniqueConstraint
@@ -9,9 +12,27 @@ from sqlalchemy import Boolean, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
+import uuid
 
-Base = declarative_base()
+
+class Base(object):
+  """Base with helper methods."""
+
+  def _get_column_names(self):
+    """Returns the columns of the table."""
+    return list(self.__mapper__.columns.keys())
+
+  def to_dict(self):
+    """Turns a Base instance into a dictionary."""
+    columns = self._get_column_names()
+    result = {}
+    for col in columns:
+      result[col] = getattr(self, col)
+    return result
+
+
+Base = declarative_base(cls=Base)
 
 # Users that are assigned to an ICU.
 icu_users = Table(
@@ -33,7 +54,8 @@ class User(Base):
   user_id = Column(Integer, primary_key=True)
   name = Column(String)
   # Telephone and email should be unique for each user.
-  telephone = Column(String, unique=True)
+  # TODO(olivier): removing for now.
+  telephone = Column(String)  # , unique=True)
   email = Column(String)
   description = Column(String)
   # Strong hash of the password. Used for admin and manager users.
@@ -128,12 +150,47 @@ class ICU(Base):
   managers = relationship("User", secondary=icu_managers, back_populates="icus")
 
 
+class ExternalClient(Base):
+  "Represents an external client that can access ICUBAM data." ""
+  __tablename__ = "external_clients"
+
+  external_client_id = Column(Integer, primary_key=True)
+  name = Column(String)
+  email = Column(String)
+  telephone = Column(String)
+  # Strong hash of the access key. It should be unique.
+  access_key_hash = Column(String, unique=True)
+  # If set, denotes the date that the access key expires.
+  expiration_date = Column(DateTime)
+  is_active = Column(Boolean, default=True, server_default=text("1"))
+
+  create_date = Column(DateTime, default=func.now())
+  last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
+
+  @property
+  def access_key_valid(self):
+    """Returns true if the access key is valid."""
+    return self.expiration_date is None or self.expiration_date > datetime.now()
+
+
+@dataclasses.dataclass
+class AccessKey(object):
+  """Access key together with its hash."""
+  key: str
+  key_hash: str
+
+
 class Store:
   """Provides high level access to the data store."""
 
-  def __init__(self, engine):
+  def __init__(self, engine, salt=""):
+    if salt is None:
+      logging.warning("DB_SALT is not defined. Falling back to default")
+      salt = ""
+
     Base.metadata.create_all(engine)
     self._session = sessionmaker(bind=engine)
+    self._salt = salt.encode()
 
   @contextmanager
   def session_scope(self, session=None):
@@ -182,6 +239,10 @@ class Store:
     """Returns the ICU with the specified ID."""
     return self._session().query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
+  def get_icus(self) -> Iterable[ICU]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session().query(ICU).all()
+
   def update_icu(self, manager_user_id: int, icu_id: int, values):
     """Updates an existing ICU.
 
@@ -224,13 +285,23 @@ class Store:
   def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
     session = self._session()
+    # Admins can manage all ICUs.
+    if self._is_admin(session, manager_user_id):
+      return session.query(ICU).all()
     user = self._get_user(session, manager_user_id)
     return user.managed_icus if user else []
 
   # User related methods.
 
+  def add_default_admin(self) -> int:
+    """Creates a default 'admin/admin' user."""
+    name = "admin"
+    hash = self.get_password_hash(name)
+    return self.add_user(
+        User(name=name, email=name, password_hash=hash, is_admin=True))
+
   def add_user(self, user: User) -> int:
-    """Adds a new user and returns it ID.
+    """Adds a new user and returns its ID.
 
     Args:
       user: a User object. user_id field should not be set.
@@ -268,6 +339,10 @@ class Store:
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session().query(User).all()
+
+  def get_admins(self) -> Iterable[User]:
+    """Returns all admins, e.g. sync. Do not use in user facing code."""
+    return self._session().query(User).filter(User.is_admin).all()
 
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
@@ -330,8 +405,7 @@ class Store:
   # Authentication related methods.
 
   def get_password_hash(self, password: str) -> str:
-    # Salt should come from config.
-    return hashlib.pbkdf2_hmac("sha256", bytes(password, "utf-8"), b"salt",
+    return hashlib.pbkdf2_hmac("sha256", password.encode("utf8"), self._salt,
                                100000).hex()
 
   def auth_user(self, email: str, password: str) -> int:
@@ -406,14 +480,25 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_count_for_icu(self, icu_id: int) -> BedCount:
+  def get_bed_counts(self, max_ts: str = None) -> Iterable[BedCount]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    query = self._session().query(BedCount)
+    if max_ts is not None:
+      date = datetime.fromtimestamp(max_ts) if max_ts.isnumeric() else max_ts
+      query = query.filter(BedCount.last_modified <= date)
+    return query.all()
+
+  def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
-        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date))[0]
+        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
 
-  def update_bed_count_for_icu(self, user_id: int, bed_count: BedCount):
+  def update_bed_count_for_icu(self,
+                               user_id: int,
+                               bed_count: BedCount,
+                               force=False):
     """Updates the latest bed count for the specified ICU."""
-    if not self.can_edit_bed_count(user_id, bed_count.icu_id):
+    if not self.can_edit_bed_count(user_id, bed_count.icu_id) and not force:
       raise ValueError("User cannot edit bed count for the ICU.")
     with self.session_scope() as session:
       session.add(bed_count)
@@ -429,7 +514,8 @@ class Store:
 
   def get_visible_bed_counts_for_user(self,
                                       user_id,
-                                      max_date: datetime = None
+                                      max_date: datetime = None,
+                                      force=False
                                      ) -> Iterable[BedCount]:
     """Returns the latest bed counts of ICS that are visible to the user.
 
@@ -441,7 +527,7 @@ class Store:
     sub = session.query(BedCount.rowid, BedCount.icu_id,
                         BedCount.create_date).order_by(
                             desc(BedCount.create_date))
-    if not self._is_admin(session, user_id):
+    if not force and not self._is_admin(session, user_id):
       # Fetch the IDs of ICUs that user is assigned to.
       user_icu_ids = session.query(
           icu_users.c.icu_id).filter(icu_users.c.user_id == user_id)
@@ -464,7 +550,112 @@ class Store:
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
 
+  # External client related methods.
 
-def create_store_for_sqlite_db(db_path):
-  """Cretes a store for the SQLite database with the specified path."""
-  return Store(create_engine("sqlite:///" + db_path))
+  def get_access_key_hash(self, access_key: str) -> str:
+    """Returns the hash of the access key."""
+    return self.get_password_hash(access_key)
+
+  def create_access_key(self) -> AccessKey:
+    """Returns a new access key."""
+    access_key = uuid.uuid1().hex
+    return AccessKey(
+        key=access_key, key_hash=self.get_access_key_hash(access_key))
+
+  def add_external_client(
+      self, admin_user_id: int,
+      external_client: ExternalClient) -> Tuple[int, AccessKey]:
+    """Adds a new external client and returns its access key.
+
+    Args:
+      admin_user_id: ID of an admin user.
+      external_client: an ExternalClient object. access_key_hash field will be
+        ignored.
+
+    Returns:
+      ID of the external client and the access key.
+    """
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can add a new external client.")
+      access_key = self.create_access_key()
+      external_client.access_key_hash = access_key.key_hash
+      session.add(external_client)
+      session.commit()
+      return external_client.external_client_id, access_key
+
+  def update_external_client(self, admin_user_id: int, external_client_id: int,
+                             values):
+    """Updates an existing external client.
+
+    Use reset_external_client_access_key() to change the access key.
+
+    Args:
+      admin_user_id: ID of an admin user.
+      external_client_id: ID of the external client.
+      values: a dict of external client fields to update.
+    """
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can update an external client.")
+      session.query(ExternalClient).filter(ExternalClient.external_client_id ==
+                                           external_client_id).update(values)
+
+  def get_external_client(self, external_client_id: int) -> ExternalClient:
+    """Returns the external client with the specified ID."""
+    return self._session().query(ExternalClient).filter(
+        ExternalClient.external_client_id == external_client_id).one_or_none()
+
+  def get_external_clients(self) -> Iterable[ExternalClient]:
+    """Returns a list of external clients."""
+    return self._session().query(ExternalClient).all()
+
+  def auth_external_client(self, access_key: str) -> Optional[int]:
+    """Authenticates an external client using the access key.
+
+    Args:
+      access_key: Access key of the external client.
+
+    Returns:
+      ID of the external client if there is a matching valid access key or None.
+    """
+    access_key_hash = self.get_access_key_hash(access_key)
+    external_client = self._session().query(ExternalClient).filter(
+        ExternalClient.access_key_hash == access_key_hash).one_or_none()
+    if not external_client or not external_client.access_key_valid:
+      return None
+    return external_client.external_client_id
+
+  def reset_external_client_access_key(
+      self,
+      admin_user_id: int,
+      external_client_id: int,
+      expiration_date: datetime = None) -> AccessKey:
+    """Resets the access key of the external client and returns it."""
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can reset access keys.")
+      external_client = session.query(ExternalClient).filter(
+          ExternalClient.external_client_id == external_client_id).one()
+      access_key = self.create_access_key()
+      external_client.access_key_hash = access_key.key_hash
+      external_client.expiration_date = expiration_date
+      session.add(external_client)
+      return access_key
+
+
+def create_store_for_sqlite_db(cfg) -> Store:
+  """Creates a store for the SQLite database with the specified path.
+
+  Args:
+   cfg: A config.Config instance
+
+  Returns:
+   A Store.
+  """
+  engine = create_engine("sqlite:///" + cfg.db.sqlite_path)
+  return Store(engine, salt=cfg.DB_SALT)
+
+
+def to_pandas(objs) -> pd.DataFrame:
+  return pd.DataFrame([x.to_dict() for x in objs])

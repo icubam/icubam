@@ -1,0 +1,10 @@
+[style]
+indent_width = 2
+continuation_indent_width = 2
+based_on_style = pep8
+dedent_closing_brackets = True
+coalesce_brackets = True
+spaces_around_power_operator = True
+split_before_logical_operator = False
+split_before_bitwise_operator = False
+split_complex_comprehension = True

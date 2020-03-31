@@ -1,4 +1,4 @@
-# Developer install 
+# Developer install
 
 ## Installing
 
@@ -19,13 +19,9 @@ Create a `.env` file at root of the project containing the following keys:
 ```
 SHEET_ID=
 TOKEN_LOC=
-SMS_KEY=
-SECRET_COOKIE=
-JWT_SECRET=
+SECRET_COOKIE=random_secret
+JWT_SECRET=another_secret
 GOOGLE_API_KEY=
-MB_KEY= 
-NX_KEY= 
-NX_API= 
 TW_KEY=
 TW_API=
 ```
@@ -35,7 +31,7 @@ TW_API=
 Create a fake database in order to be able to play with it:
 `python scripts/populate_db_fake.py`
 
-The databse will be named `test.db`.
+The database will be named `test.db`.
 
 ## Running locally
 

@@ -13,6 +13,7 @@
 "Available COVID+ beds","Lits covid+ disponibles"
 "Available COVID- beds","Lits covid- disponibles"
 "Occupied COVID+ beds","Lits covid+ occupés"
+"Occupied COVID- beds","Lits covid- occupés"
 "Discharged (cumulative)","Sorties (cumulés)"
 "Deceased (cumulative)","Décès (cumulés)"
 "Transfers (cumulative)","Transferts (cumulés)"
@@ -34,4 +35,4 @@
 "Cancel","Annuler"
 "never","jamais"
 "now","à l'instant"
-"equiped with ventilator.","équipés d'un respirateur artificiel"
+"equiped with ventilator","équipés d'un respirateur artificiel"

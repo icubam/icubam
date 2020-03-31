@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>Users</h1>
+   <table id="users" class=" table table-hover table-bordered">
+     <thead>
+     <tr>
+       <th>id</th>
+       <th>name</th>
+     </tr>
+     </thead>
+     {% for user in users %}
+       <tr>
+         <td>{{ user.user_id }}</td>
+         <td>{{ user.name }}</td>
+       </tr>
+     {% end %}
+   </table>
+</div>
+
+<a href="/user">Create a new user</a>
+
+{% end %}
