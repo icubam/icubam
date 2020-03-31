@@ -1,6 +1,7 @@
 """Data store for ICUBAM."""
 from absl import logging
 from contextlib import contextmanager
+import dataclasses
 from datetime import datetime
 import hashlib
 import pandas as pd
@@ -11,7 +12,8 @@ from sqlalchemy import Boolean, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
+import uuid
 
 
 class Base(object):
@@ -148,6 +150,36 @@ class ICU(Base):
   managers = relationship("User", secondary=icu_managers, back_populates="icus")
 
 
+class ExternalClient(Base):
+  "Represents an external client that can access ICUBAM data." ""
+  __tablename__ = "external_clients"
+
+  external_client_id = Column(Integer, primary_key=True)
+  name = Column(String)
+  email = Column(String)
+  telephone = Column(String)
+  # Strong hash of the access key. It should be unique.
+  access_key_hash = Column(String, unique=True)
+  # If set, denotes the date that the access key expires.
+  expiration_date = Column(DateTime)
+  is_active = Column(Boolean, default=True, server_default=text("1"))
+
+  create_date = Column(DateTime, default=func.now())
+  last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
+
+  @property
+  def access_key_valid(self):
+    """Returns true if the access key is valid."""
+    return self.expiration_date is None or self.expiration_date > datetime.now()
+
+
+@dataclasses.dataclass
+class AccessKey(object):
+  """Access key together with its hash."""
+  key: str
+  key_hash: str
+
+
 class Store:
   """Provides high level access to the data store."""
 
@@ -269,7 +301,7 @@ class Store:
         User(name=name, email=name, password_hash=hash, is_admin=True))
 
   def add_user(self, user: User) -> int:
-    """Adds a new user and returns it ID.
+    """Adds a new user and returns its ID.
 
     Args:
       user: a User object. user_id field should not be set.
@@ -512,6 +544,99 @@ class Store:
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
+
+  # External client related methods.
+
+  def get_access_key_hash(self, access_key: str) -> str:
+    """Returns the hash of the access key."""
+    return self.get_password_hash(access_key)
+
+  def create_access_key(self) -> AccessKey:
+    """Returns a new access key."""
+    access_key = uuid.uuid1().hex
+    return AccessKey(
+        key=access_key, key_hash=self.get_access_key_hash(access_key))
+
+  def add_external_client(
+      self, admin_user_id: int,
+      external_client: ExternalClient) -> Tuple[int, AccessKey]:
+    """Adds a new external client and returns its access key.
+
+    Args:
+      admin_user_id: ID of an admin user.
+      external_client: an ExternalClient object. access_key_hash field will be
+        ignored.
+
+    Returns:
+      ID of the external client and the access key.
+    """
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can add a new external client.")
+      access_key = self.create_access_key()
+      external_client.access_key_hash = access_key.key_hash
+      session.add(external_client)
+      session.commit()
+      return external_client.external_client_id, access_key
+
+  def update_external_client(self, admin_user_id: int, external_client_id: int,
+                             values):
+    """Updates an existing external client.
+
+    Use reset_external_client_access_key() to change the access key.
+
+    Args:
+      admin_user_id: ID of an admin user.
+      external_client_id: ID of the external client.
+      values: a dict of external client fields to update.
+    """
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can update an external client.")
+      session.query(ExternalClient).filter(ExternalClient.external_client_id ==
+                                           external_client_id).update(values)
+
+  def get_external_client(self, external_client_id: int) -> ExternalClient:
+    """Returns the external client with the specified ID."""
+    return self._session().query(ExternalClient).filter(
+        ExternalClient.external_client_id == external_client_id).one_or_none()
+
+  def get_external_clients(self) -> Iterable[ExternalClient]:
+    """Returns a list of external clients."""
+    return self._session().query(ExternalClient).all()
+
+  def auth_external_client(self, access_key: str) -> Optional[int]:
+    """Authenticates an external client using the access key.
+
+    Args:
+      access_key: Access key of the external client.
+
+    Returns:
+      ID of the external client if there is a matching valid access key or None.
+    """
+    access_key_hash = self.get_access_key_hash(access_key)
+    external_client = self._session().query(ExternalClient).filter(
+        ExternalClient.access_key_hash == access_key_hash).one_or_none()
+    if not external_client or not external_client.access_key_valid:
+      return None
+    return external_client.external_client_id
+
+  def reset_external_client_access_key(
+      self,
+      admin_user_id: int,
+      external_client_id: int,
+      expiration_date: datetime = None) -> AccessKey:
+    """Resets the access key of the external client and returns it."""
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admins can reset access keys.")
+      external_client = session.query(ExternalClient).filter(
+          ExternalClient.external_client_id == external_client_id).one()
+      access_key = self.create_access_key()
+      external_client.access_key_hash = access_key.key_hash
+      external_client.expiration_date = expiration_date
+      session.add(external_client)
+      return access_key
 
 
 def create_store_for_sqlite_db(cfg) -> Store:
