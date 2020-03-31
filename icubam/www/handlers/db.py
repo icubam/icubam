@@ -39,8 +39,12 @@ class DBHandler(base.BaseHandler):
 
   def initialize(self, config, db):
     super().initialize(config, db)
-    keys = ['users', 'bed_counts', 'icus', 'regions']
+    keys = ['users', 'icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
+    self.get_fns['all_bedcounts'] = functools.partial(
+      self.db.get_bed_counts, force=True)
+    self.get_fns['bedcounts'] = functools.partial(
+      self.db.get_visible_bed_counts_for_user, user=None, force=True)
 
   @tornado.web.authenticated
   def get(self, collection):
@@ -51,8 +55,9 @@ class DBHandler(base.BaseHandler):
     if get_fn is None:
       self.redirect(home.HomeHandler.ROUTE)
 
-    if collection == 'bed_counts':
-      get_fn = functools.partial(get_fn, max_ts=max_ts)
+    if 'bedcounts' in collection:
+      get_fn = functools.partial(get_fn, max_date=max_ts)
+
     data = store.to_pandas(get_fn())
 
     for k, v in _get_headers(collection, file_format).items():

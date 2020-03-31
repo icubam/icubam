@@ -480,12 +480,12 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_counts(self, max_ts: str = None) -> Iterable[BedCount]:
+  def get_bed_counts(self, max_date: str = None) -> Iterable[BedCount]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     query = self._session().query(BedCount)
     if max_ts is not None:
-      date = datetime.fromtimestamp(max_ts) if max_ts.isnumeric() else max_ts
-      query = query.filter(BedCount.last_modified <= date)
+      d = datetime.fromtimestamp(max_date) if max_ts.isnumeric() else max_date
+      query = query.filter(BedCount.last_modified <= d)
     return query.all()
 
   def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
@@ -540,7 +540,8 @@ class Store:
       sub = sub.filter(BedCount.icu_id.in_(region_icu_ids.subquery()))
 
     if max_date:
-      sub = sub.filter(BedCount.create_date < max_date)
+      d = datetime.fromtimestamp(max_date) if max_ts.isnumeric() else max_date
+      sub = sub.filter(BedCount.create_date < d)
 
     sub = sub.subquery()
     # Group by ICU ID drops bed counts except the most recent ones subject to
