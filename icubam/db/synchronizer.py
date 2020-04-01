@@ -129,7 +129,7 @@ class StoreSynchronizer:
         logging.error('ICU {} not found in DB. Skipping'.format(icu_name))
         continue
       icu_id = icu.icu_id
-      print(user['telephone'])
+
       user_tuple = self._users.get(user['telephone'], None)
       if user_tuple is not None:
         db_user, db_user_icus = user_tuple
