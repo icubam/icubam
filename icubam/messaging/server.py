@@ -28,6 +28,8 @@ class MessageServer(base_server.BaseServer):
     async for msg in self.queue:
       try:
         self.sender.send(msg.phone, msg.text)
+      except Exception as e:
+        logging.error(f'Could not send message in message loop {e}.')
       finally:
         self.queue.task_done()
 
