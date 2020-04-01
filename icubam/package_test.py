@@ -4,6 +4,5 @@ import icubam
 
 
 class PackageTestCase(unittest.TestCase):
-    def test_version(self):
-        self.assertHasAttr(icubam, '__version__')
-
+  def test_version(self):
+    self.assertHasAttr(icubam, '__version__')
