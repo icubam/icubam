@@ -1,4 +1,4 @@
-name: Python package
+name: DB wipe script smoke test
 
 on: [push, pull_request]
 
@@ -24,12 +24,18 @@ jobs:
         which python
         pip --version
         pip install -r requirements.txt
-    - name: Test with pytest
+    - name: Wipe DB (from the fake DB producer)
       shell: bash -l {0}
       env:
-        JWT_SECRET: faketest
+        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
+        TOKEN_LOC: token.pickle
+        SHEET_ID: ${{ secrets.SHEET_ID }}
+        JWT_SECRET: some_secret_string
+        SECRET_COOKIE: another_secret_string
       run: |
-        set -x
-        pip install pytest
         pip install -e .
-        pytest
+        python scripts/populate_db_fake.py --mode=dev
+        python scripts/wipe_sensitive_info_db.py test.db --quiet=True
+        timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
+        python scripts/get_id_url.py --config=resources/config.toml --mode=dev
+
