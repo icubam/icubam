@@ -34,8 +34,9 @@ class StoreTest(absltest.TestCase):
   def add_region(self, name="region"):
     return self.store.add_region(self.admin_user_id, Region(name=name))
 
-  def add_icu(self, name="icu"):
-    return self.store.add_icu(self.admin_user_id, ICU(name=name))
+  def add_icu(self, name="icu", region_id=None):
+    return self.store.add_icu(self.admin_user_id,
+                              ICU(name=name, region_id=region_id))
 
   def test_add_region(self):
     region_id1 = self.add_region("region1")
@@ -374,6 +375,17 @@ class StoreTest(absltest.TestCase):
     self.assertEqual(bed_count.n_covid_refused, 2)
     self.assertEqual(bed_count.n_covid_transfered, 1)
 
+  def add_icu_with_values(self, region_id, name, now, values):
+    icu_id = self.add_icu(name, region_id=region_id)
+    for index, value in enumerate(values):
+      self.store.update_bed_count_for_icu(
+          self.admin_user_id,
+          BedCount(
+              icu_id=icu_id,
+              n_covid_occ=value,
+              create_date=now + timedelta(seconds=index)))
+    return icu_id
+
   def test_get_visible_bed_counts_for_user(self):
     store = self.store
     admin_user_id = self.admin_user_id
@@ -382,28 +394,17 @@ class StoreTest(absltest.TestCase):
 
     now = datetime.now()
 
-    def add_icu(region_id, name, values):
-      icu_id = store.add_icu(admin_user_id, ICU(name=name, region_id=region_id))
-      for index, value in enumerate(values):
-        store.update_bed_count_for_icu(
-            admin_user_id,
-            BedCount(
-                icu_id=icu_id,
-                n_covid_occ=value,
-                create_date=now + timedelta(seconds=index)))
-      return icu_id
-
-    def get_values(user_id, max_date=None):
+    def get_values(user_id, max_date=None, force=False):
       bed_counts = store.get_visible_bed_counts_for_user(
-          user_id, max_date=max_date)
+          user_id, max_date=max_date, force=force)
       values = {}
       for bed_count in bed_counts:
         values[bed_count.icu.name] = bed_count.n_covid_occ
       return values
 
-    icu_id1 = add_icu(region_id1, "icu1", [1, 2])
-    icu_id2 = add_icu(region_id1, "icu2", [4, 3])
-    icu_id3 = add_icu(region_id2, "icu3", [5])
+    icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
+    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     # Admin user should see bed counts of all ICUs.
     self.assertDictEqual(
@@ -429,6 +430,55 @@ class StoreTest(absltest.TestCase):
     # user2 can only view ICU3.
     user_id2 = store.add_user_to_icu(admin_user_id, icu_id3, User(name="user2"))
     self.assertDictEqual(get_values(user_id2), {"icu3": 5})
+
+    # Unless we force to see everything.
+    self.assertDictEqual(
+        get_values(user_id2, force=True), {
+            "icu1": 2,
+            "icu2": 3,
+            "icu3": 5,
+        })
+
+  def test_visible_bed_counts_in_same_region(self):
+    store = self.store
+    region_id1 = self.add_region("region1")
+    region_id2 = self.add_region("region2")
+
+    now = datetime.now()
+
+    icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
+    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
+
+    def get_values(icu_ids, max_date=None):
+      bed_counts = store.get_visible_bed_counts_in_same_region(
+          icu_ids, max_date=max_date)
+      values = {}
+      for bed_count in bed_counts:
+        values[bed_count.icu.name] = bed_count.n_covid_occ
+      return values
+
+    # icu1 should return both icu1 and icu2 in region1.
+    self.assertDictEqual(get_values([icu_id1]), {"icu1": 2, "icu2": 3})
+
+    # Only icu3 is in region2.
+    self.assertDictEqual(get_values([icu_id3]), {"icu3": 5})
+
+    # This should return all ICUs.
+    self.assertDictEqual(
+        get_values([icu_id1, icu_id3]), {
+            "icu1": 2,
+            "icu2": 3,
+            "icu3": 5
+        })
+
+    # Restrict to now + 1.
+    self.assertDictEqual(
+        get_values([icu_id1, icu_id3], now + timedelta(seconds=1)), {
+            "icu1": 1,
+            "icu2": 4,
+            "icu3": 5
+        })
 
   def test_add_external_client(self):
     store = self.store
