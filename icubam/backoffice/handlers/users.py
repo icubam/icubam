@@ -111,9 +111,8 @@ class UserHandler(base.BaseHandler):
         return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
 
     # Yet another validation step: checks password.
-    # This happens because people can fool the FE by sending one field that
-    # has only spaces.
-    # TODO(quintao): should validate password strength/length here too.
+    # This should not be needed because the FE has validation patterns, but
+    # let's be on the safe side.
     if not uid and not password:
         return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
 

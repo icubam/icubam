@@ -79,15 +79,9 @@
            cannot try to fool us by sending a password that has only spaces.
            -->
             <label for="exampleInputPassword1">Password</label>
-            {% if user.user_id %}
-             <input type="password" id="password" name="password"
-               class="form-control" minlength="5" pattern="[^\s]+"
-               placeholder="Password" size="20">
-            {% else %}
-             <input type="password" id="password" name="password"
-               class="form-control" minlength="5" pattern="[^\s]+"
-               placeholder="Password" size="20" required>
-            {% end %}
+            <input type="password" id="password" name="password"
+              class="form-control" minlength="5" pattern="[^\s]+"
+              placeholder="Password" size="20" {% if not user.user_id %}required{% end %}>
           </div>
          </div>
        </div>
@@ -108,11 +102,8 @@
                  <div class="form-group">
                    <select class="duallistbox" multiple="multiple" id="icus" name="icus">
                     {% for icu in icus %}
-                      {% if icu["selected"] %}
-                        <option value="{{icu['icu_id']}}" selected>{{escape(icu['name'])}}</option>
-                      {% else %}
-                        <option value="{{icu['icu_id']}}">{{escape(icu['name'])}}</option>
-                      {% end %}
+                        <option value="{{icu['icu_id']}}" {% if icu['selected'] %}selected{% end %}>{{escape(icu['name'])}}
+                        </option>
                     {% end %}
                    </select>
                  </div>
@@ -154,8 +145,6 @@
 <script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
-<script src="dist/js/adminlte.min.js"></script>
-<script src="dist/js/demo.js"></script>
 
 <script>
  $(function () {
