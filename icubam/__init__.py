@@ -1,8 +1,8 @@
-from importlib.metadata import version, PackageNotFoundError
+# pkg_resources is installed with setuptools
+from pkg_resources import get_distribution, DistributionNotFound
 
 try:
-  # Retrieving package version at runtime
-  __version__ = version(__name__)
-except PackageNotFoundError:
+  __version__ = get_distribution(__name__).version
+except DistributionNotFound:
   # package is not installed
   pass
