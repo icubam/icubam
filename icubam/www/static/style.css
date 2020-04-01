@@ -1,6 +1,6 @@
 .main-content {
   margin: 20px;
-  max-width: 392px;
+  max-width: 600px;
 }
 
 h1 {
@@ -116,11 +116,7 @@ html {
 }
 
 #cumsum-title {
-  width: 100%;
-  display: inline-block;
-  margin: auto;
   padding: 0px;
-  text-align: center;
   font-weight: bold;
   color: black;
   font-size: 18px;

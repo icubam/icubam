@@ -71,11 +71,13 @@
       <div class="form-elem positive">
         <label for="n_covid_healed" class="form-label">
           {{ _('Discharged') }}
-          ({{ _('until tomorrow') }}: <strong style="color: green;">{{n_covid_healed}}</strong>)
+          ({{ _('last input') }}: <strong style="color: green;">{{n_covid_healed}}</strong>)
         </label>
         <div>
           <input
-            class="form-control" type="number"
+            class="form-control"
+            type="number"
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_healed", {{n_covid_healed}})'
             id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
         </div>
       </div>
@@ -85,7 +87,7 @@
           for="n_covid_deaths"
           class="form-label">
           {{ _('Deceased') }}
-          ({{ _('until tomorrow') }}: <strong style="color: red;">{{n_covid_deaths}}</strong>)
+          ({{ _('last input') }}: <strong style="color: red;">{{n_covid_deaths}}</strong>)
         </label>
         <div>
           <input
@@ -101,7 +103,7 @@
       <div class="form-elem average">
         <label for="n_covid_transfered" class="form-label">
           {{ _('Transfers') }}
-          ({{ _('until tomorrow') }}: <strong style="color: green;">{{n_covid_transfered}})</strong>
+          ({{ _('last input') }}: <strong style="color: green;">{{n_covid_transfered}})</strong>
           <br/>
           {{ _('(to other ICU)') }}
         </label>
@@ -117,7 +119,7 @@
       <div class="form-elem negative">
         <label for="n_covid_refused" class="form-label">
           {{ _('Refused') }}
-          ({{ _('until tomorrow') }}: <strong style="color: red;">{{n_covid_refused}})</strong>
+          ({{ _('last input') }}: <strong style="color: red;">{{n_covid_refused}})</strong>
           <br/>
           {{ _('(due to unavailability)') }}
         </label>
