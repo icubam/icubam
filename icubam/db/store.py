@@ -6,8 +6,8 @@ from datetime import datetime
 import hashlib
 import pandas as pd
 from sqlalchemy import create_engine, desc, func
-from sqlalchemy import Column, MetaData, Table
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Table
+from sqlalchemy import ForeignKey
 from sqlalchemy import Boolean, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker

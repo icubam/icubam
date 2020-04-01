@@ -1,6 +1,4 @@
 """SQLite storage backend wrapper."""
-import logging
-import os
 import time
 import pandas as pd
 from sqlalchemy import create_engine, desc
