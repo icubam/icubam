@@ -20,8 +20,11 @@ class ConfigTestCase(unittest.TestCase):
 
   def test_set_env_found(self):
     with mock.patch.dict('os.environ', {FAKE_KEY: FAKE_ENV}):
-      mode = 'prod'
+      mode = 'dev'  # Trick so that it does not break at __init__ time.
       cfg = config.Config(self.TEST_CONFIG_PATH, mode=mode)
+      cfg.mode = 'prod'
+
+      self.assertEqual(cfg.mode, 'prod')
       cfg._set_env(FAKE_KEY)
       self.assertEqual(cfg[FAKE_KEY], FAKE_ENV)
 

@@ -24,7 +24,8 @@ class Config:
     self.toml_config = toml_config
     self.mode = mode
     if not os.path.exists(toml_config):
-      raise Exception(f"Couldn't find INI file: {toml_config}")
+      raise Exception(f"Couldn't find TOML file: {toml_config}")
+
     sub_conf = self._preprocess(toml.load(self.toml_config))
     self.conf = dotmap.DotMap(sub_conf)
 
