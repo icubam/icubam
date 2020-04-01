@@ -21,14 +21,34 @@ class Base(object):
 
   def _get_column_names(self):
     """Returns the columns of the table."""
-    return list(self.__mapper__.columns.keys())
+    result = list(self.__mapper__.columns.keys())
+    result.extend(self.__mapper__.relationships.keys())
+    return result
 
-  def to_dict(self):
-    """Turns a Base instance into a dictionary."""
+  def to_dict(self, max_depth=1) -> dict:
+    """Turns a Base instance into a dictionary.
+
+    Args:
+     max_depth: the maximum recursion depth.
+    """
     columns = self._get_column_names()
     result = {}
     for col in columns:
-      result[col] = getattr(self, col)
+      value = getattr(self, col)
+      if isinstance(value, Base):
+        if max_depth > 0:
+          result[col] = value.to_dict(max_depth - 1)
+      elif isinstance(value, list):
+        result[col] = []
+        for elem in value:
+          if isinstance(elem, Base):
+            if max_depth > 0:
+              result[col].append(elem.to_dict(max_depth - 1))
+          else:
+              result[col].append(elem)
+      else:
+        result[col] = value
+
     return result
 
 

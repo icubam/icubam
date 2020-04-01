@@ -29,26 +29,7 @@ jobs:
       env:
         JWT_SECRET: faketest
       run: |
+        set -x
         pip install pytest
-        pytest
         pip install -e .
-        python scripts/populate_db_fake.py --mode=dev
-        timeout 5 python scripts/run_server.py || echo "Normal timeout" | grep "Normal timeout"
-    - name: Test Dockerfile build
-      shell: bash -l {0}
-      env:
-        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
-        TOKEN_LOC: token.pickle
-        SHEET_ID: ${{ secrets.SHEET_ID }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      run: |
-        # Emit pickled gsheets testing credentials from CI secret
-        python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
-        # generate fake db
-        python scripts/populate_db_fake.py --mode=dev
-        mv icubam.db resources
-        # build docker image
-        ./docker_build.sh 1.0
-        echo $SHEET_ID
-        ./docker_run.sh icubam:1.0 8888 dev
-        timeout 5 docker logs icubam-server | grep activate || echo "Normal timeout" | grep "Normal timeout"
+        pytest

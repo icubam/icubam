@@ -15,7 +15,7 @@ Steps:
 
 ### Configuration
 
-Create a `.env` file at root of the project containing the following keys:
+Create a `resources/.env` file containing the following keys:
 ```
 SHEET_ID=
 TOKEN_LOC=
@@ -24,19 +24,23 @@ JWT_SECRET=another_secret
 GOOGLE_API_KEY=
 TW_KEY=
 TW_API=
+DB_SALT=
 ```
+
+N.B.: You can name and move this file as you want but you will have to add
+`--dotenv_path=path/to/my_icubam.env` to the scripts when launching them.
 
 ### Pre-populate DB with test data
 
 Create a fake database in order to be able to play with it:
-`python scripts/populate_db_fake.py`
+`python scripts/populate_db_fake.py --config=resources/config.toml --mode=dev`
 
-The database will be named `test.db`.
+The database will be named `test.db`, cf. `resources/config.toml`.
 
 ## Running locally
 
 Start the server locally:
-`python scripts/run_server.py`
+`python scripts/run_server.py --config=resources/config.toml --mode=dev`
 
 Will produce the following logs:
 ```
@@ -50,6 +54,6 @@ Follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 
 ## Running unit tests
 
-The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `.env` file.
+The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file.
 
 To start the tests, install `pytest` and run `pytest`
