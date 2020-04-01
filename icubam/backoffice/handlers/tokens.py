@@ -49,7 +49,7 @@ class TokenHandler(base.BaseHandler):
     user = self.db.get_external_client_by_email(incoming_user.email)
     if user is None:
       c_id, _ = self.db.add_external_client(self.user.user_id, incoming_user)
-      self.redirect("{}?id={}".format(self.ROUTE, c_id))
-
     else:
-      print('now what?')
+      c_id = user.external_client_id
+      self.db.update_external_client(self.user.user_id, c_id, values)
+    self.redirect("{}?id={}".format(self.ROUTE, c_id))
