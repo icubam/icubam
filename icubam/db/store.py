@@ -1,5 +1,6 @@
 """Data store for ICUBAM."""
 from absl import logging
+import pandas as pd
 from contextlib import contextmanager
 import dataclasses
 from datetime import datetime
@@ -13,6 +14,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
 from typing import Iterable, Optional, Tuple
 import uuid
+from icubam import dict_utils
 
 
 class Base(object):
@@ -733,3 +735,9 @@ def create_store_for_sqlite_db(cfg) -> Store:
   """
   engine = create_engine("sqlite:///" + cfg.db.sqlite_path)
   return Store(engine, salt=cfg.DB_SALT)
+
+
+def to_pandas(objs):
+  return pd.DataFrame([
+    dict_utils.flatten(obj.to_dict(max_depth=1)) for obj in objs
+  ])

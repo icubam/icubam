@@ -63,7 +63,7 @@ class DBHandler(base.BaseHandler):
         max_ts = datetime.datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
 
-    data = to_pandas(get_fn())
+    data = store.to_pandas(get_fn())
 
     for k, v in _get_headers(collection, file_format).items():
       self.set_header(k, v)
@@ -86,31 +86,3 @@ class DBHandler(base.BaseHandler):
       os.remove(tmp_path)
     else:
       self.write(data.to_html())
-
-
-def to_pandas(objs) -> pd.DataFrame:
-  """
-  Warning: this only handles dicts in dicts. This means that if you have a
-  depth n > 2 structure of dicts, it won't work. No recursion going on.
-
-  Warning: nested icu objects are flattened and added to the result obj dict
-  with keys prefixed by 'icu_'.
-  """
-  logging.info('call to_pandas, len(objs) = {}'.format(len(objs)))
-  res_obj_dicts = list()
-  for obj in objs:
-    obj_as_dict = obj.to_dict()
-    flat_obj_dict = dict()
-    for k, v in obj_as_dict.items():
-      if isinstance(v, dict):
-        prefix = 'icu' if 'icu_id' in v else 'unknown'
-        flat_obj_dict.update({
-          f"icu_{kk}": vv for kk, vv in v.items()
-          if not isinstance(vv, (list, dict, set))
-        })
-      elif isinstance(v, list):
-        pass
-      else:
-        flat_obj_dict[k] = v
-    res_obj_dicts.append(flat_obj_dict)
-  return pd.DataFrame(res_obj_dicts)
