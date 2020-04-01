@@ -1,7 +1,6 @@
 from setuptools import setup
 
 setup(name='icubam',
-      version='0.1',
       description='ICU Bed Availability Monitor',
       license='Apache',
       packages=['icubam'],
