@@ -134,9 +134,8 @@ class StoreSynchronizer:
       if user_tuple is not None:
         db_user, db_user_icus = user_tuple
         logging.info("Updating user {}".format(db_user.name))
-
         manager_id = self._managers.get(icu_id, self._default_admin)
-        self._store.update_user(manager_id, db_user.user_id, values)
+        self._store.update_user(manager_id, db_user.user_id, values)  
         if icu_id not in [icu.icu_id for icu in db_user_icus]:
           self._store.assign_user_to_icu(manager_id, db_user.user_id, icu_id)
       else:
