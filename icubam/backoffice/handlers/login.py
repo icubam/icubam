@@ -7,8 +7,6 @@ class LoginHandler(BaseHandler):
 
   ROUTE = "/login"
 
-  ERROR = 'Authentication failed'
-
   def get(self, error=""):
     # User already logged in, just redirect to the home.
     if self.get_current_user():
