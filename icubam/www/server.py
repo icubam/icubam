@@ -8,6 +8,7 @@ from icubam.db import queue_writer
 from icubam.www import updater
 from icubam.www.handlers import db
 from icubam.www.handlers import home
+from icubam.www.handlers import plot
 from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
@@ -41,6 +42,7 @@ class WWWServer(base_server.BaseServer):
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
+    self.add_handler(plot.PlotHandler, **kwargs)
 
   def make_app(self, cookie_secret=None):
     # TODO(olivier): remove this when we have a backoffice.
