@@ -1,0 +1,14 @@
+.DS_Store
+.git
+.github
+.gitignore
+Dockerfile
+data
+deploy_configs
+deploy_configs.tgz
+icubam.egg-info
+resources
+docker_build.sh
+docker_run.sh
+docker_sms_run.sh
+configs

@@ -1,24 +1,78 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>ICUBAM-admin | Log in</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block content %}
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <b>ICUBAM</b> admin</a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">{{_("Sign in to start your session")}}.</p>
+      {% if error %}
+      <p class="login-box-msg text-danger">{{_("Authentication failed")}}.</p>
+      {% end %}
 
-<!-- Custom styles for this template -->
-<link href="signin.css" rel="stylesheet">
+      <form action="/login" method="post" class="form-signin">
+        <div class="input-group mb-3">
+          <!-- <input type="email" class="form-control" placeholder="Email" name="email"> -->
+          <input class="form-control" placeholder="Email" name="email" required autofocus>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input
+            type="password" class="form-control" name="password"
+            placeholder="Password" required autofocus>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="icheck-primary">
+            </div>
+          </div>
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </div>
+        </div>
+      </form>
 
-
-<div class="row h-50 align-self-center">
- <div class="col-6 align-self-center">
-  <form action="/login" method="post" class="form-signin">
-   <label for="inputEmail" class="sr-only">Email address</label>
-   <input type="email" id="email" class="form-control" placeholder="Email address" name="email" required autofocus>
-   <label for="inputPassword" class="sr-only">Password</label>
-   <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
-   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-   <div>
-     <p>{{error}}</p>
-   </div>
-  </form>
- </div>
+    <!-- /.login-card-body -->
+  </div>
 </div>
+<!-- /.login-box -->
 
-{% end %}
+<!-- jQuery -->
+<script src="../../plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE App -->
+<script src="../../dist/js/adminlte.min.js"></script>
+
+</body>
+</html>

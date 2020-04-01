@@ -1,4 +1,4 @@
-from absl import logging
+from absl import logging  # noqa: F401
 from tornado import queues
 import tornado.routing
 import tornado.web
@@ -6,7 +6,6 @@ import tornado.web
 from icubam import base_server
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
-from icubam.www import token
 
 
 class MessageServer(base_server.BaseServer):
@@ -18,14 +17,8 @@ class MessageServer(base_server.BaseServer):
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      db=self.db,
-      queue=self.queue,
-      token_encoder=token.TokenEncoder(self.config),
-      base_url=self.config.server.base_url,
-      max_retries=self.config.scheduler.max_retries,
-      reminder_delay=self.config.scheduler.reminder_delay,
-      when=self.config.scheduler.ping,
-    )
+      config=self.config, db=self.db, queue=self.queue)
+    print([m.text for m in self.scheduler.messages])
     self.callbacks = [self.process]
 
   def make_app(self):
@@ -35,6 +28,8 @@ class MessageServer(base_server.BaseServer):
     async for msg in self.queue:
       try:
         self.sender.send(msg.phone, msg.text)
+      except Exception as e:
+        logging.error(f'Could not send message in message loop {e}.')
       finally:
         self.queue.task_done()
 

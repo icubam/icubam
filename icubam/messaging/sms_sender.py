@@ -24,7 +24,7 @@ class FakeSender(Sender):
   """Just log the message but does nothing real."""
 
   def send(self, dest, contents):
-    logging.info('Sending {} to {}'.format(content, dest))
+    logging.info(f'Sending {contents} to {dest}.')
 
 
 class MBSender(Sender):

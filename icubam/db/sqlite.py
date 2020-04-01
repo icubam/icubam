@@ -1,6 +1,4 @@
 """SQLite storage backend wrapper."""
-import logging
-import os
 import time
 import pandas as pd
 from sqlalchemy import create_engine, desc
@@ -27,6 +25,7 @@ class SQLiteDB:
         Column("lat", Float),
         Column("long", Float),
         Column("telephone", String),
+        Column("region", String),
     )
 
     self._users = Table(
@@ -162,22 +161,27 @@ class SQLiteDB:
         self._conn,
     )
 
-  def get_bedcount(self, icu_ids: Sequence = None, max_ts=None):
+  def get_bedcount(
+    self,
+    icu_ids: Sequence = None,
+    max_ts: int = None,
+    get_history: bool = False,
+  ):
     """Returns a pandas DF of bed counts."""
-    sub = select([self._bed_updates]).order_by(desc(text("ROWID")))
+    query = select([self._bed_updates]).order_by(desc(text("ROWID")))
     if icu_ids:
-      sub = sub.where(self._bed_updates.c.icu_id.in_(icu_ids))
+      query = query.where(self._bed_updates.c.icu_id.in_(icu_ids))
     if max_ts:
-      # Equilavent to self._bed_updates.c.update_ts < max_ts, but this doesn't
+      # Equivalent to self._bed_updates.c.update_ts < max_ts, but this doesn't
       # seem to work properly (i.e. rows are not filtered).
-      sub = sub.where(text(f"""update_ts < {max_ts}"""))
-    query = select([sub]).group_by("icu_id")
+      max_ts = int(max_ts) # Sanitize
+      query = query.where(text(f"""update_ts < {max_ts}"""))
+    if not get_history:
+      query = select([query]).group_by("icu_id")
     return pd.read_sql_query(query, self._conn)
-
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""
     return pd.read_sql_query(query, self._conn)
 
   def execute(self, query):
     self._conn.execute(query)
-    self._conn.commit()

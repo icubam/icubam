@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="content">
+  <div class="container-fluid">
+
+  <section class="content-header">
+   <div class="container-fluid">
+     <div class="row mb-2">
+       <div class="col-sm-6">
+         <h1>Create a user</h1>
+       </div>
+     </div>
+   </div><!-- /.container-fluid -->
+  </section>
+
+  <section class="content">
+    <div class="card card-primary">
+
+     <div class="card-header">
+       <h3 class="card-title">Create User</h3>
+     </div>
+
+     <form role="form" action="/user" method="post">
+       <div class="card-body">
+
+        <div class="form-row">
+           <div class="col-25">
+             <label for="exampleInputEmail1">Name</label>
+             <input type="text" id="name" name="name"
+               class="form-control"
+               placeholder="Name"
+               value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
+           </div>
+
+          <div class="col-25">
+            <label for="validationCustom04">Phone Number</label>
+            <input type="tel" id="telephone" name="telephone"
+              class="form-control"
+              pattern="^\+\d{0,13}"
+              title='Phone Number (Format: +332222222)'
+              placeholder="+33 7 3333 333"
+              value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
+          </div>
+        </div>
+
+         <div class="form-row">
+          <div class="col-25">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" id="email" name="email"
+              class="form-control"
+              size="30"
+              placeholder="name@site.com"
+              value="{% if user.email %}{{user.email}}{% end %}" required>
+          </div>
+          <div class="col-25">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" id="password" name="password"
+              class="form-control"
+              placeholder="Password" size="20" required>
+          </div>
+         </div>
+
+       </div>
+
+       <div class="card-footer">
+         <button type="submit" class="btn btn-primary">Submit</button>
+       </div>
+     </form>
+    </div>
+  </section>
+
+{% if error %}
+ <div class="alert alert-danger" role="alert">
+   {{error}}
+ </div>
+{% end %}
+
+</div>
+</section>
+
+{% end %}
