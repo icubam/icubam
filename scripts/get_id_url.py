@@ -16,12 +16,10 @@ def main(argv):
   sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)
   icus = sqldb.get_icus()
   encoder = token.TokenEncoder(cfg)
-  for _, icu_row in icus.iterrows():
-    icu_dict = icu_row.to_dict()
-    icu_id = icu_dict.pop('icu_id')
-    icu_name = icu_dict.pop('name')
-    print(icu_id, icu_name)
-    print(encoder.encode_icu(icu_name, icu_id))
+  for user in sqldb.get_users():
+    for icu in user.icus:
+      print(icu.name, icu.icu_id)
+      print(encoder.encode_icu(icu.name, icu.icu_id))
 
 if __name__ == '__main__':
   app.run(main)
