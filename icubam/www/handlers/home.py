@@ -4,7 +4,6 @@ import json
 import tornado.web
 import tornado.template
 from typing import List, Dict
-import icubam
 from icubam.www.handlers import base
 from icubam.www import token
 
@@ -149,4 +148,4 @@ class HomeHandler(base.BaseHandler):
                 API_KEY=self.config.GOOGLE_API_KEY,
                 center=json.dumps(center),
                 data=json.dumps(data),
-                version=icubam.__version__)
+                version=self.config.version)

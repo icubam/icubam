@@ -1,6 +1,4 @@
 from absl import logging  # noqa: F401
-
-import icubam
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www import token
@@ -29,7 +27,7 @@ class UpdateHandler(base.BaseHandler):
     data = self.updater.get_icu_data_by_id(
       input_data['icu_id'], locale=self.get_user_locale())
     data.update(input_data)
-    data.update(version=icubam.__version__)
+    data.update(version=self.config.version)
 
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
