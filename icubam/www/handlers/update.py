@@ -1,3 +1,4 @@
+from absl import logging  # noqa: F401
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www import token

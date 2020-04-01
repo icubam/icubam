@@ -1,5 +1,6 @@
 import os.path
 
+from absl import logging  # noqa: F401
 import tornado.ioloop
 import tornado.locale
 import tornado.web

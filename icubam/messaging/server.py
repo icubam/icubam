@@ -1,3 +1,4 @@
+from absl import logging  # noqa: F401
 from tornado import queues
 import tornado.routing
 import tornado.web
