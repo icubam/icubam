@@ -118,6 +118,17 @@
        {% end %}
        </div>
        <!-- /.card -->
+
+
+       {% if allow_admin %}
+       <div class="card card-secondary">
+         <div class="card-body">
+           <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">           
+           <label for="is_admin">{{_("Admin")}}</label>
+           </div>
+       </div>
+       {% end %}
+
        <div class="card-footer">
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>
@@ -152,6 +163,9 @@
     //Bootstrap Duallistbox
     $('.duallistbox').bootstrapDualListbox()
 
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    });
   })
 </script>
 

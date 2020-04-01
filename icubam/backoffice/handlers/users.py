@@ -66,10 +66,14 @@ class UserHandler(base.BaseHandler):
 
     user = user if user is not None else store.User()
     icus_dto = self.prepare_icus_for_user(user)
-    self.render("user.html", icus=icus_dto, user=user, error=False)
+    self.render(
+      "user.html", icus=icus_dto, user=user, error=False,
+      allow_admin=self.user.is_admin)
 
   def error(self, user, icus):
-    self.render("user.html", icus=icus, user=user, error=True)
+    self.render(
+      "user.html", icus=icus, user=user, error=True,
+      allow_admin=self.user.is_admin)
 
   """Returns the ICUs we need to add to/remove from the user. """
   def get_icus_to_store(self, user):
@@ -111,6 +115,10 @@ class UserHandler(base.BaseHandler):
     for value in user_dict.values():
       if not value:
         return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
+
+    # The admin info: we only show the ability to tag one user as admin in the
+    # FE if the person logged in is also an admin.
+    user_dict['is_admin'] = self.get_body_argument("is_admin", "off") == "on"
 
     # Yet another validation step: checks password.
     # This should not be needed because the FE has validation patterns, but
