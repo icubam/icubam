@@ -3,12 +3,12 @@ from absl import logging
 
 from icubam.db import store
 
+
 class Synchronizer:
   """This will take data from the google sheet and put it into the sqlite DB.
   If the ICU name is already present, or the user telephone is already present,
   then it will *not* get updated.  If there is no existing row then
   a new row with the ICU or user info will get added."""
-
   def __init__(self, sheets_db, sqlite_db):
     self._shdb = sheets_db
     self._sqldb = sqlite_db
@@ -52,7 +52,6 @@ class StoreSynchronizer:
   If the ICU name is already present, or the user telephone is already present,
   then it will *not* get updated.  If there is no existing row then
   a new row with the ICU or user info will get added."""
-
   def __init__(self, sheets_db, store_db):
     self._shdb = sheets_db
     self._store = store_db
@@ -60,13 +59,16 @@ class StoreSynchronizer:
   def prepare(self):
     # the spreadsheet has no ID, it's all keyed by name
     self._icus = {icu.name: icu for icu in self._store.get_icus()}
-    self._users = {user.telephone: user for user in self._store.get_users()}
+    self._users = {
+      user.telephone: (user, user.icus)
+      for user in self._store.get_users()
+    }
     self._regions = {x.name: x.region_id for x in self._store.get_regions()}
 
     # Gather the managers and admins
     self._managers = dict()
     self._default_admin = None
-    for user in self._users.values():
+    for user, icus in self._users.values():
       if user.is_admin and self._default_admin is None:
         self._default_admin = user.user_id
       for icu in user.managed_icus:
@@ -93,7 +95,8 @@ class StoreSynchronizer:
       if region is not None:
         if region not in self._regions:
           region_id = self._store.add_region(
-            self._default_admin, store.Region(name=region))
+            self._default_admin, store.Region(name=region)
+          )
           self._regions[region] = region_id
           logging.info("Adding Region {}".format(region))
         icu_dict['region_id'] = self._regions[region]
@@ -107,13 +110,17 @@ class StoreSynchronizer:
         new_icu = store.ICU(**icu_dict)
         icu_id = self._store.add_icu(self._default_admin, new_icu)
         self._store.assign_user_as_icu_manager(
-          self._default_admin, self._default_admin, icu_id)
+          self._default_admin, self._default_admin, icu_id
+        )
         logging.info("Adding ICU {}".format(icu_name))
 
   def sync_users(self):
     self.prepare()
     users_df = self._shdb.get_users()
     users_df.rename(columns={'tel': 'telephone'}, inplace=True)
+    users_df['telephone'] = users_df['telephone'].apply(
+      lambda x: x.encode('ascii', 'ignore').decode()
+    )
     for _, user in users_df.iterrows():
       values = user.to_dict()
       icu_name = values.pop('icu_name')
@@ -122,19 +129,23 @@ class StoreSynchronizer:
         logging.error('ICU {} not found in DB. Skipping'.format(icu_name))
         continue
       icu_id = icu.icu_id
+      print(user['telephone'])
+      user_tuple = self._users.get(user['telephone'], None)
+      if user_tuple is not None:
+        db_user, db_user_icus = user_tuple
+        logging.info("Updating user {}".format(db_user.name))
 
-      db_user = self._users.get(user['telephone'], None)
-      if db_user is not None:
         manager_id = self._managers.get(icu_id, self._default_admin)
         self._store.update_user(manager_id, db_user.user_id, values)
-        import ipdb; ipdb.set_trace()
-        if icu_id not in [e.icu_id for e in db_user.icus]:
+        # if db_user.name == 'Huet':
+        #   import ipdb; ipdb.set_trace()
+        if icu_id not in [icu.icu_id for icu in db_user_icus]:
           self._store.assign_user_to_icu(manager_id, db_user.user_id, icu_id)
-        logging.info("Updating user {}".format(db_user.name))
       else:
         try:
           self._store.add_user_to_icu(
-            self._default_admin, icu_id, store.User(**values))
+            self._default_admin, icu_id, store.User(**values)
+          )
           logging.info("Inserting user {}".format(values['name']))
         except Exception as e:
           logging.error("Cannot add user to icu: {}. Skipping".format(e))
