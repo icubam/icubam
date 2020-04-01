@@ -5,8 +5,7 @@ import tornado.ioloop
 import tornado.locale
 import tornado.web
 
-from icubam.backoffice.handlers import (
-  home, list_users, login, logout, user, profile)
+from icubam.backoffice.handlers import (home, login, logout, users, tokens)
 from icubam import base_server
 
 
@@ -22,10 +21,11 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(login.LoginHandler, **kwargs)
     self.add_handler(logout.LogoutHandler, **kwargs)
-    self.add_handler(list_users.ListUsersHandler, **kwargs)
-    self.add_handler(user.UserHandler, **kwargs)
-    self.add_handler(profile.ProfileHandler, **kwargs)
-
+    self.add_handler(users.ListUsersHandler, **kwargs)
+    self.add_handler(users.UserHandler, **kwargs)
+    self.add_handler(users.ProfileHandler, **kwargs)
+    self.add_handler(tokens.TokenHandler, **kwargs)
+    self.add_handler(tokens.ListTokensHandler, **kwargs)
 
     for folder in ['dist', 'pages', 'plugins']:
       self.routes.append(
