@@ -25,7 +25,7 @@
    <div class="container-fluid">
      <div class="row mb-2">
        <div class="col-sm-6">
-         <h1>Create a user</h1>
+         <h1>{{_("User management")}}</h1>
        </div>
      </div>
    </div><!-- /.container-fluid -->
@@ -35,7 +35,7 @@
     <div class="card card-primary">
 
      <div class="card-header">
-       <h3 class="card-title">Create User</h3>
+       <h3 class="card-title">{% if user.user_id %}{{_("Edit user")}}{% else %}{{_("Create user")}}{% end %}</h3>
      </div>
 
      <form role="form" action="/user" method="post">
@@ -43,18 +43,19 @@
 
         <!-- The hidden ID in case we're editing the user. -->
         <input type="text" id="user_id" name="user_id" hidden value="{% if user.user_id %}{{user.user_id}}{% end %}"</input>
-
+        <!-- Required and does not accept names that contain only spaces. -->
         <div class="form-row">
            <div class="col-25">
-             <label for="exampleInputEmail1">Name</label>
+             <label for="exampleInputEmail1">{{_("Name")}}</label>
              <input type="text" id="name" name="name"
                class="form-control"
+               pattern=".*\S.*"
                placeholder="Name"
                value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
            </div>
 
           <div class="col-25">
-            <label for="validationCustom04">Phone Number</label>
+            <label for="validationCustom04">{{_("Phone Number")}}</label>
             <input type="tel" id="telephone" name="telephone"
               class="form-control"
               minlength="6"
@@ -67,7 +68,7 @@
 
          <div class="form-row">
           <div class="col-25">
-            <label for="exampleInputEmail1">Email address</label>
+            <label for="exampleInputEmail1">{{_("Email address")}}</label>
             <input type="email" id="email" name="email"
               class="form-control"
               size="30"
@@ -78,7 +79,7 @@
            <!--  Min lenght = 5, and no spaces allowed. This means that users
            cannot try to fool us by sending a password that has only spaces.
            -->
-            <label for="exampleInputPassword1">Password</label>
+            <label for="exampleInputPassword1">{{_("Password")}}</label>
             <input type="password" id="password" name="password"
               class="form-control" minlength="5" pattern="[^\s]+"
               placeholder="Password" size="20" {% if not user.user_id %}required{% end %}>
@@ -89,7 +90,7 @@
        {% if len(icus) > 0 %}
         <div class="card card-default">
           <div class="card-header">
-            <h3 class="card-title">ICUs</h3>
+            <h3 class="card-title">{{_("ICUs")}}</h3>
              <div class="card-tools">
                <button type="button" class="btn btn-tool"data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button>
@@ -118,7 +119,7 @@
        </div>
        <!-- /.card -->
        <div class="card-footer">
-         <button type="submit" class="btn btn-primary">Submit</button>
+         <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>
      </form>
     </div>
