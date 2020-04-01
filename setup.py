@@ -1,13 +1,6 @@
 from setuptools import setup
 
-setup(
-  name='icubam',
-  description='ICU Bed Availability Monitor',
-  license='Apache',
-  packages=['icubam'],
-  zip_safe=False,
-  package_data={
-    # If any package contains *.txt or *.rst files, include them:
-    "": ["*.env"]
-  }
-)
+# All the configuration is in `setup.cfg`, this file is only necessary
+# (for now) for installs in development mode.
+# Source: https://snarky.ca/what-the-heck-is-pyproject-toml/
+setup()
