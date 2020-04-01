@@ -8,10 +8,9 @@ Steps:
 
 - create a conda environment (e.g. `conda create -n icubam python=3.8`)
 - activate the environment (`conda activate icubam`)
-- install deps with `pip install -r requirements.txt`
-- install the package in edit mode by running `pip install -e .`
+- install the package in edit mode by running `pip install -e .` 
 
-**Note:** in addition to the python dependencies described in `requirements.txt`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
+**Note:** in addition to the python dependencies described in `setup.cfg`, `icubam` requires SQLite >= 3.24.0 as it uses upsert statements.
 
 ### Configuration
 

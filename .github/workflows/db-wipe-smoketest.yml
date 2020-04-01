@@ -18,12 +18,11 @@ jobs:
       run: |
         conda info
         python --version
-    - name: Install dependencies
+    - name: Check python version
       shell: bash -l {0}
       run: |
         which python
         pip --version
-        pip install -r requirements.txt
     - name: Wipe DB (from the fake DB producer)
       shell: bash -l {0}
       env:
