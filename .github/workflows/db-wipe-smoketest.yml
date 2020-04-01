@@ -26,6 +26,12 @@ jobs:
         pip install -r requirements.txt
     - name: Wipe DB (from the fake DB producer)
       shell: bash -l {0}
+      env:
+        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
+        TOKEN_LOC: token.pickle
+        SHEET_ID: ${{ secrets.SHEET_ID }}
+        JWT_SECRET: some_secret_string
+        SECRET_COOKIE: another_secret_string
       run: |
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
