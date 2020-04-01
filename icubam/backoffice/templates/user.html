@@ -123,9 +123,9 @@
        {% if allow_admin %}
        <div class="card card-secondary">
          <div class="card-body">
-           <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">           
-           <label for="is_admin">{{_("Admin")}}</label>
-           </div>
+           <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">
+           <label for="is_admin">&nbsp;{{_("Admin")}}</label>
+          </div>
        </div>
        {% end %}
 
