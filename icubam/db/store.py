@@ -1,5 +1,4 @@
 """Data store for ICUBAM."""
-import typing
 from absl import logging
 from contextlib import contextmanager
 import dataclasses
