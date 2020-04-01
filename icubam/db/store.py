@@ -1,4 +1,5 @@
 """Data store for ICUBAM."""
+import typing
 from absl import logging
 from contextlib import contextmanager
 import dataclasses
@@ -737,4 +738,25 @@ def create_store_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs) -> pd.DataFrame:
-  return pd.DataFrame([x.to_dict() for x in objs])
+  """
+  Warning: this only handles dicts in dicts. This means that if you have a
+  depth n > 2 structure of dicts, it won't work. No recursion going on.
+  """
+  logging.info('call to_pandas, len(objs) = {}'.format(len(objs)))
+  res_obj_dicts = list()
+  for obj in objs:
+    obj_as_dict = obj.to_dict()
+    flat_obj_dict = dict()
+    for k, v in obj_as_dict.items():
+      if isinstance(v, dict):
+        prefix = 'icu' if 'icu_id' in v else 'unknown'
+        flat_obj_dict.update({
+          f"icu_{kk}": vv for kk, vv in v.items()
+          if not isinstance(vv, (list, dict, set))
+        })
+      elif isinstance(v, list):
+        pass
+      else:
+        flat_obj_dict[k] = v
+    res_obj_dicts.append(flat_obj_dict)
+  return pd.DataFrame(res_obj_dicts)
