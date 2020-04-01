@@ -180,6 +180,8 @@ class ExternalClient(Base):
   telephone = Column(String)
   # Strong hash of the access key. It should be unique.
   access_key_hash = Column(String, unique=True)
+  # This is to be unused at some point.
+  access_key = Column(String, unique=True)
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
@@ -654,6 +656,8 @@ class Store:
         raise ValueError("Only admins can add a new external client.")
       access_key = self.create_access_key()
       external_client.access_key_hash = access_key.key_hash
+      # TODO(olivier): remove this later.
+      external_client.access_key = access_key.key
       session.add(external_client)
       session.commit()
       return external_client.external_client_id, access_key

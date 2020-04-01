@@ -33,8 +33,6 @@ class DBHandler(base.BaseHandler):
 
   def get_current_user(self):
     key = self.get_query_argument('API_KEY', None)
-    return key
-    # TODO(olivier): remove return when access tokens are in.
     if key is None:
       return
 
