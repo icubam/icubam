@@ -3,7 +3,7 @@ name: Emit Master Push Events to icubam_deploy
 on:
   push:
     tags:
-      - v*.rc[0-9]+
+      - 'v*.rc[0-9]+'
 
 jobs:
   send_request:
