@@ -45,7 +45,7 @@ class Base(object):
             if max_depth > 0:
               result[col].append(elem.to_dict(max_depth - 1))
           else:
-              result[col].append(elem)
+            result[col].append(elem)
       else:
         result[col] = value
 
@@ -65,6 +65,15 @@ icu_managers = Table(
     "icu_managers", Base.metadata,
     Column("icu_id", ForeignKey("icus.icu_id"), primary_key=True),
     Column("user_id", ForeignKey("users.user_id"), primary_key=True))
+
+# Regions that external clients can access.
+external_client_regions = Table(
+    "external_client_regions", Base.metadata,
+    Column(
+        "external_client_id",
+        ForeignKey("external_clients.external_client_id"),
+        primary_key=True),
+    Column("region_id", ForeignKey("regions.region_id"), primary_key=True))
 
 
 class User(Base):
@@ -189,6 +198,9 @@ class ExternalClient(Base):
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
 
+  # Regions that an external client can access.
+  regions = relationship("Region", secondary=external_client_regions)
+
   @property
   def access_key_valid(self):
     """Returns true if the access key is valid."""
@@ -303,6 +315,16 @@ class Store:
         raise ValueError("Only admin users can assign managers to ICUs.")
       session.execute(icu_managers.insert().values(
           user_id=manager_user_id, icu_id=icu_id))
+
+  def remove_manager_user_from_icu(self, admin_user_id: int,
+                                   manager_user_id: int, icu_id: int):
+    """Removed the manager user from an ICU."""
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError("Only admin users can remove managers from ICUs.")
+      session.execute(icu_managers.delete().where(
+          icu_managers.c.user_id == manager_user_id).where(
+              icu_managers.c.icu_id == icu_id))
 
   def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
@@ -502,13 +524,6 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_counts(self, max_date=None) -> Iterable[BedCount]:
-    """Returns all bed counts, e.g. sync. Do not use in user facing code."""
-    query = self._session().query(BedCount)
-    if max_date is not None:
-      query = query.filter(BedCount.last_modified <= max_date)
-    return query.all()
-
   def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
     return self._session().query(BedCount).filter(
@@ -566,19 +581,67 @@ class Store:
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
 
-  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
-    """Returns the latest bed counts.
+  def _get_bed_counts_for_icus(self,
+                               session,
+                               icu_ids,
+                               latest=False,
+                               max_date: datetime = None) -> Iterable[BedCount]:
+    """Returns the (latest) bed counts of the ICUs.
 
     Args:
-      icu_ids: a list or subquery of ICU IDs or None for all ICUs.  kargs are
-        passed to get_latest_bed_counts_for_icus() method for additional
-        filtering, e.g. max_date.
+      session: a DB session.
+      icu_ids: subquery of ICU IDs or None for all ICUs.
+      latest: if true, then only the latest bed counts satisfying the conditions
+        will be returned.
+      max_date: Restricts the time of the bed counts to this date.
 
     Returns:
       a list of BedCounts.
     """
-    return self._get_latest_bed_counts_for_icus(self._session(), icu_ids,
-                                                **kargs)
+    if latest:
+      return self._get_latest_bed_counts_for_icus(
+          session, icu_ids, max_date=max_date)
+    # Bed counts in reverse chronological order.
+    query = session.query(BedCount).order_by(desc(BedCount.create_date))
+    if icu_ids is not None:
+      query = query.filter(BedCount.icu_id.in_(icu_ids))
+
+    if max_date:
+      query = query.filter(BedCount.create_date < max_date)
+
+    return query.all()
+
+  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts.
+
+    kargs are used for additional filtering, e.g. max_date.
+
+    Args:
+      icu_ids: a list or subquery of ICU IDs or None for all ICUs.
+
+    Returns:
+      a list of BedCounts, one for each ICU.
+    """
+    return self.get_bed_counts(icu_ids, latest=True, **kargs)
+
+  def get_bed_counts(self,
+                     icu_ids=None,
+                     latest=False,
+                     **kargs) -> Iterable[BedCount]:
+    """Returns the (latest) bed counts.
+
+    kargs are used for additional filtering, e.g. max_date.
+
+    Args:
+      icu_ids: a list or subquery of ICU IDs or None for all ICUs.
+      latest: if true, then only the latest bed counts satisfying the conditions
+        will be returned.
+
+    Returns:
+      a list of BedCounts, one or more for each ICU.
+    """
+    return self._get_bed_counts_for_icus(
+        self._session(), icu_ids, latest=latest, **kargs)
 
   def get_visible_bed_counts_for_user(self,
                                       user_id: int,
@@ -595,7 +658,7 @@ class Store:
     session = self._session()
     user = self._get_user(session, user_id)
     if force or user.is_admin:
-      return self._get_latest_bed_counts_for_icus(session, None, **kargs)
+      return self._get_bed_counts_for_icus(session, None, latest=True, **kargs)
     else:
       icu_ids = set()
       icu_ids.update([icu.icu_id for icu in user.icus])
@@ -622,9 +685,34 @@ class Store:
     # Fetch the IDs of the ICUs in these regions.
     region_icu_ids = session.query(ICU.icu_id).filter(
         ICU.region_id.in_(region_ids.subquery()))
-    return self._get_latest_bed_counts_for_icus(session,
-                                                region_icu_ids.subquery(),
-                                                **kargs)
+    return self._get_bed_counts_for_icus(
+        session, region_icu_ids.subquery(), latest=True, **kargs)
+
+  def get_bed_counts_for_external_client(self,
+                                         external_client_id: int,
+                                         latest=False,
+                                         **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts for the external client.
+
+    kargs are passed to get_latest_bed_counts_for_icus() method for additional
+    filtering, e.g. max_date.
+
+    Args:
+      external_client_id: ID of the external client.
+      latest: if true, then only the latest bed counts satisfying the conditions
+        will be returned.
+
+    Returns:
+      a list of BedCounts.
+    """
+    session = self._session()
+    # Find the regions of the external client.
+    region_ids = session.query(external_client_regions.c.region_id).filter(
+        external_client_regions.c.external_client_id == external_client_id)
+    region_icu_ids = session.query(ICU.icu_id).filter(
+        ICU.region_id.in_(region_ids.subquery()))
+    return self._get_bed_counts_for_icus(
+        session, region_icu_ids.subquery(), latest=latest, **kargs)
 
   # External client related methods.
 
@@ -726,6 +814,28 @@ class Store:
       session.add(external_client)
       return access_key
 
+  def assign_external_client_to_region(self, admin_user_id: int,
+                                       external_client_id: int, region_id: int):
+    """Assigns the external client to a region."""
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError(
+            "Only admin users can assign external clients to regions.")
+      session.execute(external_client_regions.insert().values(
+          external_client_id=external_client_id, region_id=region_id))
+
+  def remove_external_client_from_region(self, admin_user_id: int,
+                                         external_client_id: int,
+                                         region_id: int):
+    """Removes the external client from a region."""
+    with self.session_scope() as session:
+      if not self._is_admin(session, admin_user_id):
+        raise ValueError(
+            "Only admin users can assign external clients to regions.")
+      session.execute(external_client_regions.delete().where(
+          external_client_regions.c.external_client_id == external_client_id)
+                      .where(external_client_regions.c.region_id == region_id))
+
 
 def create_store_for_sqlite_db(cfg) -> Store:
   """Creates a store for the SQLite database with the specified path.
@@ -741,6 +851,5 @@ def create_store_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs):
-  return pd.io.json.json_normalize(
-    [obj.to_dict(max_depth=1) for obj in objs], sep='_'
-  )
+  return pd.io.json.json_normalize([obj.to_dict(max_depth=1) for obj in objs],
+                                   sep="_")
