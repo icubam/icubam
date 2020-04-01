@@ -61,9 +61,18 @@
       </div>
     </div>
 
+    <div id="cumsum-values">
+
+    <div id="cumsum-title" class="form-row">
+      {{ _('NEW CUMULATIVE VALUES (TOTAL)') }}
+    </div>
+
     <div class="form-row">
       <div class="form-elem positive">
-        <label for="n_covid_healed" class="form-label">{{ _('Discharged (cumulative)') }}</label>
+        <label for="n_covid_healed" class="form-label">
+          {{ _('Discharged') }}
+          ({{ _('until tomorrow') }}: <strong style="color: green;">{{n_covid_healed}}</strong>)
+        </label>
         <div>
           <input
             class="form-control" type="number"
@@ -72,10 +81,17 @@
       </div>
 
       <div class="form-elem negative">
-        <label for="n_covid_deaths" class="form-label">{{ _('Deceased (cumulative)') }}</label>
+        <label
+          for="n_covid_deaths"
+          class="form-label">
+          {{ _('Deceased') }}
+          ({{ _('until tomorrow') }}: <strong style="color: red;">{{n_covid_deaths}}</strong>)
+        </label>
         <div>
           <input
-          class="form-control" type="number"
+          class="form-control"
+          type="number"
+          onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_deaths", {{n_covid_deaths}})'
           id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
         </div>
       </div>
@@ -84,29 +100,44 @@
     <div class="form-row">
       <div class="form-elem average">
         <label for="n_covid_transfered" class="form-label">
-          {{ _('Transfers (cumulative)') }}<br/>
+          {{ _('Transfers') }}
+          ({{ _('until tomorrow') }}: <strong style="color: green;">{{n_covid_transfered}})</strong>
+          <br/>
           {{ _('(to other ICU)') }}
         </label>
         <div>
           <input
             class="form-control" type="number"
             id="n_covid_transfered" name='n_covid_transfered'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_transfered", {{n_covid_transfered}})'
             value="{{n_covid_transfered}}">
         </div>
       </div>
 
       <div class="form-elem negative">
         <label for="n_covid_refused" class="form-label">
-          {{ _('Refused (cumulative)') }}<br/>
+          {{ _('Refused') }}
+          ({{ _('until tomorrow') }}: <strong style="color: red;">{{n_covid_refused}})</strong>
+          <br/>
           {{ _('(due to unavailability)') }}
         </label>
         <div>
           <input
-          class="form-control" type="number"
-          id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
+          class="form-control"
+          type="number"
+          onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_refused", {{n_covid_refused}})'
+          id="n_covid_refused"
+          name='n_covid_refused'
+          value="{{n_covid_refused}}">
         </div>
       </div>
     </div>
+
+    </div>
+
+    <strong style="color: red; display: none;" id="submit-error-message">
+      {{ _('Input error (cumulative value)') }}
+    </strong>
 
     <p>(*) {{_('equiped with ventilator')}}.</p>
 
@@ -114,7 +145,8 @@
       <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
         {{ _('Cancel') }}
       </button>
-      <button type="submit" class="btn btn-primary mb-2">
+      <button type="submit" class="btn btn-primary mb-2"
+      id="update-form-submit-button">
         {{ _('Submit') }}
       </button>
     </div>
