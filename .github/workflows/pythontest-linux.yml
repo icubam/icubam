@@ -30,8 +30,9 @@ jobs:
         JWT_SECRET: faketest
       run: |
         set -x
-        pip install -e .
         pip install pytest
+        pip install -e .
+        pytest
     - name: Developper installation test
       shell: bash -l {0}
       env:
