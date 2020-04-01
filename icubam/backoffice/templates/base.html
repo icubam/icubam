@@ -36,7 +36,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </ul>
 
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3">
+    <!-- <form class="form-inline ml-3">
       <div class="input-group input-group-sm">
         <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
         <div class="input-group-append">
@@ -45,7 +45,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           </button>
         </div>
       </div>
-    </form>
+    </form> -->
   </nav>
   <!-- /.navbar -->
 
@@ -62,11 +62,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
+        <div class="nav-link">
           <i class="nav-icon fas fa-user"></i>
         </div>
         <div class="info">
-          <a href="/profile" class="d-block">Michel</a>
+          <a href="/profile" class="d-block">{{user.name}}</a>
         </div>
       </div>
 
@@ -78,9 +78,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <li class="nav-item">
             <a href="/list_users" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
-              <p>
-                Users
-              </p>
+              <p>Users</p>
             </a>
           </li>
           <li class="nav-item">
@@ -96,12 +94,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </a>
           </li>
           <li class="nav-item">
+            <a href="/dashboard" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Map</p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="/tokens" class="nav-link">
               <i class="nav-icon fas fa-key"></i>
-              <p>
-                Access Tokens
-                <!-- <span class="right badge badge-danger">New</span> -->
-              </p>
+              <p>Access Tokens</p>
             </a>
           </li>
         </ul>
@@ -113,17 +114,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Starter Page</h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
 
     <!-- Main content -->
     <div class="content">
