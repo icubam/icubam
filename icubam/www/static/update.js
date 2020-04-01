@@ -34,3 +34,28 @@ function markInvalidIfNotGreaterOrEqualTo(input_id, lower_bound) {
     warn.style.display = "none";
   }
 }
+
+function markInvalidIfDeltaGreaterThan(input_id, last_value, max_delta) {
+  var input = document.getElementById(input_id);
+  var warn = document.getElementById("warn-" + input_id);
+  var warn_new_val = document.getElementById("warn-" + input_id + "-new-value");
+  var warn_last_val = document.getElementById("warn-" + input_id + "-last-value");
+  var warn_delta = document.getElementById("warn-" + input_id + "-delta");
+  var int_input_value = Number(input.value);
+  var int_last_value = Number(last_value);
+  var int_max_delta = Number(max_delta);
+  var delta = Math.abs(int_last_value - int_input_value);
+  if (delta > int_max_delta) {
+    input.style.color = "red";
+    input.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
+    warn.style.display = "block";
+    warn_new_val.innerHTML = String(int_input_value);
+    warn_last_val.innerHTML = String(int_last_value);
+    warn_delta.innerHTML = String(delta);
+  }
+  else {
+    input.style.color = "green";
+    input.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
+    warn.style.display = "none";
+  }
+}

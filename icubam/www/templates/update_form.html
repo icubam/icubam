@@ -28,7 +28,9 @@
         <div>
           <input
           class="form-control" type="number"
-          name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}">
+          name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_covid_free", {{n_covid_free}}, 4)'
+          >
         </div>
       </div>
 
@@ -37,7 +39,8 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
+            value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_ncovid_free", {{n_ncovid_free}}, 4)'>
         </div>
       </div>
     </div>
@@ -48,7 +51,8 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
+            value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_covid_occ", {{n_covid_occ}}, 4)'>
         </div>
       </div>
       <div class="form-elem negative">
@@ -56,7 +60,8 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_ncovid_occ}}" name="n_ncovid_occ" id="n_ncovid_occ">
+            value="{{n_ncovid_occ}}" name="n_ncovid_occ" id="n_ncovid_occ"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_ncovid_occ", {{n_ncovid_occ}}, 4)'>
         </div>
       </div>
     </div>
@@ -138,9 +143,58 @@
     </div>
 
     <div id="update-form-warnings" style="margin: 0; padding: 0;">
+      <div id="warn-n_covid_free" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Available COVID+ beds') }}:<br/>
+        <span id="warn-n_covid_free-new-value"></span>
+        -
+        <span id="warn-n_covid_free-last-value"></span>
+        ({{ _('last input') }})
+        = <span id="warn-n_covid_free-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_ncovid_free" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Available COVID- beds') }}:<br/>
+        <span id="warn-n_ncovid_free-new-value"></span>
+        -
+        <span id="warn-n_ncovid_free-last-value"></span>
+        ({{ _('last input') }})
+        = <span id="warn-n_ncovid_free-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_covid_occ" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Occupied COVID+ beds') }}:<br/>
+        <span id="warn-n_covid_occ-new-value"></span>
+        -
+        <span id="warn-n_covid_occ-last-value"></span>
+        ({{ _('last input') }})
+        = <span id="warn-n_covid_occ-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_ncovid_occ" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Occupied COVID- beds') }}:<br/>
+        <span id="warn-n_ncovid_occ-new-value"></span>
+        -
+        <span id="warn-n_ncovid_occ-last-value"></span>
+        ({{ _('last input') }})
+        = <span id="warn-n_ncovid_occ-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
       <div id="warn-n_covid_healed" style="display: none;">
         ⚠️
-        {{ _('Are you sure about this entry') }} ? {{ _('Discharged') }}:
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Discharged') }}
+        ({{ _('Cumulated') }}):
         <span id="warn-n_covid_healed-new-value"></span>
         &lt;
         <span id="warn-n_covid_healed-last-value"></span>
@@ -149,7 +203,8 @@
 
       <div id="warn-n_covid_deaths" style="display: none;">
         ⚠️
-        {{ _('Are you sure about this entry') }} ? {{ _('Deceased') }}:
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Deceased') }}
+        ({{ _('Cumulated') }}):
         <span id="warn-n_covid_deaths-new-value"></span>
         &lt;
         <span id="warn-n_covid_deaths-last-value"></span>
@@ -158,7 +213,8 @@
 
       <div id="warn-n_covid_transfered" style="display: none;">
         ⚠️
-        {{ _('Are you sure about this entry') }} ? {{ _('Transfers') }}:
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Transfers') }}
+        ({{ _('Cumulated') }}):
         <span id="warn-n_covid_transfered-new-value"></span>
         &lt;
         <span id="warn-n_covid_transfered-last-value"></span>
@@ -167,7 +223,8 @@
 
       <div id="warn-n_covid_refused" style="display: none;">
         ⚠️
-        {{ _('Are you sure about this entry') }} ? {{ _('Refused') }}:
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Refused') }}
+        ({{ _('Cumulated') }}):
         <span id="warn-n_covid_refused-new-value"></span>
         &lt;
         <span id="warn-n_covid_refused-last-value"></span>
