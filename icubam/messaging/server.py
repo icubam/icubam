@@ -1,4 +1,3 @@
-from absl import logging
 from tornado import queues
 import tornado.routing
 import tornado.web
@@ -6,7 +5,6 @@ import tornado.web
 from icubam import base_server
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
-from icubam.www import token
 
 
 class MessageServer(base_server.BaseServer):

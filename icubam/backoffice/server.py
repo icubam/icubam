@@ -1,6 +1,5 @@
 import os.path
 
-from absl import logging
 import tornado.ioloop
 import tornado.locale
 import tornado.web

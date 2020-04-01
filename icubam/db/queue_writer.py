@@ -1,4 +1,3 @@
-from absl import logging
 from icubam.db import store
 
 class QueueWriter:
