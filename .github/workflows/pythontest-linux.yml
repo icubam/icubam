@@ -33,16 +33,3 @@ jobs:
         pip install pytest
         pip install -e .
         pytest
-    - name: Developper installation test
-      shell: bash -l {0}
-      env:
-        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
-        TOKEN_LOC: token.pickle
-        SHEET_ID: ${{ secrets.SHEET_ID }}
-        JWT_SECRET: some_secret_string
-        SECRET_COOKIE: another_secret_string
-      run: |
-        # Emit pickled gsheets testing credentials from CI secret
-        python scripts/populate_db_fake.py --config=resources/config.toml --mode=dev
-        timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
-        python scripts/get_id_url.py --config=resources/config.toml --mode=dev

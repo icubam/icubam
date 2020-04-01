@@ -26,8 +26,16 @@ jobs:
         pip install -r requirements.txt
     - name: Wipe DB (from the fake DB producer)
       shell: bash -l {0}
+      env:
+        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
+        TOKEN_LOC: token.pickle
+        SHEET_ID: ${{ secrets.SHEET_ID }}
+        JWT_SECRET: some_secret_string
+        SECRET_COOKIE: another_secret_string
       run: |
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
         python scripts/wipe_sensitive_info_db.py test.db --quiet=True
-        
+        timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
+        python scripts/get_id_url.py --config=resources/config.toml --mode=dev
+
