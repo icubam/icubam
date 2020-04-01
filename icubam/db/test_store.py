@@ -179,6 +179,22 @@ class StoreTest(absltest.TestCase):
     self.assertEqual(user.description, "test")
     self.assertEqual(user.icus[0].name, "icu")
 
+  def test_to_dict(self):
+    icu_id = self.add_icu()
+    user = User(
+        name="user",
+        telephone="123456",
+        email="user@test.org",
+        description="test")
+    user_id = self.store.add_user_to_icu(self.admin_user_id, icu_id, user)
+    user = self.store.get_user(user_id)
+    user_dict = user.to_dict()
+    self.assertEqual(user_dict["name"], "user")
+    self.assertEqual(user_dict["telephone"], "123456")
+    self.assertEqual(user_dict["email"], "user@test.org")
+    self.assertEqual(user_dict["description"], "test")
+    self.assertEqual(user_dict["icus"][0]["name"], "icu")
+
   def test_add_user_to_icu_admin(self):
     icu_id = self.add_icu()
     self.do_test_add_user_to_icu(icu_id, self.admin_user_id)
