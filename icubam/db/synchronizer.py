@@ -123,12 +123,13 @@ class StoreSynchronizer:
         continue
       icu_id = icu.icu_id
 
-      db_user = self._users.get(user['name'], None)
+      db_user = self._users.get(user['telephone'], None)
       if db_user is not None:
         manager_id = self._managers.get(icu_id, self._default_admin)
-        self._store.update_user(manager_id, db_user.user_id, **values)
-        if icu_id not in db_users.icus:
-          self._store.assign_user_to_icu(manager_id, db_user.user_ud, icu_id)
+        self._store.update_user(manager_id, db_user.user_id, values)
+        import ipdb; ipdb.set_trace()
+        if icu_id not in [e.icu_id for e in db_user.icus]:
+          self._store.assign_user_to_icu(manager_id, db_user.user_id, icu_id)
         logging.info("Updating user {}".format(db_user.name))
       else:
         try:
