@@ -82,7 +82,7 @@
           <input
             class="form-control"
             type="number"
-            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_healed", {{n_covid_healed}}); markInvalidIfDeltaGreaterThan2("n_covid_healed", {{n_covid_healed}}, 50)'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_healed", {{n_covid_healed}}); markInvalidIfDeltaGreaterThan2("n_covid_healed", {{n_covid_healed}}, 5)'
             id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
         </div>
       </div>
@@ -98,7 +98,7 @@
           <input
             class="form-control"
             type="number"
-            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_deaths", {{n_covid_deaths}}); markInvalidIfDeltaGreaterThan2("n_covid_deaths", {{n_covid_deaths}}, 50)'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_deaths", {{n_covid_deaths}}); markInvalidIfDeltaGreaterThan2("n_covid_deaths", {{n_covid_deaths}}, 5)'
             id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
         </div>
       </div>
@@ -116,7 +116,7 @@
           <input
             class="form-control" type="number"
             id="n_covid_transfered" name='n_covid_transfered'
-            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_transfered", {{n_covid_transfered}}); markInvalidIfDeltaGreaterThan2("n_covid_transfered", {{n_covid_transfered}}, 50)'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_transfered", {{n_covid_transfered}}); markInvalidIfDeltaGreaterThan2("n_covid_transfered", {{n_covid_transfered}}, 10)'
             value="{{n_covid_transfered}}">
         </div>
       </div>
@@ -132,7 +132,7 @@
           <input
             class="form-control"
             type="number"
-            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_refused", {{n_covid_refused}}); markInvalidIfDeltaGreaterThan2("n_covid_refused", {{n_covid_refused}}, 50)'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_refused", {{n_covid_refused}}); markInvalidIfDeltaGreaterThan2("n_covid_refused", {{n_covid_refused}}, 20)'
             id="n_covid_refused"
             name='n_covid_refused'
             value="{{n_covid_refused}}">
