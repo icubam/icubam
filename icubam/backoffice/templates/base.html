@@ -10,6 +10,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <title>ICUBAM</title>
 
+  {% block links %}
+  {% end %}
+
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- Theme style -->
@@ -36,7 +39,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </ul>
 
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3">
+    <!-- <form class="form-inline ml-3">
       <div class="input-group input-group-sm">
         <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
         <div class="input-group-append">
@@ -45,14 +48,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
           </button>
         </div>
       </div>
-    </form>
+    </form> -->
   </nav>
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
+    <a href="/" class="brand-link">
       <!-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8"> -->
       <span class="brand-text font-weight-light">ICUBAM</span>
@@ -62,11 +65,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
+        <div class="nav-link">
           <i class="nav-icon fas fa-user"></i>
         </div>
         <div class="info">
-          <a href="/profile" class="d-block">Michel</a>
+          <a href="/profile" class="d-block">{{this_user.name}}</a>
         </div>
       </div>
 
@@ -78,9 +81,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <li class="nav-item">
             <a href="/list_users" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
-              <p>
-                Users
-              </p>
+              <p>Users</p>
             </a>
           </li>
           <li class="nav-item">
@@ -96,12 +97,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </a>
           </li>
           <li class="nav-item">
+            <a href="/dashboard" class="nav-link">
+              <i class="nav-icon fas fa-map-marker-alt"></i>
+              <p>Map</p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="/tokens" class="nav-link">
               <i class="nav-icon fas fa-key"></i>
-              <p>
-                Access Tokens
-                <!-- <span class="right badge badge-danger">New</span> -->
-              </p>
+              <p>Access Tokens</p>
             </a>
           </li>
         </ul>
@@ -113,29 +117,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Starter Page</h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <div class="content">
-      <div class="container-fluid">
-
-        {% block content %}
-        {% end %}
-
-
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content -->
+    {% block content %}
+    {% end %}
   </div>
   <!-- /.content-wrapper -->
 
@@ -169,5 +152,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
+
+{% block scripts %}
+{% end %}
+
 </body>
 </html>
