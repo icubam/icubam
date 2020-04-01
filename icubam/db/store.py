@@ -1,10 +1,10 @@
 """Data store for ICUBAM."""
 from absl import logging
+import pandas as pd
 from contextlib import contextmanager
 import dataclasses
 from datetime import datetime
 import hashlib
-import pandas as pd
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
@@ -180,6 +180,8 @@ class ExternalClient(Base):
   telephone = Column(String)
   # Strong hash of the access key. It should be unique.
   access_key_hash = Column(String, unique=True)
+  # This is to be unused at some point.
+  access_key = Column(String, unique=True)
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
@@ -654,6 +656,8 @@ class Store:
         raise ValueError("Only admins can add a new external client.")
       access_key = self.create_access_key()
       external_client.access_key_hash = access_key.key_hash
+      # TODO(olivier): remove this later.
+      external_client.access_key = access_key.key
       session.add(external_client)
       session.commit()
       return external_client.external_client_id, access_key
@@ -736,5 +740,7 @@ def create_store_for_sqlite_db(cfg) -> Store:
   return Store(engine, salt=cfg.DB_SALT)
 
 
-def to_pandas(objs) -> pd.DataFrame:
-  return pd.DataFrame([x.to_dict() for x in objs])
+def to_pandas(objs):
+  return pd.io.json.json_normalize(
+    [obj.to_dict(max_depth=1) for obj in objs], sep='_'
+  )

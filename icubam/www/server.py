@@ -33,6 +33,7 @@ class WWWServer(base_server.BaseServer):
     )
     kwargs = dict(config=self.config, db=self.db)
     self.add_handler(home.HomeHandler, **kwargs)
+    self.add_handler(home.MapByAPIHandler, **kwargs)
     self.add_handler(show.ShowHandler, **kwargs)
     self.add_handler(show.DataJson, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
