@@ -1,10 +1,10 @@
 """Data store for ICUBAM."""
 from absl import logging
+import pandas as pd
 from contextlib import contextmanager
 import dataclasses
 from datetime import datetime
 import hashlib
-import pandas as pd
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
@@ -740,5 +740,7 @@ def create_store_for_sqlite_db(cfg) -> Store:
   return Store(engine, salt=cfg.DB_SALT)
 
 
-def to_pandas(objs) -> pd.DataFrame:
-  return pd.DataFrame([x.to_dict() for x in objs])
+def to_pandas(objs):
+  return pd.io.json.json_normalize(
+    [obj.to_dict(max_depth=1) for obj in objs], sep='_'
+  )
