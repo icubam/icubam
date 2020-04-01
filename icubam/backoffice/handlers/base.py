@@ -30,7 +30,7 @@ class BaseHandler(tornado.web.RequestHandler):
     return self.user
 
   def get_user_locale(self):
-    locale = self.get_query_argument('hl', default=self.config.locale)
+    locale = self.get_query_argument('hl', default=self.config.default_locale)
     # We fallback to Accept-Language header.
     return tornado.locale.get(locale) if locale else None
 
