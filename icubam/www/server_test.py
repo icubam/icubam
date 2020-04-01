@@ -2,12 +2,13 @@ import json
 from unittest import mock
 import tornado.testing
 from icubam import config
+from icubam.db.store import Store
 from icubam.www import server
 from icubam.www import token
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www.handlers import update
-from icubam.www.handlers import sanity_checks
+from icubam.www.handlers.version import VersionHandler
 
 
 class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
@@ -44,11 +45,24 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     response = self.fetch(url_prefix + encoder.encode_icu('test_icu', 123))
     self.assertEqual(response.code, 200)
 
-  def test_sanity_checks(self):
+  def test_version(self):
     with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
       m.return_value = 'anything'
-      response = self.fetch(sanity_checks.SanityChecksHandler.ROUTE)
+      response = self.fetch(VersionHandler.ROUTE)
     self.assertEqual(response.code, 200)
     body = json.loads(response.body)
     self.assertEqual(set(body.keys()), {'data'})
-    self.assertEqual(set(body['data'].keys()), {'package', 'db', 'server'})
+    self.assertEqual(set(body['data'].keys()), {'package', 'errors'})
+    self.assertEqual(body['data']['errors'], {})
+
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = 'anything'
+      with mock.patch.object(Store, 'get_icus') as m:
+        m.side_effect = ValueError('mock error')
+        response = self.fetch(VersionHandler.ROUTE)
+    self.assertEqual(response.code, 200)
+    body = json.loads(response.body)
+    self.assertEqual(set(body.keys()), {'data'})
+    self.assertEqual(set(body['data'].keys()), {'package', 'errors'})
+    self.assertEqual(set(body['data']['errors'].keys()), {'get_icus'})
+    self.assertIn('ValueError: mock error', body['data']['errors']['get_icus'])

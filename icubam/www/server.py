@@ -12,7 +12,7 @@ from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
-from icubam.www.handlers import sanity_checks
+from icubam.www.handlers.version import VersionHandler
 
 
 class WWWServer(base_server.BaseServer):
@@ -36,7 +36,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(show.ShowHandler, **kwargs)
     self.add_handler(show.DataJson, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
-    self.add_handler(sanity_checks.SanityChecksHandler, **kwargs)
+    self.add_handler(VersionHandler, **kwargs)
     self.add_handler(
       upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
     )
