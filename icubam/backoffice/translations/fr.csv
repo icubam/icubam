@@ -1,5 +1,7 @@
 "Admin","Administrateur"
 "Authentication failed","Echec d'authentification"
+"Create user","Nouvel utilisateur"
+"Edit user","Modification de l'utilisateur"
 "Email address","Email"
 "Failed to save the user","Échec de l'enregistrement de l'utilisateur"
 "ICUs","ICUs"
