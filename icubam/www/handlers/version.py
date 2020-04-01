@@ -28,7 +28,7 @@ class VersionHandler(base.BaseHandler):
       git_hash = 'NA'
     data['git-hash'] = git_hash
     bed_counts = self.db.get_bed_counts()
-    last_modified = max([el.last_modified for el in bed_counts])
+    last_modified = max([el.last_modified for el in bed_counts], default='NA')
     data['bed_counts.last_modified'] = str(last_modified)
     return data
 
