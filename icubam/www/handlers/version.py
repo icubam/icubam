@@ -33,4 +33,5 @@ class VersionHandler(base.BaseHandler):
     return data
 
   def get(self):
+    self.set_header("Cache-Control", "no-cache, no-store, must-revalidate")
     self.write({"data": self.get_data()})
