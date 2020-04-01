@@ -32,7 +32,7 @@ class DataJson(base.BaseHandler):
       curr['n_covid_tot'] = free + occ
       curr['link'] = self.updater.get_url(count.icu.icu_id, count.icu.name)
       curr['icu_name'] = count.icu.name
-      for key in ['last_modified', 'create_date']:
+      for key in ['last_modified', 'create_date', 'icu']: # removing not necessary keys and not serializable keys such as Datetime data
         curr.pop(key, None)
 
       data.append(curr)
