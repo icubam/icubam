@@ -1,5 +1,4 @@
 from absl import logging  # noqa: F401
-import pandas as pd
 import datetime
 import io
 import functools
