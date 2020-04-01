@@ -7,32 +7,22 @@ class LoginHandler(BaseHandler):
 
   ROUTE = "/login"
 
-  def _makeErrorMessage(self, error):
-    return "?error={}".format(error)
+  ERROR = 'Authentication failed'
 
-  def authenticate(self, email, password):
-    if not email:
-      return None, "Email not provided"
-    if not password:
-      return None, "Password not provided"
-
-    userid = self.store.auth_user(email, password)
-    if not userid or userid < 0:
-      return None, "Authentication failed"
-
-    return userid, ""
-
-  def get(self):
+  def get(self, error=""):
     # User already logged in, just redirect to the home.
     if self.get_current_user():
       return self.redirect(self.get_argument("next", "/"))
-    return self.render("login.html", error=self.get_argument("error", ""))
+    return self.render("login.html", error=error)
 
   def post(self):
-    userid, error = self.authenticate(
-      self.get_body_argument("email", ""), self.get_body_argument("password", ""))
-    if userid:
+    email = self.get_body_argument("email", "")
+    password = self.get_body_argument("password", "")
+    userid = self.store.auth_user(email, password)
+    if userid is not None:
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", "/"))
-    # Failed to login, GET page again with the error message.
-    return self.redirect(self.ROUTE + self._makeErrorMessage(error))
+
+    locale = self.get_user_locale()
+    err = self.ERROR if locale is None else locale.translate(self.ERROR)
+    return self.get(error=err)
