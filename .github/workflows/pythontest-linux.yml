@@ -39,3 +39,4 @@ jobs:
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
         timeout 5 python scripts/run_server.py || echo "Normal timeout" | grep "Normal timeout"
+        python scripts/get_id_url.py --mode=dev
