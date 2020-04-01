@@ -5,13 +5,14 @@ from icubam import config
 import icubam.db.store as db_store
 from icubam.db.store import BedCount, ICU, Region, Store, User
 
-flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
+flags.DEFINE_string("config", "resources/config.toml", "Config file.")
+flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
+flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode)
+  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
   store = db_store.create_store_for_sqlite_db(cfg)
 
   admin_user_id = store.add_user(
