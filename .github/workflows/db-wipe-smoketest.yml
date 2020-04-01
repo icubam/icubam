@@ -1,0 +1,33 @@
+name: DB wipe script smoke test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
+    - uses: goanpeca/setup-miniconda@v1
+      with:
+         auto-update-conda: true
+         activate-environment: anaconda-client-env
+         python-version: 3.8
+         auto-activate-base: false
+    - shell: bash -l {0}
+      run: |
+        conda info
+        python --version
+    - name: Install dependencies
+      shell: bash -l {0}
+      run: |
+        which python
+        pip --version
+        pip install -r requirements.txt
+    - name: Wipe DB (from the fake DB producer)
+      shell: bash -l {0}
+      run: |
+        pip install -e .
+        python scripts/populate_db_fake.py --mode=dev
+        python scripts/wipe_sensitive_info_db.py test.db --quiet=True
+        

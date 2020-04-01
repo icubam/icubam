@@ -1,13 +1,11 @@
 from absl import logging
 import collections
 import json
-import os.path
 import tornado.web
 import tornado.template
 from typing import List, Dict
 from icubam.www.handlers import base
 from icubam.www import token
-from icubam import config
 
 
 def get_color(value):
