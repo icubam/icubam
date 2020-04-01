@@ -18,11 +18,12 @@ jobs:
       run: |
         conda info
         python --version
-    - name: Check python version
+    - name: Install icubam
       shell: bash -l {0}
       run: |
         which python
         pip --version
+        pip install -e .
     - name: Wipe DB (from the fake DB producer)
       shell: bash -l {0}
       env:
@@ -32,7 +33,6 @@ jobs:
         JWT_SECRET: some_secret_string
         SECRET_COOKIE: another_secret_string
       run: |
-        pip install -e .
         python scripts/populate_db_fake.py --mode=dev
         python scripts/wipe_sensitive_info_db.py test.db --quiet=True
         timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
