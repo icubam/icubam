@@ -7,7 +7,7 @@ import unittest
 
 class GsheetsTest(absltest.TestCase):
   gsheets_tokens_def = all([os.environ.get(key, False)
-                             for key in ['SHEET_ID', 'TOKEN_LOC']])
+                           for key in ['SHEET_ID', 'TOKEN_LOC']])
 
   def setUp(self):
     super().setUp()
