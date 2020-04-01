@@ -1,24 +1,42 @@
-{% extends "base.html" %}
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-{% block content %}
+  <title>ICUBAM</title>
 
-<!-- Custom styles for this template -->
-<link href="signin.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition sidebar-mini">
+ <div class="wrapper">
 
+  <!-- Custom styles for this template -->
+  <link href="signin.css" rel="stylesheet">
 
-<div class="row h-50 align-self-center">
- <div class="col-6 align-self-center">
-  <form action="/login" method="post" class="form-signin">
-   <label for="inputEmail" class="sr-only">Email address</label>
-   <input type="email" id="email" class="form-control" placeholder="Email address" name="email" required autofocus>
-   <label for="inputPassword" class="sr-only">Password</label>
-   <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
-   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-   <div>
-     <p>{{error}}</p>
+  <div class="row h-50 align-self-center">
+   <div class="col-6 align-self-center">
+    <form action="/login" method="post" class="form-signin">
+     <label for="inputEmail" class="sr-only">Email address</label>
+     <input type="email" id="email" class="form-control" placeholder="Email address" name="email" required autofocus>
+     <label for="inputPassword" class="sr-only">Password</label>
+     <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
+     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+     <div>
+       <p>{{error}}</p>
+     </div>
+    </form>
    </div>
-  </form>
+  </div>
  </div>
-</div>
-
-{% end %}
+</body>
+</html>
