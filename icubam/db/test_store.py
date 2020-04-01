@@ -439,7 +439,7 @@ class StoreTest(absltest.TestCase):
             "icu3": 5,
         })
 
-  def test_visible_bed_counts_in_same_region(self):
+  def test_get_visible_bed_counts_in_same_region(self):
     store = self.store
     region_id1 = self.add_region("region1")
     region_id2 = self.add_region("region2")
@@ -451,8 +451,11 @@ class StoreTest(absltest.TestCase):
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     def get_values(icu_ids, max_date=None):
-      bed_counts = store.get_visible_bed_counts_in_same_region(
-          icu_ids, max_date=max_date)
+      if icu_ids:
+        bed_counts = store.get_visible_bed_counts_in_same_region(
+            icu_ids, max_date=max_date)
+      else:
+        bed_counts = store.get_latest_bed_counts(max_date=max_date)
       values = {}
       for bed_count in bed_counts:
         values[bed_count.icu.name] = bed_count.n_covid_occ
@@ -472,9 +475,20 @@ class StoreTest(absltest.TestCase):
             "icu3": 5
         })
 
+    now_plus_1 = now + timedelta(seconds=1)
+
     # Restrict to now + 1.
     self.assertDictEqual(
-        get_values([icu_id1, icu_id3], now + timedelta(seconds=1)), {
+        get_values([icu_id1, icu_id3], now_plus_1), {
+            "icu1": 1,
+            "icu2": 4,
+            "icu3": 5
+        })
+
+    # We also test get_latest_bed_counts() here.
+    self.assertDictEqual(get_values(None), {"icu1": 2, "icu2": 3, "icu3": 5})
+    self.assertDictEqual(
+        get_values(None, now_plus_1), {
             "icu1": 1,
             "icu2": 4,
             "icu3": 5

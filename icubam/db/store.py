@@ -481,7 +481,7 @@ class Store:
   # Bed count related methods.
 
   def get_bed_counts(self, max_date=None) -> Iterable[BedCount]:
-    """Returns all users, e.g. sync. Do not use in user facing code."""
+    """Returns all bed counts, e.g. sync. Do not use in user facing code."""
     query = self._session().query(BedCount)
     if max_date is not None:
       query = query.filter(BedCount.last_modified <= max_date)
@@ -543,6 +543,20 @@ class Store:
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
+
+  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts.
+
+    Args:
+      icu_ids: a list or subquery of ICU IDs or None for all ICUs.  kargs are
+        passed to get_latest_bed_counts_for_icus() method for additional
+        filtering, e.g. max_date.
+
+    Returns:
+      a list of BedCounts.
+    """
+    return self._get_latest_bed_counts_for_icus(self._session(), icu_ids,
+                                                **kargs)
 
   def get_visible_bed_counts_for_user(self,
                                       user_id: int,
