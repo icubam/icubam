@@ -13,9 +13,12 @@ class LoginHandler(BaseHandler):
     # User already logged in, just redirect to the home.
     if self.get_current_user():
       return self.redirect(self.get_argument("next", "/"))
+
+    error = self.get_argument("error", None)
     return self.render("login.html", error=error)
 
   def post(self):
+    self.error = None
     email = self.get_body_argument("email", "")
     password = self.get_body_argument("password", "")
     userid = self.store.auth_user(email, password)
@@ -23,6 +26,4 @@ class LoginHandler(BaseHandler):
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", "/"))
 
-    locale = self.get_user_locale()
-    err = self.ERROR if locale is None else locale.translate(self.ERROR)
-    return self.get(error=err)
+    return self.redirect(f"{self.ROUTE}?error=true")

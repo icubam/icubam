@@ -27,7 +27,9 @@
   <div class="card">
     <div class="card-body login-card-body">
       <p class="login-box-msg">{{_("Sign in to start your session")}}.</p>
-      <p class="login-box-msg text-danger">{{error}}.</p>
+      {% if error %}
+      <p class="login-box-msg text-danger">{{_("Authentication failed")}}.</p>
+      {% end %}
 
       <form action="/login" method="post" class="form-signin">
         <div class="input-group mb-3">
