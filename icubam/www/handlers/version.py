@@ -10,7 +10,7 @@ from icubam.www.handlers import base
 from icubam.www import updater
 
 
-def _try_call(func: Callable, *args, **kwargs) -> Optional[str]:
+def _try_call(func: Callable) -> Optional[str]:
   """Try to call a funcion and store exception if it occurs.
 
   Parameters
