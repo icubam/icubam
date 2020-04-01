@@ -14,51 +14,56 @@
 
 {% block content %}
 
-<section class="content-header">
- <div class="container-fluid">
-   <div class="row mb-2">
-     <div class="col-sm-6">
-       <h1>Users</h1>
-     </div>
-   </div>
- </div><!-- /.container-fluid -->
-</section>
-
 <section class="content">
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Add users</h3>
-      <button type="button" class="btn badge badge-primary"
-        data-card-widget="remove" onclick="navigateTo('/user')">
-        <i class="fas fa-plus"></i>
-      </button>
-      <button type="button" class="btn badge badge-warning"
-        data-card-widget="remove">
-        <i class="fas fa-upload"></i>
-      </button>
-    </div>
-    <!-- /.card-header -->
-    <div class="card-body">
+  <div class="container-fluid">
 
-      <table id="users" class="table table-bordered table-striped">
-        <thead>
-        <tr>
-          <th>id</th>
-          <th>name</th>
-        </tr>
-        </thead>
-        {% for user in users %}
-          <tr>
-            <td>{{ user.user_id }}</td>
-            <td>{{ user.name }}</td>
-          </tr>
-        {% end %}
-      </table>
+  <section class="content-header">
+   <div class="container-fluid">
+     <div class="row mb-2">
+       <div class="col-sm-6">
+         <h1>Users</h1>
+       </div>
+     </div>
+   </div><!-- /.container-fluid -->
+  </section>
 
-    </div>
-    <!-- /.card-body -->
+    <section class="content">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Add users</h3>
+          <button type="button" class="btn badge badge-primary"
+            data-card-widget="remove" onclick="navigateTo('/user')">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button type="button" class="btn badge badge-warning"
+            data-card-widget="remove">
+            <i class="fas fa-upload"></i>
+          </button>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+
+          <table id="users" class="table table-bordered table-striped">
+            <thead>
+            <tr>
+              <th>id</th>
+              <th>name</th>
+            </tr>
+            </thead>
+            {% for user in users %}
+              <tr>
+                <td>{{ user.user_id }}</td>
+                <td>{{ user.name }}</td>
+              </tr>
+            {% end %}
+          </table>
+
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </section>
   </div>
-  <!-- /.card -->
 </section>
 
 {% end %}
