@@ -1,17 +1,20 @@
 import tornado.escape
 import tornado.web
 
-from icubam.backoffice.handlers.base import BaseHandler
+from icubam.backoffice.handlers import base
+from icubam.backoffice.handlers import user
 
 
-class ListUsersHandler(BaseHandler):
+class ListUsersHandler(base.BaseHandler):
 
   ROUTE = "/list_users"
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
-    user.password_hash = ""
-    return user
+    user_dict = user.to_dict()
+    user_dict.pop("password_hash", None)
+    user_dict.pop("access_salt", None)
+    return user_dict
 
   @tornado.web.authenticated
   def get(self):
@@ -20,7 +23,8 @@ class ListUsersHandler(BaseHandler):
     else:
       users = self.store.get_managed_users(self.user.user_id)
 
-    print(users[0].to_dict())
-    output = [self._cleanUser(user) for user in users]
-    columns = ['user_id', 'name', 'icu', 'email', 'telephone', 'is_active']
-    self.render("list.html", data=output, objtype='Users')
+    data = [self._cleanUser(user) for user in users]
+    colums = [] if not data else list(data[0].keys())
+    self.render(
+      "list.html", data=data, columns=columns, objtype='Users',
+      create_route=user.UserHandler.ROUTE)

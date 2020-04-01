@@ -675,6 +675,11 @@ class Store:
       session.query(ExternalClient).filter(ExternalClient.external_client_id ==
                                            external_client_id).update(values)
 
+  def get_external_client_by_email(self, email: str) -> ExternalClient:
+    """Returns the external client with the specified ID."""
+    return self._session().query(ExternalClient).filter(
+        ExternalClient.email == email).one_or_none()
+
   def get_external_client(self, external_client_id: int) -> ExternalClient:
     """Returns the external client with the specified ID."""
     return self._session().query(ExternalClient).filter(
