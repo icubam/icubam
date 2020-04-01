@@ -137,9 +137,43 @@
 
     </div>
 
-    <strong style="color: red; display: none;" id="submit-error-message">
-      {{ _('Input error (cumulative value)') }}
-    </strong>
+    <div id="update-form-warnings" style="margin: 0; padding: 0;">
+      <div id="warn-n_covid_healed" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ? {{ _('Discharged') }}:
+        <span id="warn-n_covid_healed-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_healed-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_deaths" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ? {{ _('Deceased') }}:
+        <span id="warn-n_covid_deaths-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_deaths-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_transfered" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ? {{ _('Transfers') }}:
+        <span id="warn-n_covid_transfered-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_transfered-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_refused" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ? {{ _('Refused') }}:
+        <span id="warn-n_covid_refused-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_refused-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+    </div>
 
     <p>(*) {{_('equiped with ventilator')}}.</p>
 

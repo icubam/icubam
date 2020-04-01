@@ -16,20 +16,21 @@ function navigateTo(route) {
 
 function markInvalidIfNotGreaterOrEqualTo(input_id, lower_bound) {
   var input = document.getElementById(input_id);
-  var submit_button = document.getElementById("update-form-submit-button");
-  var submit_error_message = document.getElementById("submit-error-message");
+  var warn = document.getElementById("warn-" + input_id);
+  var warn_new_val = document.getElementById("warn-" + input_id + "-new-value");
+  var warn_last_val = document.getElementById("warn-" + input_id + "-last-value");
   var int_input_value = Number(input.value);
   var int_lower_bound = Number(lower_bound);
   if (int_input_value < int_lower_bound) {
     input.style.color = "red";
     input.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
-    submit_button.disabled = true;
-    submit_error_message.style.display = "inline";
+    warn.style.display = "block";
+    warn_new_val.innerHTML = String(int_input_value);
+    warn_last_val.innerHTML = String(int_lower_bound);
   }
   else {
     input.style.color = "green";
     input.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
-    submit_button.disabled = false;
-    submit_error_message.style.display = "none";
+    warn.style.display = "none";
   }
 }
