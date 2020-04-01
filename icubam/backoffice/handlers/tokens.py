@@ -6,12 +6,7 @@ from icubam.backoffice.handlers.base import BaseHandler
 
 class ListUsersHandler(BaseHandler):
 
-  ROUTE = "/list_users"
-
-  # No need to send info such as the password of the user.
-  def _cleanUser(self, user):
-    user.password_hash = ""
-    return user
+  ROUTE = "/list_tokens"
 
   @tornado.web.authenticated
   def get(self):
@@ -20,7 +15,5 @@ class ListUsersHandler(BaseHandler):
     else:
       users = self.store.get_managed_users(self.user.user_id)
 
-    print(users[0].to_dict())
     output = [self._cleanUser(user) for user in users]
-    columns = ['user_id', 'name', 'icu', 'email', 'telephone', 'is_active']
-    self.render("list.html", data=output, objtype='Users')
+    self.render("list_users.html", users=output)
