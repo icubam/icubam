@@ -2,7 +2,6 @@ import json
 from unittest import mock
 import tornado.testing
 from icubam import config
-from icubam.db.store import Store
 from icubam.www import server
 from icubam.www import token
 from icubam.www.handlers import base
