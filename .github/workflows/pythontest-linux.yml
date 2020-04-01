@@ -1,6 +1,6 @@
 name: Python package
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -27,15 +27,10 @@ jobs:
     - name: Test with pytest
       shell: bash -l {0}
       env:
-        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
-        TOKEN_LOC: token.pickle
-        SHEET_ID: ${{ secrets.SHEET_ID }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_SECRET: faketest
       run: |
-        # Emit pickled gsheets testing credentials from CI secret
-        python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
         pip install pytest
-        pytest .
+        pytest
         pip install -e .
     - name: Developper installation test
       shell: bash -l {0}
