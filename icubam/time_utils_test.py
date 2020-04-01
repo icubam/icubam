@@ -1,5 +1,4 @@
 import datetime
-import time
 from absl.testing import absltest
 
 from icubam import time_utils

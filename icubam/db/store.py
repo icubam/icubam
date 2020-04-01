@@ -6,8 +6,8 @@ from datetime import datetime
 import hashlib
 import pandas as pd
 from sqlalchemy import create_engine, desc, func
-from sqlalchemy import Column, MetaData, Table
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Table
+from sqlalchemy import ForeignKey
 from sqlalchemy import Boolean, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -480,8 +480,8 @@ class Store:
 
   # Bed count related methods.
 
-  def get_bed_counts(self, max_date = None) -> Iterable[BedCount]:
-    """Returns all users, e.g. sync. Do not use in user facing code."""
+  def get_bed_counts(self, max_date=None) -> Iterable[BedCount]:
+    """Returns all bed counts, e.g. sync. Do not use in user facing code."""
     query = self._session().query(BedCount)
     if max_date is not None:
       query = query.filter(BedCount.last_modified <= max_date)
@@ -511,32 +511,27 @@ class Store:
           icu_users.c.user_id == user_id).filter(
               icu_users.c.icu_id == icu_id).count() == 1
 
-  def get_visible_bed_counts_for_user(self,
-                                      user_id,
-                                      max_date: datetime = None,
-                                      force=False
+  def _get_latest_bed_counts_for_icus(self,
+                                      session,
+                                      icu_ids,
+                                      max_date: datetime = None
                                      ) -> Iterable[BedCount]:
-    """Returns the latest bed counts of ICS that are visible to the user.
+    """Returns the latest bed counts of the ICUs.
 
-    Admin users can view all ICUs. For other users, only ICUs that are in the
-    same regions as the ICUs that they are assigned to will be visible.
+    Args:
+      session: a DB session.
+      icu_ids: subquery of ICU IDs or None for all ICUs.
+      max_date: Restricts the time of the bed counts to this date.
+
+    Returns:
+      a list of BedCounts.
     """
-    session = self._session()
     # Bed counts in reverse chronological order.
     sub = session.query(BedCount.rowid, BedCount.icu_id,
                         BedCount.create_date).order_by(
                             desc(BedCount.create_date))
-    if not force and not self._is_admin(session, user_id):
-      # Fetch the IDs of ICUs that user is assigned to.
-      user_icu_ids = session.query(
-          icu_users.c.icu_id).filter(icu_users.c.user_id == user_id)
-      # Find their regions.
-      region_ids = session.query(ICU.region_id).filter(
-          ICU.icu_id.in_(user_icu_ids.subquery()))
-      # Fetch the IDs of the ICUs in these regions.
-      region_icu_ids = session.query(ICU.icu_id).filter(
-          ICU.region_id.in_(region_ids.subquery()))
-      sub = sub.filter(BedCount.icu_id.in_(region_icu_ids.subquery()))
+    if icu_ids is not None:
+      sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
     if max_date:
       sub = sub.filter(BedCount.create_date < max_date)
@@ -548,6 +543,66 @@ class Store:
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
+
+  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts.
+
+    Args:
+      icu_ids: a list or subquery of ICU IDs or None for all ICUs.  kargs are
+        passed to get_latest_bed_counts_for_icus() method for additional
+        filtering, e.g. max_date.
+
+    Returns:
+      a list of BedCounts.
+    """
+    return self._get_latest_bed_counts_for_icus(self._session(), icu_ids,
+                                                **kargs)
+
+  def get_visible_bed_counts_for_user(self,
+                                      user_id: int,
+                                      force=False,
+                                      **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts of ICS that are visible to the user.
+
+    Admin users can view all ICUs. For other users, only ICUs that are in the
+    same regions as the ICUs that they are assigned to will be visible.
+
+    kargs are passed to get_latest_bed_counts_for_icus() method for additional
+    filtering, e.g. max_date.
+    """
+    session = self._session()
+    user = self._get_user(session, user_id)
+    if force or user.is_admin:
+      return self._get_latest_bed_counts_for_icus(session, None, **kargs)
+    else:
+      icu_ids = set()
+      icu_ids.update([icu.icu_id for icu in user.icus])
+      icu_ids.update([icu.icu_id for icu in user.managed_icus])
+    return self.get_visible_bed_counts_in_same_region(icu_ids, **kargs)
+
+  def get_visible_bed_counts_in_same_region(self, icu_ids: Iterable[int],
+                                            **kargs) -> Iterable[BedCount]:
+    """Returns the latest bed counts in the regions of the specified ICUs.
+
+    kargs are passed to get_latest_bed_counts_for_icus() method for additional
+    filtering, e.g. max_date.
+
+    Args:
+      icu_ids: a list of ICU IDs.
+
+    Returns:
+      a list of BedCounts for the ICUs that are in the same regions as the input
+      ICUs.
+    """
+    session = self._session()
+    # Find the regions of the ICUs.
+    region_ids = session.query(ICU.region_id).filter(ICU.icu_id.in_(icu_ids))
+    # Fetch the IDs of the ICUs in these regions.
+    region_icu_ids = session.query(ICU.icu_id).filter(
+        ICU.region_id.in_(region_ids.subquery()))
+    return self._get_latest_bed_counts_for_icus(session,
+                                                region_icu_ids.subquery(),
+                                                **kargs)
 
   # External client related methods.
 

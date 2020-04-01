@@ -1,4 +1,4 @@
-from absl import logging
+from absl import logging  # noqa: F401
 from icubam.db import store
 
 class QueueWriter:

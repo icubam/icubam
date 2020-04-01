@@ -1,5 +1,4 @@
 """Creating/edition of users."""
-import json
 import tornado.escape
 import tornado.web
 

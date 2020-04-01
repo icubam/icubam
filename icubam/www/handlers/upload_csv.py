@@ -2,8 +2,6 @@ import os
 import tornado.web
 import logging
 import time
-from icubam.www.handlers import base
-from icubam.www.handlers import home
 
 
 class UploadHandler(tornado.web.RequestHandler):
