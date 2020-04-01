@@ -32,8 +32,13 @@ class DBHandler(base.BaseHandler):
   API_COOKIE = 'api'
 
   def get_current_user(self):
-    # TODO(olivier): verifies that the key is valid.
-    return self.get_query_argument('API_KEY', None)
+    key = self.get_query_argument('API_KEY', None)
+    return key
+    # TODO(olivier): remove return when access tokens are in.
+    if key is None:
+      return
+
+    return self.db.auth_external_client(key)
 
   def initialize(self, config, db):
     super().initialize(config, db)

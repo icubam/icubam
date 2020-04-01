@@ -1,6 +1,7 @@
 """This will populate the database from the google sheet."""
 from absl import app
 from absl import flags
+import click
 from icubam import config
 from icubam.db import sqlite
 from icubam.db import gsheets
@@ -39,14 +40,7 @@ def main(unused_argv):
 
 
 if __name__ == "__main__":
-  reply = (
-    str(
-      input(
-        "!!Make sure you delete the .db file before populating!! (yes i understad)"
-      )
-    )
-    .lower()
-    .strip()
-  )
-  if reply == 'yes i understand':
-    app.run(main)
+  if not click.confirm("WARNING: !!Make sure you delete the .db file before populating!!. CONTINUE?", err=True):
+    sys.exit(0)
+
+  app.run(main)
