@@ -14,7 +14,6 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
 from typing import Iterable, Optional, Tuple
 import uuid
-from icubam import dict_utils
 
 
 class Base(object):
@@ -738,6 +737,6 @@ def create_store_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs):
-  return pd.DataFrame([
-    dict_utils.flatten(obj.to_dict(max_depth=1)) for obj in objs
-  ])
+  return pd.io.json.json_normalize(
+    [obj.to_dict(max_depth=1) for obj in objs], sep='_'
+  )
