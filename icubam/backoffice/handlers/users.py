@@ -117,8 +117,10 @@ class UserHandler(base.BaseHandler):
         return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
 
     # The admin info: we only show the ability to tag one user as admin in the
-    # FE if the person logged in is also an admin.
-    user_dict['is_admin'] = self.get_body_argument("is_admin", "off") == "on"
+    # FE if the person logged in is also an admin. We don't override the bit
+    # in the case the user is being changed by another person.
+    if self.user.is_admin:
+      user_dict['is_admin'] = self.get_body_argument("is_admin", "off") == "on"
 
     # Yet another validation step: checks password.
     # This should not be needed because the FE has validation patterns, but
