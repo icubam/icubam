@@ -32,8 +32,19 @@ class Config:
     load_dotenv(verbose=True, dotenv_path=env_path)
     logging.info(f"Loading env vars from: {env_path}.")
     for key in self.ENV_KEYS:
-      self.env[key.upper()] = os.getenv(key)
-    logging.info(f"Loaded: {self.env}.")
+      self._set_env(key)
+
+  def _set_env(self, key):
+    """Loads an environment variable with a given key."""
+    env_variable = os.getenv(key)
+    if env_variable is None:
+      message = f'Mising environment variable {key}'
+      if self.mode == 'prod':
+        raise ValueError(message)
+      else:
+        logging.warning("{}: falling back to defaut.".format(message))
+        env_variable = 'default_{}'.format(key.lower())
+    self.env[key.upper()] = env_variable
 
   def _preprocess(self, conf):
     """Recursively selects the proper mode and enforces lower keys."""
@@ -46,7 +57,10 @@ class Config:
         result[k.lower()] = self._preprocess(sub)
     return result
 
-  def __getattr__(self, key: str):
+  def __getitem__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
     return self.conf.get(key)
+
+  def __getattr__(self, key):
+    return self[key]
