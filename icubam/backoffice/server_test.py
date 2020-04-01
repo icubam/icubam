@@ -1,6 +1,4 @@
-from unittest import mock
 import tornado.testing
-import urllib
 
 from icubam import config
 from icubam.backoffice import server
