@@ -1,11 +1,12 @@
 import os.path
 
-from absl import logging
+from absl import logging  # noqa: F401
 import tornado.ioloop
 import tornado.locale
 import tornado.web
 
-from icubam.backoffice.handlers import (home,list_users,login, logout, user)
+from icubam.backoffice.handlers import (
+  home, list_users, login, logout, user, profile)
 from icubam import base_server
 
 
@@ -17,11 +18,13 @@ class BackOfficeServer(base_server.BaseServer):
     self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self, path):
-    self.add_handler(home.HomeHandler, config=self.config, db=self.db)
-    self.add_handler(login.LoginHandler, config=self.config, db=self.db)
-    self.add_handler(logout.LogoutHandler, config=self.config, db=self.db)
-    self.add_handler(list_users.ListUsersHandler, config=self.config, db=self.db)
-    self.add_handler(user.UserHandler, config=self.config, db=self.db)
+    kwargs = dict(config=self.config, db=self.db)
+    self.add_handler(home.HomeHandler, **kwargs)
+    self.add_handler(login.LoginHandler, **kwargs)
+    self.add_handler(logout.LogoutHandler, **kwargs)
+    self.add_handler(list_users.ListUsersHandler, **kwargs)
+    self.add_handler(user.UserHandler, **kwargs)
+    self.add_handler(profile.ProfileHandler, **kwargs)
 
 
     for folder in ['dist', 'pages', 'plugins']:

@@ -1,11 +1,10 @@
 """Creating/edition of users."""
-import json
 import tornado.escape
 import tornado.web
 
 from icubam.backoffice.handlers.base import BaseHandler
 from icubam.backoffice.handlers.list_users import ListUsersHandler
-from icubam.db.store import User
+from icubam.db import store
 
 
 class UserHandler(BaseHandler):
@@ -14,8 +13,13 @@ class UserHandler(BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
+    userid = self.get_query_argument('id', None)
+    user = None
+    if userid is not None:
+      user = self.db.get_user(userid)
     # TODO(fred): load the ICUs to show in the form.
-    self.render("user.html", icus=[], user=User(), error="")
+    user = user if user is not None else store.User()
+    self.render("user.html", icus=[], user=user, error="")
 
   def error(self, error_message, user):
     self.render("user.html", icus=[], user=user, error=error_message)

@@ -1,8 +1,6 @@
 """Pulls data from the google sheet and adds it to the sqlite DB."""
 from absl import logging
 
-from icubam.db import gsheets
-from icubam.db import sqlite
 from icubam.db import store
 
 class Synchronizer:
