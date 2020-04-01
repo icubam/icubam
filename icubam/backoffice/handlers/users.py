@@ -100,7 +100,7 @@ class UserHandler(base.BaseHandler):
     if uid:
       user_dict["user_id"] = int(uid)
 
-    # We still want to keep the "temp" user, because if saving fails, we need to
+    # We want to keep this "temp" user, because if saving fails, we need to
     # dump this object back to the form, otherwise the person using the BO will
     # lose the changes that were done.
     # Important that this user HAS the id (in case this is an EDIT), otherwise
