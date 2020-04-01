@@ -101,8 +101,10 @@ class UserHandler(base.BaseHandler):
       user_dict["user_id"] = int(uid)
 
     # We still want to keep the "temp" user, because if saving fails, we need to
-    # dump the tmp_user (which is what the user was working on), not the "store"
-    # user.
+    # dump this object back to the form, otherwise the person using the BO will
+    # lose the changes that were done.
+    # Important that this user HAS the id (in case this is an EDIT), otherwise
+    # we will try to create a new user upon "Save" :)
     tmp_user = User(**user_dict)
 
     # Validates all the fields that must be validated.
@@ -113,6 +115,7 @@ class UserHandler(base.BaseHandler):
     # Yet another validation step: checks password.
     # This should not be needed because the FE has validation patterns, but
     # let's be on the safe side.
+    # note: not uid => this is a new user.
     if not uid and not password:
         return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
 
