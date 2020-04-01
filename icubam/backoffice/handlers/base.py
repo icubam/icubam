@@ -15,6 +15,9 @@ class BaseHandler(tornado.web.RequestHandler):
     self.store = create_store_for_sqlite_db(self.config)
     self.user = None
 
+  def render(self, path, **kwargs):
+    super().render(path, this_user=self.user, **kwargs)
+
   def get_template_path(self):
     return 'icubam/backoffice/templates/'
 
