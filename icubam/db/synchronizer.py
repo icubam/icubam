@@ -137,8 +137,6 @@ class StoreSynchronizer:
 
         manager_id = self._managers.get(icu_id, self._default_admin)
         self._store.update_user(manager_id, db_user.user_id, values)
-        # if db_user.name == 'Huet':
-        #   import ipdb; ipdb.set_trace()
         if icu_id not in [icu.icu_id for icu in db_user_icus]:
           self._store.assign_user_to_icu(manager_id, db_user.user_id, icu_id)
       else:
