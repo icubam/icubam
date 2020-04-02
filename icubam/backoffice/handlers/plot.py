@@ -16,7 +16,6 @@ class PlotHandler(base.BaseHandler):
   @tornado.web.authenticated
   async def get(self):
     """Serves a page with a table gathering current bedcount data with some extra information."""
-    data = {}
     figures = []
 
     bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
