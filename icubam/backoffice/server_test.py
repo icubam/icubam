@@ -4,7 +4,7 @@ from unittest import mock
 from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
-  base, home, login, logout, users, tokens, icus, dashboard, plot)
+  base, home, login, logout, users, tokens, icus, dashboard, plot, regions)
 
 
 class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
@@ -40,9 +40,11 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
 
   def test_homepage_without(self):
     handlers = [
-      dashboard.ListBedCountsHandler, icus.ListICUsHandler,
-      users.ListUsersHandler, tokens.ListTokensHandler,
-      plot.PlotHandler
+      icus.ListICUsHandler, icus.ICUHandler,
+      users.ListUsersHandler, users.UserHandler,
+      tokens.ListTokensHandler, tokens.TokenHandler,
+      regions.ListRegionsHandler, regions.RegionHandler,
+      dashboard.ListBedCountsHandler, plot.PlotHandler,
       ]
     for handler in handlers:
       with mock.patch.object(handler, 'get_current_user') as m:
