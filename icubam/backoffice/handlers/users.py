@@ -2,6 +2,7 @@
 import tornado.escape
 import tornado.web
 
+from icubam.messaging.client import MessageServerClient
 from icubam.backoffice.handlers import base
 from icubam.db import store
 from icubam.db.store import User
@@ -42,6 +43,10 @@ class ProfileHandler(base.BaseHandler):
 
 class UserHandler(base.BaseHandler):
   ROUTE = "/user"
+
+  def initialize(self, config, db):
+    super().__init__(config, db)
+    self.message_server_client = MessageServerClient(config)
 
   """Creates ICU DTOs based on ALL ICUs and those from the selected."""
   def select_icus(self, selected_icus_ids):
@@ -85,6 +90,14 @@ class UserHandler(base.BaseHandler):
   def select_icus_for_error(self):
     form_icus = self.get_body_arguments("icus", [])
     return self.select_icus([int(icu) for icu in form_icus])
+
+  """Notifies the message server message server that something has changed"""
+  def notify_message_server(self, user_id):
+    # Get the user again, so we have the fresh one just stored.
+    user = self.db.get_user(user_id)
+    icus = [icu.icu_id for icu in user.icus]
+    oneoff = user.is_active
+    return self.message_server_client.notify(user_id, icus, onoff=onoff)
 
   @tornado.web.authenticated
   def post(self):
@@ -133,6 +146,7 @@ class UserHandler(base.BaseHandler):
     # To match the user ICUs from what we got from the form.
     user = tmp_user if not uid else self.db.get_user(int(uid))
     add, remove = self.get_icus_to_store(user)
+
     try:
       if not uid:
         uid = self.db.add_user(user)
@@ -145,6 +159,7 @@ class UserHandler(base.BaseHandler):
       for icu in remove:
         self.db.remove_user_from_icu(self.user.user_id, uid, icu)
 
+      self.notify_message_server(uid)
     except Exception as e:
       return self.error(user=tmp_user, icus=self.select_icus_for_error())
 

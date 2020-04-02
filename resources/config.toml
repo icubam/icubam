@@ -27,7 +27,11 @@ default_locale='fr-fr'
   upload_dir = "uploads/"
 
 [messaging]
-  port = 8889
+  PORT = 8889  # will be lower cased when reading.
+  [messagging.dev]
+  base_url = "http://localhost:8889/"
+  [messagging.prod]
+  base_url = "https://test.icubam.net/"
   [scheduler]
     [scheduler.prod]
     max_retries = 1
