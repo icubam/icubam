@@ -16,10 +16,9 @@ class ListTokensHandler(base.BaseHandler):
       return self.redirect(home.HomeHandler.ROUTE)
 
     clients = self.db.get_external_clients()
-    data = [client.to_dict() for client in clients]
-    columns = [] if not data else list(data[0].keys())
+    data = [self.format_list_item(client.to_dict()) for client in clients]
     self.render(
-        "list.html", data=data, columns=columns, objtype='Acces Tokens',
+        "list.html", data=data, objtype='Acces Tokens',
         create_route=TokenHandler.ROUTE)
 
 
