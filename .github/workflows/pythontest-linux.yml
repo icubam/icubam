@@ -31,5 +31,6 @@ jobs:
       run: |
         set -x
         pip install pytest
+        pip install pytest-cov
         pip install -e .
-        pytest
+        pytest --junitxml=junit/test-results.xml --cov=icubam --cov-report=xml --cov-report=html
