@@ -52,6 +52,7 @@ class ICUHandler(base.BaseHandler):
     icu_id = self.db.get_icu(self.get_query_argument('id', None))
     values = self.parse_from_body(store.ICU)
     values["is_active"] = bool(values["is_active"])
+    # TODO(olivier): try catch error here.
     if icu_id is None:
       self.db.add_icu(self.user.user_id, store.ICU(**values))
     else:
