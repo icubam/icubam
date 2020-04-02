@@ -55,14 +55,13 @@ class BaseHandler(tornado.web.RequestHandler):
       value = self.get_body_argument(col, None)
       if value is not None:
         result[col] = value
-    return
+    return result
 
   def format_list_item(self, item: Union[Dict, List]) -> list:
     """Prepare a dictionary representing a row of a table for display."""
     # TODO(olivier) improve this, too hard coded
-    auto_links = {
-      'icu_id': 'icu', 'user_id': 'user', 'external_client_id': 'token',
-    }
+    auto_links = {f'{k}_id': k for k in ['icu', 'user', 'region']}
+    auto_links['external_client_id'] = 'token'
     result = item
     if not isinstance(item, list):
       result = []

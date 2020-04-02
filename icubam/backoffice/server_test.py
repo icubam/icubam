@@ -40,8 +40,11 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
 
   def test_homepage_without(self):
     handlers = [
-      dashboard.ListBedCountsHandler, icus.ListICUsHandler,
-      users.ListUsersHandler, tokens.ListTokensHandler,
+      dashboard.ListBedCountsHandler,
+      icus.ListICUsHandler, icus.ICUHandler,
+      users.ListUsersHandler, users.UserHandler,
+      tokens.ListTokensHandler, tokens.TokenHandler,
+      regions.ListRegionsHandler, regions.RegionHandler,
       ]
     for handler in handlers:
       with mock.patch.object(handler, 'get_current_user') as m:
