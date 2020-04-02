@@ -59,6 +59,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
   def format_list_item(self, item: Union[Dict, List]) -> list:
     """Prepare a dictionary representing a row of a table for display."""
+    # TODO(olivier) improve this, too hard coded
     auto_links = {
       'icu_id': 'icu', 'user_id': 'user', 'external_client_id': 'token',
     }
