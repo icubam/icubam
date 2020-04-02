@@ -43,19 +43,20 @@ class ProfileHandler(base.BaseHandler):
 class UserHandler(base.BaseHandler):
   ROUTE = "/user"
 
-  """Creates ICU DTOs based on ALL ICUs and those from the subset."""
-  def prepare_icus(self, subset_icus_ids):
+  """Creates ICU DTOs based on ALL ICUs and those from the selected."""
+  def select_icus(self, selected_icus_ids):
+    # TODO(olivier): restrict managers to regional icus
     icus = self.store.get_icus()
     output = []
     for icu in icus:
       dto = icu.to_dict()
-      dto["selected"] = icu.icu_id in subset_icus_ids
+      dto["selected"] = icu.icu_id in selected_icus_ids
       output.append(dto)
     return sorted(output, key = lambda x: x['name'])
 
-  """Prepares the DTO comparing ALL icus against the ones from the user."""
-  def prepare_icus_for_user(self, user):
-    return self.prepare_icus([user_icu.icu_id for user_icu in user.icus])
+  """Selects the DTO comparing ALL icus against the ones from the user."""
+  def select_icus_for_user(self, user):
+    return self.select_icus([user_icu.icu_id for user_icu in user.icus])
 
   @tornado.web.authenticated
   def get(self):
@@ -65,15 +66,11 @@ class UserHandler(base.BaseHandler):
       user = self.store.get_user(userid)
 
     user = user if user is not None else store.User()
-    icus_dto = self.prepare_icus_for_user(user)
-    self.render(
-      "user.html", icus=icus_dto, user=user, error=False,
-      allow_admin=self.user.is_admin)
+    icus_dto = self.select_icus_for_user(user)
+    self.render("user.html", icus=icus_dto, user=user, error=False)
 
   def error(self, user, icus):
-    self.render(
-      "user.html", icus=icus, user=user, error=True,
-      allow_admin=self.user.is_admin)
+    self.render("user.html", icus=icus, user=user, error=True)
 
   """Returns the ICUs we need to add to/remove from the user. """
   def get_icus_to_store(self, user):
@@ -84,25 +81,31 @@ class UserHandler(base.BaseHandler):
     remove = list(user_icus.difference(form_icus))
     return add, remove
 
-  """Prepares the DTO comparing ALL icus against the ones from the form."""
-  def prepare_icus_for_error(self):
+  """Selects the DTO comparing ALL icus against the ones from the form."""
+  def select_icus_for_error(self):
     form_icus = self.get_body_arguments("icus", [])
-    return self.prepare_icus([int(icu) for icu in form_icus])
+    return self.select_icus([int(icu) for icu in form_icus])
 
   @tornado.web.authenticated
   def post(self):
     user_dict = {}
     for key in ["name", "email", "telephone"]:
-      user_dict[key] = self.get_body_argument(key, "")
+      user_dict[key] = self.get_body_argument(key, None)
 
     # Password is not required when editing the user.
-    password = self.get_body_argument("password", "")
+    password = self.get_body_argument("password", None)
     if password:
       user_dict["password_hash"] = self.store.get_password_hash(password)
 
     uid = self.get_body_argument("user_id", None)
     if uid:
       user_dict["user_id"] = int(uid)
+
+    # The admin info: we only show the ability to tag one user as admin in the
+    # FE if the person logged in is also an admin. We don't override the bit
+    # in the case the user is being changed by another person.
+    if self.user.is_admin:
+      user_dict['is_admin'] = self.get_body_argument("is_admin", None) == "on"
 
     # We want to keep this "temp" user, because if saving fails, we need to
     # dump this object back to the form, otherwise the person using the BO will
@@ -113,21 +116,15 @@ class UserHandler(base.BaseHandler):
 
     # Validates all the fields that must be validated.
     for value in user_dict.values():
-      if not value:
-        return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
-
-    # The admin info: we only show the ability to tag one user as admin in the
-    # FE if the person logged in is also an admin. We don't override the bit
-    # in the case the user is being changed by another person.
-    if self.user.is_admin:
-      user_dict['is_admin'] = self.get_body_argument("is_admin", "off") == "on"
+      if value is None:
+        return self.error(user=tmp_user, icus=self.select_icus_for_error())
 
     # Yet another validation step: checks password.
     # This should not be needed because the FE has validation patterns, but
     # let's be on the safe side.
     # note: not uid => this is a new user.
     if not uid and not password:
-        return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
+        return self.error(user=tmp_user, icus=self.select_icus_for_error())
 
     # To match the user ICUs from what we got from the form.
     user = tmp_user if not uid else self.store.get_user(int(uid))
@@ -145,6 +142,6 @@ class UserHandler(base.BaseHandler):
         self.store.remove_user_from_icu(self.user.user_id, uid, icu)
 
     except Exception as e:
-      return self.error(user=tmp_user, icus=self.prepare_icus_for_error())
+      return self.error(user=tmp_user, icus=self.select_icus_for_error())
 
     return self.redirect(ListUsersHandler.ROUTE)

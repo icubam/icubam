@@ -42,7 +42,7 @@
        <div class="card-body">
 
         <!-- The hidden ID in case we're editing the user. -->
-        <input type="text" id="user_id" name="user_id" hidden value="{% if user.user_id %}{{user.user_id}}{% end %}"</input>
+        <input type="text" id="user_id" name="user_id" hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
         <!-- Required and does not accept names that contain only spaces. -->
         <div class="form-row">
            <div class="col-25">
@@ -120,7 +120,7 @@
        <!-- /.card -->
 
 
-       {% if allow_admin %}
+       {% if this_user.is_admin %}
        <div class="card card-secondary">
          <div class="card-body">
            <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">
