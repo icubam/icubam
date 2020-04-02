@@ -5,7 +5,7 @@ function setDatatable (table_id) {
   })
 
   // TODO(olivier): add a button to go to table.
-  $(table_id).on( 'click', 'tr', function () {
-      console.log( table.row( this ).data() );
+  $(table_id).on( 'click', 'td', function () {
+      console.log( table.cell( this ).data() );
   } );
 }

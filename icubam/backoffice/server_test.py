@@ -1,8 +1,10 @@
 import tornado.testing
+from unittest import mock
 
 from icubam import config
 from icubam.backoffice import server
-from icubam.backoffice.handlers import (home, login, logout)
+from icubam.backoffice.handlers import (
+  base, home, login, logout, users, tokens, icus, dashboard)
 
 
 class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
@@ -11,6 +13,8 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def setUp(self):
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
     self.server = server.BackOfficeServer(self.config, port=8889)
+    userid = self.server.db.add_default_admin()
+    self.user = self.server.db.get_user(userid)
     super().setUp()
 
   def get_app(self):
@@ -32,4 +36,15 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
 
   def test_logout(self):
     response = self.fetch(logout.LogoutHandler.ROUTE)
+    self.assertEqual(response.code, 200)
+
+  def test_homepage_without(self):
+    handlers = [
+      dashboard.ListBedCountsHandler, icus.ListICUsHandler,
+      users.ListUsersHandler, tokens.ListTokensHandler,
+      ]
+    for handler in handlers:
+      with mock.patch.object(handler, 'get_current_user') as m:
+        m.return_value = self.user
+      response = self.fetch(handler.ROUTE, method='GET')
     self.assertEqual(response.code, 200)
