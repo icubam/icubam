@@ -11,8 +11,6 @@ class BaseHandler(tornado.web.RequestHandler):
   def initialize(self, config, db):
     self.config = config
     self.db = db
-    # TODO(olivier): this should come from the server.
-    self.store = create_store_for_sqlite_db(self.config)
     self.user = None
 
   def render(self, path, **kwargs):
@@ -29,7 +27,7 @@ class BaseHandler(tornado.web.RequestHandler):
     if not userid:
       return None
 
-    self.user = self.store.get_user(int(tornado.escape.json_decode(userid)))
+    self.user = self.db.get_user(int(tornado.escape.json_decode(userid)))
     return self.user
 
   def get_user_locale(self):

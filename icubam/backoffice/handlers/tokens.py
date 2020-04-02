@@ -15,7 +15,7 @@ class ListTokensHandler(base.BaseHandler):
     if not self.user.is_admin:
       return self.redirect(home.HomeHandler.ROUTE)
 
-    clients = self.store.get_external_clients()
+    clients = self.db.get_external_clients()
     data = [client.to_dict() for client in clients]
     columns = [] if not data else list(data[0].keys())
     self.render(

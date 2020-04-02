@@ -19,9 +19,9 @@ class ListICUsHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     if self.user.is_admin:
-      icus = self.store.get_icus()
+      icus = self.db.get_icus()
     else:
-      icus = self.store.get_managed_icus(self.user.user_id)
+      icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
     columns = [] if not data else list(data[0].keys())
@@ -35,13 +35,13 @@ class ICUHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    icu = self.db.get_user(self.get_query_argument('id', None))
+    icu = self.db.get_icu(self.get_query_argument('id', None))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
 
     if self.user.is_admin:
-      regions = self.store.get_regions()
+      regions = self.db.get_regions()
     if not self.user.is_admin:
       regions = [e.region for e in self.user.managed_icus]
     regions.sort(key=lambda r: r.name)
@@ -49,7 +49,7 @@ class ICUHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def post(self):
-    icu_id = self.db.get_user(self.get_query_argument('id', None))
+    icu_id = self.db.get_icu(self.get_query_argument('id', None))
     values = self.parse_from_body(store.ICU)
     values["is_active"] = bool(values["is_active"])
     if icu_id is None:
