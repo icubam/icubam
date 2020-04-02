@@ -34,11 +34,6 @@ jobs:
         pip install pytest-cov
         pip install -e .
         pytest --cov=icubam --cov-report=xml --cov-report=html
-    - name: Upload coverage to artefacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: coverage
-        path: htmlcov
     - name: "Upload coverage to Codecov"
       uses: "codecov/codecov-action@v1"
       with:
