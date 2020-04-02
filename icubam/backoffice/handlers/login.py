@@ -19,7 +19,7 @@ class LoginHandler(BaseHandler):
     self.error = None
     email = self.get_body_argument("email", "")
     password = self.get_body_argument("password", "")
-    userid = self.store.auth_user(email, password)
+    userid = self.db.auth_user(email, password)
     if userid is not None:
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", "/"))
