@@ -4,7 +4,7 @@ from unittest import mock
 from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
-  base, home, login, logout, users, tokens, icus, dashboard, plot)
+  base, home, login, logout, users, tokens, icus, dashboard, plot, regions)
 
 
 class ServerTestCase(tornado.testing.AsyncHTTPTestCase):

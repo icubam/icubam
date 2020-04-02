@@ -77,4 +77,7 @@ class AdminHandler(BaseHandler):
 
   def get_current_user(self):
     user = super().get_current_user()
-    return user if user.is_admin else None
+    if user is None or not user.is_admin:
+      return None
+    else:
+      return user
