@@ -129,6 +129,13 @@
        </div>
        {% end %}
 
+       <div class="card card-secondary">
+         <div class="card-body">
+           <input type="checkbox" name="is_active" id="is_active" {% if user.is_active %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">
+           <label for="is_active">&nbsp;{{_("Active")}}</label>
+          </div>
+       </div>
+
        <div class="card-footer">
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>
