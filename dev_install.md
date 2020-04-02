@@ -37,9 +37,18 @@ Create a fake database in order to be able to play with it:
 
 The database will be named `test.db`, cf. `resources/config.toml`.
 
+## Running unit tests
+
+The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file.
+
+To start the tests, install `pytest` and run `pytest`
+
 ## Running locally
 
-Start the server locally:
+
+### Main server
+
+Start the main server locally:
 `python scripts/run_server.py --config=resources/config.toml --mode=dev`
 
 Will produce the following logs:
@@ -52,8 +61,14 @@ I0324 19:02:15.788751 139983874058048 server.py:51] http://localhost:8888/update
 
 Follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 
-## Running unit tests
+### Backoffice server
 
-The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file.
+Start the backoffice server locally,
+```
+python scripts/run_server.py --server=backoffice
+```
 
-To start the tests, install `pytest` and run `pytest`
+Then open backoffice at [http://localhost:8890](http://localhost:8890) and
+login with user credentials created by the `populate_db_fake.py` script,
+ - user: admin@test.org
+ - password: password
