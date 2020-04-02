@@ -96,7 +96,7 @@ class UserHandler(base.BaseHandler):
     # Get the user again, so we have the fresh one just stored.
     user = self.db.get_user(user_id)
     icus = [icu.icu_id for icu in user.icus]
-    oneoff = user.is_active
+    onoff = user.is_active
     return self.message_server_client.notify(user_id, icus, onoff=onoff)
 
   @tornado.web.authenticated
