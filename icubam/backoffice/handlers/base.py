@@ -70,3 +70,11 @@ class BaseHandler(tornado.web.RequestHandler):
         link = '/{}?id={}'.format(route, v) if route is not None else False
         result.append({'key': k, 'value': v, 'link': link})
     return result
+
+
+class AdminHandler(BaseHandler):
+  """A base handler for admin only routes."""
+
+  def get_current_user(self):
+    user = super().get_current_user()
+    return user if user.is_admin else None

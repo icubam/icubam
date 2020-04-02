@@ -7,7 +7,7 @@ from icubam.backoffice.handlers import home
 from icubam.db import store
 
 
-class ListRegionsHandler(base.BaseHandler):
+class ListRegionsHandler(base.AdminHandler):
   ROUTE = "/list_regions"
 
   def prepare_for_table(self, region):
@@ -18,12 +18,7 @@ class ListRegionsHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    if self.user.is_admin:
-      regions = self.db.get_regions()
-    else:
-      # Should never happen
-      self.redirect(home.HomeHandler.ROUTE)
-
+    regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
     self.render("list.html",
                 data=data,
@@ -31,7 +26,7 @@ class ListRegionsHandler(base.BaseHandler):
                 create_route=RegionHandler.ROUTE)
 
 
-class RegionHandler(base.BaseHandler):
+class RegionHandler(base.AdminHandler):
   ROUTE = "/region"
 
   @tornado.web.authenticated
