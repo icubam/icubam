@@ -19,7 +19,7 @@ class PlotHandler(base.BaseHandler):
     data = {}
     figures = []
 
-    bed_counts = self.db.get_visible_bed_counts_for_user(None, force=True)
+    bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id, force=True)
     cities = defaultdict(int)
     for curr in bed_counts:
       cities[curr.icu.city] += curr.n_covid_free
