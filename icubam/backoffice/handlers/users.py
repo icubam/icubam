@@ -15,7 +15,7 @@ class ListUsersHandler(base.BaseHandler):
     user_dict = user.to_dict()
     user_dict.pop("password_hash", None)
     user_dict.pop("access_salt", None)
-    return user_dict
+    return self.format_list_item(user_dict)
 
   @tornado.web.authenticated
   def get(self):
@@ -25,10 +25,8 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    columns = [] if not data else list(data[0].keys())
     self.render(
-      "list.html", data=data, columns=columns, objtype='Users',
-      create_route=UserHandler.ROUTE)
+      "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
 
 
 class ProfileHandler(base.BaseHandler):

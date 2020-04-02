@@ -1,5 +1,6 @@
 import tornado.locale
 import tornado.web
+from typing import List, Dict, Union
 from icubam.db.store import create_store_for_sqlite_db
 
 
@@ -54,4 +55,18 @@ class BaseHandler(tornado.web.RequestHandler):
       value = self.get_body_argument(col, None)
       if value is not None:
         result[col] = value
+    return
+
+  def format_list_item(self, item: Union[Dict, List]) -> list:
+    """Prepare a dictionary representing a row of a table for display."""
+    auto_links = {
+      'icu_id': 'icu', 'user_id': 'user', 'external_client_id': 'token',
+    }
+    result = item
+    if not isinstance(item, list):
+      result = []
+      for k, v in item.items():
+        route = auto_links.get(k, None)
+        link = '/{}?id={}'.format(route, v) if route is not None else False
+        result.append({'key': k, 'value': v, 'link': link})
     return result
