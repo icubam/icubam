@@ -4,9 +4,10 @@ import math
 
 from bokeh.embed import components
 from bokeh.plotting import figure
-from icubam.www.handlers import base
+from icubam.backoffice.handlers import base
 
 from pprint import pprint
+
 
 class PlotHandler(base.BaseHandler):
   ROUTE = '/plot'
@@ -42,8 +43,9 @@ class PlotHandler(base.BaseHandler):
     p = figure(
       x_range=cities_names,
       plot_height=400,
-      title="Lits Disponibles Par Ville")
-    p.xaxis.major_label_orientation = math.pi/2
+      title="Lits Disponibles Par Ville"
+    )
+    p.xaxis.major_label_orientation = math.pi / 2
     p.y_range.start = 0
 
     p.vbar(x=cities_names, top=beds_available, width=0.9)
@@ -55,8 +57,6 @@ class PlotHandler(base.BaseHandler):
     #   if i > 3:
     #     break
 
-
-
     # for _ in range(3):
     #   x = [i for i in range(10)]
     #   y = np.random.random(10)
@@ -64,7 +64,7 @@ class PlotHandler(base.BaseHandler):
     #   p = figure(plot_width=800, plot_height=250, x_axis_type="datetime")
     #   p.line(x, y, color='navy', alpha=0.5)
 
-      # script, div = components(p)
-      # figures.append(dict(script=script, div=div))
+    # script, div = components(p)
+    # figures.append(dict(script=script, div=div))
 
     self.render("plot.html", figures=figures)

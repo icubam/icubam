@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block links %}
-<link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
 {% end %}
 
 {% block content %}
 <div class="container">
+    <h1> Visualization dashboard </h1>
     {% for figure in figures%}
         {% raw figure['script'] %}
 
@@ -31,6 +31,6 @@
 <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
 <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
 <script
-    src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.0.min.js"
+    src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"
 ></script>
 {% end %}
