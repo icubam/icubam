@@ -19,10 +19,11 @@ import uuid
 class Base(object):
   """Base with helper methods."""
 
-  def _get_column_names(self):
+  @classmethod
+  def get_column_names(cls):
     """Returns the columns of the table."""
-    result = list(self.__mapper__.columns.keys())
-    result.extend(self.__mapper__.relationships.keys())
+    result = list(cls.__mapper__.columns.keys())
+    result.extend(cls.__mapper__.relationships.keys())
     return result
 
   def to_dict(self, max_depth=1) -> dict:
@@ -31,7 +32,7 @@ class Base(object):
     Args:
      max_depth: the maximum recursion depth.
     """
-    columns = self._get_column_names()
+    columns = self.get_column_names()
     result = {}
     for col in columns:
       value = getattr(self, col)
