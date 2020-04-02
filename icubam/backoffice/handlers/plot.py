@@ -1,6 +1,7 @@
 import numpy as np
 import tornado.web
 import math
+from collections import defaultdict
 
 from bokeh.embed import components
 from bokeh.plotting import figure
@@ -19,12 +20,9 @@ class PlotHandler(base.BaseHandler):
     figures = []
 
     bed_counts = self.db.get_visible_bed_counts_for_user(None, force=True)
-    cities = {}
+    cities = defaultdict(int)
     for curr in bed_counts:
-      city_name = curr.icu.city
-      val = cities.get(city_name, 0)
-      val += curr.n_covid_free
-      cities[city_name] = val
+      cities[curr.icu.city] += curr.n_covid_free
 
     get_val = lambda tup: tup[1]
     cities = list(cities.items())
