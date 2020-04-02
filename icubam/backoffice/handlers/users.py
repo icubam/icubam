@@ -20,9 +20,9 @@ class ListUsersHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     if self.user.is_admin:
-      users = self.store.get_users()
+      users = self.db.get_users()
     else:
-      users = self.store.get_managed_users(self.user.user_id)
+      users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
     columns = [] if not data else list(data[0].keys())
@@ -46,7 +46,7 @@ class UserHandler(base.BaseHandler):
   """Creates ICU DTOs based on ALL ICUs and those from the selected."""
   def select_icus(self, selected_icus_ids):
     # TODO(olivier): restrict managers to regional icus
-    icus = self.store.get_icus()
+    icus = self.db.get_icus()
     output = []
     for icu in icus:
       dto = icu.to_dict()
@@ -63,7 +63,7 @@ class UserHandler(base.BaseHandler):
     userid = self.get_query_argument('id', None)
     user = None
     if userid is not None:
-      user = self.store.get_user(userid)
+      user = self.db.get_user(userid)
 
     user = user if user is not None else store.User()
     icus_dto = self.select_icus_for_user(user)
@@ -95,7 +95,7 @@ class UserHandler(base.BaseHandler):
     # Password is not required when editing the user.
     password = self.get_body_argument("password", None)
     if password:
-      user_dict["password_hash"] = self.store.get_password_hash(password)
+      user_dict["password_hash"] = self.db.get_password_hash(password)
 
     uid = self.get_body_argument("user_id", None)
     if uid:
@@ -127,19 +127,19 @@ class UserHandler(base.BaseHandler):
         return self.error(user=tmp_user, icus=self.select_icus_for_error())
 
     # To match the user ICUs from what we got from the form.
-    user = tmp_user if not uid else self.store.get_user(int(uid))
+    user = tmp_user if not uid else self.db.get_user(int(uid))
     add, remove = self.get_icus_to_store(user)
     try:
       if not uid:
-        uid = self.store.add_user(user)
+        uid = self.db.add_user(user)
       else:
-        self.store.update_user(self.user.user_id, uid, user_dict)
+        self.db.update_user(self.user.user_id, uid, user_dict)
 
       for icu in add:
-        self.store.assign_user_to_icu(self.user.user_id, uid, icu)
+        self.db.assign_user_to_icu(self.user.user_id, uid, icu)
 
       for icu in remove:
-        self.store.remove_user_from_icu(self.user.user_id, uid, icu)
+        self.db.remove_user_from_icu(self.user.user_id, uid, icu)
 
     except Exception as e:
       return self.error(user=tmp_user, icus=self.select_icus_for_error())
