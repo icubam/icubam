@@ -15,3 +15,7 @@ __pycache__/
 # Database
 *.db
 .envrc
+
+# Mac and Vscode settings
+.DS_Store
+settings.json
