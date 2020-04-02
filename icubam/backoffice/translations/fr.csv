@@ -1,4 +1,4 @@
-"Active","Activer"
+"Active","Actif"
 "Admin","Administrateur"
 "Authentication failed","Echec d'authentification"
 "Create user","Nouvel utilisateur"
@@ -6,6 +6,7 @@
 "Email address","Email"
 "Failed to save the user","Échec de l'enregistrement de l'utilisateur"
 "ICUs","ICUs"
+"Select ICUs","Choisir unités"
 "Name","Nom"
 "Password","Password"
 "Phone Number","Téléphone"

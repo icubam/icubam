@@ -20,19 +20,20 @@ class Base(object):
   """Base with helper methods."""
 
   @classmethod
-  def get_column_names(cls):
+  def get_column_names(cls, include_relationships=True):
     """Returns the columns of the table."""
     result = list(cls.__mapper__.columns.keys())
-    result.extend(cls.__mapper__.relationships.keys())
+    if include_relationships:
+      result.extend(cls.__mapper__.relationships.keys())
     return result
 
-  def to_dict(self, max_depth=1) -> dict:
+  def to_dict(self, max_depth=1, include_relationships=False) -> dict:
     """Turns a Base instance into a dictionary.
 
     Args:
      max_depth: the maximum recursion depth.
     """
-    columns = self.get_column_names()
+    columns = self.get_column_names(include_relationships=include_relationships)
     result = {}
     for col in columns:
       value = getattr(self, col)
