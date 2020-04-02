@@ -8,7 +8,6 @@ from icubam.db import queue_writer
 from icubam.www import updater
 from icubam.www.handlers import db
 from icubam.www.handlers import home
-from icubam.www.handlers import show
 from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
@@ -34,8 +33,6 @@ class WWWServer(base_server.BaseServer):
     kwargs = dict(config=self.config, db=self.db)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
-    self.add_handler(show.ShowHandler, **kwargs)
-    self.add_handler(show.DataJson, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(
