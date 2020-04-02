@@ -70,5 +70,5 @@ python scripts/run_server.py --server=backoffice
 
 Then open backoffice at [http://localhost:8890](http://localhost:8890) and
 login with user credentials created by the `populate_db_fake.py` script,
- - user: admin@test.org
- - password: password
+ - user: `admin@test.org`
+ - password: `password`
