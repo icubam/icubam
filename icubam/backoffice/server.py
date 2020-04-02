@@ -6,11 +6,7 @@ import tornado.locale
 import tornado.web
 
 from icubam.backoffice.handlers import (
-<<<<<<< HEAD
   home, login, logout, users, tokens, icus, dashboard, plot, regions)
-=======
-  home, login, logout, users, tokens, icus, dashboard, plot)
->>>>>>> de414284be43c02d9f4610637017c232ddd2de62
 from icubam import base_server
 
 
