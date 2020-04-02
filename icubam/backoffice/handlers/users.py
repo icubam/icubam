@@ -107,6 +107,10 @@ class UserHandler(base.BaseHandler):
     if self.user.is_admin:
       user_dict['is_admin'] = self.get_body_argument("is_admin", None) == "on"
 
+    # TODO(fpquintao): if the user changed status, we have to notify the
+    # message server to remove the user from the queue.
+    user_dict['is_active'] = self.get_body_argument("is_active", None) == "on"
+
     # We want to keep this "temp" user, because if saving fails, we need to
     # dump this object back to the form, otherwise the person using the BO will
     # lose the changes that were done.
