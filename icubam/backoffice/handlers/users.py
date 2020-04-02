@@ -92,12 +92,17 @@ class UserHandler(base.BaseHandler):
     return self.select_icus([int(icu) for icu in form_icus])
 
   """Notifies the message server message server that something has changed"""
-  def notify_message_server(self, user_id):
+  def notify_message_server(self, user_id, removed_icus):
     # Get the user again, so we have the fresh one just stored.
     user = self.db.get_user(user_id)
     icus = [icu.icu_id for icu in user.icus]
     onoff = user.is_active
-    return self.message_server_client.notify(user_id, icus, onoff=onoff)
+    # These are the current ICUs for the user. Schedule/uneschedule will
+    # depend on the user status.
+    self.message_server_client.notify(user_id, icus, onoff=onoff)
+    # These ICUs got removed from the user, we have to uneschedule regardless
+    # of the state of the user.
+    self.message_server_client.notify(user_id, removed_icus, False)
 
   @tornado.web.authenticated
   def post(self):
@@ -159,7 +164,7 @@ class UserHandler(base.BaseHandler):
       for icu in remove:
         self.db.remove_user_from_icu(self.user.user_id, uid, icu)
 
-      self.notify_message_server(uid)
+      self.notify_message_server(uid, remove)
     except Exception as e:
       return self.error(user=tmp_user, icus=self.select_icus_for_error())
 
