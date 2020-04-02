@@ -28,7 +28,9 @@
         <div>
           <input
           class="form-control" type="number"
-          name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}">
+          name="n_covid_free" id="n_covid_free" value="{{n_covid_free}}"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_covid_free", {{n_covid_free}}, 4)'
+          >
         </div>
       </div>
 
@@ -37,7 +39,8 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free">
+            value="{{n_ncovid_free}}" name="n_ncovid_free" id="n_ncovid_free"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_ncovid_free", {{n_ncovid_free}}, 4)'>
         </div>
       </div>
     </div>
@@ -48,7 +51,8 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ">
+            value="{{n_covid_occ}}" name="n_covid_occ" id="n_covid_occ"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_covid_occ", {{n_covid_occ}}, 4)'>
         </div>
       </div>
       <div class="form-elem negative">
@@ -56,27 +60,46 @@
         <div>
           <input
             class="form-control" type="number"
-            value="{{n_ncovid_occ}}" name="n_ncovid_occ" id="n_ncovid_occ">
+            value="{{n_ncovid_occ}}" name="n_ncovid_occ" id="n_ncovid_occ"
+                                                onchange='markInvalidIfDeltaGreaterThan("n_ncovid_occ", {{n_ncovid_occ}}, 4)'>
         </div>
       </div>
     </div>
 
+    <div id="cumsum-values">
+
+    <div id="cumsum-title" class="form-row">
+      {{ _('NEW CUMULATIVE VALUES (TOTAL)') }}
+    </div>
+
     <div class="form-row">
       <div class="form-elem positive">
-        <label for="n_covid_healed" class="form-label">{{ _('Discharged (cumulative)') }}</label>
+        <label for="n_covid_healed" class="form-label">
+          {{ _('Discharged') }}
+          ({{ _('last input') }}: <strong style="color: green;">{{n_covid_healed}}</strong>)
+        </label>
         <div>
           <input
-            class="form-control" type="number"
+            class="form-control"
+            type="number"
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_healed", {{n_covid_healed}}); markInvalidIfDeltaGreaterThan2("n_covid_healed", {{n_covid_healed}}, 5)'
             id="n_covid_healed" name='n_covid_healed' value="{{n_covid_healed}}">
         </div>
       </div>
 
       <div class="form-elem negative">
-        <label for="n_covid_deaths" class="form-label">{{ _('Deceased (cumulative)') }}</label>
+        <label
+          for="n_covid_deaths"
+          class="form-label">
+          {{ _('Deceased') }}
+          ({{ _('last input') }}: <strong style="color: red;">{{n_covid_deaths}}</strong>)
+        </label>
         <div>
           <input
-          class="form-control" type="number"
-          id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
+            class="form-control"
+            type="number"
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_deaths", {{n_covid_deaths}}); markInvalidIfDeltaGreaterThan2("n_covid_deaths", {{n_covid_deaths}}, 5)'
+            id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
         </div>
       </div>
     </div>
@@ -84,28 +107,180 @@
     <div class="form-row">
       <div class="form-elem average">
         <label for="n_covid_transfered" class="form-label">
-          {{ _('Transfers (cumulative)') }}<br/>
+          {{ _('Transfers') }}
+          ({{ _('last input') }}: <strong style="color: green;">{{n_covid_transfered}})</strong>
+          <br/>
           {{ _('(to other ICU)') }}
         </label>
         <div>
           <input
             class="form-control" type="number"
             id="n_covid_transfered" name='n_covid_transfered'
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_transfered", {{n_covid_transfered}}); markInvalidIfDeltaGreaterThan2("n_covid_transfered", {{n_covid_transfered}}, 10)'
             value="{{n_covid_transfered}}">
         </div>
       </div>
 
       <div class="form-elem negative">
         <label for="n_covid_refused" class="form-label">
-          {{ _('Refused (cumulative)') }}<br/>
+          {{ _('Refused') }}
+          ({{ _('last input') }}: <strong style="color: red;">{{n_covid_refused}})</strong>
+          <br/>
           {{ _('(due to unavailability)') }}
         </label>
         <div>
           <input
-          class="form-control" type="number"
-          id="n_covid_refused" name='n_covid_refused' value="{{n_covid_refused}}">
+            class="form-control"
+            type="number"
+            onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_refused", {{n_covid_refused}}); markInvalidIfDeltaGreaterThan2("n_covid_refused", {{n_covid_refused}}, 20)'
+            id="n_covid_refused"
+            name='n_covid_refused'
+            value="{{n_covid_refused}}">
         </div>
       </div>
+    </div>
+
+    </div>
+
+    <div id="update-form-warnings" style="margin: 0; padding: 0;">
+      <div id="warn-n_covid_free" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Available COVID+ beds') }}:<br/>
+        |<span id="warn-n_covid_free-new-value"></span>
+        -
+        <span id="warn-n_covid_free-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn-n_covid_free-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_ncovid_free" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Available COVID- beds') }}:<br/>
+        |<span id="warn-n_ncovid_free-new-value"></span>
+        -
+        <span id="warn-n_ncovid_free-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn-n_ncovid_free-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_covid_occ" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Occupied COVID+ beds') }}:<br/>
+        |<span id="warn-n_covid_occ-new-value"></span>
+        -
+        <span id="warn-n_covid_occ-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn-n_covid_occ-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_ncovid_occ" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Occupied COVID- beds') }}:<br/>
+        |<span id="warn-n_ncovid_occ-new-value"></span>
+        -
+        <span id="warn-n_ncovid_occ-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn-n_ncovid_occ-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn-n_covid_healed" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Discharged') }}
+        ({{ _('Cumulated') }}):
+        <span id="warn-n_covid_healed-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_healed-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_deaths" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Deceased') }}
+        ({{ _('Cumulated') }}):
+        <span id="warn-n_covid_deaths-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_deaths-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_transfered" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Transfers') }}
+        ({{ _('Cumulated') }}):
+        <span id="warn-n_covid_transfered-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_transfered-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+      <div id="warn-n_covid_refused" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/> {{ _('Refused') }}
+        ({{ _('Cumulated') }}):
+        <span id="warn-n_covid_refused-new-value"></span>
+        &lt;
+        <span id="warn-n_covid_refused-last-value"></span>
+        ({{ _('last input') }})
+      </div>
+
+
+
+      <div id="warn2-n_covid_healed" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Discharged') }}:<br/>
+        |<span id="warn2-n_covid_healed-new-value"></span>
+        -
+        <span id="warn2-n_covid_healed-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn2-n_covid_healed-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn2-n_covid_deaths" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Deceased') }}:<br/>
+        |<span id="warn2-n_covid_deaths-new-value"></span>
+        -
+        <span id="warn2-n_covid_deaths-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn2-n_covid_deaths-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn2-n_covid_transfered" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Transfers') }}:<br/>
+        |<span id="warn2-n_covid_transfered-new-value"></span>
+        -
+        <span id="warn2-n_covid_transfered-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn2-n_covid_transfered-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
+      <div id="warn2-n_covid_refused" style="display: none;">
+        ⚠️
+        {{ _('Are you sure about this entry') }} ?<br/>
+        {{ _('Refused') }}:<br/>
+        |<span id="warn2-n_covid_refused-new-value"></span>
+        -
+        <span id="warn2-n_covid_refused-last-value"></span>
+        ({{ _('last input') }})|
+        = <span id="warn2-n_covid_refused-delta"></span>
+        ({{ _('it is a large change') }})
+      </div>
+
     </div>
 
     <p>(*) {{_('equiped with ventilator')}}.</p>
@@ -114,7 +289,8 @@
       <button type='button' onclick='toggleForm()' class="btn btn-warning mb-2">
         {{ _('Cancel') }}
       </button>
-      <button type="submit" class="btn btn-primary mb-2">
+      <button type="submit" class="btn btn-primary mb-2"
+      id="update-form-submit-button">
         {{ _('Submit') }}
       </button>
     </div>

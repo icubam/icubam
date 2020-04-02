@@ -150,3 +150,16 @@ class HomeHandler(base.BaseHandler):
                 center=json.dumps(center),
                 data=json.dumps(data),
                 version=icubam.__version__)
+
+
+class MapByAPIHandler(HomeHandler):
+  """Same as HomeHandler but accessed with an API KEY"""
+
+  ROUTE = '/map'
+
+  def get_current_user(self):
+    key = self.get_query_argument('API_KEY', None)
+    if key is None:
+      return
+
+    return self.db.auth_external_client(key)  

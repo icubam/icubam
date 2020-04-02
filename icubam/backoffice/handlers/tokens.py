@@ -15,7 +15,7 @@ class ListTokensHandler(base.BaseHandler):
     if not self.user.is_admin:
       return self.redirect(home.HomeHandler.ROUTE)
 
-    clients = self.store.get_external_clients()
+    clients = self.db.get_external_clients()
     data = [client.to_dict() for client in clients]
     columns = [] if not data else list(data[0].keys())
     self.render(
@@ -48,8 +48,8 @@ class TokenHandler(base.BaseHandler):
 
     user = self.db.get_external_client_by_email(incoming_user.email)
     if user is None:
-      c_id, _ = self.db.add_external_client(self.user.user_id, incoming_user)
+      self.db.add_external_client(self.user.user_id, incoming_user)
     else:
       c_id = user.external_client_id
       self.db.update_external_client(self.user.user_id, c_id, values)
-    self.redirect("{}?id={}".format(self.ROUTE, c_id))
+    return self.redirect(ListTokensHandler.ROUTE)
