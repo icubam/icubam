@@ -48,3 +48,12 @@ class BaseHandler(tornado.web.RequestHandler):
   async def options(self):
     self.set_status(200)
     self.finish()
+
+  def parse_from_body(self, cls) -> dict:
+    """Given a store class, parse the body a dictionary."""
+    result = dict()
+    for col in cls.get_column_names():
+      value = self.get_body_argument(col, None)
+      if value is not None:
+        result[col] = value
+    return result
