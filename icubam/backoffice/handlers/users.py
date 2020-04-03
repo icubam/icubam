@@ -82,12 +82,13 @@ class UserHandler(base.BaseHandler):
   def prepare_for_save(self, user_dict: Dict, password: Optional[str]):
     """Cleaning input user_dict."""
     id_key = "user_id"
-    # We don't give the id to existing user to avoid SQL conflict.
-    if not user_dict.get(id_key, ""):
+    # If the user is not set, the user_id comes empty and we need to remove it
+    # before add to the db.
+    if user_dict.get(id_key, "") == "":
       user_dict.pop(id_key, None)
 
-    user_dict["is_active"] = bool(user_dict.get("is_active", True))
-    user_dict["is_admin"] = bool(user_dict.get("is_admin", False))
+    user_dict["is_active"] = user_dict.get("is_active", 'True') == 'True'
+    user_dict["is_admin"] = user_dict.get("is_admin", 'False') == 'True'
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
 
