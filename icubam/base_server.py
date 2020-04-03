@@ -13,9 +13,6 @@ class BaseServer:
     self.port = port
     self.routes = []
     self.db = store.create_store_for_sqlite_db(self.config)
-    # Make sure there is at least one admin
-    if not self.db.get_admins():
-      self.db.add_default_admin()
     self.routes = []
     self.callbacks = []
 
