@@ -34,6 +34,5 @@ class MessageServer(base_server.BaseServer):
         self.queue.task_done()
 
   def run(self, delay=None):
-    print(self.db)
     self.scheduler.schedule_all(delay)
     super().run()
