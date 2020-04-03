@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 import time
 
@@ -8,6 +9,17 @@ from icubam.db.store import Store, BedCount, ExternalClient, ICU, Region, User
 from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
+
+
+def add_seconds(dt, seconds):
+  return dt + timedelta(seconds=seconds)
+
+
+def key_by_name_and_create_date(bed_counts):
+  values = {}
+  for bed_count in bed_counts:
+    values[(bed_count.icu.name, bed_count.create_date)] = bed_count.n_covid_occ
+  return values
 
 
 class StoreTest(absltest.TestCase):
@@ -105,6 +117,10 @@ class StoreTest(absltest.TestCase):
     # Assigning again should fail.
     with self.assertRaises(IntegrityError):
       store.assign_user_as_icu_manager(admin_user_id, user_id, icu_id)
+
+    # Now remove the user.
+    store.remove_manager_user_from_icu(admin_user_id, user_id, icu_id)
+    self.assertFalse(store.manages_icu(user_id, icu_id))
 
   def test_get_managed_icus(self):
     store = self.store
@@ -398,7 +414,7 @@ class StoreTest(absltest.TestCase):
           BedCount(
               icu_id=icu_id,
               n_covid_occ=value,
-              create_date=now + timedelta(seconds=index)))
+              create_date=add_seconds(now, index)))
     return icu_id
 
   def test_get_visible_bed_counts_for_user(self):
@@ -410,48 +426,50 @@ class StoreTest(absltest.TestCase):
     now = datetime.now()
 
     def get_values(user_id, max_date=None, force=False):
-      bed_counts = store.get_visible_bed_counts_for_user(
-          user_id, max_date=max_date, force=force)
-      values = {}
-      for bed_count in bed_counts:
-        values[bed_count.icu.name] = bed_count.n_covid_occ
-      return values
+      return key_by_name_and_create_date(
+          store.get_visible_bed_counts_for_user(
+              user_id, max_date=max_date, force=force))
 
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
     icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     # Admin user should see bed counts of all ICUs.
+    now_plus_1 = add_seconds(now, 1)
     self.assertDictEqual(
         get_values(admin_user_id), {
-            "icu1": 2,
-            "icu2": 3,
-            "icu3": 5
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
         })
 
     # Restrict to now + 1.
     self.assertDictEqual(
-        get_values(admin_user_id, now + timedelta(seconds=1)), {
-            "icu1": 1,
-            "icu2": 4,
-            "icu3": 5
+        get_values(admin_user_id, now_plus_1), {
+            ("icu1", now): 1,
+            ("icu2", now): 4,
+            ("icu3", now): 5
         })
 
     # user1 can view ICU1 and 2 as they are in the same region and user1 is
     # assigned to ICU1.
     user_id1 = store.add_user_to_icu(admin_user_id, icu_id1, User(name="user1"))
-    self.assertDictEqual(get_values(user_id1), {"icu1": 2, "icu2": 3})
+    self.assertDictEqual(
+        get_values(user_id1), {
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3
+        })
 
     # user2 can only view ICU3.
     user_id2 = store.add_user_to_icu(admin_user_id, icu_id3, User(name="user2"))
-    self.assertDictEqual(get_values(user_id2), {"icu3": 5})
+    self.assertDictEqual(get_values(user_id2), {("icu3", now): 5})
 
     # Unless we force to see everything.
     self.assertDictEqual(
         get_values(user_id2, force=True), {
-            "icu1": 2,
-            "icu2": 3,
-            "icu3": 5,
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5,
         })
 
   def test_get_visible_bed_counts_in_same_region(self):
@@ -471,42 +489,35 @@ class StoreTest(absltest.TestCase):
             icu_ids, max_date=max_date)
       else:
         bed_counts = store.get_latest_bed_counts(max_date=max_date)
-      values = {}
-      for bed_count in bed_counts:
-        values[bed_count.icu.name] = bed_count.n_covid_occ
-      return values
+      return key_by_name_and_create_date(bed_counts)
 
     # icu1 should return both icu1 and icu2 in region1.
-    self.assertDictEqual(get_values([icu_id1]), {"icu1": 2, "icu2": 3})
+    now_plus_1 = add_seconds(now, 1)
+    self.assertDictEqual(
+        get_values([icu_id1]), {
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3
+        })
 
     # Only icu3 is in region2.
-    self.assertDictEqual(get_values([icu_id3]), {"icu3": 5})
+    self.assertDictEqual(get_values([icu_id3]), {("icu3", now): 5})
 
     # This should return all ICUs.
     self.assertDictEqual(
         get_values([icu_id1, icu_id3]), {
-            "icu1": 2,
-            "icu2": 3,
-            "icu3": 5
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
         })
 
-    now_plus_1 = now + timedelta(seconds=1)
+    now_plus_1 = add_seconds(now, 1)
 
     # Restrict to now + 1.
     self.assertDictEqual(
         get_values([icu_id1, icu_id3], now_plus_1), {
-            "icu1": 1,
-            "icu2": 4,
-            "icu3": 5
-        })
-
-    # We also test get_latest_bed_counts() here.
-    self.assertDictEqual(get_values(None), {"icu1": 2, "icu2": 3, "icu3": 5})
-    self.assertDictEqual(
-        get_values(None, now_plus_1), {
-            "icu1": 1,
-            "icu2": 4,
-            "icu3": 5
+            ("icu1", now): 1,
+            ("icu2", now): 4,
+            ("icu3", now): 5
         })
 
   def test_add_external_client(self):
@@ -535,7 +546,7 @@ class StoreTest(absltest.TestCase):
         admin_user_id, ExternalClient(name="foo"))
 
     now = datetime.now()
-    expiration_date = now + timedelta(minutes=1)
+    expiration_date = add_seconds(now, 60)
 
     store.update_external_client(admin_user_id, external_client_id, {
         "name": "bar",
@@ -572,8 +583,7 @@ class StoreTest(absltest.TestCase):
     external_client_id, access_key = store.add_external_client(
         admin_user_id,
         ExternalClient(
-            name="client",
-            expiration_date=datetime.now() + timedelta(minutes=1)))
+            name="client", expiration_date=add_seconds(datetime.now(), 60)))
 
     new_access_key = store.reset_external_client_access_key(
         admin_user_id, external_client_id)
@@ -603,6 +613,168 @@ class StoreTest(absltest.TestCase):
     self.assertEqual(external_client_id, external_client_id2)
 
     self.assertIsNone(store.auth_external_client("test"))
+
+  def test_assign_external_client_to_region(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    external_client_id, _ = store.add_external_client(
+        admin_user_id, ExternalClient(name="client"))
+
+    region_id1 = self.add_region("region1")
+    region_id2 = self.add_region("region2")
+
+    def get_region_ids():
+      external_client = store.get_external_client(external_client_id)
+      return [region.region_id for region in external_client.regions]
+
+    store.assign_external_client_to_region(admin_user_id, external_client_id,
+                                           region_id1)
+    self.assertItemsEqual(get_region_ids(), [region_id1])
+
+    # Assigning again should fail.
+    with self.assertRaises(IntegrityError):
+      store.assign_external_client_to_region(admin_user_id, external_client_id,
+                                             region_id1)
+
+    # Assign to another region.
+    store.assign_external_client_to_region(admin_user_id, external_client_id,
+                                           region_id2)
+    self.assertItemsEqual(get_region_ids(), [region_id1, region_id2])
+
+    store.remove_external_client_from_region(admin_user_id, external_client_id,
+                                             region_id1)
+    self.assertItemsEqual(get_region_ids(), [region_id2])
+
+    # Removing again is a no-op.
+    store.remove_external_client_from_region(admin_user_id, external_client_id,
+                                             region_id1)
+
+  def test_get_bed_counts_for_external_client(self):
+    store = self.store
+    admin_user_id = self.admin_user_id
+    external_client_id, _ = store.add_external_client(
+        admin_user_id, ExternalClient(name="client"))
+
+    region_id1 = self.add_region("region1")
+    region_id2 = self.add_region("region2")
+
+    now = datetime.now()
+
+    icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
+    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
+
+    def get_values(latest=True, max_date=None):
+      return key_by_name_and_create_date(
+          store.get_bed_counts_for_external_client(
+              external_client_id, latest=latest, max_date=max_date))
+
+    # Client is not assigned to any region.
+    self.assertFalse(get_values())
+
+    store.assign_external_client_to_region(admin_user_id, external_client_id,
+                                           region_id1)
+    now_plus_1 = add_seconds(now, 1)
+    self.assertDictEqual(
+        get_values(latest=True), {
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3
+        })
+
+    self.assertDictEqual(
+        get_values(latest=False), {
+            ("icu1", now): 1,
+            ("icu1", now_plus_1): 2,
+            ("icu2", now): 4,
+            ("icu2", now_plus_1): 3
+        })
+
+    self.assertDictEqual(
+        get_values(max_date=now_plus_1), {
+            ("icu1", now): 1,
+            ("icu2", now): 4,
+        })
+
+    self.assertDictEqual(
+        get_values(latest=False, max_date=now_plus_1), {
+            ("icu1", now): 1,
+            ("icu2", now): 4,
+        })
+
+    store.assign_external_client_to_region(admin_user_id, external_client_id,
+                                           region_id2)
+    self.assertDictEqual(
+        get_values(latest=True), {
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(latest=False), {
+            ("icu1", now): 1,
+            ("icu1", now_plus_1): 2,
+            ("icu2", now): 4,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
+        })
+
+  def test_get_bed_counts(self):
+    region_id = self.add_region("region")
+
+    now = datetime.now()
+
+    icu_id1 = self.add_icu_with_values(region_id, "icu1", now, [1, 2])
+    icu_id2 = self.add_icu_with_values(region_id, "icu2", now, [4, 3])
+    icu_id3 = self.add_icu_with_values(region_id, "icu3", now, [5])
+
+    def get_values(icu_ids=None, latest=True, max_date=None):
+      return key_by_name_and_create_date(
+          self.store.get_bed_counts(
+              icu_ids=icu_ids, latest=latest, max_date=max_date))
+
+    now_plus_1 = add_seconds(now, 1)
+    self.assertDictEqual(
+        get_values(latest=True), {
+            ("icu1", now_plus_1): 2,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(latest=False), {
+            ("icu1", now): 1,
+            ("icu1", now_plus_1): 2,
+            ("icu2", now): 4,
+            ("icu2", now_plus_1): 3,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(max_date=now_plus_1), {
+            ("icu1", now): 1,
+            ("icu2", now): 4,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(icu_ids=[icu_id1, icu_id3], latest=True), {
+            ("icu1", now_plus_1): 2,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(icu_ids=[icu_id1, icu_id3], latest=False), {
+            ("icu1", now): 1,
+            ("icu1", now_plus_1): 2,
+            ("icu3", now): 5
+        })
+
+    self.assertDictEqual(
+        get_values(icu_ids=[icu_id1, icu_id3], max_date=now_plus_1), {
+            ("icu1", now): 1,
+            ("icu3", now): 5
+        })
 
   def test_create_store_for_sqlite_db(self):
     cfg = config.Config(

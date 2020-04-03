@@ -29,6 +29,7 @@
 
     <section class="content">
       <div class="card">
+        {% if create_route %}
         <div class="card-header">
           <h3 class="card-title">Add</h3>
           <button type="button" class="btn badge badge-primary"
@@ -40,25 +41,32 @@
             <i class="fas fa-upload"></i>
           </button>
         </div>
+        {% end %}
         <!-- /.card-header -->
         <div class="card-body">
 
-          <table id="users" class="table table-bordered table-striped">
+          {% if data %}
+          <table id="my_data" class="table table-bordered table-striped">
             <thead>
               <tr>
-              {% for column in columns %}
-                <th>{{column}}</th>
+              {% for item in data[0] %}
+                <th>{{_(item["key"])}}</th>
               {% end %}
               </tr>
             </thead>
-            {% for obj in data %}
+            {% for row in data %}
               <tr>
-                {% for column in columns %}
-                  <td>{{obj[column]}}</td>
+                {% for item in row %}
+                  {% if item['link'] %}
+                    <td><a href="{{item['link']}}">{{item['value']}}</a></td>
+                  {% else %}
+                    <td>{{item['value']}}</td>
+                  {% end %}
                 {% end %}
               </tr>
             {% end %}
           </table>
+          {% end %}
 
         </div>
         <!-- /.card-body -->
@@ -81,6 +89,6 @@
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 <script src="/static/table.js"></script>
 <script>
-  $(x => setDatatable("#users"))
+  $(x => setDatatable("#my_data"))
 </script>
 {% end %}

@@ -6,32 +6,25 @@ from icubam.backoffice.handlers import home
 from icubam.db import store
 
 
-class ListTokensHandler(base.BaseHandler):
+class ListTokensHandler(base.AdminHandler):
 
   ROUTE = "/list_tokens"
 
   @tornado.web.authenticated
   def get(self):
-    if not self.user.is_admin:
-      return self.redirect(home.HomeHandler.ROUTE)
-
-    clients = self.store.get_external_clients()
-    data = [client.to_dict() for client in clients]
-    columns = [] if not data else list(data[0].keys())
+    clients = self.db.get_external_clients()
+    data = [self.format_list_item(client.to_dict()) for client in clients]
     self.render(
-        "list.html", data=data, columns=columns, objtype='Acces Tokens',
+        "list.html", data=data, objtype='Acces Tokens',
         create_route=TokenHandler.ROUTE)
 
 
-class TokenHandler(base.BaseHandler):
+class TokenHandler(base.AdminHandler):
 
   ROUTE = "/token"
 
   @tornado.web.authenticated
   def get(self):
-    if not self.user.is_admin:
-      return self.redirect(home.HomeHandler.ROUTE)
-
     userid = self.get_query_argument('id', None)
     user = None
     if userid is not None:

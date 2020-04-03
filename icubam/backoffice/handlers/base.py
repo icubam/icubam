@@ -1,5 +1,6 @@
 import tornado.locale
 import tornado.web
+from typing import List, Dict, Union
 from icubam.db.store import create_store_for_sqlite_db
 
 
@@ -11,8 +12,6 @@ class BaseHandler(tornado.web.RequestHandler):
   def initialize(self, config, db):
     self.config = config
     self.db = db
-    # TODO(olivier): this should come from the server.
-    self.store = create_store_for_sqlite_db(self.config)
     self.user = None
 
   def render(self, path, **kwargs):
@@ -29,7 +28,7 @@ class BaseHandler(tornado.web.RequestHandler):
     if not userid:
       return None
 
-    self.user = self.store.get_user(int(tornado.escape.json_decode(userid)))
+    self.user = self.db.get_user(int(tornado.escape.json_decode(userid)))
     return self.user
 
   def get_user_locale(self):
@@ -48,3 +47,39 @@ class BaseHandler(tornado.web.RequestHandler):
   async def options(self):
     self.set_status(200)
     self.finish()
+
+  def parse_from_body(self, cls) -> dict:
+    """Given a store class, parse the body a dictionary."""
+    result = dict()
+    for col in cls.get_column_names():
+      value = self.get_body_arguments(col + '[]', None)
+      if not value:
+        value = self.get_body_argument(col, None)
+      if value is not None:
+        result[col] = value
+    return result
+
+  def format_list_item(self, item: Union[Dict, List]) -> list:
+    """Prepare a dictionary representing a row of a table for display."""
+    # TODO(olivier) improve this, too hard coded
+    auto_links = {f'{k}_id': k for k in ['icu', 'user', 'region']}
+    auto_links['external_client_id'] = 'token'
+    result = item
+    if not isinstance(item, list):
+      result = []
+      for k, v in item.items():
+        route = auto_links.get(k, None)
+        link = '/{}?id={}'.format(route, v) if route is not None else False
+        result.append({'key': k, 'value': v, 'link': link})
+    return result
+
+
+class AdminHandler(BaseHandler):
+  """A base handler for admin only routes."""
+
+  def get_current_user(self):
+    user = super().get_current_user()
+    if user is None or not user.is_admin:
+      return None
+    else:
+      return user
