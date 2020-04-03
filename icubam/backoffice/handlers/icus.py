@@ -14,7 +14,7 @@ class ListICUsHandler(base.BaseHandler):
     for key in ['users', 'bed_counts', 'managers', 'lat', 'lng', 'create_date']:
       result.pop(key, None)
     result['region'] = result.pop('region', {}).get('name', '-')
-    return result
+    return self.format_list_item(result)
 
   @tornado.web.authenticated
   def get(self):
@@ -24,10 +24,8 @@ class ListICUsHandler(base.BaseHandler):
       icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    columns = [] if not data else list(data[0].keys())
     self.render(
-      "list.html", data=data, columns=columns, objtype='ICUs',
-      create_route=ICUHandler.ROUTE)
+      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
 
 
 class ICUHandler(base.BaseHandler):
@@ -49,13 +47,13 @@ class ICUHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def post(self):
-    icu_id = self.db.get_icu(self.get_query_argument('id', None))
+    icu = self.db.get_icu(self.get_query_argument('id', None))
     values = self.parse_from_body(store.ICU)
     values["is_active"] = bool(values["is_active"])
     # TODO(olivier): try catch error here.
-    if icu_id is None:
+    if icu is None:
       self.db.add_icu(self.user.user_id, store.ICU(**values))
     else:
-      self.db.update_icu(self.user.user_id, icu_id, values)
+      self.db.update_icu(self.user.user_id, icu.icu_id, values)
 
     return self.redirect(ListICUsHandler.ROUTE)

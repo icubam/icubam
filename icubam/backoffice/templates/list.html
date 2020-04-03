@@ -45,24 +45,28 @@
         <!-- /.card-header -->
         <div class="card-body">
 
+          {% if data %}
           <table id="my_data" class="table table-bordered table-striped">
             <thead>
               <tr>
-              {% for column in columns %}
-                <th>{{_(column)}}</th>
+              {% for item in data[0] %}
+                <th>{{_(item["key"])}}</th>
               {% end %}
               </tr>
             </thead>
-            {% for obj in data %}
+            {% for row in data %}
               <tr>
-                {% for column in columns %}
-                  <td>
-                    {{obj[column]}}
-                  </td>
+                {% for item in row %}
+                  {% if item['link'] %}
+                    <td><a href="{{item['link']}}">{{item['value']}}</a></td>
+                  {% else %}
+                    <td>{{item['value']}}</td>
+                  {% end %}
                 {% end %}
               </tr>
             {% end %}
           </table>
+          {% end %}
 
         </div>
         <!-- /.card-body -->
