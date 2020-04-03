@@ -3,12 +3,7 @@ import functools
 import time
 import datetime
 
-UNITS = [
-  (86400, 'day'),
-  (3600, 'hour'),
-  (60, 'minute'),
-  (1, 'second')
-]
+UNITS = [(86400, 'day'), (3600, 'hour'), (60, 'minute'), (1, 'second')]
 
 
 def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
@@ -26,7 +21,9 @@ def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
   if ts is None:
     return -1, 'never'
 
-  ts_reference = time.time() if ts_reference is None else ts_reference
+  ts_reference = int(
+    datetime.datetime.utcnow().timestamp()
+  ) if ts_reference is None else ts_reference
   delta = int(ts_reference - int(ts))
   for unit, name in sorted(UNITS, reverse=True):
     curr = delta // unit
@@ -70,7 +67,8 @@ def get_next_timestamp(hours, ts=None):
   ts = int(time.time()) if ts is None else ts
   now = datetime.datetime.fromtimestamp(ts)
   today_fn = functools.partial(
-    datetime.datetime, year=now.year, month=now.month, day=now.day)
+    datetime.datetime, year=now.year, month=now.month, day=now.day
+  )
   next = None
   sorted_moments = sorted(hours)
   for hm in sorted_moments:
