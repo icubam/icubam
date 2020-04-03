@@ -1,7 +1,6 @@
 """Runs the webserver."""
 from absl import app
 from absl import flags
-import functools
 import multiprocessing as mp
 
 from icubam import config
