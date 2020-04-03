@@ -2,18 +2,10 @@
 
 {% block links %}
 
-<link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
 <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
 <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<link rel="stylesheet" href="plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
-<link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
 <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-<link rel="stylesheet" href="plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
-<link rel="stylesheet" href="dist/css/adminlte.min.css">
-<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-
 {% end %}
 
 {% block content %}
@@ -59,82 +51,93 @@
             <input type="tel" id="telephone" name="telephone"
               class="form-control"
               minlength="6"
-              pattern="^\+\d{0,13}"
-              title='Phone Number (Format: +332222222)'
+￼
+              pattern="^\+?\d{0,13}"
+              title='{(_("Phone Number")}} (Format: (+)332222222)'
               placeholder="+33 7 3333 333"
               value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
           </div>
+
+          {% if this_user.is_admin %}
+          <div class="col-25">
+              <label for="is_admin_">{{_("Admin")}}</label><br/>
+              <input
+               type="checkbox" name="is_admin" id="is_admin"
+               {% if user.is_admin %}checked{% end %}
+               value="{{user.is_admin}}"
+               data-bootstrap-switch data-off-color="danger" data-on-color="success">
+          </div>
+         {% end %}
+
+         <div class="col-25">
+           <label for="is_active">{{_("Actif")}}</label><br/>
+           <input type="checkbox" name="is_active" id="is_active"
+             value="{{user.is_active}}"
+             {% if user.is_active %}checked{% end %}
+             data-bootstrap-switch data-off-color="danger" data-on-color="success">
+         </div>
+      </div>
+
+         {% if len(options) > 0 %}
+         <div class="form-group">
+           <label for="icus">{{_("ICUs")}}</label>
+           <select class="select2bs4"
+            multiple=""
+            data-placeholder="{{_('Select ICUs')}}" style="width: 100%;"
+            name="icus[]" id="icus">
+            {% for icu_option in options %}
+              <option value="{{icu_option.icu_id}}"
+                  {% if icu_option.icu_id in icus %} selected{% end %}>
+                {{escape(icu_option.name)}}
+              </option>
+            {% end %}
+           </select>
+         </div>
+
+         <div class="form-group">
+           <label for="managed_icus">{{_("Managed ICUs")}}</label>
+           <select class="select2bs4"
+            name="managed_icus[]"
+            id="managed_icus"
+            multiple=""
+            data-placeholder="{{_('Select ICUs')}}" style="width: 100%;">
+            {% for icu_option in options %}
+              <option value="{{icu_option.icu_id}}"
+                  {% if icu_option.icu_id in managed_icus %} selected{% end %}>
+                {{escape(icu_option.name)}}
+              </option>
+            {% end %}
+           </select>
+         </div>
+         {% end %}
+
+        <div class="form-row" id="auth_block">
+         <div class="col-25">
+           <label for="exampleInputEmail1">{{_("Email address")}}</label>
+           <input type="</div>email" id="email" name="email"
+             class="form-control"
+             size="30"
+             placeholder="name@site.com"
+             value="{% if user.email %}{{user.email}}{% end %}">
+         </div>
+         <div class="col-25">
+          <!--  Min lenght = 5, and no spaces allowed. This means that users
+          cannot try to fool us by sending a password that has only spaces.
+          -->
+           <label for="exampleInputPassword1">
+             {{_("Password")}}
+             {% if user.password_hash %}
+              <span class="text-warning">{{_("Already set")}}</span>
+             {% end %}
+           </label>
+           <input type="password" id="password" name="password"
+             class="form-control" minlength="5" pattern="[^\s]+"
+             placeholder="Password" size="20">
+         </div>
         </div>
 
-         <div class="form-row">
-          <div class="col-25">
-            <label for="exampleInputEmail1">{{_("Email address")}}</label>
-            <input type="email" id="email" name="email"
-              class="form-control"
-              size="30"
-              placeholder="name@site.com"
-              value="{% if user.email %}{{user.email}}{% end %}" required>
-          </div>
-          <div class="col-25">
-           <!--  Min lenght = 5, and no spaces allowed. This means that users
-           cannot try to fool us by sending a password that has only spaces.
-           -->
-            <label for="exampleInputPassword1">{{_("Password")}}</label>
-            <input type="password" id="password" name="password"
-              class="form-control" minlength="5" pattern="[^\s]+"
-              placeholder="Password" size="20" {% if not user.user_id %}required{% end %}>
-          </div>
-         </div>
-       </div>
+      </div>
 
-       {% if len(icus) > 0 %}
-        <div class="card card-default">
-          <div class="card-header">
-            <h3 class="card-title">{{_("ICUs")}}</h3>
-             <div class="card-tools">
-               <button type="button" class="btn btn-tool"data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-               <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-remove"></i></button>
-             </div>
-           </div>
-           <!-- /.card-header -->
-           <div class="card-body">
-             <div class="row">
-               <div class="col-12">
-                 <div class="form-group">
-                   <select class="duallistbox" multiple="multiple" id="icus" name="icus">
-                    {% for icu in icus %}
-                        <option value="{{icu['icu_id']}}" {% if icu['selected'] %}selected{% end %}>{{escape(icu['name'])}}
-                        </option>
-                    {% end %}
-                   </select>
-                 </div>
-                 <!-- /.form-group -->
-               </div>
-               <!-- /.col -->
-             </div>
-             <!-- /.row -->
-           </div>
-           <!-- /.card-body -->
-       {% end %}
-       </div>
-       <!-- /.card -->
-
-
-       {% if this_user.is_admin %}
-       <div class="card card-secondary">
-         <div class="card-body">
-           <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">
-           <label for="is_admin">&nbsp;{{_("Admin")}}</label>
-          </div>
-       </div>
-       {% end %}
-
-       <div class="card card-secondary">
-         <div class="card-body">
-           <input type="checkbox" name="is_active" id="is_active" {% if user.is_active %}checked{% end %} data-bootstrap-switch data-off-color="danger" data-on-color="success">
-           <label for="is_active">&nbsp;{{_("Active")}}</label>
-          </div>
-       </div>
 
        <div class="card-footer">
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
@@ -146,6 +149,7 @@
 {% if error %}
  <div class="alert alert-danger" role="alert">
     {{_("Failed to save the user")}}.
+    {{error}}
  </div>
 {% end %}
 
@@ -154,26 +158,7 @@
 {% end %}
 
 {% block scripts %}
-<script src="plugins/jquery/jquery.min.js"></script>
-<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="plugins/select2/js/select2.full.min.js"></script>
-<script src="plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
-<script src="plugins/moment/moment.min.js"></script>
-<script src="plugins/inputmask/min/jquery.inputmask.bundle.min.js"></script>
-<script src="plugins/daterangepicker/daterangepicker.js"></script>
-<script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
-<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
-
-<script>
- $(function () {
-    //Bootstrap Duallistbox
-    $('.duallistbox').bootstrapDualListbox()
-
-    $("input[data-bootstrap-switch]").each(function(){
-      $(this).bootstrapSwitch('state', $(this).prop('checked'));
-    });
-  })
-</script>
-
+<script src="/static/user.js"></script>
 {% end %}
