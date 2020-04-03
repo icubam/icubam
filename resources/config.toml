@@ -37,11 +37,13 @@ default_locale='fr-fr'
 [scheduler]
   [scheduler.prod]
   max_retries = 1
+  new_user_delay = 60
   reminder_delay = 1800  # 30 minutes in seconds
   ping = ['9:30', '17:30']
   [scheduler.dev]
   max_retries = 3
   reminder_delay = 45
+  new_user_delay = 60
   ping = ['12:30', '17:30', '14:12']
 
 

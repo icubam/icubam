@@ -127,8 +127,8 @@ class UserHandler(base.BaseHandler):
 
     for icu_id in icus:
       self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
-    # TODO(olivier): do not hard code delay
-    await self.message_client.notify(user_id, icus, on=True, delay=10)
+    await self.message_client.notify(
+        user_id, icus, on=True, delay=self.config.scheduling.new_user_delay)
 
     for icu_id in managed_icus:
       self.db.assign_user_as_icu_manager(self.user.user_id, user_id, icu_id)
