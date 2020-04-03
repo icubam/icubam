@@ -37,12 +37,7 @@ jobs:
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
         cp test.db icubam.db
-        echo "# content current dir"
-        pwd
-        ls
-        echo "# content resources dir"
-        ls resources
-        pwd
-        # build docker image
         ./docker/scripts/docker_build.sh latest
+        ./docker/scripts/docker_run.sh icubam:latest 8888 dev
+        docker logs icubam-server
 

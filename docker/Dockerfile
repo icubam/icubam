@@ -48,9 +48,7 @@ COPY ./docker/start_server.sh .
 COPY ./docker/start_server_sms.sh .
 
 RUN  mkdir -p resources
-RUN  ls
-RUN  ls resources
-COPY ./resources/config.toml ./resources
+COPY ./resources/config.toml resources
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
