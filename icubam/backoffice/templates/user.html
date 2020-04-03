@@ -124,7 +124,12 @@
           <!--  Min lenght = 5, and no spaces allowed. This means that users
           cannot try to fool us by sending a password that has only spaces.
           -->
-           <label for="exampleInputPassword1">{{_("Password")}}</label>
+           <label for="exampleInputPassword1">
+             {{_("Password")}}
+             {% if user.password_hash %}
+              <span class="text-warning">{{_("Already set")}}</span>
+             {% end %}
+           </label>
            <input type="password" id="password" name="password"
              class="form-control" minlength="5" pattern="[^\s]+"
              placeholder="Password" size="20">

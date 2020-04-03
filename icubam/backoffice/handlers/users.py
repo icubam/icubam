@@ -15,7 +15,7 @@ class ListUsersHandler(base.BaseHandler):
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
-    user_dict = user.to_dict()
+    user_dict = user.to_dict(include_relationships=False)
     user_dict.pop("password_hash", None)
     user_dict.pop("access_salt", None)
     return self.format_list_item(user_dict)

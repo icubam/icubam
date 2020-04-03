@@ -27,7 +27,7 @@ class Base(object):
       result.extend(cls.__mapper__.relationships.keys())
     return result
 
-  def to_dict(self, max_depth=1, include_relationships=False) -> dict:
+  def to_dict(self, max_depth=1, include_relationships=True) -> dict:
     """Turns a Base instance into a dictionary.
 
     Args:
