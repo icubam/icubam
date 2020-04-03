@@ -86,7 +86,7 @@ def _make_bar_plot(df: pd.DataFrame):
       width=0.2,
       alpha=0.8,
       legend_label="Taux de remplissage lits (covid)",
-      color="#c9d9d3"
+      color="#0f2080"
     )
     p.vbar(
       x=dodge('index', 0.50, range=p.x_range),
@@ -95,7 +95,7 @@ def _make_bar_plot(df: pd.DataFrame):
       width=0.2,
       alpha=0.8,
       legend_label="Taux de remplissage lits (total)",
-      color="#718dbf",
+      color="#85c0f9",
     )
     p.vbar(
       x=dodge('index', 0.75, range=p.x_range),
@@ -104,7 +104,7 @@ def _make_bar_plot(df: pd.DataFrame):
       width=0.2,
       alpha=0.8,
       legend_label="Taux de refus (covid) / capacité totale",
-      color="#e84d60",
+      color="#f5793a",
     )
     p.legend.location = "center_left"
     p.legend.orientation = "vertical"
