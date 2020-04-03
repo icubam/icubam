@@ -52,7 +52,9 @@ class BaseHandler(tornado.web.RequestHandler):
     """Given a store class, parse the body a dictionary."""
     result = dict()
     for col in cls.get_column_names():
-      value = self.get_body_argument(col, None)
+      value = self.get_body_arguments(col + '[]', None)
+      if not value:
+        value = self.get_body_argument(col, None)
       if value is not None:
         result[col] = value
     return result

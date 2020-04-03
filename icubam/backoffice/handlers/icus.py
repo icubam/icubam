@@ -47,13 +47,13 @@ class ICUHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def post(self):
-    icu_id = self.db.get_icu(self.get_query_argument('id', None))
+    icu = self.db.get_icu(self.get_query_argument('id', None))
     values = self.parse_from_body(store.ICU)
     values["is_active"] = bool(values["is_active"])
     # TODO(olivier): try catch error here.
-    if icu_id is None:
+    if icu is None:
       self.db.add_icu(self.user.user_id, store.ICU(**values))
     else:
-      self.db.update_icu(self.user.user_id, icu_id, values)
+      self.db.update_icu(self.user.user_id, icu.icu_id, values)
 
     return self.redirect(ListICUsHandler.ROUTE)
