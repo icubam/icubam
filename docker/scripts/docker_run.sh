@@ -8,7 +8,7 @@ then
 	  echo "   where PORT is the local port number where to map the port of the server on the container"
 	  echo "   where ENV can be dev, prod"
       echo ""
-      echo "   example: $0 icubam:1.0 9000 prod"
+      echo "   example: $0 icubam:1.0 9000 dev"
 	  exit
 fi
 
@@ -20,10 +20,11 @@ echo '========================================='
 
 docker run -d -p $2:8888 \
     --name icubam-server \
-    --mount type=bind,source="$(pwd)"/docker/resources/icubam.env,target=/home/icubam/resources/icubam.env \
-    --mount type=bind,source="$(pwd)"/docker/resources/icubam.toml,target=/home/icubam/resources/icubam.toml \
-    --mount type=bind,source="$(pwd)"/resources/icubam.db,target=/home/icubam/resources/icubam.db \
+    --mount type=bind,source="$(pwd)"/resources/config.toml,target=/resources/config \
+    --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
+    --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
+    --env-file docker/icubam-container.env \
     --env ENV_MODE=$3 \
      $1  \
     ./start_server.sh

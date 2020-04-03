@@ -13,18 +13,17 @@ services:
     tty: true
     ports:
       - "8888:8888"
+    env_file:
+      - ./docker/icubam-container.env
     environment:
       ENV_MODE : "dev"
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./docker/resources/icubam.env
-        target: /home/icubam/resources/icubam.env
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./docker/resources/icubam.toml
-        target: /home/icubam/resources/icubam.toml
-      - type: bind
-        source: ./resources/icubam.db
+        source: ./icubam.db
         target: /home/icubam/resources/icubam.db
       - type: bind
         source: ./resources/token.pickle
@@ -42,18 +41,17 @@ services:
     command: ./start_server_sms.sh
     restart: unless-stopped
     tty: true
+    env_file:
+      - ./docker/icubam-container.env
     environment:
       ENV_MODE : "dev"
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./docker/resources/icubam.env
-        target: /home/icubam/resources/icubam.env
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./docker/resources/icubam.toml
-        target: /home/icubam/resources/icubam.toml
-      - type: bind
-        source: ./resources/icubam.db
+        source: ./icubam.db
         target: /home/icubam/resources/icubam.db
       - type: bind
         source: ./resources/token.pickle
