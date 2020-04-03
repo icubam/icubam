@@ -21,7 +21,7 @@ class SmsSenderTest(unittest.TestCase):
       sms_sender.get(self.config, 'Fake'), sms_sender.FakeSender)
     self.assertIsInstance(
       sms_sender.get(self.config, 'fake'), sms_sender.FakeSender)
-    with self.assertRaises(ValueError):
+    with self.assertRaisesRegex(ValueError, 'Incorrect sms carrier'):
       sms_sender.get(self.config, 'dummy_sms_sender_name')
 
 
@@ -30,4 +30,6 @@ class SmsSenderTest(unittest.TestCase):
 
   def test_send_from_fake_sender(self):
     ms = sms_sender.get(self.config, 'Fake')
+    # send message with Fake sender is safe.
+    # It only prints to standard output the message
     ms.send("Fake phone number", "Hello from tests")
