@@ -52,8 +52,8 @@
               class="form-control"
               minlength="6"
 ￼
-              pattern="\d{0,13}"
-              title='Phone Number (Format: +332222222)'
+              pattern="^\+?\d{0,13}"
+              title='Phone Number (Format: (+)332222222)'
               placeholder="+33 7 3333 333"
               value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
           </div>
@@ -78,7 +78,7 @@
          </div>
       </div>
 
-         {% if len(icus) > 0 %}
+         {% if len(options) > 0 %}
          <div class="form-group">
            <label for="icus">{{_("ICUs")}}</label>
            <select class="select2bs4"
@@ -161,5 +161,4 @@
 <script src="plugins/select2/js/select2.full.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script src="/static/user.js"></script>
-
 {% end %}

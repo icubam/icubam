@@ -41,8 +41,8 @@
            <input type="tel" id="telephone" name="telephone"
              class="form-control"
              minlength="6"
-             pattern="^\+\d{0,13}"
-             title='Phone Number (Format: +332222222)'
+             pattern="^\+?\d{0,13}"
+             title='Phone Number (Format: (+)332222222)'
              placeholder="+33 7 3333 333"
              value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
          </div>

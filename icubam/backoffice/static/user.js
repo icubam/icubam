@@ -18,6 +18,6 @@ $(function () {
   $("#is_admin").bootstrapSwitch({onSwitchChange: mayShowPassword})
   $("#managed_icus").change(mayShowPassword)
   $("input[data-bootstrap-switch]").each(function() {
-    $(this).bootstrapSwitch('state', $(this).prop('checked'));
-  });
+    $(this).bootstrapSwitch('state', $(this).prop('checked'))
+  })
 })
