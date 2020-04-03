@@ -85,17 +85,15 @@
             multiple=""
             data-placeholder="{{_('Select ICUs')}}" style="width: 100%;"
             name="icus[]" id="icus">
-            {% for icu in icus %}
-              <option value="{{icu.icu_id}}"
-                  {% if is_selected(user, icu, False) %} selected{% end %}>
-                {{escape(icu.name)}}
+            {% for icu_option in options %}
+              <option value="{{icu_option.icu_id}}"
+                  {% if icu_option.icu_id in icus %} selected{% end %}>
+                {{escape(icu_option.name)}}
               </option>
             {% end %}
            </select>
          </div>
-        {% end %}
 
-        {% if len(icus) > 0 %}
          <div class="form-group">
            <label for="managed_icus">{{_("Managed ICUs")}}</label>
            <select class="select2bs4"
@@ -103,10 +101,10 @@
             id="managed_icus"
             multiple=""
             data-placeholder="{{_('Select ICUs')}}" style="width: 100%;">
-            {% for icu in icus %}
-              <option value="{{icu.icu_id}}"
-                  {% if is_selected(user, icu, True) %} selected{% end %}>
-                {{escape(icu.name)}}
+            {% for icu_option in options %}
+              <option value="{{icu_option.icu_id}}"
+                  {% if icu_option.icu_id in managed_icus %} selected{% end %}>
+                {{escape(icu_option.name)}}
               </option>
             {% end %}
            </select>

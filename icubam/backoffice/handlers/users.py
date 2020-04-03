@@ -3,6 +3,7 @@ from absl import logging
 
 import tornado.escape
 import tornado.web
+from typing import List, Optional, Dict
 
 from icubam.backoffice.handlers import base
 from icubam.db import store
@@ -46,24 +47,24 @@ class UserHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     user = self.db.get_user(self.get_query_argument('id', None))
-    return self.do_render(user)
-
-  def do_render(self, user, error=False):
     user_icus = set([i.icu_id for i in user.icus]) if user is not None else []
     user_micus = set(
-      [i.icu_id for i in user.managed_icus]) if user is not None else []
+        [i.icu_id for i in user.managed_icus]) if user is not None else []
+    return self.do_render(user, user_icus, user_micus, error=False)
+
+  def do_render(self,
+                user: store.User,
+                icus: List[int],
+                managed_icus: List[int],
+                error=False):
+    """Render the form for a given user."""
 
     user = user if user is not None else store.User()
     self.prepare_for_display(user)
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
-    def is_selected(user, icu, manage=False):
-      icus = user_micus if manage else user_icus
-      return icu.icu_id in icus
-
-    return self.render(
-      "user.html", icus=options, user=user, is_selected=is_selected,
-      error=error)
+    return self.render("user.html", options=options, user=user, icus=icus,
+                       managed_icus=managed_icus, error=error)
 
   def get_options(self):
     if self.user.is_admin:
@@ -72,15 +73,16 @@ class UserHandler(base.BaseHandler):
       options = self.user.managed_icus
     return options
 
-  def prepare_for_display(self, user):
+  def prepare_for_display(self, user: store.User):
     if user.is_active is None:
       user.is_active = True
     if user.is_admin is None:
       user.is_admin = False
 
-  def prepare_for_save(self, user_dict, password):
+  def prepare_for_save(self, user_dict: Dict, password: Optional[str]):
     """Cleaning input user_dict."""
     id_key = "user_id"
+    # We don't give the id to existing user to avoid SQL conflict.
     if not user_dict.get(id_key, ""):
       user_dict.pop(id_key, None)
 
@@ -88,9 +90,13 @@ class UserHandler(base.BaseHandler):
     user_dict["is_admin"] = bool(user_dict.get("is_admin", False))
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
-    if not user_dict.get("is_admin"):
+
+    is_manager = len(user_dict.get('managed_icus', [])) > 0
+    is_admin = user_dict.get('is_admin', False)
+    if not is_admin and not is_manager:
       for key in ["password_hash", "email", "managed_icus"]:
         user_dict.pop(key, None)
+
     icus = set(map(int, user_dict.pop('icus', [])))
     managed_icus = set(map(int, user_dict.pop('managed_icus', [])))
     return icus, managed_icus
@@ -100,16 +106,12 @@ class UserHandler(base.BaseHandler):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
     icus, managed_icus = self.prepare_for_save(user_dict, password)
-    # self.save_user(user_dict, icus, managed_icus)
     try:
       self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
-      options = {i.icu_id: i for i in self.get_options()}
-      user_dict['icus'] = [options.get(icu_id) for icu_id in icus]
-      user_dict['managed_icus'] = [
-        options.get(icu_id) for icu_id in managed_icus]
       user = store.User(**user_dict)
-      return self.do_render(user=user, error=f'{e}')
+      return self.do_render(
+        user=user, icus=icus, managed_icus=managed_icus, error=f'{e}')
     return self.redirect(ListUsersHandler.ROUTE)
 
   def create_user(self, user_dict, icus, managed_icus):
@@ -134,8 +136,11 @@ class UserHandler(base.BaseHandler):
                    self.db.assign_user_as_icu_manager,
                    self.db.remove_manager_user_from_icu)
 
-  def can_save(self, user_dict: dict, db_user) -> bool:
-    if not user_dict.get('is_admin', False):
+  def can_save(
+      self, user_dict: dict, managed_icus: set, db_user: store.User) -> bool:
+    is_admin = user_dict.get('is_admin', False)
+    is_manager = len(managed_icus) > 0
+    if not is_admin and not is_manager:
       return True
 
     entered_password = user_dict.get('password_hash', False)
@@ -148,7 +153,7 @@ class UserHandler(base.BaseHandler):
     db_user = self.db.get_user(user_dict.get('user_id', None))
 
     # New user admin should have password and emails
-    if not self.can_save(user_dict, db_user):
+    if not self.can_save(user_dict, managed_icus, db_user):
       raise ValueError('missing email/password')
 
     if db_user is None:
