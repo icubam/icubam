@@ -13,8 +13,8 @@ fi
 
 docker run -dt \
     --name icubam-sms \
-    --mount type=bind,source="$(pwd)"/resources/icubam-docker.env,target=/home/icubam/resources/icubam.env \
-    --mount type=bind,source="$(pwd)"/resources/icubam-docker.toml,target=/home/icubam/resources/icubam.toml \
+    --mount type=bind,source="$(pwd)"/docker/configs/resources/icubam.env,target=/home/icubam/resources/icubam.env \
+    --mount type=bind,source="$(pwd)"/docker/configs/resources/icubam.toml,target=/home/icubam/resources/icubam.toml \
     --mount type=bind,source="$(pwd)"/resources/icubam.db,target=/home/icubam/resources/icubam.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
     --env ENV_MODE=$2

@@ -57,3 +57,8 @@ Follow the proposed link `http://localhost:8888/update?id=<A_VERY_LONG_ID>`
 The unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file.
 
 To start the tests, install `pytest` and run `pytest`
+
+## Docker
+
+To build and run the application using Docker (docker or docker-compose) check the [documentation](./docker/README.md)
+in the docker folder.

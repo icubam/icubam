@@ -44,7 +44,9 @@ WORKDIR /home/icubam
 # copy all files (alternatively, git clone with commit or wget)
 COPY . ./
 
-RUN  mkdir data
+COPY ./docker/start_server.sh .
+COPY ./docker/start_server_sms.sh .
+
 RUN  mkdir resources
 
 # prepare for the conda environment

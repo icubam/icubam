@@ -1,5 +1,6 @@
 # Docker deployment
 
+
 Folder used to store nginx/certbot configuration files for ssl connection support (not used directly by icubam).
 Certbot configuration files are added at runtime when generating/updating the ssl certificate.
 
@@ -15,3 +16,16 @@ Files/folders are mounted (bind) in the containers (nginx/certbot) defined in th
 Depending on the deployment mode, (prod, dev, ...) change the environement variable `ENV_MODE` in the `docker-compose.yml` file. 
 The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment 
 variable (check the files `start_server.sh` and `start_server_sms.sh`).
+
+
+## Docker compose
+
+The complete application's containers can be launched using docker compose, either in a full version that also starts 
+nginx and certbot for managin ssl connections (to deploy on à clean VM/host), or just the containers for the app 
+and sms servers in case the VM/host used for the deployment already handles ingress communications (e.g., nginx 
+deployed on the VM/host).
+The two compose files are
+- docker-compose.yml for the full version
+- docker-compose-core.yml for the app only containers version
+
+To launch the complete install (server, sms server, nginx, certbot containers), use the `docker-compose -f FILE up` command

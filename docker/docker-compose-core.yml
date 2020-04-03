@@ -5,7 +5,7 @@ services:
   app-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: icubam
     container_name: icubam-server
     command: ./start_server.sh
@@ -18,10 +18,10 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/icubam-docker.env
+        source: ./docker/resources/icubam.env
         target: /home/icubam/resources/icubam.env
       - type: bind
-        source: ./resources/icubam-docker.toml
+        source: ./docker/resources/icubam.toml
         target: /home/icubam/resources/icubam.toml
       - type: bind
         source: ./resources/icubam.db
@@ -36,7 +36,7 @@ services:
   app-sms:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/Dockerfile
     image: icubam
     container_name: icubam-sms-server
     command: ./start_server_sms.sh
@@ -47,10 +47,10 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/icubam-docker.env
+        source: ./docker/resources/icubam.env
         target: /home/icubam/resources/icubam.env
       - type: bind
-        source: ./resources/icubam-docker.toml
+        source: ./docker/resources/icubam.toml
         target: /home/icubam/resources/icubam.toml
       - type: bind
         source: ./resources/icubam.db

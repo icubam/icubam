@@ -20,8 +20,8 @@ echo '========================================='
 
 docker run -d -p $2:8888 \
     --name icubam-server \
-    --mount type=bind,source="$(pwd)"/resources/icubam-docker.env,target=/home/icubam/resources/icubam.env \
-    --mount type=bind,source="$(pwd)"/resources/icubam-docker.toml,target=/home/icubam/resources/icubam.toml \
+    --mount type=bind,source="$(pwd)"/docker/resources/icubam.env,target=/home/icubam/resources/icubam.env \
+    --mount type=bind,source="$(pwd)"/docker/resources/icubam.toml,target=/home/icubam/resources/icubam.toml \
     --mount type=bind,source="$(pwd)"/resources/icubam.db,target=/home/icubam/resources/icubam.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
     --env ENV_MODE=$3 \
