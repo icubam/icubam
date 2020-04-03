@@ -1,9 +1,16 @@
-from typing import Tuple
-import functools
-import time
 import datetime
+import functools
+import pytz
+import time
+from typing import Tuple
+
 
 UNITS = [(86400, 'day'), (3600, 'hour'), (60, 'minute'), (1, 'second')]
+
+
+def utcnow() -> int:
+  """The current timestamp in utc."""
+  return int(datetime.datetime.utcnow().timestamp())
 
 
 def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
@@ -21,9 +28,7 @@ def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
   if ts is None:
     return -1, 'never'
 
-  ts_reference = int(
-    datetime.datetime.utcnow().timestamp()
-  ) if ts_reference is None else ts_reference
+  ts_reference = utcnow() if ts_reference is None else ts_reference
   delta = int(ts_reference - int(ts))
   for unit, name in sorted(UNITS, reverse=True):
     curr = delta // unit
@@ -54,18 +59,31 @@ def parse_hour(hour, sep=':') -> Tuple[str, str]:
     return "", ""
 
 
-def get_next_timestamp(hours, ts=None):
+def get_timestamp_for_timezone(d: datetime.datetime, tz=pytz.UTC) -> int:
+  """Localize the date with the timezone and returns its UTC timestamp."""
+  loc_d = tz.localize(d)
+  utc_d = loc_d - loc_d.utcoffset()
+  return utc_d.timestamp()
+
+
+def to_utc(d: datetime.datetime, tz=pytz.UTC) -> datetime.datetime:
+  """Translate a date from a given timezone to UTC."""
+  return tz.localize(d).astimezone(pytz.UTC)
+
+
+def get_next_timestamp(hours, ts=None, tz=pytz.UTC):
   """Gets the timestamp of the next hour in the list based on ts (or now).
 
   Args:
    hours: a list of tuples (hour, minute)
    ts: an optional timestamp. If none, use the current timestamp.
+   tz: a pytz.timezone to parse the the hours
   """
   if not hours:
     return None
 
-  ts = int(time.time()) if ts is None else ts
-  now = datetime.datetime.fromtimestamp(ts)
+  ts = utcnow() if ts is None else ts
+  now = to_utc(datetime.datetime.fromtimestamp(ts))
   today_fn = functools.partial(
     datetime.datetime, year=now.year, month=now.month, day=now.day
   )
@@ -73,10 +91,11 @@ def get_next_timestamp(hours, ts=None):
   sorted_moments = sorted(hours)
   for hm in sorted_moments:
     curr = today_fn(hour=hm[0], minute=hm[1])
-    if curr > now:
+    if to_utc(curr, tz) > now:
       next = curr
       break
   if next is None:
     hm = sorted_moments[0]
     next = today_fn(hour=hm[0], minute=hm[1]) + datetime.timedelta(1)
-  return next.timestamp()
+  print(next)
+  return get_timestamp_for_timezone(next, tz=tz)

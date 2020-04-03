@@ -1,5 +1,6 @@
 import datetime
 from absl.testing import absltest
+import pytz
 
 from icubam import time_utils
 
@@ -23,6 +24,13 @@ class TimeUtilsTest(absltest.TestCase):
     self.assertEqual(time_utils.parse_hour("wqw"), ("", ""))
     self.assertEqual(time_utils.parse_hour(23.12), (23.12))
 
+  def test_to_utc(self):
+    d = datetime.datetime(2020, 4, 3, 16, 30)
+    tz = pytz.timezone('Europe/Paris')  # UTC+2
+    d2 = time_utils.to_utc(d, tz)
+    # When it s 16:30 in Paris it 14:30 UTC
+    self.assertEqual(d2.hour, d.hour - 2)
+
   def test_localewise_time_ago(self):
     ref = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
     self.assertEqual(time_utils.localewise_time_ago(None, None, ref), 'never')
@@ -34,23 +42,36 @@ class TimeUtilsTest(absltest.TestCase):
 
   def test_get_next_timestamp(self):
     pings = [(12, 8), (14, 51)]
-    ts = datetime.datetime(2020, 3, 26, 4, 0).timestamp()
-    next_one = time_utils.get_next_timestamp(pings, ts)
-    expected_next = datetime.datetime(2020, 3, 26, 12, 8).timestamp()
+    tz = pytz.UTC
+
+    ts = datetime.datetime(2020, 3, 26, 4, 0).timestamp() # UTC
+    next_one = time_utils.get_next_timestamp(pings, ts, tz)
+    expected_d = datetime.datetime(2020, 3, 26, 12, 8)
+    expected_next = time_utils.get_timestamp_for_timezone(expected_d, tz)
     self.assertEqual(next_one, expected_next)
 
     ts = datetime.datetime(2020, 3, 26, 12, 10).timestamp()
-    next_one = time_utils.get_next_timestamp(pings, ts)
-    expected_next = datetime.datetime(2020, 3, 26, 14, 51).timestamp()
+    next_one = time_utils.get_next_timestamp(pings, ts, tz)
+    expected_d = datetime.datetime(2020, 3, 26, 14, 51)
+    expected_next = time_utils.get_timestamp_for_timezone(expected_d, tz)
     self.assertEqual(next_one, expected_next)
 
     ts = datetime.datetime(2020, 3, 26, 18, 10).timestamp()
-    next_one = time_utils.get_next_timestamp(pings, ts)
-    expected_next = datetime.datetime(2020, 3, 27, 12, 8).timestamp()
+    next_one = time_utils.get_next_timestamp(pings, ts, tz)
+    expected_d = datetime.datetime(2020, 3, 27, 12, 8)
+    expected_next = time_utils.get_timestamp_for_timezone(expected_d, tz)
     self.assertEqual(next_one, expected_next)
 
     next_one = time_utils.get_next_timestamp(None, ts)
     self.assertEqual(next_one, None)
+
+    tz = pytz.timezone('Europe/Paris')  # UTC+2
+    # UTC 11:08 UTC --> 13:08 in Paris at that time of the year
+    ts = datetime.datetime(2020, 4, 3, 11, 8).timestamp()
+    next_one = time_utils.get_next_timestamp(pings, ts, tz)
+    expected_d = datetime.datetime(2020, 4, 3, 14, 51)
+    expected_next = time_utils.get_timestamp_for_timezone(expected_d, tz)
+    self.assertEqual(next_one, expected_next)
 
 if __name__ == '__main__':
   absltest.main()

@@ -1,6 +1,6 @@
 from absl import logging
 import dataclasses
-import time
+import pytz
 import tornado.ioloop
 from typing import Optional
 
@@ -28,6 +28,7 @@ class MessageScheduler:
     self.reminder_delay = self.config.scheduler.reminder_delay
     pings = self.config.scheduler.ping
     self.when = [time_utils.parse_hour(h) for h in pings]
+    self.timezone = pytz.timezone(self.config.timezone)
 
     # Keys: by (user_id, icu_id), value is ScheduledMessage
     self.timeouts = {}
@@ -42,7 +43,8 @@ class MessageScheduler:
       logging.warning('No ping time. Check config.')
       return -1
 
-    return int(time_utils.get_next_timestamp(self.when) - time.time())
+    next_ts = time_utils.get_next_timestamp(self.when, tz=self.timezone)
+    return new_ts - time_utils.now()
 
   def schedule_message(
       self, msg: message.Message, delay: Optional[int] = None) -> bool:
@@ -52,7 +54,7 @@ class MessageScheduler:
       logging.error("Negative delay for scheduling: skipping")
       return False
 
-    when = delay + time.time()
+    when = delay + time_utils.now()
     timeout = self.timeouts.get(msg.key, None)
     io_loop = tornado.ioloop.IOLoop.current()
     if timeout is not None:
@@ -113,7 +115,7 @@ class MessageScheduler:
   async def do_send(self, msg):
     msg.attempts += 1
     if msg.first_sent is None:
-      msg.first_sent = time.time()
+      msg.first_sent = time_utils.now()
 
     logging.info('Sending to {} now ({}/{})'.format(
       msg.icu_name, msg.attempts, self.max_retries + 1))
