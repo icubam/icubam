@@ -61,11 +61,6 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     self.assertIsNotNone(timeout)
     self.assertTrue(timeout.when, fake_now + delay)
 
-    # another message with longer delay: not in
-    offset = 100
-    success = self.scheduler.schedule_message(msg, delay=delay+offset)
-    self.assertFalse(success)
-
     # another message with smaller delay: in
     offset = -2
     success = self.scheduler.schedule_message(msg, delay=delay+offset)
