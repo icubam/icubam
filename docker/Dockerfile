@@ -49,6 +49,7 @@ COPY ./docker/start_server_sms.sh .
 
 RUN  mkdir -p resources
 RUN  ls
+RUN  ls resources
 COPY ./resources/config.toml ./resources
 
 # prepare for the conda environment

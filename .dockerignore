@@ -5,7 +5,6 @@ data
 deploy_configs
 deploy_configs.tgz
 icubam.egg-info
-resources
 docker/configs/certbot
 docker/scripts
 docker/resources
