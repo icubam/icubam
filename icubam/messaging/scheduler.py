@@ -54,13 +54,6 @@ class MessageScheduler:
 
     when = delay + time.time()
     timeout = self.timeouts.get(msg.key, None)
-    # To make cope with small delays, we add a safe margin.
-    # TODO(olivier): find a better solution.
-    margin = 10
-    if timeout is not None and when > timeout.when + margin:
-      logging.info(f'A message is schedule before {when}, Skipping scheduling.')
-      return False
-
     io_loop = tornado.ioloop.IOLoop.current()
     if timeout is not None:
       self.unschedule(msg.user_id, msg.icu_id)
