@@ -38,6 +38,6 @@ jobs:
         pip install -e .
         # generate fake db and move at proper location
         python scripts/populate_db_fake.py --mode=dev
-        mv icubam.db resources
+        cp test.db icubam.db
         # build docker image
         ./docker/scripts/docker_build.sh latest
