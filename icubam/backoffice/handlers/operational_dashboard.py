@@ -1,10 +1,12 @@
-from absl import logging
+from typing import List, Dict
 
 import numpy as np
+import pandas as pd
 import tornado.web
 import math
 from collections import defaultdict
 
+from absl import logging
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.transform import dodge
@@ -13,38 +15,8 @@ from bokeh.models import ColumnDataSource
 from icubam.db.store import to_pandas
 from icubam.backoffice.handlers import base
 
-
-class OperationalDashHandler(base.BaseHandler):
-  ROUTE = '/operational-dashboard'
-
-  @tornado.web.authenticated
-  async def get(self):
-    """Serves a page with a table gathering current bedcount data with some extra information."""
-    arg_region = self.get_query_argument('region', default=None)
-    current_user = self.get_current_user()
-
-    current_region = None
-    current_region_name = "Toutes les régions"
-    if arg_region is not None and arg_region.isdigit():
-      try:
-        current_region = self.db.get_region(int(arg_region))
-        current_region_name = current_region.name
-      except Exception:
-        logging.warning(
-          f"Invalid query argument: region={arg_region} "
-          f"Falling back to all regions."
-        )
-
-    figures = []
-
-    bed_counts = self.db.get_visible_bed_counts_for_user(current_user.user_id)
-
-    bed_counts = to_pandas(bed_counts)
-
-    if current_region is not None:
-      mask = bed_counts['icu_region_id'] == current_region.region_id
-      bed_counts = bed_counts[mask]
-
+def _prepare_data(bed_counts: List) -> Dict:
+    """Make plot data"""
     agg_args = {
       key: 'sum'
       for key in [
@@ -91,7 +63,11 @@ class OperationalDashHandler(base.BaseHandler):
         'label': 'Nbr. transferé (cumulé)'
       }],
     ]
+    return df, metrics_layout
 
+
+def _make_bar_plot(df: pd.DataFrame):
+    """Generate a Bokeh figure"""
     df_viz = ColumnDataSource.from_df(df.reset_index())
 
     p = figure(
@@ -134,6 +110,42 @@ class OperationalDashHandler(base.BaseHandler):
     p.legend.orientation = "vertical"
     p.legend.label_text_font_size = '7pt'
     p.legend.background_fill_alpha = 0.7
+    return p
+
+
+class OperationalDashHandler(base.BaseHandler):
+  ROUTE = '/operational-dashboard'
+
+  @tornado.web.authenticated
+  async def get(self):
+    """Serves a page with a table gathering current bedcount data with some extra information."""
+    arg_region = self.get_query_argument('region', default=None)
+
+    current_region = None
+    current_region_name = "Toutes les régions"
+    if arg_region is not None and arg_region.isdigit():
+      try:
+        current_region = self.db.get_region(int(arg_region))
+        current_region_name = current_region.name
+      except Exception:
+        logging.warning(
+          f"Invalid query argument: region={arg_region} "
+          f"Falling back to all regions."
+        )
+
+    figures = []
+
+    bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
+
+    bed_counts = to_pandas(bed_counts)
+
+    if current_region is not None:
+      mask = bed_counts['icu_region_id'] == current_region.region_id
+      bed_counts = bed_counts[mask]
+
+    df, metrics_layout  = _prepare_data(bed_counts)
+
+    p = _make_bar_plot(df)
 
     script, div = components(p)
     figures.append(dict(script=script, div=div))

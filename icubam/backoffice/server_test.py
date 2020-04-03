@@ -58,3 +58,12 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
         m.return_value = self.user
       response = self.fetch(handler.ROUTE, method='GET')
     self.assertEqual(response.code, 200, msg=handler.__name__)
+
+
+
+  def test_operational_dashboard(self):
+    handler = operational_dashboard.OperationalDashHandler
+    with mock.patch.object(handler, 'get_current_user') as m:
+      m.return_value = self.user
+      response = self.fetch(handler.ROUTE + '?region=1', method='GET')
+    self.assertEqual(response.code, 200, msg=handler.__name__)
