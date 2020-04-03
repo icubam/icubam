@@ -3,9 +3,18 @@ div.operational-dash.container {
     margin-right: 2em;    
 }
 
-div.operational-dash.container h1 {
+div.operational-dash h1 {
     margin-bottom: 0.5em;    
 }
 
-div.operational-dash.container figure {
+div.operational-dash .dashboard-filter {
+    margin-bottom: 20px;
+}
+
+div.operational-dash .dash-metrics .card-title {
+    font-size: xx-large;
+}
+
+div.operational-dash .dash-metrics .card-text {
+    font-size: small;
 }

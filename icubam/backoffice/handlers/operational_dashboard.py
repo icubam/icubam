@@ -51,7 +51,7 @@ class OperationalDashHandler(base.BaseHandler):
       ]
     }
     df = bed_counts.groupby('icu_city').agg(agg_args)
-    print(df.columns)
+
     df['total_capacity'] = df[[
       'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free'
     ]].sum(axis=1)
@@ -63,6 +63,31 @@ class OperationalDashHandler(base.BaseHandler):
        ] = 100 * df['n_covid_refused'] / df['total_capacity']
 
     df = df.sort_values('fraq_covid_occ', ascending=False)
+
+    df_sum = df.sum(axis=0).astype(int)
+
+    metrics_layout = [
+      [{
+        'value': df_sum['n_covid_occ'],
+        'label': 'Nbr. lits covid occupés'
+      }, {
+        'value': df_sum['n_covid_free'],
+        'label': 'Nbr. lits covid dispo.'
+      }, {
+        'value': df_sum['n_covid_refused'],
+        'label': 'Nbr. cas covid refusés'
+      }],
+      [{
+        'value': df_sum['n_covid_deaths'],
+        'label': 'Nbr. morts (cumulé)'
+      }, {
+        'value': df_sum['n_covid_healed'],
+        'label': 'Nbr. gueris (cumulé).'
+      }, {
+        'value': df_sum['n_covid_transfered'],
+        'label': 'Nbr. transferé (cumulé)'
+      }],
+    ]
 
     df_viz = ColumnDataSource.from_df(df.reset_index())
 
@@ -120,5 +145,6 @@ class OperationalDashHandler(base.BaseHandler):
       "operational-dashboard.html",
       figures=figures,
       regions=regions,
-      current_region_name=current_region_name
+      current_region_name=current_region_name,
+      metrics_layout=metrics_layout
     )

@@ -12,7 +12,7 @@
     <div class="row text-center">
         <h1 class='text-center'>Dashboard opérationel</h1>
     </div>
-    <div class="row">
+    <div class="row dashboard-filter">
        <div class="dropdown">
          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	   {{ current_region_name }}
@@ -29,17 +29,33 @@
 
        <script>
 	$(".dropdown-menu .dropdown-item").click(function(e) {
-	   // reloads page with the new parameters
+	   // reloads page with new parameters
 	   // TODO: use the bokeh server instead of hacks.
            window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ); 
         });
        </script>
 
     </div>
-    <div class="row figure">
-        <div class="col-sm-5">
-	</div>
-        <div class="col-sm-6">
+    <div class="row">
+        <div class="col-sm-5 dash-metrics">
+	   {% for row in metrics_layout %}
+	   <div class="row"> 
+	      {% for metric in row %}
+              <div class="col-sm-4">
+                 <div class="card">
+                    <div class="card-body">
+		       <h3 class="card-title">{{ metric['value'] }}</h3>
+		       <p class="card-text">{{ metric['label'] }}</p>
+                    </div>
+                 </div>
+              </div>
+	      {% end %}
+           </div>
+	   {% end %}
+           <div class="col-sm-5">
+           </div>
+	      </div>
+        <div class="col-sm-6 figure">
         {% for figure in figures%}
             {% raw figure['script'] %}
 
