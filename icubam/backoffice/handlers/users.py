@@ -172,7 +172,13 @@ class UserHandler(base.BaseHandler):
     else:
       await self.update_user(db_user, user_dict, icus, managed_icus)
 
-  async def re_assign(self, user, new_icus, user_icus, add_fn, rm_fn):
+  async def re_assign(self,
+                      user: store.User,
+                      new_icus: set,
+                      user_icus: set,
+                      add_fn,
+                      rm_fn,
+                      notify: bool = False):
     if user.user_id is None:
       return
 
@@ -180,9 +186,11 @@ class UserHandler(base.BaseHandler):
     to_add = new_icus.difference(old_icus)
     for icu_id in to_add:
       add_fn(self.user.user_id, user.user_id, icu_id)
-    await self.message_client.notify(user.user_id, to_add, on=True)
+    if notify:
+      await self.message_client.notify(user.user_id, to_add, on=True)
 
     to_remove = old_icus.difference(new_icus)
     for icu_id in to_remove:
       rm_fn(self.user.user_id, user.user_id, icu_id)
-    await self.message_client.notify(user.user_id, to_remove, on=False)
+    if notify:
+      await self.message_client.notify(user.user_id, to_remove, on=False)
