@@ -30,18 +30,12 @@ jobs:
         GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
         TOKEN_LOC: token.pickle
         SHEET_ID: ${{ secrets.SHEET_ID }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        JWT_SECRET: some_secret_string
+        SECRET_COOKIE: another_secret_string
       run: |
-        # Emit pickled gsheets testing credentials from CI secret
         python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
-        #
         pip install -e .
-        # generate fake db and move at proper location
         python scripts/populate_db_fake.py --mode=dev
         cp test.db icubam.db
-        echo "# content current dir"
         ls
-        echo "# content resources dir"
         ls resources
-        # build docker image
-        ./docker/scripts/docker_build.sh latest
