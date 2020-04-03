@@ -30,9 +30,11 @@ default_locale='fr-fr'
   [messaging.dev]
   PORT = 8889  # will be lower cased when reading.
   base_url = "http://localhost:8889/"
+  timeout = 2
   [messaging.prod]
   PORT = 8889  # will be lower cased when reading.
-  base_url = "https://test.icubam.net/"
+  base_url = "http://localhost:8889/"
+  timeout = 2
 
 [scheduler]
   [scheduler.prod]

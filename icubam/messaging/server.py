@@ -27,9 +27,10 @@ class MessageServer(base_server.BaseServer):
         onoff.OnOffHandler, db = self.db, scheduler=self.scheduler)
 
     # Only accepts request from same host
-    return tornado.web.Application([
-        (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes),
-    ])
+    return tornado.web.Application([(
+        tornado.routing.HostMatches(r"(localhost|127\.0\.0\.1)"),
+        self.routes
+        )])
 
   async def process(self):
     async for msg in self.queue:

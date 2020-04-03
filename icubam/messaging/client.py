@@ -26,4 +26,6 @@ class MessageServerClient:
     url = os.path.join(self.config.messaging.base_url,
                        onoff.OnOffHandler.ROUTE.lstrip('/'))
     return await self.http_client.fetch(
-      httpclient.HTTPRequest(url, body=request.to_json(), method='POST'))
+      httpclient.HTTPRequest(
+        url, body=request.to_json(), method='POST',
+        request_timeout=self.config.messaging.timeout))

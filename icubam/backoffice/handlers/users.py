@@ -127,8 +127,11 @@ class UserHandler(base.BaseHandler):
 
     for icu_id in icus:
       self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
-    await self.message_client.notify(
-        user_id, icus, on=True, delay=self.config.scheduling.new_user_delay)
+    try:
+      await self.message_client.notify(
+          user_id, icus, on=True, delay=self.config.scheduler.new_user_delay)
+    except Exception as e:
+      logging.error(f'Cannot notify MessageServer {e}')
 
     for icu_id in managed_icus:
       self.db.assign_user_as_icu_manager(self.user.user_id, user_id, icu_id)
@@ -186,11 +189,19 @@ class UserHandler(base.BaseHandler):
     to_add = new_icus.difference(old_icus)
     for icu_id in to_add:
       add_fn(self.user.user_id, user.user_id, icu_id)
+
     if notify:
-      await self.message_client.notify(user.user_id, to_add, on=True)
+      try:
+        await self.message_client.notify(user.user_id, to_add, on=True)
+      except Exception as e:
+        logging.error(f'Cannot notify MessageServer {e}')
 
     to_remove = old_icus.difference(new_icus)
     for icu_id in to_remove:
       rm_fn(self.user.user_id, user.user_id, icu_id)
+
     if notify:
-      await self.message_client.notify(user.user_id, to_remove, on=False)
+      try:
+        await self.message_client.notify(user.user_id, to_remove, on=False)
+      except Exception as e:
+        logging.error(f'Cannot notify MessageServer {e}')
