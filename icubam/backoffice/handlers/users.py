@@ -112,7 +112,6 @@ class UserHandler(base.BaseHandler):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
     icus, managed_icus = self.prepare_for_save(user_dict, password)
-    await self.save_user(user_dict, icus, managed_icus)
     try:
       await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
