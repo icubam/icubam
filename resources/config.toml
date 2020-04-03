@@ -27,20 +27,22 @@ default_locale='fr-fr'
   upload_dir = "uploads/"
 
 [messaging]
+  [messaging.dev]
   PORT = 8889  # will be lower cased when reading.
-  [messagging.dev]
   base_url = "http://localhost:8889/"
-  [messagging.prod]
+  [messaging.prod]
+  PORT = 8889  # will be lower cased when reading.
   base_url = "https://test.icubam.net/"
-  [scheduler]
-    [scheduler.prod]
-    max_retries = 1
-    reminder_delay = 1800  # 30 minutes in seconds
-    ping = ['9:30', '17:30']
-    [scheduler.dev]
-    max_retries = 3
-    reminder_delay = 45
-    ping = ['12:30', '17:30', '14:12']
+
+[scheduler]
+  [scheduler.prod]
+  max_retries = 1
+  reminder_delay = 1800  # 30 minutes in seconds
+  ping = ['9:30', '17:30']
+  [scheduler.dev]
+  max_retries = 3
+  reminder_delay = 45
+  ping = ['12:30', '17:30', '14:12']
 
 
 

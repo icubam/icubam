@@ -1,7 +1,9 @@
 """Runs the webserver."""
-
 from absl import app
 from absl import flags
+import functools
+import multiprocessing as mp
+
 from icubam import config
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
@@ -26,6 +28,10 @@ def main(argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
   if service is not None:
     service(cfg, FLAGS.port).run()
+  elif FLAGS.server == 'all':
+    processes = [mp.Process(target=cls(cfg, None).run) for cls in servers.values()]
+    for p in processes:
+      p.start()
 
 
 if __name__ == '__main__':

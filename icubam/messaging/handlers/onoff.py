@@ -33,7 +33,7 @@ class OnOffHandler(tornado.web.RequestHandler):
     self.db = db
     self.scheduler = scheduler
 
-  def post(self):
+  async def post(self):
     request = OnOffRequest()
     try:
       body = self.request.body
@@ -42,7 +42,7 @@ class OnOffHandler(tornado.web.RequestHandler):
       self.set_status(400)
       return logging.error(f"Cannot parse request {body}: {e}")
 
-    if request.user_id is None or request.icu_id is None:
+    if request.user_id is None or request.icu_ids is None:
       self.set_status(400)
       return logging.error(f"Incomplete request: {body_str}")
 
@@ -56,9 +56,9 @@ class OnOffHandler(tornado.web.RequestHandler):
       self.set_status(400)
       return logging.error("Unknown user {}".format(user.user_id))
 
-    user_icus = {i.icu_id: icu for i in user.icus}
+    user_icus = {i.icu_id: i for i in user.icus}
     for icu_id in request.icu_ids:
-      icu = user_icus.get(request.icu_id, None)
+      icu = user_icus.get(icu_id, None)
       if icu is None:
         logging.error(
           f"User {user.user_id} does not belong to ICU {icu.icu_id}")

@@ -5,7 +5,7 @@ import tornado.escape
 import tornado.web
 from typing import List, Optional, Dict
 
-from icubam.messaging.client import MessageServerClient
+from icubam.messaging import client
 from icubam.backoffice.handlers import base
 from icubam.db import store
 from icubam.db.store import User
@@ -47,7 +47,7 @@ class UserHandler(base.BaseHandler):
 
   def initialize(self, config, db):
     super().initialize(config, db)
-    self.message_client = client.MessageServerClient()
+    self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
   def get(self):
@@ -112,6 +112,7 @@ class UserHandler(base.BaseHandler):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
     icus, managed_icus = self.prepare_for_save(user_dict, password)
+    await self.save_user(user_dict, icus, managed_icus)
     try:
       await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
