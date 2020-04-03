@@ -19,6 +19,7 @@ class OperationalDashHandler(base.BaseHandler):
   async def get(self):
     """Serves a page with a table gathering current bedcount data with some extra information."""
     arg_region = self.get_query_argument('region', default=None)
+    current_user = self.get_current_user()
 
     current_region = None
     current_region_name = "Toutes les régions"
@@ -34,7 +35,7 @@ class OperationalDashHandler(base.BaseHandler):
 
     figures = []
 
-    bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
+    bed_counts = self.db.get_visible_bed_counts_for_user(current_user.user_id)
 
     bed_counts = to_pandas(bed_counts)
 
