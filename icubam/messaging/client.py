@@ -1,26 +1,27 @@
+from absl import logging
+import os.path
 from tornado import httpclient
-from icubam.messaging.handlers.onoff import OnOffHandler, OnOffRequest
+from icubam.messaging.handlers import onoff
 
-"""Client for HTTP-based comnunication with the MessageServer"""
+
 class MessageServerClient(object):
+  """Client for HTTP-based comnunication with the MessageServer"""
+
   def __init__(self, config):
+    self.config = config
     self.http_client = httpclient.AsyncHTTPClient()
-    self.base_url = config.messaging.base_url
-    self.url = "{0}/{1}".format(self.base_url.strip("/"), OnOffHandler.ROUTE)
 
-  # TODO(olivier): make OnOffHandler receive a list of ICU ids so we can do
-  # everything in one HTTP request. This won't change the interface for the
-  # clients though.
-  def _request(self, user_id, icu_ids, activate: bool):
-    onoff_req = OnOffRequest()
-    onoff_req.user_id = user_id
-    onoff_req.onoff = activate
-    for icu_id in icu_ids:
-      onoff_req.icu_id = icu_id
-      onoff_req.on = activate
-      body = onoff_req.to_json()
-      request = httpclient.HTTPRequest(url, body=body, method="POST")
-      self.http_client.fetch(request)
+  async def notify(self,
+                   user_id: int,
+                   icu_ids: List[int],
+                   on: bool = True,
+                   delay: Optional[int] = None):
+    """Notify the scheduler that a user must be added / remove from the loop."""
+    if not icu_ids:
+      return logging.info('nothing to change. Aborting')
 
-  def notify(self, user_id, icu_ids, onoff):
-    return self._request(user_id, icu_ids, activate=onoff)
+    request = onoff.OnOffRequest(user_id, icu_ids, on, delay)
+    url = os.path.join(self.config.messaging.base_url, onoff.OnOffHandler.ROUTE)
+    return await self.http_client.fetch(httpclient.HTTPRequest(
+      url, body=request.to_json(), method='POST')
+    ))

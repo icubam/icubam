@@ -6,6 +6,7 @@ import tornado.web
 from icubam import base_server
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
+from icubam.messaging.handlers import onoff
 
 
 class MessageServer(base_server.BaseServer):
@@ -22,7 +23,14 @@ class MessageServer(base_server.BaseServer):
     self.callbacks = [self.process]
 
   def make_app(self):
-    return tornado.web.Application(self.routes)
+    self.add_handler(
+        onfoff.OnOffHandler, db = self.db, scheduler=self.scheduler)
+
+    # Only accepts request from same host
+    return tornado.web.Application(
+        (HostMatches(r'(localhost|127\.0\.0\.1)'),
+        self.routes),
+    ])
 
   async def process(self):
     async for msg in self.queue:

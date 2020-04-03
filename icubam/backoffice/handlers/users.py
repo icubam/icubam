@@ -45,6 +45,10 @@ class ProfileHandler(base.BaseHandler):
 class UserHandler(base.BaseHandler):
   ROUTE = "/user"
 
+  def initialize(self, config, db):
+    super().initialize(config, db)
+    self.message_client = client.MessageServerClient()
+
   @tornado.web.authenticated
   def get(self):
     user = self.db.get_user(self.get_query_argument('id', None))
@@ -104,39 +108,44 @@ class UserHandler(base.BaseHandler):
     return icus, managed_icus
 
   @tornado.web.authenticated
-  def post(self):
+  async def post(self):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
     icus, managed_icus = self.prepare_for_save(user_dict, password)
     try:
-      self.save_user(user_dict, icus, managed_icus)
+      await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
       user = store.User(**user_dict)
       return self.do_render(
         user=user, icus=icus, managed_icus=managed_icus, error=f'{e}')
     return self.redirect(ListUsersHandler.ROUTE)
 
-  def create_user(self, user_dict, icus, managed_icus):
+  async def create_user(self, user_dict, icus, managed_icus):
     user = store.User(**user_dict)
     user_id = self.db.add_user(user)
     logging.info(f'Creating user {user_id}')
 
     for icu_id in icus:
       self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
+    # TODO(olivier): do not hard code delay
+    await self.message_client.notify(user_id, icus, on=True, delay=10)
+
     for icu_id in managed_icus:
       self.db.assign_user_as_icu_manager(self.user.user_id, user_id, icu_id)
 
-  def update_user(self, db_user, user_dict, icus, managed_icus):
+  async def update_user(self, db_user, user_dict, icus, managed_icus):
     logging.info(f'Updating user {db_user.user_id}')
     user_id = db_user.user_id
     user_dict.pop('user_id', None)
     self.db.update_user(self.user.user_id, user_id, user_dict)
-    self.re_assign(db_user, icus, db_user.icus,
-                   self.db.assign_user_to_icu,
-                   self.db.remove_user_from_icu)
-    self.re_assign(db_user, managed_icus, db_user.managed_icus,
-                   self.db.assign_user_as_icu_manager,
-                   self.db.remove_manager_user_from_icu)
+    await self.re_assign(db_user, icus, db_user.icus,
+                         self.db.assign_user_to_icu,
+                         self.db.remove_user_from_icu,
+                         notify=True)
+    await self.re_assign(db_user, managed_icus, db_user.managed_icus,
+                         self.db.assign_user_as_icu_manager,
+                         self.db.remove_manager_user_from_icu,
+                         notify=False)
 
   def can_save(
       self, user_dict: dict, managed_icus: set, db_user: store.User) -> bool:
@@ -151,7 +160,7 @@ class UserHandler(base.BaseHandler):
     has_email = bool(user_dict.get('email', ''))
     return has_email and has_password
 
-  def save_user(self, user_dict, icus, managed_icus):
+  async def save_user(self, user_dict, icus, managed_icus):
     db_user = self.db.get_user(user_dict.get('user_id', None))
 
     # New user admin should have password and emails
@@ -159,16 +168,21 @@ class UserHandler(base.BaseHandler):
       raise ValueError('missing email/password')
 
     if db_user is None:
-      self.create_user(user_dict, icus, managed_icus)
+      await self.create_user(user_dict, icus, managed_icus)
     else:
-      self.update_user(db_user, user_dict, icus, managed_icus)
+      await self.update_user(db_user, user_dict, icus, managed_icus)
 
-  def re_assign(self, user, new_icus, user_icus, add_fn, rm_fn):
+  async def re_assign(self, user, new_icus, user_icus, add_fn, rm_fn):
     if user.user_id is None:
       return
 
     old_icus = set([i.icu_id for i in user_icus])
-    for icu_id in new_icus.difference(old_icus):
+    to_add = new_icus.difference(old_icus)
+    for icu_id in to_add:
       add_fn(self.user.user_id, user.user_id, icu_id)
-    for icu_id in old_icus.difference(new_icus):
+    await self.message_client.notify(user.user_id, to_add, on=True)
+
+    to_remove = old_icus.difference(new_icus)
+    for icu_id in to_remove:
       rm_fn(self.user.user_id, user.user_id, icu_id)
+    await self.message_client.notify(user.user_id, to_remove, on=False)
