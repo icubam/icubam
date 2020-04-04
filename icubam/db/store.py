@@ -856,5 +856,5 @@ def create_store_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs):
-  return pd.io.json.json_normalize([obj.to_dict(max_depth=1) for obj in objs],
-                                   sep="_")
+  return pd.json_normalize([obj.to_dict(max_depth=1) for obj in objs],
+                           sep="_")
