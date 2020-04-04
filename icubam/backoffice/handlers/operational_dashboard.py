@@ -25,7 +25,7 @@ def _prepare_data(bed_counts: List) -> Dict:
         'n_covid_transfered'
       ]
     }
-    df = bed_counts.groupby('icu_city').agg(agg_args)
+    df = bed_counts.groupby('icu_dept').agg(agg_args)
 
     df['total_capacity'] = df[[
       'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free'
