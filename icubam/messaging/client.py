@@ -1,9 +1,10 @@
 from absl import logging
+import json
 import os.path
 from tornado import httpclient
 from typing import List, Optional
 
-from icubam.messaging.handlers import onoff
+from icubam.messaging.handlers import onoff, schedule
 
 
 class MessageServerClient:
@@ -12,6 +13,13 @@ class MessageServerClient:
   def __init__(self, config):
     self.config = config
     self.http_client = httpclient.AsyncHTTPClient()
+
+  async def fetch(self, handler, request):
+    url = os.path.join(
+        self.config.messaging.base_url, handler.ROUTE.lstrip('/'))
+    return await self.http_client.fetch(httpclient.HTTPRequest(
+        url, body=request.to_json(), method='POST',
+        request_timeout=self.config.messaging.timeout))
 
   async def notify(self,
                    user_id: int,
@@ -23,9 +31,19 @@ class MessageServerClient:
       return logging.info('nothing to change. Aborting')
 
     request = onoff.OnOffRequest(user_id, list(icu_ids), on, delay)
-    url = os.path.join(self.config.messaging.base_url,
-                       onoff.OnOffHandler.ROUTE.lstrip('/'))
-    return await self.http_client.fetch(
-      httpclient.HTTPRequest(
-        url, body=request.to_json(), method='POST',
-        request_timeout=self.config.messaging.timeout))
+    return await self.fetch(onoff.OnOffHandler, request)
+
+  async def get_scheduled_messages(self, user_id):
+    request = schedule.ScheduleRequest(user_id)
+    response = await self.fetch(schedule.ScheduleHandler, request)
+    if response.code != 200:
+      logging.error('Something went wrong while fetchint messages')
+      return []
+
+    try:
+      result = json.loads(response.body.decode())
+    except Exception as e:
+      logging.error(f"Could not parse {response.body} as ScheduleResponse: {e}")
+      return []
+
+    return result

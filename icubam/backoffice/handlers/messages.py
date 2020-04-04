@@ -1,3 +1,4 @@
+import datetime
 import logging
 import tornado.escape
 import tornado.web
@@ -16,12 +17,19 @@ class ListMessagesHandler(base.AdminHandler):
     super().initialize(config, db)
     self.client = client.MessageServerClient(config)
 
+  def prepare_for_table(self, msg):
+    msg['when'] = '{0:%d/%m/%Y at %H:%M:%S}'.format(
+      datetime.datetime.fromtimestamp(msg['when']))
+    return self.format_list_item(msg)
+
   @tornado.web.authenticated
   async def get(self):
     try:
-      messages = await self.client.get_scheduled_messages()
+      messages = await self.client.get_scheduled_messages(self.user.user_id)
     except Exception as e:
-    data = [self.format_list_item(msg) for msg in messages]
+      logging.error(f'Cannot contact message server: {e}')
+      return self.redirect('/')
+
+    data = [self.prepare_for_table(msg) for msg in messages]
     self.render(
-        "list.html", data=data, objtype='Acces Tokens',
-        create_route=TokenHandler.ROUTE)
+        "list.html", data=data, objtype='Scheduled Messages', create_route=None)

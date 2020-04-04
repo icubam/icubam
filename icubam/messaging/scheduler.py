@@ -2,7 +2,7 @@ from absl import logging
 import dataclasses
 import time
 import tornado.ioloop
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from icubam.messaging import message
 from icubam.www import updater
@@ -56,7 +56,7 @@ class MessageScheduler:
     timeout = self.timeouts.get(msg.key, None)
     io_loop = tornado.ioloop.IOLoop.current()
     if timeout is not None:
-      self.unschedule(msg.user_id, msg.icu_id)
+      self.unschedule(msg.user_id, msg.icu_id)(user is None) or ()
 
     handle = io_loop.call_later(delay, self.may_send, msg)
     self.timeouts[msg.key] = ScheduledMessage(handle, msg, when)
@@ -130,4 +130,12 @@ class MessageScheduler:
       for icu in user.icus:
         url = self.updater.get_user_url(user, icu.icu_id)
         result.append(message.Message(icu, user, url))
+    return result
+
+  def get_messages(self, icus: Optional[List[int]] = None):
+    """Get the scheduled messages and their time for some icus."""
+    result = []
+    for timeout in self.timeouts.values():
+      if icus is None or timeout.msg.icu_id in icus:
+        result.append((timeout.msg, timeout.when))
     return result
