@@ -21,6 +21,7 @@ class TimeUtilsTest(absltest.TestCase):
     self.assertEqual(time_utils.parse_hour("23:12"), (23, 12))
     self.assertEqual(time_utils.parse_hour("23h12", sep='h'), (23, 12))
     self.assertEqual(time_utils.parse_hour("wqw"), ("", ""))
+    self.assertEqual(time_utils.parse_hour(23.12), (23.12))
 
   def test_localewise_time_ago(self):
     ref = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
@@ -47,6 +48,9 @@ class TimeUtilsTest(absltest.TestCase):
     next_one = time_utils.get_next_timestamp(pings, ts)
     expected_next = datetime.datetime(2020, 3, 27, 12, 8).timestamp()
     self.assertEqual(next_one, expected_next)
+
+    next_one = time_utils.get_next_timestamp(None, ts)
+    self.assertEqual(next_one, None)
 
 if __name__ == '__main__':
   absltest.main()
