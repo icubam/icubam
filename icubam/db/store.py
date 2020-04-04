@@ -10,7 +10,7 @@ from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy import Boolean, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from sqlalchemy.sql import text
 from typing import Iterable, Optional, Tuple
 import uuid
@@ -225,7 +225,9 @@ class Store:
       salt = ""
 
     Base.metadata.create_all(engine)
-    self._session = sessionmaker(bind=engine)
+    self._session_factory = sessionmaker(bind=engine)
+    # See https://docs.sqlalchemy.org/en/13/orm/contextual.html
+    self._session = scoped_session(self._session_factory)
     self._salt = salt.encode()
 
   @contextmanager
