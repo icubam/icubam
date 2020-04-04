@@ -44,13 +44,13 @@ class TokenHandler(base.AdminHandler):
     token_id = values.pop(id_key, '')
     try:
       if not token_id:
-        self.db.add_external_client(
+        token_id = self.db.add_external_client(
           self.user.user_id, store.ExternalClient(**values))
       else:
         self.db.update_external_client(self.user.user_id, token_id, values)
     except Exception as e:
       logging.error(f'cannot save token {e}')
-      values[id_key] = regiontoken_id
+      values[id_key] = token_id
       return self.do_render(user=store.ExternalClient(**values), error=True)
 
     return self.redirect(ListTokensHandler.ROUTE)

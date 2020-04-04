@@ -57,7 +57,7 @@ class ICUHandler(base.BaseHandler):
     icu_id = values.pop(id_key, '')
     try:
       if not icu_id:
-        self.db.add_icu(self.user.user_id, store.ICU(**values))
+        icu_id = self.db.add_icu(self.user.user_id, store.ICU(**values))
       else:
         self.db.update_icu(self.user.user_id, icu_id, values)
     except Exception as e:
