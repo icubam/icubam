@@ -27,7 +27,7 @@ class ScheduledMessage:
 
 
 class ScheduleHandler(tornado.web.RequestHandler):
-  """This handler returns all the schedule messages information."""
+  """This handler returns all the scheduled messages information."""
 
   ROUTE = '/schedule'
 
