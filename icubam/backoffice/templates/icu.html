@@ -25,6 +25,12 @@
      </div>
 
      <form role="form" action="/icu" method="post">
+
+       <!-- The hidden ID in case we're editing the icu. -->
+       <input type="text" id="icu_id" name="icu_id"
+              hidden value="{% if icu.icu_id is not None%}{{icu.icu_id}}{% end %}"
+        </input>
+
        <div class="card-body">
 
         <div class="form-row">
@@ -108,6 +114,9 @@
         </div>
 
        <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("/list_icus")'
+            class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">Submit</button>
        </div>
      </form>
@@ -116,7 +125,7 @@
 
 {% if error %}
  <div class="alert alert-danger" role="alert">
-   {{error}}
+   {{_("Failed to save ICU")}}
  </div>
 {% end %}
 
