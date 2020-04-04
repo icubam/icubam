@@ -25,6 +25,10 @@ GOOGLE_API_KEY=
 TW_KEY=
 TW_API=
 DB_SALT=
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+EMAIL_FROM=
 ```
 
 N.B.: You can name and move this file as you want but you will have to add
