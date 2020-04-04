@@ -1,4 +1,5 @@
 """Creating/edition of ICUs."""
+from absl import logging
 import tornado.escape
 import tornado.web
 
@@ -31,29 +32,37 @@ class ListICUsHandler(base.BaseHandler):
 class ICUHandler(base.BaseHandler):
   ROUTE = "/icu"
 
-  @tornado.web.authenticated
-  def get(self):
-    icu = self.db.get_icu(self.get_query_argument('id', None))
-    icu = icu if icu is not None else store.ICU()
-    if icu.is_active is None:
-      icu.is_active = True
-
+  def do_render(self, icu, error=False):
     if self.user.is_admin:
       regions = self.db.get_regions()
     if not self.user.is_admin:
       regions = [e.region for e in self.user.managed_icus]
     regions.sort(key=lambda r: r.name)
-    self.render("icu.html", icu=icu, regions=regions, error='')
+
+    icu = icu if icu is not None else store.ICU()
+    if icu.is_active is None:
+      icu.is_active = True
+    return self.render("icu.html", icu=icu, regions=regions, error=error)
+
+  @tornado.web.authenticated
+  def get(self):
+    icu = self.db.get_icu(self.get_query_argument('id', None))
+    return self.do_render(icu)
 
   @tornado.web.authenticated
   def post(self):
-    icu = self.db.get_icu(self.get_query_argument('id', None))
     values = self.parse_from_body(store.ICU)
-    values["is_active"] = bool(values["is_active"])
-    # TODO(olivier): try catch error here.
-    if icu is None:
-      self.db.add_icu(self.user.user_id, store.ICU(**values))
-    else:
-      self.db.update_icu(self.user.user_id, icu.icu_id, values)
+    values["is_active"] = values["is_active"] == 'True'
+    id_key = 'icu_id'
+    icu_id = values.pop(id_key, '')
+    try:
+      if not icu_id:
+        icu_id = self.db.add_icu(self.user.user_id, store.ICU(**values))
+      else:
+        self.db.update_icu(self.user.user_id, icu_id, values)
+    except Exception as e:
+      logging.error(f'Cannot save ICU: {e}')
+      values[id_key] = icu_id
+      return self.do_render(store.ICU(**values), error=True)
 
     return self.redirect(ListICUsHandler.ROUTE)

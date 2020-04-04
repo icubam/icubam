@@ -34,7 +34,8 @@
        <div class="card-body">
 
         <!-- The hidden ID in case we're editing the user. -->
-        <input type="text" id="user_id" name="user_id" hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
+        <input type="text" id="user_id" name="user_id"
+               hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
         <!-- Required and does not accept names that contain only spaces. -->
         <div class="form-row">
            <div class="col-25">
@@ -140,6 +141,9 @@
 
 
        <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("/list_users")'
+            class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>
      </form>
@@ -149,7 +153,6 @@
 {% if error %}
  <div class="alert alert-danger" role="alert">
     {{_("Failed to save the user")}}.
-    {{error}}
  </div>
 {% end %}
 
