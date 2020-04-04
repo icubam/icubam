@@ -453,7 +453,7 @@ class Store:
                         session=None) -> Iterable[User]:
     """Returns the list of users managed by the manager user."""
     session = session or self._session()
-    icus = self.get_managed_icus(manager_user_id)
+    icus = self.get_managed_icus(manager_user_id, session=session)
     if not icus:
       return []
     icu_ids = [icu.icu_id for icu in icus]
@@ -631,18 +631,22 @@ class Store:
 
     return query.all()
 
-  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
+  def get_latest_bed_counts(self,
+                            icu_ids=None,
+                            session=None,
+                            **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts.
 
     kargs are used for additional filtering, e.g. max_date.
 
     Args:
       icu_ids: a list or subquery of ICU IDs or None for all ICUs.
+      session: a DB session or None.
 
     Returns:
       a list of BedCounts, one for each ICU.
     """
-    return self.get_bed_counts(icu_ids, latest=True, **kargs)
+    return self.get_bed_counts(icu_ids, latest=True, session=session, **kargs)
 
   def get_bed_counts(self,
                      icu_ids=None,
@@ -686,7 +690,8 @@ class Store:
       icu_ids = set()
       icu_ids.update([icu.icu_id for icu in user.icus])
       icu_ids.update([icu.icu_id for icu in user.managed_icus])
-    return self.get_visible_bed_counts_in_same_region(icu_ids, **kargs)
+    return self.get_visible_bed_counts_in_same_region(
+        icu_ids, session=session, **kargs)
 
   def get_visible_bed_counts_in_same_region(self,
                                             icu_ids: Iterable[int],
