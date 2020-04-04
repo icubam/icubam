@@ -6,7 +6,6 @@ import tornado.web
 from icubam import base_server
 from icubam.messaging import sms_sender
 from icubam.messaging import scheduler
-from icubam.www.handlers import version
 from icubam.messaging.handlers import onoff
 
 
