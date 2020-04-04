@@ -50,6 +50,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       </div>
     </form> -->
 
+    {% if this_user.is_admin %}
     <ul class="navbar-nav ml-auto">
       {% for server in pings %}
         <!-- Messages Dropdown Menu -->
@@ -66,7 +67,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
           </div>
         </li>
       {% end %}
-      </ul>
+    </ul>
+    {% end %}
 
   </nav>
   <!-- /.navbar -->

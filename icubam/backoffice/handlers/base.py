@@ -30,8 +30,7 @@ class BaseHandler(tornado.web.RequestHandler):
     return result
 
   async def render(self, path, **kwargs):
-    pings = await self.ping()
-
+    pings = await self.ping() if self.user.is_admin else {}
     super().render(path, this_user=self.user, pings=pings, **kwargs)
 
   def get_template_path(self):
