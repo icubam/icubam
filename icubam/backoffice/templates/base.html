@@ -19,6 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <script src='/static/navigate.js'></script>
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -102,13 +103,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
               <p>Map</p>
             </a>
           </li>
+          {% if this_user.is_admin %}
           <li class="nav-item">
-            <a href="/plot" class="nav-link">
+            <a href="/operational-dashboard" class="nav-link">
               <i class="nav-icon fas fa-chart-pie"></i>
-              <p>Plots</p>
+              <p>Operational dashboard</p>
             </a>
           </li>
-          {% if this_user.is_admin %}
           <li class="nav-item">
             <a href="/list_tokens" class="nav-link">
               <i class="nav-icon fas fa-key"></i>
