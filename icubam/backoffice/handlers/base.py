@@ -17,16 +17,17 @@ class BaseHandler(tornado.web.RequestHandler):
     self.client = tornado.httpclient.AsyncHTTPClient()
 
   async def ping(self):
-    result = {'server': False, 'messaging': False}
-    for server in result.keys():
+    servers = {'server': 'www', 'messaging': 'sms'}
+    result = {}
+    for server, key in servers.items():
       url = self.config[server].base_url + 'health'
       try:
         resp = await self.client.fetch(
           tornado.httpclient.HTTPRequest(url=url, request_timeout=1))
-        result[server] = resp.code == 200
+        result[key] = {'status': resp.code == 200, 'since': resp.body}
       except:
+        result[key] = {'status': False, 'since': '-'}
         continue
-    result['www'] = result.pop('server')
     return result
 
   async def render(self, path, **kwargs):
