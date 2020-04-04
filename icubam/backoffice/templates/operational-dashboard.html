@@ -10,16 +10,19 @@
 {% block content %}
 <div class="container operational-dash">
     <div class="row text-center">
-        <h1 class='text-center'>Dashboard opérationel</h1>
+    <h1 class='text-center'>{{ _("Operational dashboard") }}</h1>
     </div>
     <div class="row dashboard-filter">
        <div class="dropdown">
          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	   {% if current_region_name != 'All regions' %}
+	     {{ _("Region") }}:
+           {% end %}
 	   {{ current_region_name }}
          </a>
        
          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-	   <a class="dropdown-item" href="">Toutes les régions</a>
+	   <a class="dropdown-item" href="#">{{ _("All regions") }}</a>
 	   <div class="dropdown-divider"></div>
 	   {% for row in regions %}
 	   <a class="dropdown-item" href="?region={{ row['id'] }}">{{ row['name'] }}</a>
@@ -45,7 +48,11 @@
                  <div class="card">
                     <div class="card-body">
 		       <h3 class="card-title">{{ metric['value'] }}</h3>
-		       <p class="card-text">{{ metric['label'] }}</p>
+		       <p class="card-text">
+		       {% for token in  metric['label']  %}
+		          {{ _(token) }}
+		       {% end %}
+		       </p>
                     </div>
                  </div>
               </div>

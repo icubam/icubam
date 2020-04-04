@@ -44,23 +44,23 @@ def _prepare_data(bed_counts: List) -> Dict:
     metrics_layout = [
       [{
         'value': df_sum['n_covid_occ'],
-        'label': 'Nbr. lits covid occupés'
+        'label': ('Occupied COVID+ beds',)
       }, {
         'value': df_sum['n_covid_free'],
-        'label': 'Nbr. lits covid dispo.'
+        'label': ('Available COVID+ beds',),
       }, {
         'value': df_sum['n_covid_refused'],
-        'label': 'Nbr. cas covid refusés'
+        'label': ('Refused', '(due to unavailability)')
       }],
       [{
         'value': df_sum['n_covid_deaths'],
-        'label': 'Nbr. morts (cumulé)'
+        'label': ('COVID deceased',)
       }, {
         'value': df_sum['n_covid_healed'],
-        'label': 'Nbr. gueris (cumulé).'
+        'label': ('COVID healed',),
       }, {
         'value': df_sum['n_covid_transfered'],
-        'label': 'Nbr. transferé (cumulé)'
+        'label': ('Transfers', '(to other ICU)')
       }],
     ]
     return df, metrics_layout
