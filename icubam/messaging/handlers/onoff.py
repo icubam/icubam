@@ -4,19 +4,15 @@ import json
 import tornado.web
 from typing import List
 
+from icubam.messaging import serializable
+
 
 @dataclasses.dataclass
-class OnOffRequest:
+class OnOffRequest(serializable.Serizalizable):
   user_id: int = None
   icu_ids: List[int] = None
   on: bool = True
   delay: int = None
-
-  def to_json(self):
-    return json.dumps(dataclasses.asdict(self))
-
-  def from_json(self, encoded):
-    self.__init__(**json.loads(encoded))
 
 
 class OnOffHandler(tornado.web.RequestHandler):
