@@ -58,13 +58,11 @@ class ScheduleHandler(tornado.web.RequestHandler):
       return logging.error(f"Incomplete request: {body_str}")
 
     user = self.db.get_user(request.user_id)
-    authorized = (user is not None) and (user.is_admin or user.managed_icus)
-    if not authorized:
-      self.set_status(400)
-      return logging.error(f"Unauthorized request: {body_str}")
+    if user is None:
+      logging.error(f"No such user {request.user_id}")
+      return
 
-    icus = user.managed_icus if not user.is_admin else self.db.get_icus()
-    icu_ids = [icu.icu_id for icu in icus]
+    icu_ids = [icu.icu_id for icu in self.db.get_managed_icus(user.user_id)]
     messages = self.scheduler.get_messages(icu_ids)
     response = self.build_response(messages)
     return self.write(json.dumps(response))
