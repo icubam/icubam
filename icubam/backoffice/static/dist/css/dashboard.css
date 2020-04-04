@@ -1,0 +1,20 @@
+div.operational-dash.container {
+    margin-left: 2em;    
+    margin-right: 2em;    
+}
+
+div.operational-dash h1 {
+    margin-bottom: 0.5em;    
+}
+
+div.operational-dash .dashboard-filter {
+    margin-bottom: 20px;
+}
+
+div.operational-dash .dash-metrics .card-title {
+    font-size: xx-large;
+}
+
+div.operational-dash .dash-metrics .card-text {
+    font-size: small;
+}
