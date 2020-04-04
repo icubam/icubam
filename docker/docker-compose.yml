@@ -14,9 +14,12 @@ services:
     environment:
       ENV_MODE : "dev"
     env_file:
-      - ./icubam-container.env
+      - ./docker/icubam-container.env
     working_dir: /home/icubam
     volumes:
+      - type: bind
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
         source: ./icubam.db
         target: /home/icubam/icubam.db
@@ -40,11 +43,14 @@ services:
     restart: unless-stopped
     tty: true
     env_file:
-      - ./icubam-container.env
+      - ./docker/icubam-container.env
     environment:
       ENV_MODE : "dev"
     working_dir: /home/icubam
     volumes:
+      - type: bind
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
         source: ./icubam.db
         target: /home/icubam/icubam.db

@@ -29,3 +29,7 @@ The two compose files are
 - docker-compose-core.yml for the app only containers version
 
 To launch the complete install (server, sms server, nginx, certbot containers), use the `docker-compose -f FILE up` command
+
+```
+docker-compose -f docker/docker-compose-core.yml --project-directory .  up
+```

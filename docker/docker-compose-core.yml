@@ -24,7 +24,10 @@ services:
         target: /home/icubam/resources/config.toml
       - type: bind
         source: ./icubam.db
-        target: /home/icubam/resources/icubam.db
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: ./test.db
+        target: /home/icubam/test.db
       - type: bind
         source: ./resources/token.pickle
         target: /home/icubam/resources/token.pickle
@@ -52,7 +55,10 @@ services:
         target: /home/icubam/resources/config.toml
       - type: bind
         source: ./icubam.db
-        target: /home/icubam/resources/icubam.db
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: ./test.db
+        target: /home/icubam/test.db
       - type: bind
         source: ./resources/token.pickle
         target: /home/icubam/resources/token.pickle

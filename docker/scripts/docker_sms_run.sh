@@ -11,9 +11,26 @@ then
 	  exit
 fi
 
+if [ ! -f "$(pwd)"/resources/config.toml ]; then
+    echo "resources/config.toml not found!"
+    exit
+fi
+if [ ! -f "$(pwd)"/icubam.db ]; then
+    echo "icubam.db not found!"
+    exit
+fi
+if [ ! -f "$(pwd)"/test.db ]; then
+    echo "test.db not found!"
+    exit
+fi
+if [ ! -f "$(pwd)"/resources/token.pickle ]; then
+    echo "resources/token.pickle not found!"
+    exit
+fi
+
 docker run -dt \
     --name icubam-sms \
-    --mount type=bind,source="$(pwd)"/resources/config.toml,target=/resources/config \
+    --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
