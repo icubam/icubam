@@ -18,7 +18,7 @@ class ListMessagesHandler(base.AdminHandler):
     self.client = client.MessageServerClient(config)
 
   def prepare_for_table(self, msg):
-    msg['when'] = '{0:%d/%m/%Y at %H:%M:%S}'.format(
+    msg['when'] = '{0:%Y/%m/%d at %H:%M:%S}'.format(
       datetime.datetime.fromtimestamp(msg['when']))
     return self.format_list_item(msg)
 
