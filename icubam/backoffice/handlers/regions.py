@@ -46,7 +46,8 @@ class RegionHandler(base.AdminHandler):
     region_id = values.pop(id_key, '')
     try:
       if not region_id:
-      region_id = self.db.add_region(self.user.user_id, store.Region(**values))
+        region_id = self.db.add_region(
+          self.user.user_id, store.Region(**values))
       else:
         self.db.update_region(self.user.user_id, region_id, values)
     except Exception as e:
