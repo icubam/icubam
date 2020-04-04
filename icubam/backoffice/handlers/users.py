@@ -111,13 +111,17 @@ class UserHandler(base.BaseHandler):
   async def post(self):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
+    id_key = 'user_id'
+    user_id = user_id.get(id_key, '')
     icus, managed_icus = self.prepare_for_save(user_dict, password)
     try:
       await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
+      logging.error(f"Cannot save user: {e}")
+      user_dict[id_key] = user_id
       user = store.User(**user_dict)
       return self.do_render(
-        user=user, icus=icus, managed_icus=managed_icus, error=f'{e}')
+        user=user, icus=icus, managed_icus=managed_icus, error=True)
     return self.redirect(ListUsersHandler.ROUTE)
 
   async def create_user(self, user_dict, icus, managed_icus):
