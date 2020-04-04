@@ -36,7 +36,7 @@ class Base(object):
      max_depth: the maximum recursion depth.
     """
     columns = self.get_column_names(include_relationships=include_relationships)
-    result: Dict[str, Any] = {}
+    result = {}
     for col in columns:
       value = getattr(self, col)
       if isinstance(value, Base):
