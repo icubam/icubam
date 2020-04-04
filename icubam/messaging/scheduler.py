@@ -56,7 +56,7 @@ class MessageScheduler:
     timeout = self.timeouts.get(msg.key, None)
     io_loop = tornado.ioloop.IOLoop.current()
     if timeout is not None:
-      self.unschedule(msg.user_id, msg.icu_id)(user is None) or ()
+      self.unschedule(msg.user_id, msg.icu_id)
 
     handle = io_loop.call_later(delay, self.may_send, msg)
     self.timeouts[msg.key] = ScheduledMessage(handle, msg, when)
