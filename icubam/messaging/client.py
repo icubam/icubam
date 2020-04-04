@@ -37,7 +37,7 @@ class MessageServerClient:
     request = schedule.ScheduleRequest(user_id)
     response = await self.fetch(schedule.ScheduleHandler, request)
     if response.code != 200:
-      logging.error('Something went wrong while fetchint messages')
+      logging.error('Something went wrong while fetching messages')
       return []
 
     try:
