@@ -17,14 +17,14 @@ class ListICUsHandler(base.BaseHandler):
     return self.format_list_item(result)
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     if self.user.is_admin:
       icus = self.db.get_icus()
     else:
       icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    self.render(
+    await self.render(
       "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
 
 
@@ -32,7 +32,7 @@ class ICUHandler(base.BaseHandler):
   ROUTE = "/icu"
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     icu = self.db.get_icu(self.get_query_argument('id', None))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
@@ -43,7 +43,7 @@ class ICUHandler(base.BaseHandler):
     if not self.user.is_admin:
       regions = [e.region for e in self.user.managed_icus]
     regions.sort(key=lambda r: r.name)
-    self.render("icu.html", icu=icu, regions=regions, error='')
+    await self.render("icu.html", icu=icu, regions=regions, error='')
 
   @tornado.web.authenticated
   def post(self):

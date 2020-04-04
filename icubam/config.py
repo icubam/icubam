@@ -46,7 +46,10 @@ class Config:
         result[k.lower()] = self._preprocess(sub)
     return result
 
-  def __getattr__(self, key: str):
+  def __getitem__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
     return self.conf.get(key)
+
+  def __getattr__(self, key: str):
+    return self[key]

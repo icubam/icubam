@@ -7,13 +7,13 @@ class LoginHandler(BaseHandler):
 
   ROUTE = "/login"
 
-  def get(self, error=""):
+  async def get(self, error=""):
     # User already logged in, just redirect to the home.
     if self.get_current_user():
       return self.redirect(self.get_argument("next", "/"))
 
     error = self.get_argument("error", None)
-    return self.render("login.html", error=error)
+    return await self.render("login.html", error=error)
 
   def post(self):
     self.error = None

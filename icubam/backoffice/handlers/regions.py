@@ -17,10 +17,10 @@ class ListRegionsHandler(base.AdminHandler):
     return self.format_list_item(result)
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
-    self.render("list.html",
+    await self.render("list.html",
                 data=data,
                 objtype='Regions',
                 create_route=RegionHandler.ROUTE)
@@ -30,10 +30,10 @@ class RegionHandler(base.AdminHandler):
   ROUTE = "/region"
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     region = self.db.get_region(self.get_query_argument('id', None))
     region = region if region is not None else store.Region()
-    self.render("region.html", region=region, error='')
+    await self.render("region.html", region=region, error='')
 
   @tornado.web.authenticated
   def post(self):

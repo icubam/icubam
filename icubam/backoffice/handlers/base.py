@@ -1,3 +1,4 @@
+import tornado.httpclient
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
@@ -13,9 +14,25 @@ class BaseHandler(tornado.web.RequestHandler):
     self.config = config
     self.db = db
     self.user = None
+    self.client = tornado.httpclient.AsyncHTTPClient()
 
-  def render(self, path, **kwargs):
-    super().render(path, this_user=self.user, **kwargs)
+  async def ping(self):
+    result = {'server': False, 'messaging': False}
+    for server in result.keys():
+      url = self.config[server].base_url + 'health'
+      try:
+        resp = await self.client.fetch(
+          tornado.httpclient.HTTPRequest(url=url, request_timeout=1))
+        result[server] = resp.code == 200
+      except:
+        continue
+    result['www'] = result.pop('server')
+    return result
+
+  async def render(self, path, **kwargs):
+    pings = await self.ping()
+
+    super().render(path, this_user=self.user, pings=pings, **kwargs)
 
   def get_template_path(self):
     return 'icubam/backoffice/templates/'

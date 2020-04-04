@@ -11,10 +11,10 @@ class ListTokensHandler(base.AdminHandler):
   ROUTE = "/list_tokens"
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     clients = self.db.get_external_clients()
     data = [self.format_list_item(client.to_dict()) for client in clients]
-    self.render(
+    await self.render(
         "list.html", data=data, objtype='Acces Tokens',
         create_route=TokenHandler.ROUTE)
 
@@ -24,14 +24,14 @@ class TokenHandler(base.AdminHandler):
   ROUTE = "/token"
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     userid = self.get_query_argument('id', None)
     user = None
     if userid is not None:
       user = self.db.get_external_client(userid)
 
     user = user if user is not None else store.ExternalClient()
-    self.render("token.html", user=user, error="")
+    await self.render("token.html", user=user, error="")
 
   @tornado.web.authenticated
   def post(self):

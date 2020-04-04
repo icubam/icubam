@@ -5,6 +5,12 @@ import tornado.web
 from icubam.db import store
 
 
+class HealthHandler(tornado.web.RequestHandler):
+  ROUTE = '/health'
+  def get(self):
+    return self.write('OK')
+
+
 class BaseServer:
   """Base class for ICUBAM servers."""
 
@@ -14,6 +20,7 @@ class BaseServer:
     self.routes = []
     self.db = store.create_store_for_sqlite_db(self.config)
     self.routes = []
+    self.add_handler(HealthHandler)
     self.callbacks = []
 
   def add_handler(self, handler, **kwargs):

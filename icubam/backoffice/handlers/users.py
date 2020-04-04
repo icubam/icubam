@@ -22,14 +22,14 @@ class ListUsersHandler(base.BaseHandler):
     return self.format_list_item(user_dict)
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     if self.user.is_admin:
       users = self.db.get_users()
     else:
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    self.render(
+    await self.render(
       "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
 
 
@@ -50,14 +50,14 @@ class UserHandler(base.BaseHandler):
     self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
-  def get(self):
+  async def get(self):
     user = self.db.get_user(self.get_query_argument('id', None))
     user_icus = set([i.icu_id for i in user.icus]) if user is not None else []
     user_micus = set(
         [i.icu_id for i in user.managed_icus]) if user is not None else []
-    return self.do_render(user, user_icus, user_micus, error=False)
+    return await self.do_render(user, user_icus, user_micus, error=False)
 
-  def do_render(self,
+  async def do_render(self,
                 user: store.User,
                 icus: List[int],
                 managed_icus: List[int],
@@ -68,8 +68,8 @@ class UserHandler(base.BaseHandler):
     self.prepare_for_display(user)
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
-    return self.render("user.html", options=options, user=user, icus=icus,
-                       managed_icus=managed_icus, error=error)
+    return await self.render("user.html", options=options, user=user, icus=icus,
+                             managed_icus=managed_icus, error=error)
 
   def get_options(self):
     if self.user.is_admin:
@@ -116,7 +116,7 @@ class UserHandler(base.BaseHandler):
       await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
       user = store.User(**user_dict)
-      return self.do_render(
+      return await self.do_render(
         user=user, icus=icus, managed_icus=managed_icus, error=f'{e}')
     return self.redirect(ListUsersHandler.ROUTE)
 

@@ -49,6 +49,25 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
       </div>
     </form> -->
+
+    <ul class="navbar-nav ml-auto">
+      {% for server in pings %}
+        <!-- Messages Dropdown Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <span class="text-{% if pings[server] %}success{% else %}danger{%end%}">
+              {{server}} <i class="fas fa-circle"></i>
+            </span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-item dropdown-header">
+              {{server}} is {% if pings[server] %} up {% else %} down {% end %}
+            </span>
+          </div>
+        </li>
+      {% end %}
+      </ul>
+
   </nav>
   <!-- /.navbar -->
 
