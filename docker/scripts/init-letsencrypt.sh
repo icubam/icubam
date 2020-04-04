@@ -81,4 +81,5 @@ docker-compose -f docker/docker-compose.yml --project-directory . \
 echo
 
 echo "### Reloading nginx ..."
-docker-compose exec nginx nginx -s reload
+docker-compose  -f docker/docker-compose.yml --project-directory . \
+  exec nginx nginx -s reload

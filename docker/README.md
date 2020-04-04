@@ -4,33 +4,31 @@ This folder contains the scripts and configurations required to launch the appli
 
 - individually (for debugging purposes, using the `docker/scripts/docker_build.sh`, `docker/scripts/docker_run.sh` and
 `docker/scripts/docker_sms_build.sh` scripts), 
-- or as a direct deployment of the application using the
-`docker/docker-compose.yml` script for host/VM with no nginx/proxy, or the `docker/docker-compose-core.yml` script
+- or as a deployment of the application using the
+`docker/docker-compose.yml` script (for a host/VM without nginx/proxy), or the `docker/docker-compose-core.yml` script
 if the host/VM already has nginx installed or an equivalent proxy.
 
-## Docker containers
+Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the `docker-compose.yml`file.
 
-Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the docker-compose.yml.
-
-Depending on the deployment mode, (prod, dev, ...) change the environement variable `ENV_MODE` in the `docker-compose.yml` file. 
+Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) . 
 The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment 
 variable (check the files `start_server.sh` and `start_server_sms.sh`).
-
 
 ## Docker compose
 
 To start properly, the application requires
-- The ICUBAM environement variables file to be set.
+- The ICUBAM environment variables to be set in the shell.
 - The production and test databases to be generated and available at the root of the project (`icubam.db` and `test.db`)
 - The `resources/token.pickle` file to be in the `resources` folder
 
 For a full deployment with Nginx
-1. replace WEB_HOSTNAME in Nginx configuration files with `set_hostname_nginx.sh`
-2. copy `app.conf.init` as `app.conf`
-3. check `init-letsencrypt.sh` for any change and execute it. This generates the initial certificate
-4. copy either `app.conf.dev` or `app.conf.prod` as `app.conf`
-5. ensure all the required environment variables are set
-6. from the root of the project, launch the containers with  `docker-compose -f docker/docker-compose.yml --project-directory . up`
+1. replace WEB_HOSTNAME in Nginx configuration files with `set_hostname_nginx.sh` (from within the docker/scripts folder).
+2. copy `app.conf.init` as `app.conf` in the `docker/configs/nginx` folder.
+3. check `docker/scripts/init-letsencrypt.sh` for any change (esp. email address) and execute it from the root of the project. This generates the initial certificate
+4. stop and terminate the nginx container (necessary to reload the config).
+5. copy either `app.conf.dev` or `app.conf.prod` as `app.conf` in the `docker/configs/nginx` folder.
+6. ensure all the required environment variables are set
+7. from the root of the project, launch the containers with  `docker-compose -f docker/docker-compose.yml --project-directory . up`
 
 ### Nginx/Certbot setup
 
