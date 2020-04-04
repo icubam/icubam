@@ -12,9 +12,18 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      ENV_MODE : "dev"
-    env_file:
-      - ./docker/icubam-container.env
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
     working_dir: /home/icubam
     volumes:
       - type: bind
@@ -42,10 +51,19 @@ services:
     command: ./start_server_sms.sh
     restart: unless-stopped
     tty: true
-    env_file:
-      - ./docker/icubam-container.env
     environment:
-      ENV_MODE : "dev"
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
     working_dir: /home/icubam
     volumes:
       - type: bind
@@ -74,13 +92,13 @@ services:
       - "443:443"
     volumes:
       - type: bind
-        source: ./configs/nginx
+        source: ./docker/configs/nginx
         target: /etc/nginx/conf.d
       - type: bind
-        source: ./configs/certbot/conf
+        source: ./docker/configs/certbot/conf
         target: /etc/letsencrypt
       - type: bind
-        source: ./configs/certbot/www
+        source: ./docker/configs/certbot/www
         target: /var/www/certbot
     networks:
       - icubam-network
@@ -93,10 +111,10 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: ./configs/certbot/conf
+        source: ./docker/configs/certbot/conf
         target: /etc/letsencrypt
       - type: bind
-        source: ./configs/certbot/www
+        source: ./docker/configs/certbot/www
         target: /var/www/certbot
     networks:
       - icubam-network
