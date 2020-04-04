@@ -1,3 +1,5 @@
+from typing import Optional
+
 from absl import logging
 import dataclasses
 import json
@@ -7,10 +9,10 @@ from typing import List
 
 @dataclasses.dataclass
 class OnOffRequest:
-  user_id: int = None
-  icu_ids: List[int] = None
+  user_id: Optional[int] = None
+  icu_ids: Optional[List[int]] = None
   on: bool = True
-  delay: int = None
+  delay: Optional[int] = None
 
   def to_json(self):
     return json.dumps(dataclasses.asdict(self))

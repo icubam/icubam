@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 import functools
 import time
 import datetime
@@ -44,7 +44,7 @@ def localewise_time_ago(ts, locale, ts_reference=None):
   return template.format(delta=count, units=units)
 
 
-def parse_hour(hour, sep=':') -> Tuple[str, str]:
+def parse_hour(hour, sep=':') -> Tuple[Union[int, str], ...]:
   """Returns a tuple of integer from an hour like '14:34'."""
   if not isinstance(hour, str):
     return hour
