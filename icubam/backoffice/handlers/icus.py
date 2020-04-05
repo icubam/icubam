@@ -44,7 +44,8 @@ class ICUHandler(base.BaseHandler):
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
-    return self.render("icu.html", icu=icu, regions=regions, error=error)
+    return self.render("icu.html", icu=icu, regions=regions, error=error,
+                       list_route=ListICUsHandler.ROUTE)
 
   @tornado.web.authenticated
   def get(self):

@@ -69,7 +69,8 @@ class UserHandler(base.BaseHandler):
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
     return self.render("user.html", options=options, user=user, icus=icus,
-                       managed_icus=managed_icus, error=error)
+                       managed_icus=managed_icus, error=error,
+                       list_route=ListUsersHandler.ROUTE)
 
   def get_options(self):
     return self.db.get_managed_icus(self.user.user_id)

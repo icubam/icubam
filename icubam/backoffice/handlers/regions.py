@@ -35,7 +35,8 @@ class RegionHandler(base.AdminHandler):
 
   def do_render(self, region):
     region = region if region is not None else store.Region()
-    self.render("region.html", region=region, error=False)
+    self.render("region.html", region=region, error=False,
+                list_route=ListRegionsHandler.ROUTE)
 
   @tornado.web.authenticated
   def post(self):

@@ -34,7 +34,8 @@ class TokenHandler(base.AdminHandler):
 
   def do_render(self, user: Optional[store.User], error=False):
     user = user if user is not None else store.ExternalClient()
-    return self.render("token.html", user=user, error=error)
+    return self.render("token.html", user=user, error=error,
+                       list_route=ListTokensHandler.ROUTE)
 
   @tornado.web.authenticated
   def post(self):
