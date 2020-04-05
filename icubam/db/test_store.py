@@ -791,5 +791,6 @@ class StoreTest(absltest.TestCase):
     user_id2 = store.add_user(User(name="user2"))
     user2 = store.get_user(user_id2)
 
+    # Objects should not be detached.
     user1.icus
     user2.icus
