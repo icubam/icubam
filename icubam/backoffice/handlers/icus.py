@@ -8,7 +8,7 @@ from icubam.db import store
 
 
 class ListICUsHandler(base.BaseHandler):
-  ROUTE = "/list_icus"
+  ROUTE = "list_icus"
 
   def prepare_for_table(self, icu):
     result = icu.to_dict(max_depth=1)
@@ -28,11 +28,12 @@ class ListICUsHandler(base.BaseHandler):
 
     data = [self.prepare_for_table(icu) for icu in icus]
     return self.render(
-      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
+      "list.html", data=data, objtype='ICUs',
+      create_route=self.get_route(ICUHandler))
 
 
 class ICUHandler(base.BaseHandler):
-  ROUTE = "/icu"
+  ROUTE = "icu"
 
   def do_render(self, icu, error=False):
     if self.user.is_admin:
@@ -67,4 +68,4 @@ class ICUHandler(base.BaseHandler):
       values[id_key] = icu_id
       return self.do_render(store.ICU(**values), error=True)
 
-    return self.redirect(ListICUsHandler.ROUTE)
+    return self.redirect_to(ListICUsHandler)

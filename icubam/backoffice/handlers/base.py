@@ -9,17 +9,34 @@ class BaseHandler(tornado.web.RequestHandler):
 
   COOKIE = 'user'
   PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+  ROUTE = ''
 
   def initialize(self):
     self.config = self.application.config
     self.db = self.application.db_factory.create()
+    self.root_path = os.path.join('/', self.application.root) + '/'
     self.user = None
 
   def render(self, path, **kwargs):
     # This dictionary is updated by a PeriodicCallback in the
     # BackofficeApplication
     status = self.application.server_status
-    super().render(path, this_user=self.user, server_status=status, **kwargs)
+    root = self.application.root
+    super().render(path, this_user=self.user, root=root, server_status=status,
+                   **kwargs)
+
+  def render_list(self, data, objtype, create_handler=None, **kwargs):
+    route = None if create_handler is None else self.get_route(create_handler)
+    return self.render("list.html", data=data, objtype=objtype,
+                       create_route=route, **kwargs)
+
+  def redirect_to(self, handler):
+    return self.redirect(handler.ROUTE)
+
+  def get_route(self, handler=None):
+    root = self.application.root
+    handler = handler if handler is not None else self
+    return os.path.join('/', root, handler.ROUTE.strip('/'))
 
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
@@ -41,7 +58,7 @@ class BaseHandler(tornado.web.RequestHandler):
     return tornado.locale.get(locale) if locale else None
 
   def set_default_headers(self):
-    self.set_header("Access-Control-Allow-Credentials", True)
+    self.set_header("Access-Control-Allow-Credrouteentials", True)
     self.set_header("Access-Control-Allow-Origin", "*")
     self.set_header(
         "Access-Control-Allow-Headers", "x-requested-with, Content-Type")
@@ -73,7 +90,7 @@ class BaseHandler(tornado.web.RequestHandler):
       result = []
       for k, v in item.items():
         route = auto_links.get(k, None)
-        link = '/{}?id={}'.format(route, v) if route is not None else False
+        link = '{}?id={}'.format(route, v) if route is not None else False
         result.append({'key': k, 'value': v, 'link': link})
     return result
 

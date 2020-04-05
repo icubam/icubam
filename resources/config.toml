@@ -56,8 +56,7 @@ default_locale='fr-fr'
   new_user_delay = 60
   ping = ['12:30', '17:30', '14:12']
 
-
-
 [backoffice]
   port = 8890
   ping_every = 60  # in seconds
+  root = 'admin'

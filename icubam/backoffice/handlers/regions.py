@@ -9,7 +9,7 @@ from icubam.db import store
 
 
 class ListRegionsHandler(base.AdminHandler):
-  ROUTE = "/list_regions"
+  ROUTE = "list_regions"
 
   def prepare_for_table(self, region):
     result = region.to_dict(max_depth=0)
@@ -21,14 +21,12 @@ class ListRegionsHandler(base.AdminHandler):
   def get(self):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
-    self.render("list.html",
-                data=data,
-                objtype='Regions',
-                create_route=RegionHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype="Regions", create_handler=RegionHandler)
 
 
 class RegionHandler(base.AdminHandler):
-  ROUTE = "/region"
+  ROUTE = "region"
 
   @tornado.web.authenticated
   def get(self):
@@ -55,4 +53,4 @@ class RegionHandler(base.AdminHandler):
       values[id_key] = region_id
       return self.do_render(store.Region(**values))
 
-    return self.redirect(ListRegionsHandler.ROUTE)
+    return self.redirect_to(ListRegionsHandler)

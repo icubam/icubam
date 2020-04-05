@@ -12,7 +12,7 @@ from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
-  ROUTE = "/list_users"
+  ROUTE = "list_users"
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
@@ -29,21 +29,21 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    return self.render(
-      "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype='Users', create_handler=UserHandler)
 
 
 class ProfileHandler(base.BaseHandler):
-  ROUTE = "/profile"
+  ROUTE = "profile"
 
   @tornado.web.authenticated
   def get(self):
     return self.redirect(
-      '{}?id={}'.format(UserHandler.ROUTE, self.user.user_id))
+      '{}?id={}'.format(self.get_route(UserHandler), self.user.user_id))
 
 
 class UserHandler(base.BaseHandler):
-  ROUTE = "/user"
+  ROUTE = "user"
 
   def initialize(self):
     super().initialize()
@@ -118,7 +118,7 @@ class UserHandler(base.BaseHandler):
       user = store.User(**user_dict)
       return self.do_render(
         user=user, icus=icus, managed_icus=managed_icus, error=True)
-    return self.redirect(ListUsersHandler.ROUTE)
+    return self.redirect_to(ListUsersHandler)
 
   async def create_user(self, user_dict, icus, managed_icus):
     user = store.User(**user_dict)

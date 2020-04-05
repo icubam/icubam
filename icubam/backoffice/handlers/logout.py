@@ -4,8 +4,9 @@ from icubam.backoffice.handlers.home import HomeHandler
 
 class LogoutHandler(BaseHandler):
 
-  ROUTE = "/logout"
+  ROUTE = "logout"
 
   def get(self):
+    print('-----------> oiidjrlj')
     self.clear_cookie(self.COOKIE)
-    return self.redirect(HomeHandler.ROUTE)
+    return self.redirect(self.root_path)

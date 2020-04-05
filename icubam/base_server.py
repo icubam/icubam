@@ -19,9 +19,10 @@ class HealthHandler(tornado.web.RequestHandler):
 class BaseServer:
   """Base class for ICUBAM servers."""
 
-  def __init__(self, config, port):
+  def __init__(self, config, port, root=''):
     self.config = config
     self.port = port
+    self.root = root
     self.routes = []
     self.db_factory = store.create_store_factory_for_sqlite_db(self.config)
     self.routes = []
@@ -30,7 +31,7 @@ class BaseServer:
     self.callbacks = []
 
   def add_handler(self, handler, **kwargs):
-    route = os.path.join("/", handler.ROUTE)
+    route = os.path.join("/", self.root, handler.ROUTE.lstrip('/'))
     self.routes.append((route, handler, kwargs))
     logging.info("{}: {} serving on {}".format(
       self.__class__.__name__, handler.__name__, route))

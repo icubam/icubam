@@ -24,8 +24,9 @@ class ServerStatus:
 
 class BackofficeApplication(tornado.web.Application):
 
-  def __init__(self, config, db_factory, routes, **settings):
+  def __init__(self, config, db_factory, routes, root, **settings):
     self.config = config
+    self.root = root
     self.db_factory = db_factory
     self.server_status = collections.defaultdict(ServerStatus)
     self.client = tornado.httpclient.AsyncHTTPClient()
@@ -56,7 +57,7 @@ class BackOfficeServer(base_server.BaseServer):
   """Serves and manipulates the Backoffice ICUBAM."""
 
   def __init__(self, config, port):
-    super().__init__(config, port)
+    super().__init__(config, port, root=config.backoffice.root)
     self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self, path):
@@ -77,10 +78,11 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(messages.ListMessagesHandler)
 
     for folder in ['dist', 'pages', 'plugins']:
+      route = os.path.join("/", self.root, folder, r'(.*)')
       self.routes.append(
-          (r'/{}/(.*)'.format(folder), tornado.web.StaticFileHandler, {
-              'path': os.path.join(path, 'static', folder)
-          }))
+          (route, tornado.web.StaticFileHandler,
+          {'path': os.path.join(path, 'static', folder)}
+          ))
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
@@ -89,10 +91,10 @@ class BackOfficeServer(base_server.BaseServer):
     settings = {
         'cookie_secret': cookie_secret,
         'static_path': os.path.join(path, 'static'),
-        'login_url': '/login',
+        'login_url': 'login',
     }
     tornado.locale.load_translations(os.path.join(path, 'translations'))
     self.make_routes(path)
 
     return BackofficeApplication(self.config, self.db_factory, self.routes,
-                                 **settings)
+                                 self.root, **settings)

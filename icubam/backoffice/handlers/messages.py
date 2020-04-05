@@ -11,7 +11,7 @@ from icubam.messaging import client
 
 class ListMessagesHandler(base.AdminHandler):
 
-  ROUTE = "/list_messages"
+  ROUTE = "list_messages"
 
   def initialize(self):
     super().initialize()
@@ -28,8 +28,8 @@ class ListMessagesHandler(base.AdminHandler):
       messages = await self.client.get_scheduled_messages(self.user.user_id)
     except Exception as e:
       logging.error(f'Cannot contact message server: {e}')
-      return self.redirect('/')
+      return self.redirect(self.root_path)
 
     data = [self.prepare_for_table(msg) for msg in messages]
-    self.render(
-        "list.html", data=data, objtype='Scheduled Messages', create_route=None)
+    self.render_list(
+      data=data, objtype='Scheduled Messages', create_handler=None)
