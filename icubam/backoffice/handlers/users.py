@@ -75,7 +75,6 @@ class UserHandler(base.BaseHandler):
     return self.db.get_managed_icus(self.user.user_id)
 
   def prepare_for_display(self, user: store.User):
-    print("--->", user.is_active, user.is_admin)
     if user.is_active is None:
       user.is_active = True
     if user.is_admin is None:
