@@ -19,7 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-  <script src='/static/navigate.js'></script>
+  <script src='static/navigate.js'></script>
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -37,7 +37,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <li class="nav-item d-none d-sm-inline-block">
         <a href="logout" class="nav-link">Logout</a>
       </li>
-    </ul>
+    </ul>    self.routes.append(
+        (route, tornado.web.StaticFileHandler,
+        {'path': os.path.join(path, 'static', folder)}
+        ))
 
     <!-- SEARCH FORM -->
     <!-- <form class="form-inline ml-3">
