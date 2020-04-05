@@ -89,8 +89,8 @@ class UserHandler(base.BaseHandler):
     if user_dict.get(id_key, "") == "":
       user_dict.pop(id_key, None)
 
-    user_dict["is_active"] = user_dict.get("is_active", 'True') == 'on'
-    user_dict["is_admin"] = user_dict.get("is_admin", 'True') == 'on'
+    user_dict["is_active"] = user_dict.get("is_active", 'off') == 'on'
+    user_dict["is_admin"] = user_dict.get("is_admin", 'off') == 'on'
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
 
