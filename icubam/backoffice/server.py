@@ -77,8 +77,9 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(operational_dashboard.OperationalDashHandler)
     self.add_handler(messages.ListMessagesHandler)
 
-    for folder in ['dist', 'pages', 'plugins']:
+    for folder in ['dist', 'pages', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
+      folder = '' if folder == 'static' else folder
       self.routes.append(
           (route, tornado.web.StaticFileHandler,
           {'path': os.path.join(path, 'static', folder)}
@@ -90,7 +91,6 @@ class BackOfficeServer(base_server.BaseServer):
     path = os.path.dirname(os.path.abspath(__file__))
     settings = {
         'cookie_secret': cookie_secret,
-        'static_path': os.path.join(path, 'static'),
         'login_url': 'login',
     }
     tornado.locale.load_translations(os.path.join(path, 'translations'))

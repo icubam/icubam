@@ -64,4 +64,4 @@ default_locale='fr-fr'
   [backoffice.dev]
     port = 8890
     ping_every = 60  # in seconds
-    root = ''
+    root = 'bo'
