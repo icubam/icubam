@@ -1,4 +1,3 @@
-import tornado.httpclient
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
