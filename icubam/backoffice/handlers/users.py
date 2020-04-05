@@ -45,8 +45,8 @@ class ProfileHandler(base.BaseHandler):
 class UserHandler(base.BaseHandler):
   ROUTE = "/user"
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self):
+    super().initialize()
     self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated

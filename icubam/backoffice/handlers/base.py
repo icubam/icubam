@@ -10,9 +10,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
   COOKIE = 'user'
 
-  def initialize(self, config, db):
-    self.config = config
-    self.db = db
+  def initialize(self):
+    self.config = self.application.config
+    self.db = self.application.db
     self.user = None
 
   def render(self, path, **kwargs):

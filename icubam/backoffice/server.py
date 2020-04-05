@@ -59,22 +59,21 @@ class BackOfficeServer(base_server.BaseServer):
     self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self, path):
-    kwargs = dict(config=self.config, db=self.db)
-    self.add_handler(home.HomeHandler, **kwargs)
-    self.add_handler(login.LoginHandler, **kwargs)
-    self.add_handler(logout.LogoutHandler, **kwargs)
-    self.add_handler(users.ListUsersHandler, **kwargs)
-    self.add_handler(users.UserHandler, **kwargs)
-    self.add_handler(users.ProfileHandler, **kwargs)
-    self.add_handler(tokens.TokenHandler, **kwargs)
-    self.add_handler(tokens.ListTokensHandler, **kwargs)
-    self.add_handler(icus.ListICUsHandler, **kwargs)
-    self.add_handler(icus.ICUHandler, **kwargs)
-    self.add_handler(regions.ListRegionsHandler, **kwargs)
-    self.add_handler(regions.RegionHandler, **kwargs)
-    self.add_handler(dashboard.ListBedCountsHandler, **kwargs)
-    self.add_handler(operational_dashboard.OperationalDashHandler, **kwargs)
-    self.add_handler(messages.ListMessagesHandler, **kwargs)
+    self.add_handler(home.HomeHandler)
+    self.add_handler(login.LoginHandler)
+    self.add_handler(logout.LogoutHandler)
+    self.add_handler(users.ListUsersHandler)
+    self.add_handler(users.UserHandler)
+    self.add_handler(users.ProfileHandler)
+    self.add_handler(tokens.TokenHandler)
+    self.add_handler(tokens.ListTokensHandler)
+    self.add_handler(icus.ListICUsHandler)
+    self.add_handler(icus.ICUHandler)
+    self.add_handler(regions.ListRegionsHandler)
+    self.add_handler(regions.RegionHandler)
+    self.add_handler(dashboard.ListBedCountsHandler)
+    self.add_handler(operational_dashboard.OperationalDashHandler)
+    self.add_handler(messages.ListMessagesHandler)
 
     for folder in ['dist', 'pages', 'plugins']:
       self.routes.append(
