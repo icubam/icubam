@@ -247,12 +247,6 @@ class Store(object):
     self._session = session
     self._salt = salt
 
-  def __del__(self):
-    try:
-      self._session.close()
-    except Exception:
-      pass
-
   @contextmanager
   def _commit_or_rollback(self):
     """Provide a transactional scope around a series of operations."""

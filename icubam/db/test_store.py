@@ -806,6 +806,6 @@ class StoreTest(absltest.TestCase):
   def test_detached(self):
     user = self.store.get_user(self.admin_user_id)
 
-    del self.store
+    self.store._session.close()
     with self.assertRaises(DetachedInstanceError):
       user.icus
