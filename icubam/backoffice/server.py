@@ -85,12 +85,6 @@ class BackOfficeServer(base_server.BaseServer):
           {'path': os.path.join(path, 'static', folder)}
           ))
 
-    self.routes.append(
-        (os.path.join("/", self.root, r'static/(.*)'),
-         tornado.web.StaticFileHandler,
-         {'path': os.path.join(path, 'static')}
-        ))
-
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
