@@ -50,6 +50,32 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
       </div>
     </form> -->
+
+    {% if this_user.is_admin %}
+    <ul class="navbar-nav ml-auto">
+      {% for server in server_status %}
+        <!-- Messages Dropdown Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <span class="text-{% if server_status[server].up %}success{% else %}danger{%end%}">
+              {{server_status[server].name}} <i class="fas fa-circle"></i>
+            </span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-item dropdown-header">
+              {{server_status[server].name}} server is
+              {% if server_status[server].up %}
+                up since {{server_status[server].started}}
+              {% else %}
+                down <br/>(last try {{server_status[server].last_ping}})
+                {% end %}
+            </span>
+          </div>
+        </li>
+      {% end %}
+    </ul>
+    {% end %}
+
   </nav>
   <!-- /.navbar -->
 

@@ -14,7 +14,9 @@ class ListICUsHandler(base.BaseHandler):
     result = icu.to_dict(max_depth=1)
     for key in ['users', 'bed_counts', 'managers', 'lat', 'lng', 'create_date']:
       result.pop(key, None)
-    result['region'] = result.pop('region', {}).get('name', '-')
+    region = result.pop('region', None)
+    if region is not None:
+      result['region'] = region.get('name', '-')
     return self.format_list_item(result)
 
   @tornado.web.authenticated
@@ -25,7 +27,7 @@ class ListICUsHandler(base.BaseHandler):
       icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    self.render(
+    return self.render(
       "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
 
 

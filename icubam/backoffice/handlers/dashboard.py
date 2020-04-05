@@ -10,9 +10,9 @@ from icubam.db import store
 class ListBedCountsHandler(base.BaseHandler):
   ROUTE = '/dashboard'
 
-  def initialize(self, config, db_factory):
-    super().initialize(config, db_factory)
-    self.link_fn = updater.Updater(config, self.db).get_url
+  def initialize(self):
+    super().initialize()
+    self.link_fn = updater.Updater(self.config, self.db).get_url
 
   def prepare_data(self, bed_count) -> list:
     icu =  bed_count.icu

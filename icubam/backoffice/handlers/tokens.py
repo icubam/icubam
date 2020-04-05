@@ -31,11 +31,11 @@ class TokenHandler(base.AdminHandler):
     user = None
     if userid is not None:
       user = self.db.get_external_client(userid)
-    self.do_render(user=user)
+    return self.do_render(user=user, error=False)
 
   def do_render(self, user: Optional[store.User], error=False):
     user = user if user is not None else store.ExternalClient()
-    self.render("token.html", user=user, error=error)
+    return self.render("token.html", user=user, error=error)
 
   @tornado.web.authenticated
   def post(self):
@@ -51,6 +51,6 @@ class TokenHandler(base.AdminHandler):
     except Exception as e:
       logging.error(f'cannot save token {e}')
       values[id_key] = token_id
-      return self.do_render(user=store.ExternalClient(**values), error=True)
+      return self.do_render(store.ExternalClient(**values), error=True)
 
     return self.redirect(ListTokensHandler.ROUTE)
