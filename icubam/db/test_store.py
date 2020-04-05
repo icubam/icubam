@@ -782,3 +782,14 @@ class StoreTest(absltest.TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "../../resources/test.toml"))
     store = db_store.create_store_for_sqlite_db(cfg)
+
+  def test_session(self):
+    store = self.store
+    user_id1 = store.add_user(User(name="user1"))
+    user1 = store.get_user(user_id1)
+
+    user_id2 = store.add_user(User(name="user2"))
+    user2 = store.get_user(user_id2)
+
+    user1.icus
+    user2.icus

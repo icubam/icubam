@@ -240,8 +240,6 @@ class Store:
     except:
       session.rollback()
       raise
-    finally:
-      session.close()
 
   def _get_user(self, session, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
