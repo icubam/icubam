@@ -52,4 +52,4 @@ class TokenHandler(base.AdminHandler):
       values[id_key] = token_id
       return self.do_render(store.ExternalClient(**values), error=True)
 
-    return self.redirect_to(ListTokensHandler)
+    return self.redirect(ListTokensHandler.ROUTE)

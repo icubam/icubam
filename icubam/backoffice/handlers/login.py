@@ -24,4 +24,4 @@ class LoginHandler(BaseHandler):
       self.set_secure_cookie(self.COOKIE, tornado.escape.json_encode(userid))
       return self.redirect(self.get_argument("next", self.root_path))
 
-    return self.redirect("{}?error=true".format(self.get_route()))
+    return self.redirect("{}?error=true".format(self.ROUTE))

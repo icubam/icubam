@@ -118,7 +118,7 @@ class UserHandler(base.BaseHandler):
       user = store.User(**user_dict)
       return self.do_render(
         user=user, icus=icus, managed_icus=managed_icus, error=True)
-    return self.redirect_to(ListUsersHandler)
+    return self.redirect(ListUsersHandler.ROUTE)
 
   async def create_user(self, user_dict, icus, managed_icus):
     user = store.User(**user_dict)

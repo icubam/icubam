@@ -36,11 +36,6 @@ class BaseHandler(tornado.web.RequestHandler):
   def redirect_to(self, handler):
     return self.redirect(handler.ROUTE)
 
-  def get_route(self, handler=None):
-    root = self.application.root
-    handler = handler if handler is not None else self
-    return os.path.join('/', root, handler.ROUTE.strip('/'))
-
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
 

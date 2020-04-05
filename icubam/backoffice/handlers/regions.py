@@ -53,4 +53,4 @@ class RegionHandler(base.AdminHandler):
       values[id_key] = region_id
       return self.do_render(store.Region(**values))
 
-    return self.redirect_to(ListRegionsHandler)
+    return self.redirect(ListRegionsHandler.ROUTE)

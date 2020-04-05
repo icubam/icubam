@@ -67,4 +67,4 @@ class ICUHandler(base.BaseHandler):
       values[id_key] = icu_id
       return self.do_render(store.ICU(**values), error=True)
 
-    return self.redirect_to(ListICUsHandler)
+    return self.redirect(ListICUsHandler.ROUTE)
