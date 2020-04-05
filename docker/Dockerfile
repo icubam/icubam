@@ -1,4 +1,6 @@
-#
+# ARG required due to build option in docker-compose
+ARG ENV_MODE
+
 FROM ubuntu:18.04
 
 # silence error messages
@@ -41,11 +43,23 @@ EXPOSE 8888
 RUN mkdir /home/icubam
 WORKDIR /home/icubam
 
-# copy all files (alternatively, git clone with commit or wget)
-COPY . ./
+# must copy explicitely to handle cases where image is build in an environment without extra files (db, config)
+# or with extra file (e.g., after a first init).
+# TODO:  download code directly in the container from repository/package instead orf relying on local files
 
-RUN  mkdir data
+# get docker config and move startup scripts for the server and sms containers
+COPY docker docker
+RUN mv ./docker/start_server.sh .
+RUN mv ./docker/start_server_sms.sh .
+# copy code and scripts
+COPY icubam icubam
+COPY scripts scripts
+# create resource folder
 RUN  mkdir resources
+# copy specific files on root folder
+COPY dev_install.md LICENSE pyproject.toml README.md requirements.txt setup.py ./
+# pip/setup tools requires version inside .git
+COPY .git ./.git
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc

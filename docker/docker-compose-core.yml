@@ -1,0 +1,89 @@
+version: '3.2'
+services:
+
+  # ICUBAM service
+  app-server:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: icubam
+    container_name: icubam-server
+    command: ./start_server.sh
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8888:8888"
+    environment:
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
+    working_dir: /home/icubam
+    volumes:
+      - type: bind
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
+      - type: bind
+        source: ./icubam.db
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: ./test.db
+        target: /home/icubam/test.db
+      - type: bind
+        source: ./resources/token.pickle
+        target: /home/icubam/resources/token.pickle
+    networks:
+      - icubam-network
+
+  # ICUBAM sms service
+  app-sms:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: icubam
+    container_name: icubam-sms-server
+    command: ./start_server_sms.sh
+    restart: unless-stopped
+    tty: true
+    environment:
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
+    working_dir: /home/icubam
+    volumes:
+      - type: bind
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
+      - type: bind
+        source: ./icubam.db
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: ./test.db
+        target: /home/icubam/test.db
+      - type: bind
+        source: ./resources/token.pickle
+        target: /home/icubam/resources/token.pickle
+    networks:
+      - icubam-network
+
+# Docker Networks
+networks:
+  icubam-network:
+    driver: bridge
