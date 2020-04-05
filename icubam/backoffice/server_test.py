@@ -29,7 +29,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     return super().fetch('/' + self.app.root + '/' + url, **kwargs)
 
   def test_homepage_without_cookie(self):
-    response = self.fetch(home.HomeHandler.ROUTE)
+    response = self.fetch('')
     self.assertEqual(response.code, 200)
 
   def test_login(self):
