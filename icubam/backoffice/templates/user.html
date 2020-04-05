@@ -65,7 +65,6 @@
               <input
                type="checkbox" name="is_admin" id="is_admin"
                {% if user.is_admin %}checked{% end %}
-               value="{{user.is_admin}}"
                data-bootstrap-switch data-off-color="danger" data-on-color="success">
           </div>
          {% end %}
@@ -73,7 +72,6 @@
          <div class="col-25">
            <label for="is_active">{{_("Actif")}}</label><br/>
            <input type="checkbox" name="is_active" id="is_active"
-             value="{{user.is_active}}"
              {% if user.is_active %}checked{% end %}
              data-bootstrap-switch data-off-color="danger" data-on-color="success">
          </div>
