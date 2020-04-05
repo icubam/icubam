@@ -9,7 +9,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
   COOKIE = 'user'
   PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-  ROUTE = ''
 
   def initialize(self):
     self.config = self.application.config
@@ -53,7 +52,7 @@ class BaseHandler(tornado.web.RequestHandler):
     return tornado.locale.get(locale) if locale else None
 
   def set_default_headers(self):
-    self.set_header("Access-Control-Allow-Credrouteentials", True)
+    self.set_header("Access-Control-Allow-Credentials", True)
     self.set_header("Access-Control-Allow-Origin", "*")
     self.set_header(
         "Access-Control-Allow-Headers", "x-requested-with, Content-Type")
