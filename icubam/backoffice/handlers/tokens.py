@@ -1,5 +1,7 @@
+from absl import logging
 import tornado.escape
 import tornado.web
+from typing import Optional
 
 from icubam.backoffice.handlers import base
 from icubam.backoffice.handlers import home
@@ -29,20 +31,26 @@ class TokenHandler(base.AdminHandler):
     user = None
     if userid is not None:
       user = self.db.get_external_client(userid)
+    self.do_render(user=user)
 
+  async def do_render(self, user: Optional[store.User], error=False):
     user = user if user is not None else store.ExternalClient()
-    await self.render("token.html", user=user, error="")
+    return await self.render("token.html", user=user, error=error)
 
   @tornado.web.authenticated
-  def post(self):
-    fields = ['name', 'telephone', 'email']
-    values = {k: self.get_body_argument(k, "") for k in fields}
-    incoming_user = store.ExternalClient(**values)
+  async def post(self):
+    values = self.parse_from_body(store.ExternalClient)
+    id_key = 'external_client_id'
+    token_id = values.pop(id_key, '')
+    try:
+      if not token_id:
+        token_id = self.db.add_external_client(
+          self.user.user_id, store.ExternalClient(**values))
+      else:
+        self.db.update_external_client(self.user.user_id, token_id, values)
+    except Exception as e:
+      logging.error(f'cannot save token {e}')
+      values[id_key] = token_id
+      return await self.do_render(user=store.ExternalClient(**values), error=True)
 
-    user = self.db.get_external_client_by_email(incoming_user.email)
-    if user is None:
-      self.db.add_external_client(self.user.user_id, incoming_user)
-    else:
-      c_id = user.external_client_id
-      self.db.update_external_client(self.user.user_id, c_id, values)
     return self.redirect(ListTokensHandler.ROUTE)

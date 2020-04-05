@@ -10,6 +10,14 @@ default_locale='fr-fr'
   origin = "ICUBAM"
   carrier = "TW"
 
+[email]
+  [email.dev]
+  service = "FAKE"
+  use_ssl = false
+  [email.prod]
+  service = "SMTP"
+  use_ssl = true
+
 [db]
   [db.dev]
   sqlite_path = "test.db"
