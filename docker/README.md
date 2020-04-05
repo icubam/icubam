@@ -71,7 +71,7 @@ docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 
 ### Environment variables
 
-The Docker containers expect the following environement variables to be set in order to launch
+Environment variables are not set in the Docker image, but set when starting the Docker containers. The containers expect the following variables to be set in order to launch
 
     ENV_MODE (can be prod or dev)
     SHEET_ID
@@ -86,10 +86,23 @@ The Docker containers expect the following environement variables to be set in o
     TW_KEY
     TW_API
 
-To quickly set environment variables from a dedicated file
+There are multiple ways for setting up these variables.
+- have a .env file at the root of the project
+- set the environment variables in the shell (e.g., to manage different configurations stored in another location)
+prior to launching the docker-compose.
+
+Rules of precedence
+- If variables **not set** in the environment and **no .env file**, the containers start and fail due to missing variables.
+- If variables **set** in the environment but **no .env file**, the containers start with the values set in the environment variables.
+- If variables **not set** in the environment but **.env file** exists, the containers start with the values set in the .env file.
+- If variables **set** in the environment and **.env file** exists, the containers start with the values set in the environment variables.
+
+Note: in order to reload the configuration, the containers (not the image) must be terminated and recreated (not only stop/start).
+
+Note: One way to quickly set environment variables from a dedicated file
 ```
 set -a
-. ../envars.env
+. $HOMR/icubam_secrets/envars-production.env
 set -a
 ```
 
