@@ -14,25 +14,10 @@ class BaseHandler(tornado.web.RequestHandler):
     self.config = config
     self.db = db
     self.user = None
-    self.client = tornado.httpclient.AsyncHTTPClient()
 
-  async def ping(self):
-    servers = {'server': 'www', 'messaging': 'sms'}
-    result = {}
-    for server, key in servers.items():
-      url = self.config[server].base_url + 'health'
-      try:
-        resp = await self.client.fetch(
-          tornado.httpclient.HTTPRequest(url=url, request_timeout=1))
-        result[key] = {'status': resp.code == 200, 'since': resp.body}
-      except:
-        result[key] = {'status': False, 'since': '-'}
-        continue
-    return result
-
-  async def render(self, path, **kwargs):
-    pings = await self.ping() if self.user and self.user.is_admin else {}
-    super().render(path, this_user=self.user, pings=pings, **kwargs)
+  def render(self, path, **kwargs):
+    status = self.application.server_status
+    super().render(path, this_user=self.user, server_status=status, **kwargs)
 
   def get_template_path(self):
     return 'icubam/backoffice/templates/'

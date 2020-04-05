@@ -18,10 +18,10 @@ class ListRegionsHandler(base.AdminHandler):
     return self.format_list_item(result)
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
-    await self.render("list.html",
+    self.render("list.html",
                 data=data,
                 objtype='Regions',
                 create_route=RegionHandler.ROUTE)
@@ -31,16 +31,16 @@ class RegionHandler(base.AdminHandler):
   ROUTE = "/region"
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     region = self.db.get_region(self.get_query_argument('id', None))
     self.do_render(region)
 
-  async def do_render(self, region):
+  def do_render(self, region):
     region = region if region is not None else store.Region()
-    await self.render("region.html", region=region, error=False)
+    self.render("region.html", region=region, error=False)
 
   @tornado.web.authenticated
-  async def post(self):
+  def post(self):
     values = self.parse_from_body(store.Region)
     id_key = 'region_id'
     region_id = values.pop(id_key, '')
@@ -53,6 +53,6 @@ class RegionHandler(base.AdminHandler):
     except Exception as e:
       logging.error(f'Cannot save region {e}')
       values[id_key] = region_id
-      return await self.do_render(store.Region(**values))
+      return self.do_render(store.Region(**values))
 
     return self.redirect(ListRegionsHandler.ROUTE)

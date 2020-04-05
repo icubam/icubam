@@ -34,12 +34,12 @@ class ListBedCountsHandler(base.BaseHandler):
     return result
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     if self.user.is_admin:
       bed_counts = self.db.get_latest_bed_counts()
     else:
       bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
 
     data = [self.prepare_data(bd) for bd in bed_counts]
-    await self.render(
+    self.render(
         "list.html", data=data, objtype='Bed Counts', create_route=None)

@@ -6,7 +6,7 @@ class HomeHandler(BaseHandler):
   ROUTE = '/'
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     # This is an authenticated handler, so Tornado will redirect to the login
     # page if no cookie is set.
-    return await self.render("home.html")
+    return self.render("home.html")

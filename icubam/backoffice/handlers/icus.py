@@ -14,25 +14,27 @@ class ListICUsHandler(base.BaseHandler):
     result = icu.to_dict(max_depth=1)
     for key in ['users', 'bed_counts', 'managers', 'lat', 'lng', 'create_date']:
       result.pop(key, None)
-    result['region'] = result.pop('region', {}).get('name', '-')
+    region = result.pop('region', None)
+    if region is not None:
+      result['region'] = region.get('name', '-')
     return self.format_list_item(result)
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     if self.user.is_admin:
       icus = self.db.get_icus()
     else:
       icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    await self.render(
+    self.render(
       "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
 
 
 class ICUHandler(base.BaseHandler):
   ROUTE = "/icu"
 
-  async def do_render(self, icu, error=False):
+  def do_render(self, icu, error=False):
     if self.user.is_admin:
       regions = self.db.get_regions()
     if not self.user.is_admin:
@@ -42,15 +44,15 @@ class ICUHandler(base.BaseHandler):
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
-    return await self.render("icu.html", icu=icu, regions=regions, error=error)
+    self.render("icu.html", icu=icu, regions=regions, error=error)
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     icu = self.db.get_icu(self.get_query_argument('id', None))
-    return await self.do_render(icu)
+    return self.do_render(icu)
 
   @tornado.web.authenticated
-  async def post(self):
+  def post(self):
     values = self.parse_from_body(store.ICU)
     values["is_active"] = values["is_active"] == 'True'
     id_key = 'icu_id'
@@ -63,6 +65,6 @@ class ICUHandler(base.BaseHandler):
     except Exception as e:
       logging.error(f'Cannot save ICU: {e}')
       values[id_key] = icu_id
-      return await self.do_render(store.ICU(**values), error=True)
+      return self.do_render(store.ICU(**values), error=True)
 
     return self.redirect(ListICUsHandler.ROUTE)

@@ -22,14 +22,14 @@ class ListUsersHandler(base.BaseHandler):
     return self.format_list_item(user_dict)
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     if self.user.is_admin:
       users = self.db.get_users()
     else:
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    await self.render(
+    return self.render(
       "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
 
 
@@ -50,14 +50,14 @@ class UserHandler(base.BaseHandler):
     self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     user = self.db.get_user(self.get_query_argument('id', None))
     user_icus = set([i.icu_id for i in user.icus]) if user is not None else []
     user_micus = set(
         [i.icu_id for i in user.managed_icus]) if user is not None else []
-    return await self.do_render(user, user_icus, user_micus, error=False)
+    return self.do_render(user, user_icus, user_micus, error=False)
 
-  async def do_render(self,
+  def do_render(self,
                 user: store.User,
                 icus: List[int],
                 managed_icus: List[int],
@@ -68,15 +68,11 @@ class UserHandler(base.BaseHandler):
     self.prepare_for_display(user)
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
-    return await self.render("user.html", options=options, user=user, icus=icus,
+    return self.render("user.html", options=options, user=user, icus=icus,
                              managed_icus=managed_icus, error=error)
 
   def get_options(self):
-    if self.user.is_admin:
-      options = self.db.get_icus()
-    else:
-      options = self.user.managed_icus
-    return options
+    return self.db.get_managed_icus(self.user.user_id)
 
   def prepare_for_display(self, user: store.User):
     if user.is_active is None:
@@ -120,7 +116,7 @@ class UserHandler(base.BaseHandler):
       logging.error(f"Cannot save user: {e}")
       user_dict[id_key] = user_id
       user = store.User(**user_dict)
-      return await self.do_render(
+      return self.do_render(
         user=user, icus=icus, managed_icus=managed_icus, error=True)
     return self.redirect(ListUsersHandler.ROUTE)
 
