@@ -3,8 +3,8 @@ $(function () {
 
   function isAdmin () {
     let admin_box = $('#is_admin')
-    if (admin_box !== undefined && $('#is_admin')[0] !== undefined) {
-      return $('#is_admin')[0].checked
+    if (admin_box !== undefined && admin_box[0] !== undefined) {
+      return admin_box[0].checked
     }
     return false
   }
