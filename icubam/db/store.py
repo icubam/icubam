@@ -441,7 +441,7 @@ class Store(object):
 
   def manages_user(self, manager_user_id: int, user_id: int) -> bool:
     """Returns true if the manager user can manage the user."""
-    if self.is_admin(manager_user_id):
+    if self.is_admin(manager_user_id) or manager_user_id == user_id:
       return True
     return self._session.query(
         icu_managers.c.user_id, icu_users.c.user_id).filter(
