@@ -27,9 +27,10 @@ class BackofficeApplication(tornado.web.Application):
     self.config = config
     self.db = db
     self.server_status = collections.defaultdict(ServerStatus)
+    self.client = tornado.httpclient.AsyncHTTPClient()
     super().__init__(routes, **settings)
 
-    repeat_every = self.config.backoffice.ping_every * 1000
+    repeat_every = self.config.backoffice.ping_every * 100
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
 
@@ -56,7 +57,6 @@ class BackOfficeServer(base_server.BaseServer):
   def __init__(self, config, port):
     super().__init__(config, port)
     self.port = port if port is not None else self.config.backoffice.port
-    self.client = tornado.httpclient.AsyncHTTPClient()
 
   def make_routes(self, path):
     kwargs = dict(config=self.config, db=self.db)

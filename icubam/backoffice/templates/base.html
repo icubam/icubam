@@ -67,7 +67,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
               {% if server_status[server].up %}
                 up since {{server_status[server].started}}
               {% else %}
-                down
+                down <br/>(last try {{server_status[server].last_ping}})
                 {% end %}
             </span>
           </div>
