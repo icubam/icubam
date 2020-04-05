@@ -25,8 +25,8 @@ class OnOffHandler(tornado.web.RequestHandler):
 
   ROUTE = '/onoff'
 
-  def initialize(self, db, scheduler):
-    self.db = db
+  def initialize(self, db_factory, scheduler):
+    self.db = db_factory.create()
     self.scheduler = scheduler
 
   async def post(self):

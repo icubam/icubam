@@ -5,10 +5,11 @@ import time
 from absl.testing import absltest
 from datetime import datetime, timedelta
 import icubam.db.store as db_store
-from icubam.db.store import Store, BedCount, ExternalClient, ICU, Region, User
+from icubam.db.store import Store, StoreFactory, BedCount, ExternalClient, ICU, Region, User
 from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import DetachedInstanceError
 
 
 def add_seconds(dt, seconds):
@@ -25,7 +26,8 @@ def key_by_name_and_create_date(bed_counts):
 class StoreTest(absltest.TestCase):
 
   def setUp(self):
-    store = Store(create_engine("sqlite:///:memory:", echo=True))
+    store_factory = StoreFactory(create_engine("sqlite:///:memory:", echo=True))
+    store = store_factory.create()
     self.admin_user_id = store.add_user(
         User(
             name="admin",
@@ -50,15 +52,16 @@ class StoreTest(absltest.TestCase):
                               ICU(name=name, region_id=region_id))
 
   def test_add_region(self):
+    store = self.store
     region_id1 = self.add_region("region1")
     region_id2 = self.add_region("region2")
 
-    region = self.store.get_region(region_id1)
+    region = store.get_region(region_id1)
     self.assertEqual(region.name, "region1")
     self.assertIsNotNone(region.create_date)
     self.assertEqual(region.last_modified, region.create_date)
 
-    region = self.store.get_region(region_id2)
+    region = store.get_region(region_id2)
     self.assertEqual(region.name, "region2")
 
   def test_get_regions(self):
@@ -69,18 +72,21 @@ class StoreTest(absltest.TestCase):
                           ["region1", "region2"])
 
   def test_update_region(self):
+    store = self.store
     region_id = self.add_region("foo")
     # Update the name of the region.
-    self.store.update_region(self.admin_user_id, region_id, {"name": "bar"})
+    store.update_region(self.admin_user_id, region_id, {"name": "bar"})
 
-    region = self.store.get_region(region_id)
+    region = store.get_region(region_id)
     self.assertEqual(region.name, "bar")
 
   def test_update_missing_region(self):
-    self.store.update_region(self.admin_user_id, 1, {"name": "foo"})
-    self.assertIsNone(self.store.get_region(1))
+    store = self.store
+    store.update_region(self.admin_user_id, 1, {"name": "foo"})
+    self.assertIsNone(store.get_region(1))
 
   def test_add_icu(self):
+    store = self.store
     icu = ICU(
         name="test",
         dept="dept",
@@ -89,10 +95,10 @@ class StoreTest(absltest.TestCase):
         lat=1.23,
         long=4.56,
         telephone="123456")
-    icu_id = self.store.add_icu(self.admin_user_id, icu)
+    icu_id = store.add_icu(self.admin_user_id, icu)
     self.assertEqual(icu_id, 1)
 
-    icu = self.store.get_icu(icu_id)
+    icu = store.get_icu(icu_id)
     self.assertEqual(icu.name, "test")
     self.assertEqual(icu.dept, "dept")
     self.assertEqual(icu.city, "city")
@@ -181,14 +187,15 @@ class StoreTest(absltest.TestCase):
                           ["user1", "user2", "admin", "manager"])
 
   def do_test_add_user_to_icu(self, icu_id, manager_user_id):
+    store = self.store
     user = User(
         name="user",
         telephone="123456",
         email="user@test.org",
         description="test")
-    user_id = self.store.add_user_to_icu(manager_user_id, icu_id, user)
+    user_id = store.add_user_to_icu(manager_user_id, icu_id, user)
 
-    user = self.store.get_user(user_id)
+    user = store.get_user(user_id)
     self.assertEqual(user.name, "user")
     self.assertEqual(user.telephone, "123456")
     self.assertEqual(user.email, "user@test.org")
@@ -196,14 +203,15 @@ class StoreTest(absltest.TestCase):
     self.assertEqual(user.icus[0].name, "icu")
 
   def test_to_dict(self):
+    store = self.store
     icu_id = self.add_icu()
     user = User(
         name="user",
         telephone="123456",
         email="user@test.org",
         description="test")
-    user_id = self.store.add_user_to_icu(self.admin_user_id, icu_id, user)
-    user = self.store.get_user(user_id)
+    user_id = store.add_user_to_icu(self.admin_user_id, icu_id, user)
+    user = store.get_user(user_id)
     user_dict = user.to_dict()
     self.assertEqual(user_dict["name"], "user")
     self.assertEqual(user_dict["telephone"], "123456")
@@ -254,7 +262,7 @@ class StoreTest(absltest.TestCase):
   def test_assign_user_to_icu(self):
     store = self.store
     manager_user_id = self.manager_user_id
-    user_id = self.store.add_user(User(name="user"))
+    user_id = store.add_user(User(name="user"))
 
     icu_id = self.add_icu()
     self.assertFalse(store.can_edit_bed_count(user_id, icu_id))
@@ -282,8 +290,7 @@ class StoreTest(absltest.TestCase):
     manager_user_id = self.manager_user_id
     store.assign_user_as_icu_manager(self.admin_user_id, manager_user_id,
                                      icu_id)
-    user_id = self.store.add_user_to_icu(manager_user_id, icu_id,
-                                         User(name="user"))
+    user_id = store.add_user_to_icu(manager_user_id, icu_id, User(name="user"))
     self.assertTrue(store.can_edit_bed_count(user_id, icu_id))
     # Now remove the assignment.
     store.remove_user_from_icu(manager_user_id, user_id, icu_id)
@@ -776,9 +783,29 @@ class StoreTest(absltest.TestCase):
             ("icu3", now): 5
         })
 
-  def test_create_store_for_sqlite_db(self):
+  def test_create_store_factory_for_sqlite_db(self):
     cfg = config.Config(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "../../resources/test.toml"))
-    store = db_store.create_store_for_sqlite_db(cfg)
+    store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
+    store = store_factory.create()
+
+  def test_not_detached(self):
+    store = self.store
+    user_id1 = store.add_user(User(name="user1"))
+    user1 = store.get_user(user_id1)
+
+    user_id2 = store.add_user(User(name="user2"))
+    user2 = store.get_user(user_id2)
+
+    # Objects should not be detached.
+    user1.icus
+    user2.icus
+
+  def test_detached(self):
+    user = self.store.get_user(self.admin_user_id)
+
+    self.store._session.close()
+    with self.assertRaises(DetachedInstanceError):
+      user.icus
