@@ -7,6 +7,5 @@ class LogoutHandler(BaseHandler):
   ROUTE = "logout"
 
   def get(self):
-    print('-----------> oiidjrlj')
     self.clear_cookie(self.COOKIE)
     return self.redirect(self.root_path)

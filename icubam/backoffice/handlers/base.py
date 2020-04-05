@@ -14,7 +14,11 @@ class BaseHandler(tornado.web.RequestHandler):
   def initialize(self):
     self.config = self.application.config
     self.db = self.application.db_factory.create()
-    self.root_path = os.path.join('/', self.application.root) + '/'
+    if self.application.root:
+      root = self.application.root.strip('/')
+      self.root_path = '/{}/'.format(root)
+    else:
+      self.root_path = '/'
     self.user = None
 
   def render(self, path, **kwargs):

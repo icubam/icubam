@@ -57,6 +57,11 @@ default_locale='fr-fr'
   ping = ['12:30', '17:30', '14:12']
 
 [backoffice]
-  port = 8890
-  ping_every = 60  # in seconds
-  root = 'admin'
+  [backoffice.prod]
+    port = 8890
+    ping_every = 60  # in seconds
+    root = 'admin'
+  [backoffice.dev]
+    port = 8890
+    ping_every = 60  # in seconds
+    root = ''
