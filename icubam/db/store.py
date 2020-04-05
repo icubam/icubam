@@ -240,8 +240,6 @@ class Store:
     except:
       session.rollback()
       raise
-    finally:
-      session.close()
 
   def _get_user(self, session, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
@@ -273,13 +271,15 @@ class Store:
       session.commit()
       return icu.icu_id
 
-  def get_icu(self, icu_id: int) -> Optional[ICU]:
+  def get_icu(self, icu_id: int, session=None) -> Optional[ICU]:
     """Returns the ICU with the specified ID."""
-    return self._session().query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
+    session = session or self._session()
+    return session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
-  def get_icus(self) -> Iterable[ICU]:
+  def get_icus(self, session=None) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
-    return self._session().query(ICU).all()
+    session = session or self._session()
+    return session.query(ICU).all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):
     """Updates an existing ICU.
@@ -330,9 +330,11 @@ class Store:
           icu_managers.c.user_id == manager_user_id).where(
               icu_managers.c.icu_id == icu_id))
 
-  def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
+  def get_managed_icus(self,
+                       manager_user_id: int,
+                       session=None) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
-    session = self._session()
+    session = session or self._session()
     # Admins can manage all ICUs.
     if self._is_admin(session, manager_user_id):
       return session.query(ICU).all()
@@ -380,17 +382,20 @@ class Store:
     self.assign_user_to_icu(manager_user_id, user_id, icu_id)
     return user_id
 
-  def get_user(self, user_id: int) -> User:
+  def get_user(self, user_id: int, session=None) -> User:
     """Returns the user with the specified ID."""
-    return self._get_user(self._session(), user_id)
+    session = session or self._session()
+    return self._get_user(session, user_id)
 
-  def get_users(self) -> Iterable[User]:
+  def get_users(self, session=None) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
-    return self._session().query(User).all()
+    session = session or self._session()
+    return session.query(User).all()
 
-  def get_admins(self) -> Iterable[User]:
+  def get_admins(self, session=None) -> Iterable[User]:
     """Returns all admins, e.g. sync. Do not use in user facing code."""
-    return self._session().query(User).filter(User.is_admin).all()
+    session = session or self._session()
+    return session.query(User).filter(User.is_admin).all()
 
   def update_user(self, manager_user_id: int, user_id: int, values):
     """Updates an existing user without changing the assigned ICUs.
@@ -441,13 +446,16 @@ class Store:
               icu_users, icu_managers.c.icu_id).filter(
                   icu_users.c.user_id == user_id).count() == 1
 
-  def get_managed_users(self, manager_user_id: int) -> Iterable[User]:
+  def get_managed_users(self,
+                        manager_user_id: int,
+                        session=None) -> Iterable[User]:
     """Returns the list of users managed by the manager user."""
-    icus = self.get_managed_icus(manager_user_id)
+    session = session or self._session()
+    icus = self.get_managed_icus(manager_user_id, session=session)
     if not icus:
       return []
     icu_ids = [icu.icu_id for icu in icus]
-    return self._session().query(User).join(icu_users).filter(
+    return session.query(User).join(icu_users).filter(
         icu_users.c.icu_id.in_(icu_ids)).all()
 
   # Authentication related methods.
@@ -499,14 +507,16 @@ class Store:
       session.commit()
       return region.region_id
 
-  def get_region(self, region_id: int) -> Optional[Region]:
+  def get_region(self, region_id: int, session=None) -> Optional[Region]:
     """Returns the region with the specified ID."""
-    return self._session().query(Region).filter(
+    session = session or self._session()
+    return session.query(Region).filter(
         Region.region_id == region_id).one_or_none()
 
-  def get_regions(self) -> Iterable[Region]:
+  def get_regions(self, session=None) -> Iterable[Region]:
     """Returns the list of regions."""
-    return self._session().query(Region).all()
+    session = session or self._session()
+    return session.query(Region).all()
 
   def update_region(self, admin_user_id: int, region_id: int, values):
     """Updates an existing region.
@@ -521,17 +531,21 @@ class Store:
         raise ValueError("Only admins can update a region.")
       session.query(Region).filter(Region.region_id == region_id).update(values)
 
-  def get_icus_in_region(region_id: int) -> Iterable[ICU]:
+  def get_icus_in_region(region_id: int, session=None) -> Iterable[ICU]:
     """Returns the ICUs in the region with the specified ID."""
-    return self._session().query(Region).filter(
+    session = session or self._session()
+    return session.query(Region).filter(
         Region.region_id == region_id).one().icus
 
   # Bed count related methods.
 
-  def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
+  def get_bed_count_for_icu(self,
+                            icu_id: int,
+                            session=None) -> Optional[BedCount]:
     """Returns the latest bed count for the ICU with the specified ID."""
-    return self._session().query(BedCount).filter(
-        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
+    session = session or self._session()
+    return session.query(BedCount).filter(BedCount.icu_id == icu_id).order_by(
+        desc(BedCount.create_date)).first()
 
   def update_bed_count_for_icu(self,
                                user_id: int,
@@ -615,22 +629,27 @@ class Store:
 
     return query.all()
 
-  def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
+  def get_latest_bed_counts(self,
+                            icu_ids=None,
+                            session=None,
+                            **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts.
 
     kargs are used for additional filtering, e.g. max_date.
 
     Args:
       icu_ids: a list or subquery of ICU IDs or None for all ICUs.
+      session: a DB session or None.
 
     Returns:
       a list of BedCounts, one for each ICU.
     """
-    return self.get_bed_counts(icu_ids, latest=True, **kargs)
+    return self.get_bed_counts(icu_ids, latest=True, session=session, **kargs)
 
   def get_bed_counts(self,
                      icu_ids=None,
                      latest=False,
+                     session=None,
                      **kargs) -> Iterable[BedCount]:
     """Returns the (latest) bed counts.
 
@@ -644,12 +663,14 @@ class Store:
     Returns:
       a list of BedCounts, one or more for each ICU.
     """
+    session = session or self._session()
     return self._get_bed_counts_for_icus(
-        self._session(), icu_ids, latest=latest, **kargs)
+        session, icu_ids, latest=latest, **kargs)
 
   def get_visible_bed_counts_for_user(self,
                                       user_id: int,
                                       force=False,
+                                      session=None,
                                       **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts of ICS that are visible to the user.
 
@@ -659,7 +680,7 @@ class Store:
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
     """
-    session = self._session()
+    session = session or self._session()
     user = self._get_user(session, user_id)
     if force or user.is_admin:
       return self._get_bed_counts_for_icus(session, None, latest=True, **kargs)
@@ -667,9 +688,12 @@ class Store:
       icu_ids = set()
       icu_ids.update([icu.icu_id for icu in user.icus])
       icu_ids.update([icu.icu_id for icu in user.managed_icus])
-    return self.get_visible_bed_counts_in_same_region(icu_ids, **kargs)
+    return self.get_visible_bed_counts_in_same_region(
+        icu_ids, session=session, **kargs)
 
-  def get_visible_bed_counts_in_same_region(self, icu_ids: Iterable[int],
+  def get_visible_bed_counts_in_same_region(self,
+                                            icu_ids: Iterable[int],
+                                            session=None,
                                             **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts in the regions of the specified ICUs.
 
@@ -678,12 +702,13 @@ class Store:
 
     Args:
       icu_ids: a list of ICU IDs.
+      session: a DB session or None.
 
     Returns:
       a list of BedCounts for the ICUs that are in the same regions as the input
       ICUs.
     """
-    session = self._session()
+    session = session or self._session()
     # Find the regions of the ICUs.
     region_ids = session.query(ICU.region_id).filter(ICU.icu_id.in_(icu_ids))
     # Fetch the IDs of the ICUs in these regions.
@@ -695,6 +720,7 @@ class Store:
   def get_bed_counts_for_external_client(self,
                                          external_client_id: int,
                                          latest=False,
+                                         session=None,
                                          **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts for the external client.
 
@@ -705,11 +731,12 @@ class Store:
       external_client_id: ID of the external client.
       latest: if true, then only the latest bed counts satisfying the conditions
         will be returned.
+      session: a DB session or None.
 
     Returns:
       a list of BedCounts.
     """
-    session = self._session()
+    session = session or self._session()
     # Find the regions of the external client.
     region_ids = session.query(external_client_regions.c.region_id).filter(
         external_client_regions.c.external_client_id == external_client_id)
@@ -771,19 +798,26 @@ class Store:
       session.query(ExternalClient).filter(ExternalClient.external_client_id ==
                                            external_client_id).update(values)
 
-  def get_external_client_by_email(self, email: str) -> ExternalClient:
+  def get_external_client_by_email(self,
+                                   email: str,
+                                   session=None) -> ExternalClient:
     """Returns the external client with the specified ID."""
-    return self._session().query(ExternalClient).filter(
+    session = session or self._session()
+    return session.query(ExternalClient).filter(
         ExternalClient.email == email).one_or_none()
 
-  def get_external_client(self, external_client_id: int) -> ExternalClient:
+  def get_external_client(self,
+                          external_client_id: int,
+                          session=None) -> ExternalClient:
     """Returns the external client with the specified ID."""
-    return self._session().query(ExternalClient).filter(
+    session = session or self._session()
+    return session.query(ExternalClient).filter(
         ExternalClient.external_client_id == external_client_id).one_or_none()
 
-  def get_external_clients(self) -> Iterable[ExternalClient]:
+  def get_external_clients(self, session=None) -> Iterable[ExternalClient]:
     """Returns a list of external clients."""
-    return self._session().query(ExternalClient).all()
+    session = session or self._session()
+    return session.query(ExternalClient).all()
 
   def auth_external_client(self, access_key: str) -> Optional[int]:
     """Authenticates an external client using the access key.
@@ -855,5 +889,4 @@ def create_store_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs):
-  return pd.json_normalize([obj.to_dict(max_depth=1) for obj in objs],
-                           sep="_")
+  return pd.json_normalize([obj.to_dict(max_depth=1) for obj in objs], sep="_")
