@@ -32,9 +32,11 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
     self.admin = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin, store.ICU(name='my_icu'))
+    self.icu = self.db.get_icu(self.icu_id)
 
     user = store.User(name='michel', telephone='1234')
     self.user_id = self.db.add_user_to_icu(self.admin, self.icu_id, user)
+    self.user = self.db.get_user(self.user_id)
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_computes_delay(self):
@@ -48,15 +50,13 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_schedule_message(self):
-    user = self.db.get_user(self.user_id)
-    icu = self.db.get_icu(self.icu_id)
-    msg = message.Message(icu, user, url='url')
+    msg = message.Message(self.icu, self.user, url='url')
     self.assertEqual(len(self.scheduler.timeouts), 0)
     delay = 100
     success = self.scheduler.schedule_message(msg, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 1)
-    key = user.user_id, icu.icu_id
+    key = self.user_id, self.icu_id
     timeout = self.scheduler.timeouts.get(key, None)
     self.assertIsNotNone(timeout)
     self.assertTrue(timeout.when, fake_now + delay)
@@ -75,11 +75,10 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
     # Another user same icu: another entry
     user = store.User(name='jacqueline', telephone='12333')
-    userid = self.db.add_user_to_icu(self.admin, icu.icu_id, user)
+    userid = self.db.add_user_to_icu(self.admin, self.icu_id, user)
     user = self.db.get_user(userid)
-    icu = self.db.get_icu(self.icu_id)
     offset = 100
-    msg2 = message.Message(icu, user, url='url')
+    msg2 = message.Message(self.icu, user, url='url')
     success = self.scheduler.schedule_message(msg2, delay=delay+offset)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
@@ -87,7 +86,6 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     # Same user new icu: new entry
     icuid = self.db.add_icu(self.admin, store.ICU(name='anothericu'))
     self.db.assign_user_to_icu(self.admin, userid, icuid)
-    user = self.db.get_user(userid)
     icu = self.db.get_icu(icuid)
     msg3 = message.Message(icu, user, url='url')
     success = self.scheduler.schedule_message(msg3, delay=delay+offset)
@@ -96,11 +94,9 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_schedule(self):
-    user = self.db.get_user(self.user_id)
-    icu = self.db.get_icu(self.icu_id)
     self.assertEqual(len(self.scheduler.timeouts), 0)
     delay = 200
-    success = self.scheduler.schedule(user, icu, delay=delay)
+    success = self.scheduler.schedule(self.user, self.icu, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 1)
 
@@ -108,8 +104,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     user1 = store.User(name='jacqueline', telephone='12333')
     userid1 = self.db.add_user_to_icu(self.admin, self.icu_id, user1)
     user1 = self.db.get_user(userid1)
-    icu = self.db.get_icu(self.icu_id)
-    success = self.scheduler.schedule(user1, icu, delay=delay)
+    success = self.scheduler.schedule(user1, self.icu, delay=delay)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -117,8 +112,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     user2 = store.User(name='armand', telephone='127313')
     userid2 = self.db.add_user(user2)
     user2 = self.db.get_user(userid2)
-    icu = self.db.get_icu(self.icu_id)
-    success = self.scheduler.schedule(user2, icu, delay=delay)
+    success = self.scheduler.schedule(user2, self.icu, delay=delay)
     self.assertFalse(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -126,8 +120,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     user3 = store.User(name='armande', telephone='15313', is_active=False)
     userid3 = self.db.add_user_to_icu(self.admin, self.icu_id, user3)
     user3 = self.db.get_user(userid3)
-    icu = self.db.get_icu(self.icu_id)
-    success = self.scheduler.schedule(user3, icu, delay=delay)
+    success = self.scheduler.schedule(user3, self.icu, delay=delay)
     self.assertFalse(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -138,7 +131,6 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
       curr = store.User(name=name, telephone=name, is_active=True)
       userid = self.db.add_user_to_icu(self.admin, self.icu_id, curr)
 
-    users = self.db.get_users()
     self.scheduler.schedule_all()
     # We are not sure about what is the db. But at least it should send to the
     # newly built users.
@@ -152,9 +144,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   @tornado.testing.gen_test
   async def test_do_send(self):
-    icu = self.db.get_icu(self.icu_id)
-    user = self.db.get_user(self.user_id)
-    msg = message.Message(icu, user, url='url')
+    msg = message.Message(self.icu, self.user, url='url')
     await self.scheduler.do_send(msg)
     # response = self.wait()
     self.assertEqual(len(self.queue.data), 1)
