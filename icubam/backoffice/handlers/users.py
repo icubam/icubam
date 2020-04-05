@@ -75,6 +75,7 @@ class UserHandler(base.BaseHandler):
     return self.db.get_managed_icus(self.user.user_id)
 
   def prepare_for_display(self, user: store.User):
+    print("--->", user.is_active, user.is_admin)
     if user.is_active is None:
       user.is_active = True
     if user.is_admin is None:
@@ -88,8 +89,8 @@ class UserHandler(base.BaseHandler):
     if user_dict.get(id_key, "") == "":
       user_dict.pop(id_key, None)
 
-    user_dict["is_active"] = user_dict.get("is_active", 'True') == 'True'
-    user_dict["is_admin"] = user_dict.get("is_admin", 'False') == 'True'
+    user_dict["is_active"] = user_dict.get("is_active", 'True') == 'on'
+    user_dict["is_admin"] = user_dict.get("is_admin", 'True') == 'on'
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
 
@@ -140,6 +141,7 @@ class UserHandler(base.BaseHandler):
     logging.info(f'Updating user {db_user.user_id}')
     user_id = db_user.user_id
     user_dict.pop('user_id', None)
+    print(user_dict)
     self.db.update_user(self.user.user_id, user_id, user_dict)
     await self.re_assign(db_user, icus, db_user.icus,
                          self.db.assign_user_to_icu,
