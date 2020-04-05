@@ -25,7 +25,8 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml')
-    self.db = store.create_store_for_sqlite_db(self.config)
+    self.db_factory = store.create_store_factory_for_sqlite_db(self.config)
+    self.db = self.db_factory.create()
     self.queue = MockQueue()
     self.scheduler = scheduler.MessageScheduler(
       self.config, self.db, self.queue)

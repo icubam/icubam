@@ -13,8 +13,8 @@ from icubam.www import updater
 class VersionHandler(base.BaseHandler):
   ROUTE = '/version'
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self, config, db_factory):
+    super().initialize(config, db_factory)
     self.updater = updater.Updater(self.config, self.db)
 
   def get_data(self) -> List[Dict]:

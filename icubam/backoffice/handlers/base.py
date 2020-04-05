@@ -1,7 +1,6 @@
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
-from icubam.db.store import create_store_for_sqlite_db
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -9,9 +8,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
   COOKIE = 'user'
 
-  def initialize(self, config, db):
+  def initialize(self, config, db_factory):
     self.config = config
-    self.db = db
+    self.db = db_factory.create()
     self.user = None
 
   def render(self, path, **kwargs):

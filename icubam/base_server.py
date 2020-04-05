@@ -12,7 +12,7 @@ class BaseServer:
     self.config = config
     self.port = port
     self.routes = []
-    self.db = store.create_store_for_sqlite_db(self.config)
+    self.db_factory = store.create_store_factory_for_sqlite_db(self.config)
     self.routes = []
     self.callbacks = []
 

@@ -16,7 +16,8 @@ FLAGS = flags.FLAGS
 
 def main(argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
-  sqldb = store.create_store_for_sqlite_db(cfg)
+  sqldb_factory = store.create_store_factory_for_sqlite_db(cfg)
+  sqldb = sqldb_factory.create()
   encoder = token.TokenEncoder(cfg)
   for user in sqldb.get_users():
     for icu in user.icus:

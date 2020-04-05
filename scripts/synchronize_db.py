@@ -17,7 +17,8 @@ def main(unused_argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
   shdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
   if FLAGS.newdb:
-    sqldb = store.create_store_for_sqlite_db(cfg)
+    sqldb_factory = store.create_store_factory_for_sqlite_db(cfg)
+    sqldb = sqldb_factory.create()
     sync = synchronizer.StoreSynchronizer(shdb, sqldb)
   else:
     sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)

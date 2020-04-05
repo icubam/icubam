@@ -19,7 +19,7 @@ class BackOfficeServer(base_server.BaseServer):
     self.port = port if port is not None else self.config.backoffice.port
 
   def make_routes(self, path):
-    kwargs = dict(config=self.config, db=self.db)
+    kwargs = dict(config=self.config, db_factory=self.db_factory)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(login.LoginHandler, **kwargs)
     self.add_handler(logout.LogoutHandler, **kwargs)
