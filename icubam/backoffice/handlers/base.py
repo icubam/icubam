@@ -33,9 +33,6 @@ class BaseHandler(tornado.web.RequestHandler):
     return self.render("list.html", data=data, objtype=objtype,
                        create_route=route, **kwargs)
 
-  def redirect_to(self, handler):
-    return self.redirect(handler.ROUTE)
-
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
 
