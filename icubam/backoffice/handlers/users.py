@@ -141,7 +141,6 @@ class UserHandler(base.BaseHandler):
     logging.info(f'Updating user {db_user.user_id}')
     user_id = db_user.user_id
     user_dict.pop('user_id', None)
-    print(user_dict)
     self.db.update_user(self.user.user_id, user_id, user_dict)
     await self.re_assign(db_user, icus, db_user.icus,
                          self.db.assign_user_to_icu,
