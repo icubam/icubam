@@ -10,20 +10,19 @@ from icubam.db import store
 
 class ListTokensHandler(base.AdminHandler):
 
-  ROUTE = "/list_tokens"
+  ROUTE = "list_tokens"
 
   @tornado.web.authenticated
   def get(self):
     clients = self.db.get_external_clients()
     data = [self.format_list_item(client.to_dict()) for client in clients]
-    self.render(
-        "list.html", data=data, objtype='Acces Tokens',
-        create_route=TokenHandler.ROUTE)
+    self.render_list(
+      data=data, objtype='Acces Tokens', create_handler=TokenHandler)
 
 
 class TokenHandler(base.AdminHandler):
 
-  ROUTE = "/token"
+  ROUTE = "token"
 
   @tornado.web.authenticated
   def get(self):
@@ -35,7 +34,8 @@ class TokenHandler(base.AdminHandler):
 
   def do_render(self, user: Optional[store.User], error=False):
     user = user if user is not None else store.ExternalClient()
-    return self.render("token.html", user=user, error=error)
+    return self.render("token.html", user=user, error=error,
+                       list_route=ListTokensHandler.ROUTE)
 
   @tornado.web.authenticated
   def post(self):

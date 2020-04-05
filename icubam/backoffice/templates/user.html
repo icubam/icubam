@@ -30,7 +30,7 @@
        <h3 class="card-title">{% if user.user_id %}{{_("Edit user")}}{% else %}{{_("Create user")}}{% end %}</h3>
      </div>
 
-     <form role="form" action="/user" method="post">
+     <form role="form" action="user" method="post">
        <div class="card-body">
 
         <!-- The hidden ID in case we're editing the user. -->
@@ -140,7 +140,7 @@
 
        <div class="card-footer">
          <button
-            type='button' onclick='navigateTo("/list_users")'
+            type='button' onclick='navigateTo("{{list_route}}")'
             class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>

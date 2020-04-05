@@ -8,7 +8,7 @@ from icubam.db import store
 
 
 class ListICUsHandler(base.BaseHandler):
-  ROUTE = "/list_icus"
+  ROUTE = "list_icus"
 
   def prepare_for_table(self, icu):
     result = icu.to_dict(max_depth=1)
@@ -32,7 +32,7 @@ class ListICUsHandler(base.BaseHandler):
 
 
 class ICUHandler(base.BaseHandler):
-  ROUTE = "/icu"
+  ROUTE = "icu"
 
   def do_render(self, icu, error=False):
     if self.user.is_admin:
@@ -44,7 +44,8 @@ class ICUHandler(base.BaseHandler):
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
-    return self.render("icu.html", icu=icu, regions=regions, error=error)
+    return self.render("icu.html", icu=icu, regions=regions, error=error,
+                       list_route=ListICUsHandler.ROUTE)
 
   @tornado.web.authenticated
   def get(self):
