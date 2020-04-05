@@ -20,7 +20,8 @@ def main(argv):
   fields = ['name', 'telephone', 'email']
   values = {k: FLAGS[k].value for k in fields if FLAGS[k].value is not None}
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
-  db = store.create_store_for_sqlite_db(cfg)
+  db_factory = store.create_store_factory_for_sqlite_db(cfg)
+  db = db_factory.create()
   users = db.get_admins()
   if users:
     admin_id = users[0].user_id

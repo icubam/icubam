@@ -12,7 +12,8 @@ class Migrator:
   def __init__(self, config, old_path):
     self.config = config
     self.old_db = sqlite.SQLiteDB(old_path)
-    self.new_db = store.create_store_for_sqlite_db(config)
+    self.new_db_factory = store.create_store_factory_for_sqlite_db(config)
+    self.new_db = self.new_db_factory.create()
     admins = self.new_db.get_admins()
     if admins:
       self.admin_id = admins[0].user_id

@@ -15,8 +15,9 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def setUp(self):
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
     self.server = server.BackOfficeServer(self.config, port=8889)
-    userid = self.server.db.add_default_admin()
-    self.user = self.server.db.get_user(userid)
+    self.db = self.server.db_factory.create()
+    userid = self.db.add_default_admin()
+    self.user = self.db.get_user(userid)
     super().setUp()
 
   def get_app(self):

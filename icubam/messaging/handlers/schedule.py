@@ -31,8 +31,8 @@ class ScheduleHandler(tornado.web.RequestHandler):
 
   ROUTE = '/schedule'
 
-  def initialize(self, db, scheduler):
-    self.db = db
+  def initialize(self, db_factory, scheduler):
+    self.db = db_factory.create()
     self.scheduler = scheduler
 
   def build_response(self, messages: List[Tuple[message.Message, int]]):

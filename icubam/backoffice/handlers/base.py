@@ -1,7 +1,6 @@
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
-from icubam.db.store import create_store_for_sqlite_db
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -11,7 +10,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
   def initialize(self):
     self.config = self.application.config
-    self.db = self.application.db
+    self.db = self.application.db_factory.create()
     self.user = None
 
   def render(self, path, **kwargs):
