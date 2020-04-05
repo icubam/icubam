@@ -29,7 +29,7 @@ class BaseHandler(tornado.web.RequestHandler):
                    server_status=status, **kwargs)
 
   def render_list(self, data, objtype, create_handler=None, **kwargs):
-    route = None if create_handler is None else self.get_route(create_handler)
+    route = None if create_handler is None else create_handler.ROUTE
     return self.render("list.html", data=data, objtype=objtype,
                        create_route=route, **kwargs)
 

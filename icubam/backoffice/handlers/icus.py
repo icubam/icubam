@@ -28,8 +28,7 @@ class ListICUsHandler(base.BaseHandler):
 
     data = [self.prepare_for_table(icu) for icu in icus]
     return self.render(
-      "list.html", data=data, objtype='ICUs',
-      create_route=self.get_route(ICUHandler))
+      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
 
 
 class ICUHandler(base.BaseHandler):

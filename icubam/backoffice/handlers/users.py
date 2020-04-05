@@ -39,7 +39,7 @@ class ProfileHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     return self.redirect(
-      '{}?id={}'.format(self.get_route(UserHandler), self.user.user_id))
+      '{}?id={}'.format(UserHandler.ROUTE, self.user.user_id))
 
 
 class UserHandler(base.BaseHandler):
