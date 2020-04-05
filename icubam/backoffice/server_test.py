@@ -26,10 +26,11 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     return self.server.make_app(cookie_secret='secret')
 
   def fetch(self, url, **kwargs):
-    return super().fetch('/' + self.app.root + '/' + url, **kwargs)
+    prefix = '/' + self.app.root + '/'
+    return super().fetch(prefix + url.lstrip('/'), **kwargs)
 
   def test_homepage_without_cookie(self):
-    response = self.fetch('')
+    response = self.fetch('/')
     self.assertEqual(response.code, 200)
 
   def test_login(self):
