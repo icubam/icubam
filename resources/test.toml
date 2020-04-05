@@ -45,3 +45,4 @@ sqlite_path = ":memory:"
 [backoffice]
   port = 8979
   ping_every = 60
+  root = 'mybo'
