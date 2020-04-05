@@ -9,13 +9,16 @@ class BaseHandler(tornado.web.RequestHandler):
 
   COOKIE = 'user'
 
-  def initialize(self, config, db):
-    self.config = config
-    self.db = db
+  def initialize(self):
+    self.config = self.application.config
+    self.db = self.application.db
     self.user = None
 
   def render(self, path, **kwargs):
-    super().render(path, this_user=self.user, **kwargs)
+    # This dictionary is updated by a PeriodicCallback in the
+    # BackofficeApplication
+    status = self.application.server_status
+    super().render(path, this_user=self.user, server_status=status, **kwargs)
 
   def get_template_path(self):
     return 'icubam/backoffice/templates/'

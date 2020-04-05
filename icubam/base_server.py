@@ -1,8 +1,19 @@
 from absl import logging
+import datetime
 import os.path
 import tornado.ioloop
 import tornado.web
 from icubam.db import store
+
+
+class HealthHandler(tornado.web.RequestHandler):
+  ROUTE = '/health'
+
+  def initialize(self, start_time):
+    self.start_time = start_time
+
+  def get(self):
+    return self.write("{0:%Y/%m/%d %H:%M:%S}".format(self.start_time))
 
 
 class BaseServer:
@@ -14,6 +25,8 @@ class BaseServer:
     self.routes = []
     self.db = store.create_store_for_sqlite_db(self.config)
     self.routes = []
+    self.start_time = datetime.datetime.utcnow()
+    self.add_handler(HealthHandler, start_time=self.start_time)
     self.callbacks = []
 
   def add_handler(self, handler, **kwargs):

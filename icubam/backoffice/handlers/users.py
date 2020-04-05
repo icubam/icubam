@@ -29,7 +29,7 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    self.render(
+    return self.render(
       "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
 
 
@@ -45,8 +45,8 @@ class ProfileHandler(base.BaseHandler):
 class UserHandler(base.BaseHandler):
   ROUTE = "/user"
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self):
+    super().initialize()
     self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
@@ -72,11 +72,7 @@ class UserHandler(base.BaseHandler):
                        managed_icus=managed_icus, error=error)
 
   def get_options(self):
-    if self.user.is_admin:
-      options = self.db.get_icus()
-    else:
-      options = self.user.managed_icus
-    return options
+    return self.db.get_managed_icus(self.user.user_id)
 
   def prepare_for_display(self, user: store.User):
     if user.is_active is None:

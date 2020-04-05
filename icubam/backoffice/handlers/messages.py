@@ -13,9 +13,9 @@ class ListMessagesHandler(base.AdminHandler):
 
   ROUTE = "/list_messages"
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
-    self.client = client.MessageServerClient(config)
+  def initialize(self):
+    super().initialize()
+    self.client = client.MessageServerClient(self.config)
 
   def prepare_for_table(self, msg):
     msg['when'] = '{0:%Y/%m/%d at %H:%M:%S}'.format(
