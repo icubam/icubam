@@ -1,7 +1,13 @@
 $(function () {
   $('.select2bs4').select2()
 
-  function isAdmin () { return $('#is_admin')[0].checked }
+  function isAdmin () {
+    let admin_box = $('#is_admin')
+    if (admin_box !== undefined && $('#is_admin')[0] !== undefined) {
+      return $('#is_admin')[0].checked
+    }
+    return false
+  }
   function isManager () { return $("#managed_icus").val().length > 0 }
   function hasPassword () { return isAdmin() || isManager() }
 
