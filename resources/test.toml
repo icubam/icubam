@@ -19,7 +19,7 @@ title = "My TOML Config"
   use_ssl = true
 
 [db]
-sqlite_path = "test.db"
+sqlite_path = ":memory:"
 
 [server]
   [server.dev]
