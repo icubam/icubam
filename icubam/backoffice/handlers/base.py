@@ -1,3 +1,4 @@
+import os.path
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
@@ -7,6 +8,7 @@ class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""
 
   COOKIE = 'user'
+  PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
   def initialize(self):
     self.config = self.application.config
@@ -20,7 +22,7 @@ class BaseHandler(tornado.web.RequestHandler):
     super().render(path, this_user=self.user, server_status=status, **kwargs)
 
   def get_template_path(self):
-    return 'icubam/backoffice/templates/'
+    return os.path.join(self.PATH, 'templates/')
 
   def get_current_user(self):
     if self.user is not None:
