@@ -25,6 +25,9 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def get_app(self):
     return self.server.make_app(cookie_secret='secret')
 
+  def fetch(self, url, **kwargs):
+    return super().fetch('/' + self.app.root + '/' + url, **kwargs)
+
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)
     self.assertEqual(response.code, 200)
