@@ -8,16 +8,23 @@ from icubam.db import store
 
 
 class ListICUsHandler(base.BaseHandler):
-  ROUTE = "/list_icus"
+  ROUTE = "list_icus"
 
   def prepare_for_table(self, icu):
-    result = icu.to_dict(max_depth=1)
-    for key in ['users', 'bed_counts', 'managers', 'lat', 'lng', 'create_date']:
-      result.pop(key, None)
-    region = result.pop('region', None)
-    if region is not None:
-      result['region'] = region.get('name', '-')
-    return self.format_list_item(result)
+    result = [{
+        'key': 'name',
+        'value': icu.name,
+        'link': f'{ICUHandler.ROUTE}?id={icu.icu_id}'}
+    ]
+    icu_dict = {}
+    icu_dict['city'] = icu.city
+    icu_dict['dept'] = icu.dept
+    icu_dict['region'] = icu.region.name
+    icu_dict['active'] = icu.is_active
+    icu_dict['users'] = len(icu.users)
+    icu_dict['managers'] = len(icu.managers)
+    result.extend(self.format_list_item(icu_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
@@ -32,7 +39,7 @@ class ListICUsHandler(base.BaseHandler):
 
 
 class ICUHandler(base.BaseHandler):
-  ROUTE = "/icu"
+  ROUTE = "icu"
 
   def do_render(self, icu, error=False):
     if self.user.is_admin:
@@ -44,7 +51,8 @@ class ICUHandler(base.BaseHandler):
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
-    return self.render("icu.html", icu=icu, regions=regions, error=error)
+    return self.render("icu.html", icu=icu, regions=regions, error=error,
+                       list_route=ListICUsHandler.ROUTE)
 
   @tornado.web.authenticated
   def get(self):

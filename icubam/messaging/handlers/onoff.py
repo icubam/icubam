@@ -1,3 +1,5 @@
+from typing import Optional
+
 from absl import logging
 import dataclasses
 import json
@@ -9,10 +11,10 @@ from icubam.messaging import serializable
 
 @dataclasses.dataclass
 class OnOffRequest(serializable.Serizalizable):
-  user_id: int = None
-  icu_ids: List[int] = None
+  user_id: Optional[int] = None
+  icu_ids: Optional[List[int]] = None
   on: bool = True
-  delay: int = None
+  delay: Optional[int] = None
 
 
 class OnOffHandler(tornado.web.RequestHandler):

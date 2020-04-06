@@ -24,7 +24,7 @@
        </h3>
      </div>
 
-     <form role="form" action="/icu" method="post">
+     <form role="form" action="icu" method="post">
 
        <!-- The hidden ID in case we're editing the icu. -->
        <input type="text" id="icu_id" name="icu_id"
@@ -115,7 +115,7 @@
 
        <div class="card-footer">
          <button
-            type='button' onclick='navigateTo("/list_icus")'
+            type='button' onclick='navigateTo("{{list_route}}")'
             class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">Submit</button>
        </div>

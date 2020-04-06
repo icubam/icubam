@@ -1,3 +1,4 @@
+import os.path
 import tornado.testing
 from unittest import mock, SkipTest
 
@@ -18,10 +19,15 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.db = self.server.db_factory.create()
     userid = self.db.add_default_admin()
     self.user = self.db.get_user(userid)
+    self.app = self.get_app()
     super().setUp()
 
   def get_app(self):
     return self.server.make_app(cookie_secret='secret')
+
+  def fetch(self, url, **kwargs):
+    prefix = '/' + self.app.root + '/'
+    return super().fetch(prefix + url.lstrip('/'), **kwargs)
 
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)

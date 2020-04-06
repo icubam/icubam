@@ -114,7 +114,7 @@ def _make_bar_plot(df: pd.DataFrame):
 
 
 class OperationalDashHandler(base.AdminHandler):
-  ROUTE = '/operational-dashboard'
+  ROUTE = 'operational-dashboard'
 
   @tornado.web.authenticated
   def get(self):

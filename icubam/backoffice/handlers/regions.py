@@ -9,26 +9,30 @@ from icubam.db import store
 
 
 class ListRegionsHandler(base.AdminHandler):
-  ROUTE = "/list_regions"
+  ROUTE = "list_regions"
 
   def prepare_for_table(self, region):
-    result = region.to_dict(max_depth=0)
-    for key in ['last_modified', 'icus']:
-      result.pop(key, None)
-    return self.format_list_item(result)
+    result = [{
+        'key': 'name',
+        'value': region.name,
+        'link': f'{RegionHandler.ROUTE}?id={region.region_id}'}
+    ]
+    region_dict = dict()
+    region_dict['icus'] = len(region.icus)
+    region_dict['created'] = region.create_date
+    result.extend(self.format_list_item(region_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
-    self.render("list.html",
-                data=data,
-                objtype='Regions',
-                create_route=RegionHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype="Regions", create_handler=RegionHandler)
 
 
 class RegionHandler(base.AdminHandler):
-  ROUTE = "/region"
+  ROUTE = "region"
 
   @tornado.web.authenticated
   def get(self):
@@ -37,7 +41,8 @@ class RegionHandler(base.AdminHandler):
 
   def do_render(self, region):
     region = region if region is not None else store.Region()
-    self.render("region.html", region=region, error=False)
+    self.render("region.html", region=region, error=False,
+                list_route=ListRegionsHandler.ROUTE)
 
   @tornado.web.authenticated
   def post(self):

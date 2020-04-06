@@ -1,4 +1,6 @@
 """Data store for ICUBAM."""
+from typing import Dict, Any
+
 from absl import logging
 import pandas as pd
 from contextlib import contextmanager
@@ -260,7 +262,7 @@ class Store(object):
   def is_admin(self, user_id: int) -> bool:
     """Returns true if the user with the specified ID is an admin."""
     user = self.get_user(user_id)
-    return user and user.is_admin
+    return bool(user and user.is_admin)
 
   # ICU related methods.
 
@@ -386,7 +388,7 @@ class Store(object):
     self.assign_user_to_icu(manager_user_id, user_id, icu_id)
     return user_id
 
-  def get_user(self, user_id: int) -> User:
+  def get_user(self, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
     return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
@@ -477,7 +479,11 @@ class Store(object):
     return self._session.query(User.user_id).filter(User.email == email).filter(
         User.password_hash == self.get_password_hash(password)).scalar()
 
-  def auth_user_by_token(token: str) -> int:
+  def get_user_by_email(self, email: str) -> int:
+    return self._session.query(User.user_id).filter(
+        User.email == email).scalar()
+
+  def auth_user_by_token(self, token: str) -> int:
     """Authenticates a user using a token.
 
     Returns:
@@ -498,7 +504,7 @@ class Store(object):
       ID of the region.
     """
     if region.region_id:
-      return ValueError("ID of a new region should not be set.")
+      raise ValueError("ID of a new region should not be set.")
     if not self.is_admin(admin_user_id):
       raise ValueError("Only admins can add a new region.")
     self._session.add(region)
@@ -528,7 +534,7 @@ class Store(object):
       self._session.query(Region).filter(
           Region.region_id == region_id).update(values)
 
-  def get_icus_in_region(region_id: int) -> Iterable[ICU]:
+  def get_icus_in_region(self, region_id: int) -> Iterable[ICU]:
     """Returns the ICUs in the region with the specified ID."""
     return self._session.query(Region).filter(
         Region.region_id == region_id).one().icus
@@ -659,6 +665,7 @@ class Store(object):
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
     """
+    # TODO: handle user=None here (#180)
     user = self.get_user(user_id)
     if force or user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)

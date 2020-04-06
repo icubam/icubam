@@ -12,14 +12,23 @@ from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
-  ROUTE = "/list_users"
+  ROUTE = "list_users"
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
-    user_dict = user.to_dict(include_relationships=False)
-    user_dict.pop("password_hash", None)
-    user_dict.pop("access_salt", None)
-    return self.format_list_item(user_dict)
+    result = [{
+        'key': 'name',
+        'value': user.name,
+        'link': f'{UserHandler.ROUTE}?id={user.user_id}'}
+    ]
+    user_dict = dict()
+    user_dict['admin'] = user.is_admin
+    user_dict['active'] = user.is_active
+    user_dict['created'] = user.create_date
+    user_dict['icus'] = ', '.join([icu.name for icu in user.icus])
+    user_dict['manages'] = ', '.join([icu.name for icu in user.managed_icus])
+    result.extend(self.format_list_item(user_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
@@ -29,12 +38,12 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    return self.render(
-      "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype='Users', create_handler=UserHandler)
 
 
 class ProfileHandler(base.BaseHandler):
-  ROUTE = "/profile"
+  ROUTE = "profile"
 
   @tornado.web.authenticated
   def get(self):
@@ -43,7 +52,7 @@ class ProfileHandler(base.BaseHandler):
 
 
 class UserHandler(base.BaseHandler):
-  ROUTE = "/user"
+  ROUTE = "user"
 
   def initialize(self):
     super().initialize()
@@ -69,7 +78,8 @@ class UserHandler(base.BaseHandler):
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
     return self.render("user.html", options=options, user=user, icus=icus,
-                       managed_icus=managed_icus, error=error)
+                       managed_icus=managed_icus, error=error,
+                       list_route=ListUsersHandler.ROUTE)
 
   def get_options(self):
     return self.db.get_managed_icus(self.user.user_id)

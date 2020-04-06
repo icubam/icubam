@@ -12,8 +12,8 @@ from icubam import time_utils
 @dataclasses.dataclass
 class ScheduledMessage:
   timeout: object = None
-  msg: message.Message = None
-  when: int = -1
+  msg: Optional[message.Message] = None
+  when: float = -1
 
 
 class MessageScheduler:
