@@ -81,6 +81,7 @@ services:
     networks:
       - icubam-network
 
+
   # Nginx Service
   # do not set a container_name as the init script for bottstraping the certificate uses the default naming scheme
   nginx:
