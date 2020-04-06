@@ -12,10 +12,16 @@ class ListRegionsHandler(base.AdminHandler):
   ROUTE = "list_regions"
 
   def prepare_for_table(self, region):
-    result = region.to_dict(max_depth=0)
-    for key in ['last_modified', 'icus']:
-      result.pop(key, None)
-    return self.format_list_item(result)
+    result = [{
+        'key': 'name',
+        'value': region.name,
+        'link': f'{RegionHandler.ROUTE}?id={region.region_id}'}
+    ]
+    region_dict = dict()
+    region_dict['icus'] = len(region.icus)
+    region_dict['created'] = region.create_date
+    result.extend(self.format_list_item(region_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
