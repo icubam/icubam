@@ -17,7 +17,7 @@ class ListBedCountsHandler(base.BaseHandler):
   def prepare_data(self, bed_count) -> list:
     icu =  bed_count.icu
     result = [{
-      'key': 'icu',
+      'key': 'icu (update link)',
       'value': icu.name,
       'link': self.link_fn(icu.icu_id, icu.name)
     }]
