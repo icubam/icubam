@@ -479,6 +479,10 @@ class Store(object):
     return self._session.query(User.user_id).filter(User.email == email).filter(
         User.password_hash == self.get_password_hash(password)).scalar()
 
+  def get_user_by_email(self, email: str) -> int:
+    return self._session.query(User.user_id).filter(
+        User.email == email).scalar()
+
   def auth_user_by_token(self, token: str) -> int:
     """Authenticates a user using a token.
 
