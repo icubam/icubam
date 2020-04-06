@@ -95,6 +95,8 @@ class BackOfficeServer(base_server.BaseServer):
     }
     tornado.locale.load_translations(os.path.join(path, 'translations'))
     self.make_routes(path)
+    logging.info('Access the backoffice at http://localhost:{}/{}/'.format(
+      self.port, self.config.backoffice.root))
 
     return BackofficeApplication(self.config, self.db_factory, self.routes,
                                  self.root, **settings)
