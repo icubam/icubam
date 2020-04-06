@@ -52,6 +52,15 @@
              placeholder="+33 7 3333 333"
              value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
          </div>
+
+         <div class="col-20">
+           <label for="name">Active</label><br/>
+           <input
+           type="checkbox" name="is_active"
+           {% if icu.is_active %} checked{% end %}
+           data-bootstrap-switch data-off-color="danger"
+           data-on-color="success">
+         </div>
         </div>
 
         <div class="form-row">
@@ -101,18 +110,6 @@
            </div>
         </div>
 
-        <div class="form-row">
-          <div class="col-20">
-            <label for="name">Active</label><br/>
-            <input
-            type="checkbox" name="is_active"
-            value="{{icu.is_active}}"
-            {% if icu.is_active %} checked{% end %}
-            checked data-bootstrap-switch data-off-color="danger"
-            data-on-color="success">
-          </div>
-        </div>
-
        <div class="card-footer">
          <button
             type='button' onclick='navigateTo("{{list_route}}")'
@@ -139,6 +136,6 @@
 <script>
   $("input[data-bootstrap-switch]").each(function(){
     $(this).bootstrapSwitch('state', $(this).prop('checked'));
-  });
+  })
 </script>
 {% end %}

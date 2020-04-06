@@ -62,7 +62,7 @@ class ICUHandler(base.BaseHandler):
   @tornado.web.authenticated
   def post(self):
     values = self.parse_from_body(store.ICU)
-    values["is_active"] = values["is_active"] == 'True'
+    values["is_active"] = values.get("is_active", "off") == 'on'
     id_key = 'icu_id'
     icu_id = values.pop(id_key, '')
     try:

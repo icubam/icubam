@@ -43,8 +43,6 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):
-    # TODO(olivier): remove this when we have a backoffice.
-    logging.info(self.debug_str)
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
     self.make_routes()
@@ -54,9 +52,3 @@ class WWWServer(base_server.BaseServer):
     }
     tornado.locale.load_translations(os.path.join(self.path, "translations"))
     return tornado.web.Application(self.routes, **settings)
-
-  @property
-  def debug_str(self):
-    """Only for debug to be able to connect for now. To be removed."""
-    return "\n".join(
-        updater.Updater(self.config, self.db_factory.create()).get_urls())
