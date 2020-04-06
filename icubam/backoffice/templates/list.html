@@ -57,11 +57,17 @@
             {% for row in data %}
               <tr>
                 {% for item in row %}
+                  <td>
                   {% if item['link'] %}
-                    <td><a href="{{item['link']}}">{{item['value']}}</a></td>
+                    <a href="{{item['link']}}">{{item['value']}}</a>
+                  {% elif isinstance(item['value'], bool) and item['value'] %}
+                    <i class="fas fa-check text-success"></i>
+                  {% elif isinstance(item['value'], bool) and not item['value'] %}
+                    <i class="fas fa-times text-danger"></i>
                   {% else %}
-                    <td>{{item['value']}}</td>
+                    {{item['value']}}
                   {% end %}
+                  </td>
                 {% end %}
               </tr>
             {% end %}

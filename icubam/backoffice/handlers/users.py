@@ -16,10 +16,19 @@ class ListUsersHandler(base.BaseHandler):
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
-    user_dict = user.to_dict(include_relationships=False)
-    user_dict.pop("password_hash", None)
-    user_dict.pop("access_salt", None)
-    return self.format_list_item(user_dict)
+    result = [{
+        'key': 'name',
+        'value': user.name,
+        'link': f'{UserHandler.ROUTE}?id={user.user_id}'}
+    ]
+    user_dict = dict()
+    user_dict['admin'] = user.is_admin
+    user_dict['active'] = user.is_active
+    user_dict['created'] = user.create_date
+    user_dict['icus'] = ', '.join([icu.name for icu in user.icus])
+    user_dict['manages'] = ', '.join([icu.name for icu in user.managed_icus])
+    result.extend(self.format_list_item(user_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
