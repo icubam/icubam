@@ -484,7 +484,7 @@ class Store(object):
         User.email == email).scalar()
 
   def auth_user_by_token(self, token: str) -> int:
-  """Authenticates a user using a token.
+    """Authenticates a user using a token.
 
     Returns:
       ID of the user with the matching token.
