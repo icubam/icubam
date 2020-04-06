@@ -488,7 +488,7 @@ class Store(object):
 
     Returns:
       ID of the user with the matching token.
-    """
+  """
     raise NotImplementedError()
 
   # Region related methods.
