@@ -1,6 +1,6 @@
 import sys
 from subprocess import check_output
-from typing import Dict, List, Optional, Callable
+from typing import Dict, Any, Optional, Callable
 import traceback
 
 import tornado.web
@@ -17,7 +17,7 @@ class VersionHandler(base.BaseHandler):
     super().initialize(config, db_factory)
     self.updater = updater.Updater(self.config, self.db)
 
-  def get_data(self) -> List[Dict]:
+  def get_data(self) -> Dict[str, Any]:
     """Get sanity checks data"""
     data = {}
     data['version'] = icubam.__version__
