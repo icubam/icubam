@@ -136,10 +136,10 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     # We are not sure about what is the db. But at least it should send to the
     # newly built users.
     # TODO(olivier): do better here
-    self.assertGreater(len(self.scheduler.timeouts), len(names) + 1)
+    self.assertGreater(len(self.scheduler.timeouts), len(names))
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
-  def test_schedule_all_2(self):
+  def test_schedule_all_messages(self):
     self.assertGreater(len(self.scheduler.messages), 0)
 
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
