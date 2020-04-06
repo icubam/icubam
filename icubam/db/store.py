@@ -661,7 +661,7 @@ class Store(object):
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
     """
-    # TODO: handle user=None here
+    # TODO: handle user=None here (#180)
     user = self.get_user(user_id)
     if force or user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
