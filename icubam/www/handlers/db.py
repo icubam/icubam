@@ -38,8 +38,8 @@ class DBHandler(base.BaseHandler):
 
     return self.db.auth_external_client(key)
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self, config, db_factory):
+    super().initialize(config, db_factory)
     keys = ['users', 'icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
     self.get_fns['all_bedcounts'] = self.db.get_bed_counts

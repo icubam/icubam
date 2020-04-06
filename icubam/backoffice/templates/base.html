@@ -19,6 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <script src='static/navigate.js'></script>
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -31,10 +32,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="/" class="nav-link">Home</a>
+        <a href="{{root}}" class="nav-link">Home</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="/logout" class="nav-link">Logout</a>
+        <a href="logout" class="nav-link">Logout</a>
       </li>
     </ul>
 
@@ -49,13 +50,39 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
       </div>
     </form> -->
+
+    {% if this_user.is_admin %}
+    <ul class="navbar-nav ml-auto">
+      {% for server in server_status %}
+        <!-- Messages Dropdown Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <span class="text-{% if server_status[server].up %}success{% else %}danger{%end%}">
+              {{server_status[server].name}} <i class="fas fa-circle"></i>
+            </span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-item dropdown-header">
+              {{server_status[server].name}} server is
+              {% if server_status[server].up %}
+                up since {{server_status[server].started}}
+              {% else %}
+                down <br/>(last try {{server_status[server].last_ping}})
+                {% end %}
+            </span>
+          </div>
+        </li>
+      {% end %}
+    </ul>
+    {% end %}
+
   </nav>
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="/" class="brand-link">
+    <a href="{{root}}" class="brand-link">
       <!-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8"> -->
       <span class="brand-text font-weight-light">ICUBAM</span>
@@ -69,7 +96,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <i class="nav-icon fas fa-user"></i>
         </div>
         <div class="info">
-          <a href="/profile" class="d-block">{{this_user.name}}</a>
+          <a href="profile" class="d-block">{{this_user.name}}</a>
         </div>
       </div>
 
@@ -79,46 +106,52 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item">
-            <a href="/list_users" class="nav-link">
+            <a href="list_users" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
               <p>Users</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/list_icus" class="nav-link">
+            <a href="list_icus" class="nav-link">
               <i class="nav-icon fas fa-ambulance"></i>
               <p>ICUs</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/dashboard" class="nav-link">
+            <a href="dashboard" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>Dashboards</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/dashboard" class="nav-link">
+            <a href="dashboard" class="nav-link">
               <i class="nav-icon fas fa-map-marker-alt"></i>
               <p>Map</p>
             </a>
           </li>
           {% if this_user.is_admin %}
           <li class="nav-item">
-            <a href="/operational-dashboard" class="nav-link">
+            <a href="operational-dashboard" class="nav-link">
               <i class="nav-icon fas fa-chart-pie"></i>
               <p>Operational dashboard</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/list_tokens" class="nav-link">
+            <a href="list_tokens" class="nav-link">
               <i class="nav-icon fas fa-key"></i>
               <p>Access Tokens</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/list_regions" class="nav-link">
+            <a href="list_regions" class="nav-link">
               <i class="nav-icon fas fa-flag"></i>
               <p>Regions</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="list_messages" class="nav-link">
+              <i class="nav-icon fas fa-sms"></i>
+              <p>Messages</p>
             </a>
           </li>
           {% end %}
@@ -166,6 +199,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
+
+
 
 {% block scripts %}
 {% end %}

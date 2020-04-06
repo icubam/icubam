@@ -30,11 +30,12 @@
        <h3 class="card-title">{% if user.user_id %}{{_("Edit user")}}{% else %}{{_("Create user")}}{% end %}</h3>
      </div>
 
-     <form role="form" action="/user" method="post">
+     <form role="form" action="user" method="post">
        <div class="card-body">
 
         <!-- The hidden ID in case we're editing the user. -->
-        <input type="text" id="user_id" name="user_id" hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
+        <input type="text" id="user_id" name="user_id"
+               hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
         <!-- Required and does not accept names that contain only spaces. -->
         <div class="form-row">
            <div class="col-25">
@@ -64,7 +65,6 @@
               <input
                type="checkbox" name="is_admin" id="is_admin"
                {% if user.is_admin %}checked{% end %}
-               value="{{user.is_admin}}"
                data-bootstrap-switch data-off-color="danger" data-on-color="success">
           </div>
          {% end %}
@@ -72,7 +72,6 @@
          <div class="col-25">
            <label for="is_active">{{_("Actif")}}</label><br/>
            <input type="checkbox" name="is_active" id="is_active"
-             value="{{user.is_active}}"
              {% if user.is_active %}checked{% end %}
              data-bootstrap-switch data-off-color="danger" data-on-color="success">
          </div>
@@ -140,6 +139,9 @@
 
 
        <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("{{list_route}}")'
+            class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
        </div>
      </form>
@@ -149,7 +151,6 @@
 {% if error %}
  <div class="alert alert-danger" role="alert">
     {{_("Failed to save the user")}}.
-    {{error}}
  </div>
 {% end %}
 
@@ -160,5 +161,5 @@
 {% block scripts %}
 <script src="plugins/select2/js/select2.full.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
-<script src="/static/user.js"></script>
+<script src="static/user.js"></script>
 {% end %}

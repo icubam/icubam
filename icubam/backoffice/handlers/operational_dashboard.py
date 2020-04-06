@@ -114,10 +114,10 @@ def _make_bar_plot(df: pd.DataFrame):
 
 
 class OperationalDashHandler(base.AdminHandler):
-  ROUTE = '/operational-dashboard'
+  ROUTE = 'operational-dashboard'
 
   @tornado.web.authenticated
-  async def get(self):
+  def get(self):
     """Serves a page with a table gathering current bedcount data with some extra information."""
     arg_region = self.get_query_argument('region', default=None)
 
@@ -156,7 +156,7 @@ class OperationalDashHandler(base.AdminHandler):
     } for el in self.db.get_regions()]
     regions = list(sorted(regions, key=lambda x: x['name']))
 
-    self.render(
+    return self.render(
       "operational-dashboard.html",
       figures=figures,
       regions=regions,

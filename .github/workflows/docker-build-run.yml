@@ -1,0 +1,45 @@
+name: Build Docker image and test container
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
+    - uses: goanpeca/setup-miniconda@v1
+      with:
+         auto-update-conda: true
+         activate-environment: anaconda-client-env
+         python-version: 3.8
+         auto-activate-base: false
+    - shell: bash -l {0}
+      run: |
+        conda info
+        python --version
+    - name: Install dependencies
+      shell: bash -l {0}
+      run: |
+        which python
+        pip --version
+        pip install -r requirements.txt
+    - name: Test Dockerfile build
+      shell: bash -l {0}
+      env:
+        GSHEETS_TOKEN: ${{ secrets.gsheets_token }}
+        TOKEN_LOC: token.pickle
+        SHEET_ID: ${{ secrets.SHEET_ID }}
+        JWT_SECRET: some_secret_string
+        SECRET_COOKIE: another_secret_string
+      run: |
+        python -c "import pickle; import base64; import os; tok=pickle.loads(base64.b64decode(os.getenv('GSHEETS_TOKEN'))); tfile = open('token.pickle', 'wb'); pickle.dump(tok, tfile)"
+        pip install -e .
+        python scripts/populate_db_fake.py --mode=dev
+        cp test.db icubam.db
+        mv token.pickle resources
+        ./docker/scripts/docker_build.sh latest
+        ./docker/scripts/docker_run.sh icubam:latest 8888 dev
+        sleep 5
+        docker logs icubam-server
+

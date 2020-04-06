@@ -1,24 +1,39 @@
+import os.path
 import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
-from icubam.db.store import create_store_for_sqlite_db
 
 
 class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""
 
   COOKIE = 'user'
+  PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-  def initialize(self, config, db):
-    self.config = config
-    self.db = db
+  def initialize(self):
+    self.config = self.application.config
+    self.db = self.application.db_factory.create()
+    if self.application.root:
+      root = self.application.root.strip('/')
+      self.root_path = '/{}/'.format(root)
+    else:
+      self.root_path = '/'
     self.user = None
 
   def render(self, path, **kwargs):
-    super().render(path, this_user=self.user, **kwargs)
+    # This dictionary is updated by a PeriodicCallback in the
+    # BackofficeApplication
+    status = self.application.server_status
+    super().render(path, this_user=self.user, root=self.root_path,
+                   server_status=status, **kwargs)
+
+  def render_list(self, data, objtype, create_handler=None, **kwargs):
+    route = None if create_handler is None else create_handler.ROUTE
+    return self.render("list.html", data=data, objtype=objtype,
+                       create_route=route, **kwargs)
 
   def get_template_path(self):
-    return 'icubam/backoffice/templates/'
+    return os.path.join(self.PATH, 'templates/')
 
   def get_current_user(self):
     if self.user is not None:
@@ -69,7 +84,7 @@ class BaseHandler(tornado.web.RequestHandler):
       result = []
       for k, v in item.items():
         route = auto_links.get(k, None)
-        link = '/{}?id={}'.format(route, v) if route is not None else False
+        link = '{}?id={}'.format(route, v) if route is not None else False
         result.append({'key': k, 'value': v, 'link': link})
     return result
 

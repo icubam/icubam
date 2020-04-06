@@ -12,8 +12,8 @@ class UpdateHandler(base.BaseHandler):
   ROUTE = updater.Updater.ROUTE
   QUERY_ARG = 'id'
 
-  def initialize(self, config, db, queue):
-    super().initialize(config, db)
+  def initialize(self, config, db_factory, queue):
+    super().initialize(config, db_factory)
     self.queue = queue
     self.updater = updater.Updater(self.config, self.db)
     self.token_encoder = token.TokenEncoder(self.config)

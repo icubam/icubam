@@ -8,11 +8,11 @@ from icubam.db import store
 
 
 class ListBedCountsHandler(base.BaseHandler):
-  ROUTE = '/dashboard'
+  ROUTE = 'dashboard'
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
-    self.link_fn = updater.Updater(config, db).get_url
+  def initialize(self):
+    super().initialize()
+    self.link_fn = updater.Updater(self.config, self.db).get_url
 
   def prepare_data(self, bed_count) -> list:
     icu =  bed_count.icu
@@ -41,5 +41,5 @@ class ListBedCountsHandler(base.BaseHandler):
       bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
 
     data = [self.prepare_data(bd) for bd in bed_counts]
-    self.render(
-        "list.html", data=data, objtype='Bed Counts', create_route=None)
+    return self.render_list(
+      data=data, objtype='Bed Counts', create_handler=None)

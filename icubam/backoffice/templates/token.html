@@ -28,7 +28,13 @@
        </h3>
      </div>
 
-     <form role="form" action="/token" method="post">
+     <form role="form" action="token" method="post">
+
+       <!-- The hidden ID in case we're editing the user. -->
+       <input type="text" id="external_client_id" name="external_client_id"
+              hidden value="{% if user.external_client_id is not None%}{{user.external_client_id}}{% end %}"
+        </input>
+
        <div class="card-body">
 
         <div class="form-row">
@@ -44,9 +50,9 @@
             <label for="validationCustom04">Phone Number</label>
             <input type="tel" id="telephone" name="telephone"
               class="form-control"
-              pattern="^\+\d{0,13}"
-              title='Phone Number (Format: +332222222)'
-              placeholder="+33 6 3333 333"
+              pattern="^\+?\d{0,13}"
+              title='Phone Number (Format: (+)332222222)'
+              placeholder="+33 7 3333 333"
               value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
           </div>
 
@@ -78,6 +84,9 @@
         </div>
 
        <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("{{list_route}}")'
+            class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">Submit</button>
        </div>
      </form>
@@ -86,7 +95,7 @@
 
 {% if error %}
  <div class="alert alert-danger" role="alert">
-   {{error}}
+   {{_("Failed to save access token")}}
  </div>
 {% end %}
 

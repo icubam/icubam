@@ -4,26 +4,37 @@ services:
   # ICUBAM service
   app-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./docker/Dockerfile
     image: icubam
     container_name: icubam-server
     command: ./start_server.sh
     restart: unless-stopped
     tty: true
     environment:
-      ENV_MODE : "dev"
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/icubam-docker.env
-        target: /home/icubam/resources/icubam.env
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./resources/icubam-docker.toml
-        target: /home/icubam/resources/icubam.toml
+        source: ./icubam.db
+        target: /home/icubam/icubam.db
       - type: bind
-        source: ./resources/icubam.db
-        target: /home/icubam/resources/icubam.db
+        source: ./test.db
+        target: /home/icubam/test.db
       - type: bind
         source: ./resources/token.pickle
         target: /home/icubam/resources/token.pickle
@@ -33,26 +44,37 @@ services:
   # ICUBAM sms service
   app-sms:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./docker/Dockerfile
     image: icubam
     container_name: icubam-sms-server
     command: ./start_server_sms.sh
     restart: unless-stopped
     tty: true
     environment:
-      ENV_MODE : "dev"
+      ENV_MODE : "$ENV_MODE"
+      SHEET_ID : "$SHEET_ID"
+      TOKEN_LOC : "/home/icubam/resources/token.pickle"
+      SMS_KEY : "$SMS_KEY"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      MB_KEY : "$MB_KEY"
+      NX_KEY : "$NX_KEY"
+      NX_API : "$NX_API"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/icubam-docker.env
-        target: /home/icubam/resources/icubam.env
+        source: ./resources/config.toml
+        target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./resources/icubam-docker.toml
-        target: /home/icubam/resources/icubam.toml
+        source: ./icubam.db
+        target: /home/icubam/icubam.db
       - type: bind
-        source: ./resources/icubam.db
-        target: /home/icubam/resources/icubam.db
+        source: ./test.db
+        target: /home/icubam/test.db
       - type: bind
         source: ./resources/token.pickle
         target: /home/icubam/resources/token.pickle
@@ -70,13 +92,13 @@ services:
       - "443:443"
     volumes:
       - type: bind
-        source: ./configs/nginx
+        source: ./docker/configs/nginx
         target: /etc/nginx/conf.d
       - type: bind
-        source: ./configs/certbot/conf
+        source: ./docker/configs/certbot/conf
         target: /etc/letsencrypt
       - type: bind
-        source: ./configs/certbot/www
+        source: ./docker/configs/certbot/www
         target: /var/www/certbot
     networks:
       - icubam-network
@@ -89,10 +111,10 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: ./configs/certbot/conf
+        source: ./docker/configs/certbot/conf
         target: /etc/letsencrypt
       - type: bind
-        source: ./configs/certbot/www
+        source: ./docker/configs/certbot/www
         target: /var/www/certbot
     networks:
       - icubam-network

@@ -12,7 +12,7 @@ from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
-  ROUTE = "/list_users"
+  ROUTE = "list_users"
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
@@ -29,12 +29,12 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    self.render(
-      "list.html", data=data, objtype='Users', create_route=UserHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype='Users', create_handler=UserHandler)
 
 
 class ProfileHandler(base.BaseHandler):
-  ROUTE = "/profile"
+  ROUTE = "profile"
 
   @tornado.web.authenticated
   def get(self):
@@ -43,10 +43,10 @@ class ProfileHandler(base.BaseHandler):
 
 
 class UserHandler(base.BaseHandler):
-  ROUTE = "/user"
+  ROUTE = "user"
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self):
+    super().initialize()
     self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
@@ -69,14 +69,11 @@ class UserHandler(base.BaseHandler):
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
     return self.render("user.html", options=options, user=user, icus=icus,
-                       managed_icus=managed_icus, error=error)
+                       managed_icus=managed_icus, error=error,
+                       list_route=ListUsersHandler.ROUTE)
 
   def get_options(self):
-    if self.user.is_admin:
-      options = self.db.get_icus()
-    else:
-      options = self.user.managed_icus
-    return options
+    return self.db.get_managed_icus(self.user.user_id)
 
   def prepare_for_display(self, user: store.User):
     if user.is_active is None:
@@ -92,8 +89,8 @@ class UserHandler(base.BaseHandler):
     if user_dict.get(id_key, "") == "":
       user_dict.pop(id_key, None)
 
-    user_dict["is_active"] = user_dict.get("is_active", 'True') == 'True'
-    user_dict["is_admin"] = user_dict.get("is_admin", 'False') == 'True'
+    user_dict["is_active"] = user_dict.get("is_active", 'off') == 'on'
+    user_dict["is_admin"] = user_dict.get("is_admin", 'off') == 'on'
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
 
@@ -111,13 +108,17 @@ class UserHandler(base.BaseHandler):
   async def post(self):
     password = self.get_body_argument("password", None)
     user_dict = self.parse_from_body(store.User)
+    id_key = 'user_id'
+    user_id = user_dict.get(id_key, '')
     icus, managed_icus = self.prepare_for_save(user_dict, password)
     try:
       await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
+      logging.error(f"Cannot save user: {e}")
+      user_dict[id_key] = user_id
       user = store.User(**user_dict)
       return self.do_render(
-        user=user, icus=icus, managed_icus=managed_icus, error=f'{e}')
+        user=user, icus=icus, managed_icus=managed_icus, error=True)
     return self.redirect(ListUsersHandler.ROUTE)
 
   async def create_user(self, user_dict, icus, managed_icus):

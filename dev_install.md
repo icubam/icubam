@@ -25,6 +25,10 @@ GOOGLE_API_KEY=
 TW_KEY=
 TW_API=
 DB_SALT=
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+EMAIL_FROM=
 ```
 
 N.B.: You can name and move this file as you want but you will have to add
@@ -72,3 +76,8 @@ Then open backoffice at [http://localhost:8890](http://localhost:8890) and
 login with user credentials created by the `populate_db_fake.py` script,
  - user: `admin@test.org`
  - password: `password`
+
+## Docker
+
+To build and run the application using Docker (docker or docker-compose) check the [documentation](./docker/README.md)
+in the docker folder.

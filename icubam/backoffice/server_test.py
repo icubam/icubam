@@ -1,3 +1,4 @@
+import os.path
 import tornado.testing
 from unittest import mock, SkipTest
 
@@ -5,7 +6,7 @@ from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
   base, home, login, logout, users, tokens, icus, dashboard,
-  operational_dashboard, regions
+  operational_dashboard, regions, messages
 )
 
 
@@ -15,12 +16,18 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def setUp(self):
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
     self.server = server.BackOfficeServer(self.config, port=8889)
-    userid = self.server.db.add_default_admin()
-    self.user = self.server.db.get_user(userid)
+    self.db = self.server.db_factory.create()
+    userid = self.db.add_default_admin()
+    self.user = self.db.get_user(userid)
+    self.app = self.get_app()
     super().setUp()
 
   def get_app(self):
     return self.server.make_app(cookie_secret='secret')
+
+  def fetch(self, url, **kwargs):
+    prefix = '/' + self.app.root + '/'
+    return super().fetch(prefix + url.lstrip('/'), **kwargs)
 
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)
@@ -52,6 +59,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       regions.RegionHandler,
       dashboard.ListBedCountsHandler,
       operational_dashboard.OperationalDashHandler,
+      messages.ListMessagesHandler,
     ]
     for handler in handlers:
       with mock.patch.object(handler, 'get_current_user') as m:

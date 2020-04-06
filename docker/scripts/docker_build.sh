@@ -10,5 +10,5 @@ then
 	  exit
 fi
 
-docker build -f Dockerfile  -t="icubam:$1" .
+docker build -f ./docker/Dockerfile  -t="icubam:$1" .
 
