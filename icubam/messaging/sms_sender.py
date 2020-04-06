@@ -24,7 +24,8 @@ class FakeSender(Sender):
   """Just log the message but does nothing real."""
 
   def send(self, dest, contents):
-    logging.info(f'Sending {contents} to {dest}.')
+    destination = "+{}".format(dest.strip('+'))
+    logging.info(f'Sending {contents} to {destination}.')
 
 
 class MBSender(Sender):
@@ -37,7 +38,7 @@ class MBSender(Sender):
 
   def send(self, dest, contents):
     message = self._client.message_create(
-      self._originator, dest, contents, {"reference": "Foobar"}
+      self._originator, dest.strip("+"), contents, {"reference": "Foobar"}
     )
     return message
 
@@ -50,7 +51,7 @@ class NXSender(Sender):
 
   def send(self, dest, contents):
     return self._client.send_message(
-      {"from": self._originator, "to": dest, "text": contents}
+      {"from": self._originator, "to": dest.strip("+"), "text": contents}
     )
 
 
@@ -60,8 +61,9 @@ class TWSender(Sender):
     self._client = TWCLient(self.config.TW_KEY, self.config.TW_API)
 
   def send(self, dest, contents):
+    destination = "+{}".format(dest.strip('+'))
     self._client.messages.create(
-      to=f"+{dest}", from_=self._originator, body=contents)
+      to=destination, from_=self._originator, body=contents)
 
 
 
