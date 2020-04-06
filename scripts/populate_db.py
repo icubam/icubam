@@ -40,6 +40,7 @@ def main(unused_argv):
 
 
 if __name__ == "__main__":
+  import sys
   if not click.confirm("WARNING: !!Make sure you delete the .db file before populating!!. CONTINUE?", err=True):
     sys.exit(0)
 
