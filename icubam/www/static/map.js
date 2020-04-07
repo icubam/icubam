@@ -65,7 +65,7 @@ function CenterControl(controlDiv, map) {
 
 
 function addMarker (obj, map) {
-  const position = {lat: obj.lat, lng: obj.lng};
+  const position = {lat: obj.lat, lng: obj.long};
 
   var infowindow = new google.maps.InfoWindow({
     content: obj.popup,
@@ -100,29 +100,29 @@ function addPopup (obj, map, Popup) {
   var div = document.getElementById('map')
   div.insertAdjacentHTML('beforeend', obj.popup);
   var content = div.lastElementChild
-  popup = new Popup(new google.maps.LatLng(obj.lat, obj.lng), content)
+  popup = new Popup(new google.maps.LatLng(obj.lat, obj.long), content)
   popup.setMap(map);
 }
 
-function getCenter(data) {
-  if (data.length === 0) {
-    // Paris lat-long
-    return {lat: 48.8566, lng: 2.3522}
-  }
-
-  let center = {lat: 0, lng: 0}
-  for (i =0; i < data.length; i++) {
-    center.lat = center.lat + data[i].lat
-    center.lng = center.lng + data[i].lng
-  }
-  center.lat =  center.lat / data.length
-  center.lng =  center.lng / data.length
-
-  return center
-}
+// function getCenter(data) {
+//   if (data.length === 0) {
+//     // Paris lat-long
+//     return {lat: 48.8566, lng: 2.3522}
+//   }
+//
+//   let center = {lat: 0, lng: 0}
+//   for (i =0; i < data.length; i++) {
+//     center.lat = center.lat + data[i].lat
+//     center.lng = center.lng + data[i].long
+//   }
+//   center.lat =  center.lat / data.length
+//   center.lng =  center.lng / data.length
+//
+//   return center
+// }
 
 function plotMap(data, center) {
-  center = center === null ? getCenter(data) : center
+  // center = center === null ? getCenter(data) : center
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
@@ -220,7 +220,6 @@ function plotMap(data, center) {
   var all_popups = []
   Popup = createPopupClass();
   for (i = 0; i < data.length; i++) {
-    // addMarker(data[i], map)
     all_popups.push(addPopup(data[i], map, Popup))
   }
 
