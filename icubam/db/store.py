@@ -323,7 +323,6 @@ class Store(object):
     """Returns true if the user manages the ICU with the specified ID."""
     if self.is_admin(user_id):
       return True
-
     return self._session.query(icu_managers).filter(
         icu_managers.c.user_id == user_id).filter(
             icu_managers.c.icu_id == icu_id).count() == 1
