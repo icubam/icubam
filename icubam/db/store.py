@@ -337,7 +337,11 @@ class Store(object):
 
   def assign_user_as_icu_manager(self, admin_user_id: int, manager_user_id: int,
                                  icu_id: int, force: bool = False):
-    """Assigns the specified user as a manager of an ICU."""
+    """Assigns the specified user as a manager of an ICU.
+
+    The force parameter is used to bypass the admin condition in specific
+    situations such as when a manager want to create an ICU.
+    """
     if not force and not self.is_admin(admin_user_id):
       raise ValueError("Only admin users can assign managers to ICUs.")
     with self._commit_or_rollback():
