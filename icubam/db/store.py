@@ -209,7 +209,9 @@ class ExternalClient(Base):
   @property
   def access_key_valid(self):
     """Returns true if the access key is valid."""
-    return self.expiration_date is None or self.expiration_date > datetime.now()
+    return (
+      (self.expiration_date is None or self.expiration_date > datetime.now())
+      and self.is_active)
 
 
 @dataclasses.dataclass
@@ -726,7 +728,7 @@ class Store(object):
                                          latest=False,
                                          **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts for the external client.
-
+access_key_valid
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
 
@@ -735,7 +737,7 @@ class Store(object):
       latest: if true, then only the latest bed counts satisfying the conditions
         will be returned.
 
-    Returns:
+    Returns:access_key_valid
       a list of BedCounts.
     """
     # Find the regions of the external client.
@@ -773,7 +775,7 @@ class Store(object):
       ID of the external client and the access key.
     """
     if not self.is_admin(admin_user_id):
-      raise ValueError("Only admins can add a new external client.")
+      raise ValueError("Only access_key_validadmins can add a new external client.")
     access_key = self.create_access_key()
     external_client.access_key_hash = access_key.key_hash
     # TODO(olivier): remove this later.
