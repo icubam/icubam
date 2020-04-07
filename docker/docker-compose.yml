@@ -13,15 +13,9 @@ services:
     tty: true
     environment:
       ENV_MODE : "$ENV_MODE"
-      SHEET_ID : "$SHEET_ID"
-      TOKEN_LOC : "/home/icubam/resources/token.pickle"
-      SMS_KEY : "$SMS_KEY"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
-      MB_KEY : "$MB_KEY"
-      NX_KEY : "$NX_KEY"
-      NX_API : "$NX_API"
       TW_KEY : "$TW_KEY"
       TW_API : "$TW_API"
     working_dir: /home/icubam
@@ -53,15 +47,9 @@ services:
     tty: true
     environment:
       ENV_MODE : "$ENV_MODE"
-      SHEET_ID : "$SHEET_ID"
-      TOKEN_LOC : "/home/icubam/resources/token.pickle"
-      SMS_KEY : "$SMS_KEY"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
-      MB_KEY : "$MB_KEY"
-      NX_KEY : "$NX_KEY"
-      NX_API : "$NX_API"
       TW_KEY : "$TW_KEY"
       TW_API : "$TW_API"
     working_dir: /home/icubam
@@ -80,6 +68,7 @@ services:
         target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
+
 
   # Nginx Service
   # do not set a container_name as the init script for bottstraping the certificate uses the default naming scheme

@@ -2,8 +2,12 @@
 # Nginx configuration for docker-compose nginx container
 #
 
-upstream tornadoserver {
+upstream app-server {
         server icubam-server:8888;
+}
+
+upstream backoffice-server {
+        server icubam-server:8890;
 }
 
 server {
@@ -38,10 +42,18 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
+    location /admin/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-Ip $remote_addr;
+        proxy_pass http://backoffice-server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location / {
         proxy_set_header Host $host;
         proxy_set_header X-Real-Ip $remote_addr;
-        proxy_pass http://tornadoserver;
+        proxy_pass http://app-server;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
