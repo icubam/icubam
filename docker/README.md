@@ -74,15 +74,9 @@ docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 Environment variables are not set in the Docker image, but set when starting the Docker containers. The containers expect the following variables to be set in order to launch
 
     ENV_MODE (can be prod or dev)
-    SHEET_ID
-    TOKEN_LOC  (full path location of the token.pickle file)
-    SMS_KEY
     SECRET_COOKIE
     JWT_SECRET
     GOOGLE_API_KEY
-    MB_KEY
-    NX_KEY
-    NX_API
     TW_KEY
     TW_API
 
