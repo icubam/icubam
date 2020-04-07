@@ -64,6 +64,16 @@
               placeholder="name@site.com"
               value="{% if user.email %}{{user.email}}{% end %}" required>
           </div>
+
+          <div class="col-20">
+            <label for="name">Active</label><br/>
+            <input
+            type="checkbox" name="is_active"
+            {% if user.is_active %} checked{% end %}
+            data-bootstrap-switch data-off-color="danger"
+            data-on-color="success">
+          </div>
+
         </div>
 
         <div class="form-row">
@@ -102,4 +112,13 @@
 </div>
 </section>
 
+{% end %}
+
+{% block scripts %}
+<script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script>
+  $("input[data-bootstrap-switch]").each(function(){
+    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  })
+</script>
 {% end %}
