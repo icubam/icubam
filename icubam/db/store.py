@@ -327,7 +327,6 @@ class Store(object):
     return self._session.query(icu_managers).filter(
         icu_managers.c.user_id == user_id).filter(
             icu_managers.c.icu_id == icu_id).count() == 1
-    return result
 
   def enable_icu(self, manager_user_id: int, icu_id: int, is_active=True):
     """Enables the ICU with the specified ID."""
@@ -386,7 +385,7 @@ class Store(object):
     Returns:
       ID of the user.
     """
-    self._session.add(user)
+    self._session.add(user)icu_ids
     self._session.commit()
     return user.user_id
 
@@ -410,7 +409,7 @@ class Store(object):
 
   def get_user(self, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
-    return self._session.query(User).filter(
+    return self._session.query(Usericu_ids).filter(
         User.user_id == user_id).one_or_none()
 
   def get_users(self) -> Iterable[User]:
