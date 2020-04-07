@@ -885,5 +885,5 @@ def create_store_factory_for_sqlite_db(cfg) -> Store:
   return StoreFactory(engine, salt=cfg.DB_SALT)
 
 
-def to_pandas(objs):
-  return pd.json_normalize([obj.to_dict(max_depth=1) for obj in objs], sep="_")
+def to_pandas(objs, max_depth=1):
+  return pd.json_normalize([obj.to_dict(max_depth=max_depth) for obj in objs], sep="_")
