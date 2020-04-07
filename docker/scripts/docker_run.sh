@@ -44,13 +44,9 @@ docker run -d -p $2:8888 \
     --env ENV_MODE=$3 \
     --env TOKEN_LOC="/home/icubam/resources/token.pickle" \
     --env SHEET_ID=$SHEET_ID \
-    --env SMS_KEY=$SMS_KEY \
     --env SECRET_COOKIE=$SECRET_COOKIE \
     --env JWT_SECRET=$JWT_SECRET \
     --env GOOGLE_API_KEY=$GOOGLE_API_KEY \
-    --env MB_KEY=$MB_KEY \
-    --env NX_KEY=$NX_KEY \
-    --env NX_API=$NX_API \
     --env TW_KEY=$TW_KEY \
     --env TW_API=$TW_API \
      $1  \
