@@ -40,7 +40,7 @@ class DBHandler(base.BaseHandler):
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    keys = ['users', 'icus', 'regions']
+    keys = ['icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
     self.get_fns['all_bedcounts'] = self.db.get_bed_counts
     self.get_fns['bedcounts'] = functools.partial(
