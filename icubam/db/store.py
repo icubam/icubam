@@ -209,7 +209,9 @@ class ExternalClient(Base):
   @property
   def access_key_valid(self):
     """Returns true if the access key is valid."""
-    return self.expiration_date is None or self.expiration_date > datetime.now()
+    return (
+      (self.expiration_date is None or self.expiration_date > datetime.now())
+      and self.is_active)
 
 
 @dataclasses.dataclass
