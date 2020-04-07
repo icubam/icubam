@@ -16,7 +16,8 @@ jobs:
     - name: Build the Docker image
       run: |
         docker build . --file docker/Dockerfile \
-          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/}
+          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/} \
+          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${{ github.sha }}
     - name: docker login (GitHub)
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
     - name: docker push (GitHub)
