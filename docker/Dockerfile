@@ -51,6 +51,7 @@ WORKDIR /home/icubam
 COPY docker docker
 RUN mv ./docker/start_server.sh .
 RUN mv ./docker/start_server_sms.sh .
+RUN mv ./docker/start_server_bo.sh .
 # copy code and scripts
 COPY icubam icubam
 COPY scripts scripts
