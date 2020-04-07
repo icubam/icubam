@@ -1,9 +1,7 @@
 from absl import logging
-import json
+import os.path
 from typing import List, Dict
-import tornado.templates
 
-import icubam
 from icubam.db import store
 
 
@@ -40,16 +38,15 @@ class ICUTree:
     level = self.level if level is None else level
     icu = bedcount.icu
     name = getattr(icu, level, None)
-    if name is None and level == 'region':
-      name = icu.region.name
-    return name
+    if level == 'region':
+      name = name.name
+    return name if name is not None else level
 
   def get_next_level(self):
     idx = self.LEVELS.index(self.level)
     if idx < len(self.LEVELS) - 1:
-      return self.LEVELS[idx] + 1
-    return None'id': 'id_{}'.format(city.replace(' ', '_')),
-        'label': city,
+      return self.LEVELS[idx + 1]
+    return None
 
   def add(self, bedcount):
     if self.label is None:
@@ -77,7 +74,7 @@ class ICUTree:
       self.lat = bedcount.icu.lat
       self.long = bedcount.icu.long
 
-  def extract_at(self, level, nodes) -> List[ICUTree]:
+  def extract_at(self, level, nodes):
     if self.level == level:
       nodes.append(self)
     else:
@@ -86,24 +83,22 @@ class ICUTree:
 
 
 class MapBuilder:
-  BASE_PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-  POPUP_TEMPLATE = 'www/templates/popup2.html'
 
-  def __init__(self, config, db_factory, html_template):
+  def __init__(self, config, db, popup_template):
     self.config = config
-    self.db = db_factory.create()
-    loader = tornado.template.Loader(self.BASE_PATH)
-    self.popup_template = loader.load(self.POPUP_TEMPLATE)
-    self.template = loader.load(html_template)
+    self.db = db
+    self.popup_template = popup_template
 
   def to_map_data(self, tree, level):
     nodes = []
-    self.extract_at(level, nodes)
+    tree.extract_at(level, nodes)
     result = []
     for node in nodes:
       views = [
         {'name': 'cluster', 'beds': [node]},
-        {'name': 'full', 'beds': sorted(node.children, key=lambda x: x.label)},
+        {
+          'name': 'full',
+          'beds': sorted(node.children.values(), key=lambda x: x.label)},
       ]
       popup = self.popup_template.generate(
         cluster=node.label, color=node.color, views=views)
@@ -113,21 +108,17 @@ class MapBuilder:
       result.append(curr)
 
     # This sorts the from north to south, so as to avoid overlap on the north.
-    result.sort(key=lambda x: x.lat, reverse=True)
+    result.sort(key=lambda x: x['lat'], reverse=True)
     return result
 
-  def to_html(self, user_id=None, center_icu=None, level='dept'):
+  def prepare_json(self, user_id=None, center_icu=None, level='dept'):
     bedcounts = self.db.get_visible_bed_counts_for_user(
-      user, force=user is None)
+      user_id, force=user_id is None)
     tree = ICUTree()
     for bedcount in bedcounts:
       tree.add(bedcount)
 
-    data = tree.to_map_data(level)
+    data = self.to_map_data(tree, level)
     anchor = center_icu if center_icu is not None else tree
     center = {'lat': anchor.lat, 'lng': anchor.long}
-    self.template.generate(
-      API_KEY=self.config.GOOGLE_API_KEY,
-      center=json.dumps(center),
-      data=json.dumps(data),
-      version=icubam.__version__)
+    return data, center

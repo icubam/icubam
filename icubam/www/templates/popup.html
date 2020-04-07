@@ -5,23 +5,23 @@
     <table class='bed-table'>
       {% for obj in view['beds'] %}
         <tr>
-          <td class='report-number modal-icu-name'>{{obj['icu']}}</td>
-          {% if obj['phone'] %}
-          <td style="background-color:{{obj['color']}}" class='report-number'>
-            {{obj['occ']}} / {{obj['total']}}
+          <td class='report-number modal-icu-name'>{{obj.label}}</td>
+          {% if obj.phone %}
+          <td style="background-color:{{obj.color}}" class='report-number'>
+            {{obj.occ}} / {{obj.total}}
           </td>
           {% else %}
-            <td style="background-color:{{obj['color']}}" class='report-number'>
-              {{obj['free']}}
+            <td style="background-color:{{obj.color}}" class='report-number'>
+              {{obj.free}}
             </td>
           {% end %}
-          {% if obj['phone'] %}
+          {% if obj.phone %}
           <td class='report-number' onclick='togglePopup("{{cluster}}")'>
-            <a href="tel:+{{obj['phone']}}" class='not-underlined'>
+            <a href="tel:+{{obj.phone}}" class='not-underlined'>
               &#x1F4DE;
             </a>
-            <a href="tel:+{{obj['phone']}}"
-                class='show-on-hover not-underlined'>+{{obj['phone']}}</a>
+            <a href="tel:+{{obj.phone}}"
+                class='show-on-hover not-underlined'>+{{obj.phone}}</a>
           </td>
           {% end %}
         </tr>
