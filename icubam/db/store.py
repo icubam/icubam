@@ -323,9 +323,11 @@ class Store(object):
     """Returns true if the user manages the ICU with the specified ID."""
     if self.is_admin(user_id):
       return True
+
     return self._session.query(icu_managers).filter(
         icu_managers.c.user_id == user_id).filter(
             icu_managers.c.icu_id == icu_id).count() == 1
+    return result
 
   def enable_icu(self, manager_user_id: int, icu_id: int, is_active=True):
     """Enables the ICU with the specified ID."""
@@ -463,11 +465,25 @@ class Store(object):
     """Returns true if the manager user can manage the user."""
     if self.is_admin(manager_user_id) or manager_user_id == user_id:
       return True
-    return self._session.query(
+
+    # TODO(olivier): for some reason, this query sometimes returns False
+    # while it should not.
+    result = self._session.query(
         icu_managers.c.user_id, icu_users.c.user_id).filter(
             icu_managers.c.user_id == manager_user_id).join(
                 icu_users, icu_managers.c.icu_id).filter(
                     icu_users.c.user_id == user_id).count() == 1
+    if result:
+      return True
+
+    user = self.get_user(user_id)
+    if user is None:
+      return False
+
+    managed_icu_ids = set(
+      [i.icu_id for i in self.get_managed_icus(manager_user_id)])
+    user_icu_ids = set([i.icu_id for i in user.icus])
+    return len(managed_icu_ids.intersection(user_icu_ids)) > 0
 
   def get_managed_users(self, manager_user_id: int) -> Iterable[User]:
     """Returns the list of users managed by the manager user."""
