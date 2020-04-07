@@ -304,9 +304,12 @@ class Store(object):
     """Returns the ICU with the specified ID."""
     return self._session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
-  def get_icus(self) -> Iterable[ICU]:
+  def get_icus(self, active_only=False) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
-    return self._session.query(ICU).all()
+    query = self._session.query(ICU)
+    if active_only:
+      query = query.filter(ICU.is_active)
+    return query.all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):
     """Updates an existing ICU.

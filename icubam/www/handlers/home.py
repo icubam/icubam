@@ -108,7 +108,7 @@ class HomeHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    self.icus = {x.icu_id: x for x in self.db.get_icus()}
+    self.icus = {x.icu_id: x for x in self.db.get_icus(active_only=True)}
     city_coords = self.get_coords()
     # TODO(olivier): pass the user here!
     bedcounts = self.db.get_visible_bed_counts_for_user(None, force=True)
@@ -162,4 +162,4 @@ class MapByAPIHandler(HomeHandler):
     if key is None:
       return
 
-    return self.db.auth_external_client(key)  
+    return self.db.auth_external_client(key)
