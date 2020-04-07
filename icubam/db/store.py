@@ -728,7 +728,7 @@ class Store(object):
                                          latest=False,
                                          **kargs) -> Iterable[BedCount]:
     """Returns the latest bed counts for the external client.
-access_key_valid
+
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
 
@@ -737,7 +737,7 @@ access_key_valid
       latest: if true, then only the latest bed counts satisfying the conditions
         will be returned.
 
-    Returns:access_key_valid
+    Returns:
       a list of BedCounts.
     """
     # Find the regions of the external client.
@@ -775,7 +775,7 @@ access_key_valid
       ID of the external client and the access key.
     """
     if not self.is_admin(admin_user_id):
-      raise ValueError("Only access_key_validadmins can add a new external client.")
+      raise ValueError("Only admins can add a new external client.")
     access_key = self.create_access_key()
     external_client.access_key_hash = access_key.key_hash
     # TODO(olivier): remove this later.
