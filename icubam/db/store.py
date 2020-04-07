@@ -463,11 +463,16 @@ class Store(object):
     """Returns true if the manager user can manage the user."""
     if self.is_admin(manager_user_id) or manager_user_id == user_id:
       return True
-    return self._session.query(
-        icu_managers.c.user_id, icu_users.c.user_id).filter(
-            icu_managers.c.user_id == manager_user_id).join(
-                icu_users, icu_managers.c.icu_id).filter(
-                    icu_users.c.user_id == user_id).count() == 1
+
+    # TODO(olivier): use a sql query instead.
+    user = self.get_user(user_id)
+    if user is None:
+      return False
+
+    managed_icu_ids = set(
+      [i.icu_id for i in self.get_managed_icus(manager_user_id)])
+    user_icu_ids = set([i.icu_id for i in user.icus])
+    return len(managed_icu_ids.intersection(user_icu_ids)) > 0
 
   def get_managed_users(self, manager_user_id: int) -> Iterable[User]:
     """Returns the list of users managed by the manager user."""
