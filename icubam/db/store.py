@@ -464,16 +464,7 @@ class Store(object):
     if self.is_admin(manager_user_id) or manager_user_id == user_id:
       return True
 
-    # TODO(olivier): for some reason, this query sometimes returns False
-    # while it should not.
-    result = self._session.query(
-        icu_managers.c.user_id, icu_users.c.user_id).filter(
-            icu_managers.c.user_id == manager_user_id).join(
-                icu_users, icu_managers.c.icu_id).filter(
-                    icu_users.c.user_id == user_id).count() == 1
-    if result:
-      return True
-
+    # TODO(olivier): use a sql query instead.
     user = self.get_user(user_id)
     if user is None:
       return False
