@@ -67,7 +67,6 @@ class HomeHandler(base.BaseHandler):
     result = collections.defaultdict(list)
     for bedcount in bedcounts:
       icu = self.icus.get(bedcount.icu_id, None)
-
       if icu is None:
         logging.error('No ICU {} for this bedcount'.format(bedcount.icu_id))
         continue
