@@ -67,6 +67,7 @@ class HomeHandler(base.BaseHandler):
     result = collections.defaultdict(list)
     for bedcount in bedcounts:
       icu = self.icus.get(bedcount.icu_id, None)
+      print(icu.name)
       if icu is None:
         logging.error('No ICU {} for this bedcount'.format(bedcount.icu_id))
         continue
@@ -112,6 +113,7 @@ class HomeHandler(base.BaseHandler):
     city_coords = self.get_coords()
     # TODO(olivier): pass the user here!
     bedcounts = self.db.get_visible_bed_counts_for_user(None, force=True)
+    print(bedcounts)
     beds_per_city = self.get_beds_per_city(bedcounts)
     data = []
     for city, beds in beds_per_city.items():

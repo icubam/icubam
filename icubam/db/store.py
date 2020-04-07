@@ -213,7 +213,6 @@ class ExternalClient(Base):
       (self.expiration_date is None or self.expiration_date > datetime.now())
       and self.is_active)
 
-
 @dataclasses.dataclass
 class AccessKey(object):
   """Access key together with its hash."""
@@ -590,7 +589,7 @@ class Store(object):
 
   def _get_latest_bed_counts_for_icus(self,
                                       icu_ids,
-                                      max_date: datetime = None
+                                      max_date: datetime = None,
                                      ) -> Iterable[BedCount]:
     """Returns the latest bed counts of the ICUs.
 
@@ -605,7 +604,9 @@ class Store(object):
     # Bed counts in reverse chronological order.
     sub = session.query(BedCount.rowid, BedCount.icu_id,
                         BedCount.create_date).order_by(
-                            desc(BedCount.create_date))
+                            desc(BedCount.create_date)).join(ICU, BedCount.icu_id == ICU.icu_id).filter(ICU.is_active==True)
+    # sub = sub.filter(ICU.is_active == True)
+                            
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
@@ -613,6 +614,7 @@ class Store(object):
       sub = sub.filter(BedCount.create_date < max_date)
 
     sub = sub.subquery()
+    print(sub)
     # Group by ICU ID drops bed counts except the most recent ones subject to
     # the date constraint above..
     latest = session.query(sub.c.rowid).group_by(sub.c.icu_id).subquery()
@@ -644,7 +646,7 @@ class Store(object):
 
     if max_date:
       query = query.filter(BedCount.create_date < max_date)
-
+    query = query.filter(ICU.is_active == True)
     return query.all()
 
   def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
@@ -719,7 +721,8 @@ class Store(object):
     region_ids = session.query(ICU.region_id).filter(ICU.icu_id.in_(icu_ids))
     # Fetch the IDs of the ICUs in these regions.
     region_icu_ids = session.query(ICU.icu_id).filter(
-        ICU.region_id.in_(region_ids.subquery()))
+      ICU.region_id.in_(region_ids.subquery())
+    ).filter(ICU.is_active == True)
     return self._get_bed_counts_for_icus(
         region_icu_ids.subquery(), latest=True, **kargs)
 
