@@ -1,0 +1,23 @@
+name: Docker package build on tags
+
+on:
+  push:
+    tags:
+      - '*'
+  
+jobs:
+  build:
+    env:
+      TAG: ""
+    runs-on: ubuntu-latest
+    steps:
+    - name: git checkout
+      uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: |
+        docker build . --file docker/Dockerfile \
+          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/}
+    - name: docker login (GitHub)
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+    - name: docker push (GitHub)
+      run: docker push docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/}
