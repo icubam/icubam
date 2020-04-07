@@ -603,9 +603,11 @@ class Store(object):
     session = self._session
     # Bed counts in reverse chronological order.
     sub = session.query(BedCount.rowid, BedCount.icu_id,
-                        BedCount.create_date).order_by(
-                            desc(BedCount.create_date)).join(ICU, BedCount.icu_id == ICU.icu_id).filter(ICU.is_active==True)
-    # sub = sub.filter(ICU.is_active == True)
+                    BedCount.create_date).order_by(
+                      desc(BedCount.create_date)
+                    ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
+                      ICU.is_active == True
+                    )
                             
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
@@ -614,7 +616,6 @@ class Store(object):
       sub = sub.filter(BedCount.create_date < max_date)
 
     sub = sub.subquery()
-    print(sub)
     # Group by ICU ID drops bed counts except the most recent ones subject to
     # the date constraint above..
     latest = session.query(sub.c.rowid).group_by(sub.c.icu_id).subquery()
