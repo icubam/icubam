@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-server
     command: ./start_server.sh
     restart: unless-stopped
@@ -42,7 +42,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-sms-server
     command: ./start_server_sms.sh
     restart: unless-stopped
@@ -76,7 +76,7 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-bo-server
     command: ./start_server_bo.sh
     restart: unless-stopped
