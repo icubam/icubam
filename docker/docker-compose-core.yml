@@ -15,8 +15,6 @@ services:
       - "8888:8888"
     environment:
       ENV_MODE : "$ENV_MODE"
-      SHEET_ID : "$SHEET_ID"
-      TOKEN_LOC : "/home/icubam/resources/token.pickle"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
@@ -51,8 +49,6 @@ services:
     tty: true
     environment:
       ENV_MODE : "$ENV_MODE"
-      SHEET_ID : "$SHEET_ID"
-      TOKEN_LOC : "/home/icubam/resources/token.pickle"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
@@ -89,8 +85,6 @@ services:
       - "8890:8890"
     environment:
       ENV_MODE : "$ENV_MODE"
-      SHEET_ID : "$SHEET_ID"
-      TOKEN_LOC : "/home/icubam/resources/token.pickle"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"

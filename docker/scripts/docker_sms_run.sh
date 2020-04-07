@@ -35,8 +35,6 @@ docker run -dt \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
     --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
     --env ENV_MODE=$2
-    --env TOKEN_LOC="/home/icubam/resources/token.pickle" \
-    --env SHEET_ID=$SHEET_ID \
     --env SECRET_COOKIE=$SECRET_COOKIE \
     --env JWT_SECRET=$JWT_SECRET \
     --env GOOGLE_API_KEY=$GOOGLE_API_KEY \
