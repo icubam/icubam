@@ -9,9 +9,9 @@ class BaseHandler(tornado.web.RequestHandler):
   COOKIE = 'id'
   PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-  def initialize(self, config, db):
+  def initialize(self, config, db_factory):
     self.config = config
-    self.db = db
+    self.db = db_factory.create()
 
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')

@@ -9,7 +9,7 @@
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
-<script src="/static/navigate.js"></script>
+<script src="static/navigate.js"></script>
 {% end %}
 
 {% block content %}
@@ -45,24 +45,34 @@
         <!-- /.card-header -->
         <div class="card-body">
 
+          {% if data %}
           <table id="my_data" class="table table-bordered table-striped">
             <thead>
               <tr>
-              {% for column in columns %}
-                <th>{{_(column)}}</th>
+              {% for item in data[0] %}
+                <th>{{_(item["key"])}}</th>
               {% end %}
               </tr>
             </thead>
-            {% for obj in data %}
+            {% for row in data %}
               <tr>
-                {% for column in columns %}
+                {% for item in row %}
                   <td>
-                    {{obj[column]}}
+                  {% if item['link'] %}
+                    <a href="{{item['link']}}">{{item['value']}}</a>
+                  {% elif isinstance(item['value'], bool) and item['value'] %}
+                    <i class="fas fa-check text-success"></i>
+                  {% elif isinstance(item['value'], bool) and not item['value'] %}
+                    <i class="fas fa-times text-danger"></i>
+                  {% else %}
+                    {{item['value']}}
+                  {% end %}
                   </td>
                 {% end %}
               </tr>
             {% end %}
           </table>
+          {% end %}
 
         </div>
         <!-- /.card-body -->
@@ -83,7 +93,7 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="/static/table.js"></script>
+<script src="static/table.js"></script>
 <script>
   $(x => setDatatable("#my_data"))
 </script>

@@ -10,8 +10,16 @@ title = "My TOML Config"
   origin = "ICUBAM"
   carrier = "TW"
 
+[email]
+  [email.dev]
+  protocol = "FAKE"
+  use_ssl = false
+  [email.prod]
+  protocol = "SMTP"
+  use_ssl = true
+
 [db]
-sqlite_path = "test.db"
+sqlite_path = ":memory:"
 
 [server]
   [server.dev]
@@ -33,3 +41,8 @@ sqlite_path = "test.db"
     max_retries = 3
     reminder_delay = 45
     ping = ['12:30', '17:30', '14:12']
+
+[backoffice]
+  port = 8979
+  ping_every = 60
+  root = 'mybo'

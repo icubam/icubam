@@ -2,7 +2,7 @@ from absl import logging
 import dataclasses
 import time
 import tornado.ioloop
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from icubam.messaging import message
 from icubam.www import updater
@@ -12,8 +12,8 @@ from icubam import time_utils
 @dataclasses.dataclass
 class ScheduledMessage:
   timeout: object = None
-  msg: message.Message = None
-  when: int = -1
+  msg: Optional[message.Message] = None
+  when: float = -1
 
 
 class MessageScheduler:
@@ -45,7 +45,7 @@ class MessageScheduler:
     return int(time_utils.get_next_timestamp(self.when) - time.time())
 
   def schedule_message(
-      self, msg: message.Message, delay: Optional[int]) -> bool:
+      self, msg: message.Message, delay: Optional[int] = None) -> bool:
     """Schedules a message to be sent later."""
     delay = self.computes_delay(delay)
     if delay < 0:
@@ -54,13 +54,6 @@ class MessageScheduler:
 
     when = delay + time.time()
     timeout = self.timeouts.get(msg.key, None)
-    # To make cope with small delays, we add a safe margin.
-    # TODO(olivier): find a better solution.
-    margin = 10
-    if timeout is not None and when > timeout.when + margin:
-      logging.info(f'A message is schedule before {when}, Skipping scheduling.')
-      return False
-
     io_loop = tornado.ioloop.IOLoop.current()
     if timeout is not None:
       self.unschedule(msg.user_id, msg.icu_id)
@@ -137,4 +130,12 @@ class MessageScheduler:
       for icu in user.icus:
         url = self.updater.get_user_url(user, icu.icu_id)
         result.append(message.Message(icu, user, url))
+    return result
+
+  def get_messages(self, icus: Optional[List[int]] = None):
+    """Get the scheduled messages and their time for some icus."""
+    result = []
+    for timeout in self.timeouts.values():
+      if icus is None or timeout.msg.icu_id in icus:
+        result.append((timeout.msg, timeout.when))
     return result

@@ -17,7 +17,7 @@ class Config:
   ENV_KEYS = [
     'SHEET_ID', 'TOKEN_LOC', 'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET',
     'GOOGLE_API_KEY', 'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API',
-    'DB_SALT']
+    'DB_SALT', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM']
 
   def __init__(self, toml_config, mode='dev', env_path=None):
     """If env_path is None, it will try to find it by itself."""
@@ -46,7 +46,10 @@ class Config:
         result[k.lower()] = self._preprocess(sub)
     return result
 
-  def __getattr__(self, key: str):
+  def __getitem__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
     return self.conf.get(key)
+
+  def __getattr__(self, key: str):
+    return self[key]

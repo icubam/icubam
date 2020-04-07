@@ -24,7 +24,13 @@
        </h3>
      </div>
 
-     <form role="form" action="/icu" method="post">
+     <form role="form" action="icu" method="post">
+
+       <!-- The hidden ID in case we're editing the icu. -->
+       <input type="text" id="icu_id" name="icu_id"
+              hidden value="{% if icu.icu_id is not None%}{{icu.icu_id}}{% end %}"
+        </input>
+
        <div class="card-body">
 
         <div class="form-row">
@@ -41,10 +47,19 @@
            <input type="tel" id="telephone" name="telephone"
              class="form-control"
              minlength="6"
-             pattern="^\+\d{0,13}"
-             title='Phone Number (Format: +332222222)'
+             pattern="^\+?\d{0,13}"
+             title='Phone Number (Format: (+)332222222)'
              placeholder="+33 7 3333 333"
              value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
+         </div>
+
+         <div class="col-20">
+           <label for="name">Active</label><br/>
+           <input
+           type="checkbox" name="is_active"
+           {% if icu.is_active %} checked{% end %}
+           data-bootstrap-switch data-off-color="danger"
+           data-on-color="success">
          </div>
         </div>
 
@@ -80,34 +95,25 @@
         <div class="form-row">
            <div class="col-25">
              <label for="lat">Latitude</label>
-             <input type="number" step="0.001" id="lat" name="lat"
+             <input type="number" step="0.0001" id="lat" name="lat"
                class="form-control"
                placeholder="Latitude"
-               value="{% if icu.lat %}{store.ICU(**{icu.lat}}{% end %}" required autofocus>
+               value="{%if icu.lat %}{{icu.lat}}{% end %}" required autofocus>
            </div>
 
            <div class="col-25">
              <label for="long">Longitude</label>
-             <input type="number" step="0.001" id="long" name="long"
+             <input type="number" step="0.0001" id="long" name="long"
                class="form-control"
                placeholder="Longitude"
                value="{% if icu.long %}{{icu.long}}{% end %}" required autofocus>
            </div>
         </div>
 
-        <div class="form-row">
-          <div class="col-20">
-            <label for="name">Active</label><br/>
-            <input
-            type="checkbox" name="is_active"
-            value="{{icu.is_active}}"
-            {% if icu.is_active %} checked{% end %}
-            checked data-bootstrap-switch data-off-color="danger"
-            data-on-color="success">
-          </div>
-        </div>
-
        <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("{{list_route}}")'
+            class="btn btn-warning">Cancel</button>
          <button type="submit" class="btn btn-primary">Submit</button>
        </div>
      </form>
@@ -116,7 +122,7 @@
 
 {% if error %}
  <div class="alert alert-danger" role="alert">
-   {{error}}
+   {{_("Failed to save ICU")}}
  </div>
 {% end %}
 
@@ -130,6 +136,6 @@
 <script>
   $("input[data-bootstrap-switch]").each(function(){
     $(this).bootstrapSwitch('state', $(this).prop('checked'));
-  });
+  })
 </script>
 {% end %}

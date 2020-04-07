@@ -10,6 +10,14 @@ default_locale='fr-fr'
   origin = "ICUBAM"
   carrier = "TW"
 
+[email]
+  [email.dev]
+  service = "FAKE"
+  use_ssl = false
+  [email.prod]
+  service = "SMTP"
+  use_ssl = true
+
 [db]
   [db.dev]
   sqlite_path = "test.db"
@@ -27,18 +35,33 @@ default_locale='fr-fr'
   upload_dir = "uploads/"
 
 [messaging]
-  port = 8889
-  [scheduler]
-    [scheduler.prod]
-    max_retries = 1
-    reminder_delay = 1800  # 30 minutes in seconds
-    ping = ['9:30', '17:30']
-    [scheduler.dev]
-    max_retries = 3
-    reminder_delay = 45
-    ping = ['12:30', '17:30', '14:12']
+  [messaging.dev]
+  PORT = 8889  # will be lower cased when reading.
+  base_url = "http://localhost:8889/"
+  timeout = 2
+  [messaging.prod]
+  PORT = 8889  # will be lower cased when reading.
+  base_url = "http://localhost:8889/"
+  timeout = 2
 
-
+[scheduler]
+  [scheduler.prod]
+  max_retries = 1
+  new_user_delay = 60
+  reminder_delay = 1800  # 30 minutes in seconds
+  ping = ['9:30', '17:30']
+  [scheduler.dev]
+  max_retries = 3
+  reminder_delay = 45
+  new_user_delay = 60
+  ping = ['12:30', '17:30', '14:12']
 
 [backoffice]
-  port = 8890
+  [backoffice.prod]
+    port = 8890
+    ping_every = 60  # in seconds
+    root = 'admin'
+  [backoffice.dev]
+    port = 8890
+    ping_every = 60  # in seconds
+    root = 'bo'

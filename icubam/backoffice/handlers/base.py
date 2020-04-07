@@ -1,23 +1,39 @@
+import os.path
 import tornado.locale
 import tornado.web
-from icubam.db.store import create_store_for_sqlite_db
+from typing import List, Dict, Union
 
 
 class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""
 
   COOKIE = 'user'
+  PATH = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-  def initialize(self, config, db):
-    self.config = config
-    self.db = db
+  def initialize(self):
+    self.config = self.application.config
+    self.db = self.application.db_factory.create()
+    if self.application.root:
+      root = self.application.root.strip('/')
+      self.root_path = '/{}/'.format(root)
+    else:
+      self.root_path = '/'
     self.user = None
 
   def render(self, path, **kwargs):
-    super().render(path, this_user=self.user, **kwargs)
+    # This dictionary is updated by a PeriodicCallback in the
+    # BackofficeApplication
+    status = self.application.server_status
+    super().render(path, this_user=self.user, root=self.root_path,
+                   server_status=status, **kwargs)
+
+  def render_list(self, data, objtype, create_handler=None, **kwargs):
+    route = None if create_handler is None else create_handler.ROUTE
+    return self.render("list.html", data=data, objtype=objtype,
+                       create_route=route, **kwargs)
 
   def get_template_path(self):
-    return 'icubam/backoffice/templates/'
+    return os.path.join(self.PATH, 'templates/')
 
   def get_current_user(self):
     if self.user is not None:
@@ -51,7 +67,34 @@ class BaseHandler(tornado.web.RequestHandler):
     """Given a store class, parse the body a dictionary."""
     result = dict()
     for col in cls.get_column_names():
-      value = self.get_body_argument(col, None)
+      value = self.get_body_arguments(col + '[]', None)
+      if not value:
+        value = self.get_body_argument(col, None)
       if value is not None:
         result[col] = value
     return result
+
+  def format_list_item(self, item: Union[Dict, List]) -> list:
+    """Prepare a dictionary representing a row of a table for display."""
+    # TODO(olivier) improve this, too hard coded
+    auto_links = {f'{k}_id': k for k in ['icu', 'user', 'region']}
+    auto_links['external_client_id'] = 'token'
+    result = item
+    if not isinstance(item, list):
+      result = []
+      for k, v in item.items():
+        route = auto_links.get(k, None)
+        link = '{}?id={}'.format(route, v) if route is not None else False
+        result.append({'key': k, 'value': v, 'link': link})
+    return result
+
+
+class AdminHandler(BaseHandler):
+  """A base handler for admin only routes."""
+
+  def get_current_user(self):
+    user = super().get_current_user()
+    if user is None or not user.is_admin:
+      return None
+    else:
+      return user

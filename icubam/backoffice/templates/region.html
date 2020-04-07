@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="content">
+  <div class="container-fluid">
+
+  <section class="content-header">
+   <div class="container-fluid">
+     <div class="row mb-2">
+       <div class="col-sm-6">
+         <h2> Manage Regions</h2>
+       </div>
+     </div>
+   </div><!-- /.container-fluid -->
+  </section>
+
+  <section class="content">
+    <div class="card card-primary">
+
+     <div class="card-header">
+       <h3 class="card-title">
+         {% if region.region_id %} Edit {% else %} Create {% end %} Region
+       </h3>
+     </div>
+
+     <form role="form" action="region" method="post">
+
+       <!-- The hidden ID in case we're editing the region. -->
+       <input type="text" id="region_id" name="region_id"
+              hidden value="{% if region.region_id is not None%}{{region.region_id}}{% end %}"</input>
+
+       <div class="card-body">
+
+        <div class="form-row">
+           <div class="col-25">
+             <label for="name">Name</label>
+             <input type="text" id="name" name="name"
+               class="form-control"
+               placeholder="Name"
+               value="{% if region.name %}{{region.name}}{% end %}" required autofocus>
+           </div>
+        </div>
+
+       <div class="card-footer">
+         <button
+            type='button' onclick='navigateTo("{{list_route}}")'
+            class="btn btn-warning">Cancel</button>
+         <button type="submit" class="btn btn-primary">Submit</button>
+       </div>
+     </form>
+    </div>
+  </section>
+
+{% if error %}
+ <div class="alert alert-danger" role="alert">
+   {{_("Failed to save region")}}
+ </div>
+{% end %}
+
+</div>
+</section>
+
+{% end %}

@@ -25,8 +25,8 @@ class HomeHandler(base.BaseHandler):
   # TODO(olivier): put this in the config
   CLUSTER_KEY = 'dept'  # city
 
-  def initialize(self, config, db):
-    super().initialize(config, db)
+  def initialize(self, config, db_factory):
+    super().initialize(config, db_factory)
     loader = tornado.template.Loader(self.get_template_path())
     self.token_encoder = token.TokenEncoder(self.config)
     self.popup_template = loader.load(self.POPUP_TEMPLATE)

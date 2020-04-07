@@ -22,38 +22,33 @@ class WWWServer(base_server.BaseServer):
     self.port = port if port is not None else self.config.server.port
     self.writing_queue = queues.Queue()
     self.callbacks = [
-      queue_writer.QueueWriter(self.writing_queue, self.db).process]
+        queue_writer.QueueWriter(self.writing_queue, self.db_factory).process
+    ]
     self.path = home.HomeHandler.PATH
 
   def make_routes(self):
     self.add_handler(
-      update.UpdateHandler,
-      config=self.config, db=self.db, queue=self.writing_queue,
+        update.UpdateHandler,
+        config=self.config,
+        db_factory=self.db_factory,
+        queue=self.writing_queue,
     )
-    kwargs = dict(config=self.config, db=self.db)
+    kwargs = dict(config=self.config, db_factory=self.db_factory)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(
-      upload_csv.UploadHandler, upload_path=self.config.server.upload_dir
-    )
+        upload_csv.UploadHandler, upload_path=self.config.server.upload_dir)
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):
-    # TODO(olivier): remove this when we have a backoffice.
-    logging.info(self.debug_str)
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
     self.make_routes()
     settings = {
-      "cookie_secret": cookie_secret,
-      "login_url": "/error",
+        "cookie_secret": cookie_secret,
+        "login_url": "/error",
     }
-    tornado.locale.load_translations(os.path.join(self.path, 'translations'))
+    tornado.locale.load_translations(os.path.join(self.path, "translations"))
     return tornado.web.Application(self.routes, **settings)
-
-  @property
-  def debug_str(self):
-    """Only for debug to be able to connect for now. To be removed."""
-    return "\n".join(updater.Updater(self.config, self.db).get_urls())

@@ -1,21 +1,34 @@
 """Creating/edition of users."""
+from absl import logging
+
 import tornado.escape
 import tornado.web
+from typing import List, Optional, Dict
 
+from icubam.messaging import client
 from icubam.backoffice.handlers import base
 from icubam.db import store
 from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
-  ROUTE = "/list_users"
+  ROUTE = "list_users"
 
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
-    user_dict = user.to_dict()
-    user_dict.pop("password_hash", None)
-    user_dict.pop("access_salt", None)
-    return user_dict
+    result = [{
+        'key': 'name',
+        'value': user.name,
+        'link': f'{UserHandler.ROUTE}?id={user.user_id}'}
+    ]
+    user_dict = dict()
+    user_dict['admin'] = user.is_admin
+    user_dict['active'] = user.is_active
+    user_dict['created'] = user.create_date
+    user_dict['icus'] = ', '.join([icu.name for icu in user.icus])
+    user_dict['manages'] = ', '.join([icu.name for icu in user.managed_icus])
+    result.extend(self.format_list_item(user_dict))
+    return result
 
   @tornado.web.authenticated
   def get(self):
@@ -25,14 +38,12 @@ class ListUsersHandler(base.BaseHandler):
       users = self.db.get_managed_users(self.user.user_id)
 
     data = [self._cleanUser(user) for user in users]
-    columns = [] if not data else list(data[0].keys())
-    self.render(
-      "list.html", data=data, columns=columns, objtype='Users',
-      create_route=UserHandler.ROUTE)
+    return self.render_list(
+      data=data, objtype='Users', create_handler=UserHandler)
 
 
 class ProfileHandler(base.BaseHandler):
-  ROUTE = "/profile"
+  ROUTE = "profile"
 
   @tornado.web.authenticated
   def get(self):
@@ -41,111 +52,166 @@ class ProfileHandler(base.BaseHandler):
 
 
 class UserHandler(base.BaseHandler):
-  ROUTE = "/user"
+  ROUTE = "user"
 
-  """Creates ICU DTOs based on ALL ICUs and those from the selected."""
-  def select_icus(self, selected_icus_ids):
-    # TODO(olivier): restrict managers to regional icus
-    icus = self.db.get_icus()
-    output = []
-    for icu in icus:
-      dto = icu.to_dict()
-      dto["selected"] = icu.icu_id in selected_icus_ids
-      output.append(dto)
-    return sorted(output, key = lambda x: x['name'])
-
-  """Selects the DTO comparing ALL icus against the ones from the user."""
-  def select_icus_for_user(self, user):
-    return self.select_icus([user_icu.icu_id for user_icu in user.icus])
+  def initialize(self):
+    super().initialize()
+    self.message_client = client.MessageServerClient(self.config)
 
   @tornado.web.authenticated
   def get(self):
-    userid = self.get_query_argument('id', None)
-    user = None
-    if userid is not None:
-      user = self.db.get_user(userid)
+    user = self.db.get_user(self.get_query_argument('id', None))
+    user_icus = set([i.icu_id for i in user.icus]) if user is not None else []
+    user_micus = set(
+        [i.icu_id for i in user.managed_icus]) if user is not None else []
+    return self.do_render(user, user_icus, user_micus, error=False)
+
+  def do_render(self,
+                user: store.User,
+                icus: List[int],
+                managed_icus: List[int],
+                error=False):
+    """Render the form for a given user."""
 
     user = user if user is not None else store.User()
-    icus_dto = self.select_icus_for_user(user)
-    self.render("user.html", icus=icus_dto, user=user, error=False)
+    self.prepare_for_display(user)
+    options = sorted(self.get_options(), key=lambda icu: icu.name)
 
-  def error(self, user, icus):
-    self.render("user.html", icus=icus, user=user, error=True)
+    return self.render("user.html", options=options, user=user, icus=icus,
+                       managed_icus=managed_icus, error=error,
+                       list_route=ListUsersHandler.ROUTE)
 
-  """Returns the ICUs we need to add to/remove from the user. """
-  def get_icus_to_store(self, user):
-    form_icus = self.get_body_arguments("icus", [])
-    form_icus = set([int(icu) for icu in form_icus])
-    user_icus = set([user_icu.icu_id for user_icu in user.icus])
-    add =  list(form_icus.difference(user_icus))
-    remove = list(user_icus.difference(form_icus))
-    return add, remove
+  def get_options(self):
+    return self.db.get_managed_icus(self.user.user_id)
 
-  """Selects the DTO comparing ALL icus against the ones from the form."""
-  def select_icus_for_error(self):
-    form_icus = self.get_body_arguments("icus", [])
-    return self.select_icus([int(icu) for icu in form_icus])
+  def prepare_for_display(self, user: store.User):
+    if user.is_active is None:
+      user.is_active = True
+    if user.is_admin is None:
+      user.is_admin = False
 
-  @tornado.web.authenticated
-  def post(self):
-    user_dict = {}
-    for key in ["name", "email", "telephone"]:
-      user_dict[key] = self.get_body_argument(key, None)
+  def prepare_for_save(self, user_dict: Dict, password: Optional[str]):
+    """Cleaning input user_dict."""
+    id_key = "user_id"
+    # If the user is not set, the user_id comes empty and we need to remove it
+    # before add to the db.
+    if user_dict.get(id_key, "") == "":
+      user_dict.pop(id_key, None)
 
-    # Password is not required when editing the user.
-    password = self.get_body_argument("password", None)
+    user_dict["is_active"] = user_dict.get("is_active", 'off') == 'on'
+    user_dict["is_admin"] = user_dict.get("is_admin", 'off') == 'on'
     if password:
       user_dict["password_hash"] = self.db.get_password_hash(password)
 
-    uid = self.get_body_argument("user_id", None)
-    if uid:
-      user_dict["user_id"] = int(uid)
+    is_manager = len(user_dict.get('managed_icus', [])) > 0
+    is_admin = user_dict.get('is_admin', False)
+    if not is_admin and not is_manager:
+      for key in ["password_hash", "email", "managed_icus"]:
+        user_dict.pop(key, None)
 
-    # The admin info: we only show the ability to tag one user as admin in the
-    # FE if the person logged in is also an admin. We don't override the bit
-    # in the case the user is being changed by another person.
-    if self.user.is_admin:
-      user_dict['is_admin'] = self.get_body_argument("is_admin", None) == "on"
+    icus = set(map(int, user_dict.pop('icus', [])))
+    managed_icus = set(map(int, user_dict.pop('managed_icus', [])))
+    return icus, managed_icus
 
-    # TODO(fpquintao): if the user changed status, we have to notify the
-    # message server to remove the user from the queue.
-    user_dict['is_active'] = self.get_body_argument("is_active", None) == "on"
-
-    # We want to keep this "temp" user, because if saving fails, we need to
-    # dump this object back to the form, otherwise the person using the BO will
-    # lose the changes that were done.
-    # Important that this user HAS the id (in case this is an EDIT), otherwise
-    # we will try to create a new user upon "Save" :)
-    tmp_user = User(**user_dict)
-
-    # Validates all the fields that must be validated.
-    for value in user_dict.values():
-      if value is None:
-        return self.error(user=tmp_user, icus=self.select_icus_for_error())
-
-    # Yet another validation step: checks password.
-    # This should not be needed because the FE has validation patterns, but
-    # let's be on the safe side.
-    # note: not uid => this is a new user.
-    if not uid and not password:
-        return self.error(user=tmp_user, icus=self.select_icus_for_error())
-
-    # To match the user ICUs from what we got from the form.
-    user = tmp_user if not uid else self.db.get_user(int(uid))
-    add, remove = self.get_icus_to_store(user)
+  @tornado.web.authenticated
+  async def post(self):
+    password = self.get_body_argument("password", None)
+    user_dict = self.parse_from_body(store.User)
+    id_key = 'user_id'
+    user_id = user_dict.get(id_key, '')
+    icus, managed_icus = self.prepare_for_save(user_dict, password)
     try:
-      if not uid:
-        uid = self.db.add_user(user)
-      else:
-        self.db.update_user(self.user.user_id, uid, user_dict)
-
-      for icu in add:
-        self.db.assign_user_to_icu(self.user.user_id, uid, icu)
-
-      for icu in remove:
-        self.db.remove_user_from_icu(self.user.user_id, uid, icu)
-
+      await self.save_user(user_dict, icus, managed_icus)
     except Exception as e:
-      return self.error(user=tmp_user, icus=self.select_icus_for_error())
-
+      logging.error(f"Cannot save user: {e}")
+      user_dict[id_key] = user_id
+      user = store.User(**user_dict)
+      return self.do_render(
+        user=user, icus=icus, managed_icus=managed_icus, error=True)
     return self.redirect(ListUsersHandler.ROUTE)
+
+  async def create_user(self, user_dict, icus, managed_icus):
+    user = store.User(**user_dict)
+    user_id = self.db.add_user(user)
+    logging.info(f'Creating user {user_id}')
+
+    for icu_id in icus:
+      self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
+    try:
+      await self.message_client.notify(
+          user_id, icus, on=True, delay=self.config.scheduler.new_user_delay)
+    except Exception as e:
+      logging.error(f'Cannot notify MessageServer {e}')
+
+    for icu_id in managed_icus:
+      self.db.assign_user_as_icu_manager(self.user.user_id, user_id, icu_id)
+
+  async def update_user(self, db_user, user_dict, icus, managed_icus):
+    logging.info(f'Updating user {db_user.user_id}')
+    user_id = db_user.user_id
+    user_dict.pop('user_id', None)
+    self.db.update_user(self.user.user_id, user_id, user_dict)
+    await self.re_assign(db_user, icus, db_user.icus,
+                         self.db.assign_user_to_icu,
+                         self.db.remove_user_from_icu,
+                         notify=True)
+    await self.re_assign(db_user, managed_icus, db_user.managed_icus,
+                         self.db.assign_user_as_icu_manager,
+                         self.db.remove_manager_user_from_icu,
+                         notify=False)
+
+  def can_save(
+      self, user_dict: dict, managed_icus: set, db_user: store.User) -> bool:
+    is_admin = user_dict.get('is_admin', False)
+    is_manager = len(managed_icus) > 0
+    if not is_admin and not is_manager:
+      return True
+
+    entered_password = user_dict.get('password_hash', False)
+    prior_password = db_user is not None and db_user.password_hash is not None
+    has_password = entered_password or prior_password
+    has_email = bool(user_dict.get('email', ''))
+    return has_email and has_password
+
+  async def save_user(self, user_dict, icus, managed_icus):
+    db_user = self.db.get_user(user_dict.get('user_id', None))
+
+    # New user admin should have password and emails
+    if not self.can_save(user_dict, managed_icus, db_user):
+      raise ValueError('missing email/password')
+
+    if db_user is None:
+      await self.create_user(user_dict, icus, managed_icus)
+    else:
+      await self.update_user(db_user, user_dict, icus, managed_icus)
+
+  async def re_assign(self,
+                      user: store.User,
+                      new_icus: set,
+                      user_icus: set,
+                      add_fn,
+                      rm_fn,
+                      notify: bool = False):
+    if user.user_id is None:
+      return
+
+    old_icus = set([i.icu_id for i in user_icus])
+    to_add = new_icus.difference(old_icus)
+    for icu_id in to_add:
+      add_fn(self.user.user_id, user.user_id, icu_id)
+
+    if notify:
+      try:
+        await self.message_client.notify(user.user_id, to_add, on=True)
+      except Exception as e:
+        logging.error(f'Cannot notify MessageServer {e}')
+
+    to_remove = old_icus.difference(new_icus)
+    for icu_id in to_remove:
+      rm_fn(self.user.user_id, user.user_id, icu_id)
+
+    if notify:
+      try:
+        await self.message_client.notify(user.user_id, to_remove, on=False)
+      except Exception as e:
+        logging.error(f'Cannot notify MessageServer {e}')
