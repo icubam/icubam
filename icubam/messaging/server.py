@@ -19,7 +19,6 @@ class MessageServer(base_server.BaseServer):
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
         config=self.config, db=self.db_factory.create(), queue=self.queue)
-    print([m.text for m in self.scheduler.messages])
     self.callbacks = [self.process]
 
   def make_app(self):

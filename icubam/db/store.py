@@ -36,6 +36,7 @@ class Base(object):
      max_depth: the maximum recursion depth.
     """
     columns = self.get_column_names(include_relationships=include_relationships)
+
     result = {}
     for col in columns:
       value = getattr(self, col)
@@ -278,10 +279,23 @@ class Store(object):
     """
     if icu.icu_id:
       raise ValueError("ID of a new ICU should not be set.")
-    if not self.is_admin(admin_user_id):
-      raise ValueError("Only admins can add a new ICU.")
+
+    if self.is_admin(admin_user_id):
+      self._session.add(icu)
+      self._session.commit()
+      return icu.icu_id
+
+    rids = set([i.region_id for i in self.get_managed_icus(admin_user_id)])
+    if icu.region_id not in rids:
+      raise ValueError("New ICUs can only be created in the manger's region.")
+
     self._session.add(icu)
     self._session.commit()
+
+    # Make sure this manager manages this ICU.
+    self.assign_user_as_icu_manager(
+      admin_user_id, admin_user_id, icu.icu_id, force=True)
+
     return icu.icu_id
 
   def get_icu(self, icu_id: int) -> Optional[ICU]:
@@ -322,9 +336,13 @@ class Store(object):
     self.enable_icu(manager_user_id, icu_id, False)
 
   def assign_user_as_icu_manager(self, admin_user_id: int, manager_user_id: int,
-                                 icu_id: int):
-    """Assigns the specified user as a manager of an ICU."""
-    if not self.is_admin(admin_user_id):
+                                 icu_id: int, force: bool = False):
+    """Assigns the specified user as a manager of an ICU.
+
+    The force parameter is used to bypass the admin condition in specific
+    situations such as when a manager want to create an ICU.
+    """
+    if not force and not self.is_admin(admin_user_id):
       raise ValueError("Only admin users can assign managers to ICUs.")
     with self._commit_or_rollback():
       self._session.execute(icu_managers.insert().values(
@@ -478,6 +496,10 @@ class Store(object):
     """
     return self._session.query(User.user_id).filter(User.email == email).filter(
         User.password_hash == self.get_password_hash(password)).scalar()
+
+  def get_user_by_email(self, email: str) -> int:
+    return self._session.query(User.user_id).filter(
+        User.email == email).scalar()
 
   def auth_user_by_token(self, token: str) -> int:
     """Authenticates a user using a token.
