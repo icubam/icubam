@@ -18,11 +18,11 @@ class ListTokensHandler(base.AdminHandler):
   def prepare_for_table(self, client):
     result = [{
         'key': 'name',
-        'value': client.email,
+        'value': client.name,
         'link': f'{TokenHandler.ROUTE}?id={client.external_client_id}'}
     ]
     client_dict = dict()
-    for key in ['access_key', 'is_active', 'expiration_date']:
+    for key in ['email', 'access_key', 'is_active', 'expiration_date']:
       client_dict[key] = getattr(client, key, None)
     result.extend(self.format_list_item(client_dict))
     for handler in [www_home.MapByAPIHandler, www_db.DBHandler]:
