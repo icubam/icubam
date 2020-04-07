@@ -408,7 +408,7 @@ class Store(object):
 
   def get_user(self, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
-    return self._session.query(Usericu_ids).filter(
+    return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
 
   def get_users(self) -> Iterable[User]:
