@@ -47,9 +47,9 @@ class StoreTest(absltest.TestCase):
   def add_region(self, name="region"):
     return self.store.add_region(self.admin_user_id, Region(name=name))
 
-  def add_icu(self, name="icu", region_id=None):
+  def add_icu(self, name="icu", region_id=None, is_active=True):
     return self.store.add_icu(self.admin_user_id,
-                              ICU(name=name, region_id=region_id))
+                              ICU(name=name, region_id=region_id, is_active=is_active))
 
   def test_add_region(self):
     store = self.store
@@ -413,8 +413,8 @@ class StoreTest(absltest.TestCase):
     self.assertEqual(bed_count.n_covid_refused, 2)
     self.assertEqual(bed_count.n_covid_transfered, 1)
 
-  def add_icu_with_values(self, region_id, name, now, values):
-    icu_id = self.add_icu(name, region_id=region_id)
+  def add_icu_with_values(self, region_id, name, now, values, is_active=True):
+    icu_id = self.add_icu(name, region_id=region_id, is_active=is_active)
     for index, value in enumerate(values):
       self.store.update_bed_count_for_icu(
           self.admin_user_id,
@@ -440,6 +440,8 @@ class StoreTest(absltest.TestCase):
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
     icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
+    icu_id4 = self.add_icu_with_values(region_id2, "icu4", now, [5], is_active=False)
+
 
     # Admin user should see bed counts of all ICUs.
     now_plus_1 = add_seconds(now, 1)
