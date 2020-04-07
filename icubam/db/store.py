@@ -384,7 +384,7 @@ class Store(object):
     Returns:
       ID of the user.
     """
-    self._session.add(user)icu_ids
+    self._session.add(user)
     self._session.commit()
     return user.user_id
 
