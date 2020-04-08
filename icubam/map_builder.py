@@ -31,7 +31,6 @@ class MapBuilder:
         },
       ]
       popup = self.popup_template.generate(cluster=cluster, views=views)
-      print(cluster.as_dict())
       curr = {'popup': popup.decode()}
       curr.update(cluster.as_dict())
       result.append(curr)
