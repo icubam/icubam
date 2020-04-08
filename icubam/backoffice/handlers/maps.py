@@ -17,7 +17,6 @@ class MapsHandler(base.BaseHandler):
     level = self.get_query_argument('level', 'dept')
     data, center = self.builder.prepare_json(None, None, level=level)
     return self.render('map.html',
-                       static='/www/static',
                        API_KEY=self.config.GOOGLE_API_KEY,
                        center=json.dumps(center),
                        data=json.dumps(data),
