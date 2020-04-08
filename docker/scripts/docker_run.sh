@@ -30,17 +30,13 @@ if [ ! -f "$(pwd)"/test.db ]; then
     echo "test.db not found!"
     exit
 fi
-if [ ! -f "$(pwd)"/resources/token.pickle ]; then
-    echo "resources/token.pickle not found!"
-    exit
-fi
+
 
 docker run -d -p $2:8888 \
     --name icubam-server \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
-    --mount type=bind,source="$(pwd)"/resources/token.pickle,target=/home/icubam/resources/token.pickle \
     --env ENV_MODE=$3 \
     --env SECRET_COOKIE=$SECRET_COOKIE \
     --env JWT_SECRET=$JWT_SECRET \
