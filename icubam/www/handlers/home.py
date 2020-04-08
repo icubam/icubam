@@ -1,5 +1,4 @@
 from absl import logging
-import json
 import tornado.web
 
 import icubam
@@ -29,11 +28,12 @@ class HomeHandler(base.BaseHandler):
       logging.error('No such ICU {}'.format(icu_data['icu_id']))
       return None
 
-    data, center = self.builder.prepare_json(None, center_icu=icu, level='dept')
+    data, center = self.builder.prepare_jsons(
+      None, center_icu=icu, level='dept')
     return self.render('index.html',
                        API_KEY=self.config.GOOGLE_API_KEY,
-                       center=json.dumps(center),
-                       data=json.dumps(data),
+                       center=center,
+                       data=data,
                        version=icubam.__version__)
 
 

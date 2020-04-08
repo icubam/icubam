@@ -1,5 +1,6 @@
 from absl import logging
 import os.path
+import json
 from typing import List, Dict
 import tornado.template
 
@@ -30,6 +31,7 @@ class MapBuilder:
         },
       ]
       popup = self.popup_template.generate(cluster=cluster, views=views)
+      print(cluster.as_dict())
       curr = {'popup': popup.decode()}
       curr.update(cluster.as_dict())
       result.append(curr)
@@ -38,7 +40,7 @@ class MapBuilder:
     result.sort(key=lambda x: x['lat'], reverse=True)
     return result
 
-  def prepare_json(self, user_id=None, center_icu=None, level='dept'):
+  def prepare_jsons(self, user_id=None, center_icu=None, level='dept'):
     # TODO(olivier): all the map ?
     tree = icu_tree.ICUTree()
     for icu in self.db.get_icus():
@@ -47,4 +49,4 @@ class MapBuilder:
     data = self.to_map_data(tree, level)
     anchor = center_icu if center_icu is not None else tree
     center = {'lat': anchor.lat, 'lng': anchor.long}
-    return data, center
+    return json.dumps(data), json.dumps(center)
