@@ -23,17 +23,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
@@ -57,17 +54,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
@@ -93,17 +87,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
