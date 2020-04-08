@@ -3,7 +3,7 @@ import tornado.web
 import logging
 import time
 
-
+@tornado.web.authenticated
 class UploadHandler(tornado.web.RequestHandler):
   """Accept file uploads over POST."""
 

@@ -209,8 +209,9 @@ class ExternalClient(Base):
   @property
   def access_key_valid(self):
     """Returns true if the access key is valid."""
-    return self.expiration_date is None or self.expiration_date > datetime.now()
-
+    return (
+      (self.expiration_date is None or self.expiration_date > datetime.now())
+      and self.is_active)
 
 @dataclasses.dataclass
 class AccessKey(object):
@@ -463,11 +464,16 @@ class Store(object):
     """Returns true if the manager user can manage the user."""
     if self.is_admin(manager_user_id) or manager_user_id == user_id:
       return True
-    return self._session.query(
-        icu_managers.c.user_id, icu_users.c.user_id).filter(
-            icu_managers.c.user_id == manager_user_id).join(
-                icu_users, icu_managers.c.icu_id).filter(
-                    icu_users.c.user_id == user_id).count() == 1
+
+    # TODO(olivier): use a sql query instead.
+    user = self.get_user(user_id)
+    if user is None:
+      return False
+
+    managed_icu_ids = set(
+      [i.icu_id for i in self.get_managed_icus(manager_user_id)])
+    user_icu_ids = set([i.icu_id for i in user.icus])
+    return len(managed_icu_ids.intersection(user_icu_ids)) > 0
 
   def get_managed_users(self, manager_user_id: int) -> Iterable[User]:
     """Returns the list of users managed by the manager user."""
@@ -583,7 +589,7 @@ class Store(object):
 
   def _get_latest_bed_counts_for_icus(self,
                                       icu_ids,
-                                      max_date: datetime = None
+                                      max_date: datetime = None,
                                      ) -> Iterable[BedCount]:
     """Returns the latest bed counts of the ICUs.
 
@@ -597,8 +603,12 @@ class Store(object):
     session = self._session
     # Bed counts in reverse chronological order.
     sub = session.query(BedCount.rowid, BedCount.icu_id,
-                        BedCount.create_date).order_by(
-                            desc(BedCount.create_date))
+                    BedCount.create_date).order_by(
+                      desc(BedCount.create_date)
+                    ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
+                      ICU.is_active == True
+                    )
+                            
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
@@ -637,7 +647,7 @@ class Store(object):
 
     if max_date:
       query = query.filter(BedCount.create_date < max_date)
-
+    query = query.filter(ICU.is_active == True)
     return query.all()
 
   def get_latest_bed_counts(self, icu_ids=None, **kargs) -> Iterable[BedCount]:
@@ -712,7 +722,8 @@ class Store(object):
     region_ids = session.query(ICU.region_id).filter(ICU.icu_id.in_(icu_ids))
     # Fetch the IDs of the ICUs in these regions.
     region_icu_ids = session.query(ICU.icu_id).filter(
-        ICU.region_id.in_(region_ids.subquery()))
+      ICU.region_id.in_(region_ids.subquery())
+    ).filter(ICU.is_active == True)
     return self._get_bed_counts_for_icus(
         region_icu_ids.subquery(), latest=True, **kargs)
 
@@ -878,5 +889,5 @@ def create_store_factory_for_sqlite_db(cfg) -> Store:
   return StoreFactory(engine, salt=cfg.DB_SALT)
 
 
-def to_pandas(objs):
-  return pd.json_normalize([obj.to_dict(max_depth=1) for obj in objs], sep="_")
+def to_pandas(objs, max_depth=1):
+  return pd.json_normalize([obj.to_dict(max_depth=max_depth) for obj in objs], sep="_")

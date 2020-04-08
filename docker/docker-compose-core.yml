@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-server
     command: ./start_server.sh
     restart: unless-stopped
@@ -23,17 +23,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
@@ -42,7 +39,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-sms-server
     command: ./start_server_sms.sh
     restart: unless-stopped
@@ -57,17 +54,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
@@ -76,7 +70,7 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
-    image: icubam
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-bo-server
     command: ./start_server_bo.sh
     restart: unless-stopped
@@ -93,17 +87,14 @@ services:
     working_dir: /home/icubam
     volumes:
       - type: bind
-        source: ./resources/config.toml
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: ./icubam.db
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
         target: /home/icubam/icubam.db
       - type: bind
-        source: ./test.db
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
-      - type: bind
-        source: ./resources/token.pickle
-        target: /home/icubam/resources/token.pickle
     networks:
       - icubam-network
 
