@@ -44,12 +44,13 @@ ALTERATIONS = {
 def wipe_db(path):
   conn = sqlite3.connect(path)
   cur = conn.cursor()
-  if FLAGS.keep_beds:
+  if not FLAGS.keep_beds:
     ALTERATIONS["bed_counts"].extend([("n_covid_free", 2), ("n_covid_occ", 4)])
   for alteration in ALTERATIONS.items():
     affectations = ",".join([f"{k} = {v}" for (k, v) in alteration[1]])
     query = f"UPDATE {alteration[0]} SET {affectations};"
-    print(query)
+    if not FLAGS.quiet:
+        print(query)
     conn.execute(query)
   conn.commit()
   conn.close()
