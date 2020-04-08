@@ -39,7 +39,8 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(
-        upload_csv.UploadHandler, upload_path=self.config.server.upload_dir)
+        upload_csv.UploadHandler, 
+        **{**kwargs, **{'upload_path': self.config.server.upload_dir}})
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):
