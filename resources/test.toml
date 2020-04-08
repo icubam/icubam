@@ -46,3 +46,4 @@ sqlite_path = ":memory:"
   port = 8979
   ping_every = 60
   root = 'mybo'
+  extra_plots_dir = "/tmp/dasboard_plots_dir"
