@@ -105,7 +105,6 @@ function addPopup (obj, map, Popup) {
 }
 
 function plotMap(data, center) {
-  // center = center === null ? getCenter(data) : center
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,

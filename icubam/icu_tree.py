@@ -66,9 +66,11 @@ class ICUTree:
       self.id = 'id_{}'.format(self.label.replace(' ', '_'))
 
     # Set those on last level.
-    if self.phone is None and self.is_leaf:
+    if self.phone is None and self.is_leaf and icu.telephone is not None:
       self.phone = icu.telephone.lstrip('+')
+    if self.lat is None and icu.lat is not None:
       self.lat = icu.lat
+    if self.long is None and icu.long is not None:
       self.long = icu.long
 
   def propagate(self, icu):
