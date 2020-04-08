@@ -86,8 +86,9 @@ class BackOfficeServer(base_server.BaseServer):
           {'path': os.path.join(path, 'static', folder)}
           ))
     # Those are to get the js of the map page.
+    route = os.path.join("/", self.root, r'www/static/(.*)')
     self.routes.append(
-        ('/www/static/(.*)', tornado.web.StaticFileHandler,
+        (route, tornado.web.StaticFileHandler,
         {'path': os.path.join(path, '../www/static')}
         ))
 

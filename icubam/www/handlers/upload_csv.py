@@ -5,7 +5,7 @@ import time
 from icubam.www.handlers import base
 
 
-class UploadHandler(base.BaseHandler): #tornado.web.RequestHandler):
+class UploadHandler(base.BaseHandler):
   """Accept file uploads over POST."""
 
   ROUTE = "/upload_csv"
@@ -24,14 +24,12 @@ class UploadHandler(base.BaseHandler): #tornado.web.RequestHandler):
 
   def initialize(self, upload_path, config, db_factory):
     self.upload_path = upload_path
-    print(db_factory)
     super().initialize(config, db_factory)
 
   @tornado.web.authenticated
   def post(self):
     file = self.request.files["file"][0]
     file_path = self.gen_path(file["filename"])
-    print(self.request)
     try:
       with open(file_path, "wb") as f:
         f.write(file["body"])
