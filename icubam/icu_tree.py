@@ -103,9 +103,10 @@ class ICUTree:
     self.account_for_beds(bedcount)
     self.propagate(icu)
 
-  def add_many(self, icus):
+  def add_many(self, icus, active_only=True):
     for icu in icus:
-      self.add(icu)
+      if not active_only or icu.is_active:
+        self.add(icu)
 
   @property
   def is_leaf(self):
