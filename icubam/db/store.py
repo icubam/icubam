@@ -118,7 +118,7 @@ class Region(Base):
   __tablename__ = "regions"
 
   region_id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String, unique=True)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -159,7 +159,7 @@ class ICU(Base):
   icu_id = Column(Integer, primary_key=True)
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
-  name = Column(String)
+  name = Column(String, unique=True)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)

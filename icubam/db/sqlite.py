@@ -19,7 +19,8 @@ class SQLiteDB:
         "icus",
         self._metadata,
         Column("icu_id", Integer, primary_key=True),
-        Column("icu_name", String, unique=True),
+        Column("name", String, unique=True),
+        Column("region_id", Integer, ForeignKey("regions.region_id")),
         Column("dept", String),
         Column("city", String),
         Column("lat", Float),
@@ -63,7 +64,8 @@ class SQLiteDB:
 
   def upsert_icu(
       self,
-      icu_name: str,
+      name: str,
+      region_id: int,
       dept: str,
       city: str,
       lat: float,
