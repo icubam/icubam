@@ -9,7 +9,9 @@ import click
 import sqlite3
 import sys
 
-flags.DEFINE_boolean("quiet", False, "Do not prompt user confirmation")
+flags.DEFINE_boolean(
+  "force", False, "Do not prompt user confirmation and do not print query."
+)
 flags.DEFINE_boolean(
   "keep_beds", False, "Whether to keep bed occupation data."
 )
@@ -49,8 +51,7 @@ def wipe_db(path):
   for alteration in ALTERATIONS.items():
     affectations = ",".join([f"{k} = {v}" for (k, v) in alteration[1]])
     query = f"UPDATE {alteration[0]} SET {affectations};"
-    if not FLAGS.quiet:
-        print(query)
+    print(query)
     conn.execute(query)
   conn.commit()
   conn.close()
@@ -61,7 +62,7 @@ def main(argv):
     print(f"Usage: {argv[0]} DB_PATH")
     sys.exit(-1)
 
-  if not FLAGS.quiet:
+  if not FLAGS.force:
     if not click.confirm(
       "WARNING: THIS WILL WIPE THE DATABASE IN-PLACE. CONTINUE?", err=True
     ):
