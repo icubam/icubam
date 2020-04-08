@@ -1,9 +1,9 @@
 # Backoffice server
 
 
-## Rendering third party figures /operational-dashboard
+## Rendering third party figures in /operational-dashboard
 
-To render external figures at the `/operational-dashboard` endpoint the
+To render external figures with the `/operational-dashboard` endpoint, the
 `config.toml` used to run the server must contain a valid `extra_plots_dir`
 entry, e.g.
 
