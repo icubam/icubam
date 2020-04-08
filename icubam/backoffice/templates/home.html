@@ -1,10 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% for scale in data %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0 text-dark">{{scale}}</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section class="content">
   <div class="container-fluid">
-    <h1> Welcome to ICUBAM-Admin</h1>
+    <div class="row">
+
+      {% for info in data[scale] %}
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+          <span class="info-box-icon bg-{{info['color']}} elevation-1">
+            <i class="fas fa-{{info['icon']}}"></i>
+          </span>
+
+          <div class="info-box-content">
+            <span class="info-box-text">{{info['label']}}</span>
+            <span class="info-box-number">{{info['count']}}
+              <!-- <small>%</small> -->
+            </span>
+          </div>
+        </div>
+      </div>
+      {% end %}
   </div>
+</div>
 </section>
+{% end %}
+
+
 
 {% end %}

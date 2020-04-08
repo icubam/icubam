@@ -27,6 +27,8 @@ class ICUTree:
     self.occ = 0
     self.free = 0
     self.total = 0
+    self.death = 0
+    self.healed = 0
     self.ratio = 0
     self.lat = 0.0
     self.long = 0.0
@@ -56,9 +58,13 @@ class ICUTree:
       self.occ += bedcount.n_covid_occ
     if bedcount.n_covid_free:
       self.free += bedcount.n_covid_free
-      self.total = self.occ + self.free
-      self.ratio = self.occ / self.total if (self.total > 0) else 0
-      self.color = get_color(self.ratio)
+    self.total = self.occ + self.free
+    self.ratio = self.occ / self.total if (self.total > 0) else 0
+    self.color = get_color(self.ratio)
+    if bedcount.n_covid_deaths:
+      self.death += bedcount.n_covid_deaths
+    if bedcount.n_covid_healed:
+      self.healed += bedcount.n_covid_healed
 
   def set_basic_information(self, icu):
     if self.label is None:
@@ -96,6 +102,10 @@ class ICUTree:
     bedcount = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
     self.account_for_beds(bedcount)
     self.propagate(icu)
+
+  def add_many(self, icus):
+    for icu in icus:
+      self.add(icu)
 
   @property
   def is_leaf(self):
