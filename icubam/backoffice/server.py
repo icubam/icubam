@@ -10,7 +10,7 @@ from typing import Dict
 import tornado.ioloop
 from icubam.backoffice.handlers import (home, login, logout, users, tokens,
                                         icus, dashboard, operational_dashboard,
-                                        messages, regions)
+                                        messages, regions, maps)
 from icubam import base_server
 
 
@@ -76,6 +76,7 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(dashboard.ListBedCountsHandler)
     self.add_handler(operational_dashboard.OperationalDashHandler)
     self.add_handler(messages.ListMessagesHandler)
+    self.add_handler(maps.MapsHandler)
 
     for folder in ['dist', 'pages', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
@@ -84,6 +85,11 @@ class BackOfficeServer(base_server.BaseServer):
           (route, tornado.web.StaticFileHandler,
           {'path': os.path.join(path, 'static', folder)}
           ))
+    # Those are to get the js of the map page.
+    self.routes.append(
+        ('/www/static/(.*)', tornado.web.StaticFileHandler,
+        {'path': os.path.join(path, '../www/static')}
+        ))
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:

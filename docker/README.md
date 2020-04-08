@@ -19,7 +19,6 @@ variable (check the files `start_server.sh` and `start_server_sms.sh`).
 To start properly, the application requires
 - The ICUBAM environment variables to be set in the shell.
 - The production and test databases to be generated and available at the root of the project (`icubam.db` and `test.db`)
-- The `resources/token.pickle` file to be in the `resources` folder
 
 For a full deployment with Nginx
 1. replace WEB_HOSTNAME in Nginx configuration files with `set_hostname_nginx.sh` (from within the docker/scripts folder).

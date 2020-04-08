@@ -6,7 +6,7 @@ from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
   base, home, login, logout, users, tokens, icus, dashboard,
-  operational_dashboard, regions, messages
+  operational_dashboard, regions, messages, maps
 )
 
 
@@ -60,6 +60,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       dashboard.ListBedCountsHandler,
       operational_dashboard.OperationalDashHandler,
       messages.ListMessagesHandler,
+      maps.MapsHandler,
     ]
     for handler in handlers:
       with mock.patch.object(handler, 'get_current_user') as m:
