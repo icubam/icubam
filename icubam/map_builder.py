@@ -98,8 +98,10 @@ class MapBuilder:
         {'name': 'cluster', 'beds': [node]},
         {
           'name': 'full',
-          'beds': sorted(node.children.values(), key=lambda x: x.label)},
+          'beds': sorted(node.children.values(), key=lambda x: x.label)
+        },
       ]
+      print(views)
       popup = self.popup_template.generate(
         cluster=node.label, color=node.color, views=views)
       curr = {'popup': popup.decode()}
