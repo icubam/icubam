@@ -42,8 +42,10 @@ class UploadHandler(base.BaseHandler):
   def post(self):
     file = self.request.files["file"][0]
     file_name = clean_path(file["filename"])
-    time_str = time.strftime("%Y-%m-%d-%H:%M:%S")	
-    file_path = os.path.join(upload_path, self.upload_path, f"{time_str}-{file_name}")
+    time_str = time.strftime("%Y-%m-%d-%H:%M:%S")
+    file_path = os.path.join(
+      self.upload_path, f"{time_str}-{file_name}"
+    )
     try:
       with open(file_path, "wb") as f:
         f.write(file["body"])
