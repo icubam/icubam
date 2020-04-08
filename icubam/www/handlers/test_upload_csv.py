@@ -7,8 +7,10 @@ class TokenTest(absltest.TestCase):
   def test_sanitize(self):
     root_path = ['', '/foo/bar', '/foo/bar/']
     file_path = {
-      '../../././././blah.___csv___': 'blah.___csv___',
-      "{ '\ : []]{$ROOT": 'root'
+      r'../../././././blah.___csv___': 'blah.___csv___',
+      r"{ '\ : []]{$ROOT": 'root',
+      r"\\ \$BLAH.foo" : "blah.foo",
+      r": () {: |: &} ;:": ''
     }
     for rp in root_path:
       for fp in file_path:
