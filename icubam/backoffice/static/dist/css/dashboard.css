@@ -18,3 +18,8 @@ div.operational-dash .dash-metrics .card-title {
 div.operational-dash .dash-metrics .card-text {
     font-size: small;
 }
+
+div.operational-dash .figure img {
+    width: 100%;
+}
+

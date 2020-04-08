@@ -70,6 +70,27 @@
         {% end %}
         </div>
     </div>
+
+    {% if plots_extra %}
+    <div class="row">
+    <div class="col">
+    <h2>{{ _("Extra figures") }}</h1>
+    </div>
+    </div>
+    {% end %}
+
+    {% for row in plots_extra %}
+    <div class="row extra-plots">
+    {% for fig_name in row %}
+    {% if fig_name is not None %}
+        <div class="col-sm-5 figure">
+	   <img src="/bo/static/extra-plots/{{ fig_name }}.png" />
+    
+	</div>
+    {% end %}
+    {% end %}
+    </div>
+    {% end %}
 </div>
 
 {% end %}

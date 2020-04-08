@@ -78,6 +78,13 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(messages.ListMessagesHandler)
     self.add_handler(maps.MapsHandler)
 
+    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+      route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
+      self.routes.append(
+          (route, tornado.web.StaticFileHandler,
+          {'path': self.config.backoffice.extra_plots_dir})
+          )
+
     for folder in ['dist', 'pages', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
       folder = '' if folder == 'static' else folder
