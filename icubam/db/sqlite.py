@@ -19,8 +19,7 @@ class SQLiteDB:
         "icus",
         self._metadata,
         Column("icu_id", Integer, primary_key=True),
-        Column("name", String, unique=True),
-        Column("region_id", Integer, ForeignKey("regions.region_id")),
+        Column("icu_name", String, unique=True),
         Column("dept", String),
         Column("city", String),
         Column("lat", Float),
@@ -64,8 +63,7 @@ class SQLiteDB:
 
   def upsert_icu(
       self,
-      name: str,
-      region_id: int,
+      icu_name: str,
       dept: str,
       city: str,
       lat: float,
@@ -75,14 +73,14 @@ class SQLiteDB:
     """Add or update an ICU."""
     # If not then add. We don't use SQLAlchemy as it doesn't yet support on
     # conflict update for SQLite.
-    self._conn.execute("""INSERT INTO icus (name, region_id, dept, city, lat, long, telephone)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
+    self._conn.execute("""INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
+                            VALUES (?, ?, ?, ?, ?, ?)
                             ON CONFLICT(name) DO UPDATE SET
                             dept=excluded.dept,
                             city=excluded.city,
                             lat=excluded.lat,
                             long=excluded.long,
-                            telephone=excluded.telephone""",name, region_id, dept, city, lat, long, telephone)
+                            telephone=excluded.telephone""", icu_name, dept, city, lat, long, telephone)
 
   def add_user(self, icu_name: str, name: str, telephone: str,
                description: str):
@@ -178,18 +176,6 @@ class SQLiteDB:
     if not get_history:
       query = select([query]).group_by("icu_id")
     return pd.read_sql_query(query, self._conn)
-
-  def upsert_region(self, region_name: str):
-    """return the id of the new/existing region_name."""
-    query = """SELECT region_id FROM regions
-               WHERE name = '{region_name}'"""
-    res = pd.read_sql_query(query.format(**locals()), self._conn)
-    if len(res) == 0:
-      # Insert the new region:
-      self._conn.execute("INSERT INTO regions (name) VALUES (?)", region_name)
-      res = pd.read_sql_query(query.format(**locals()), self._conn)
-
-    return int.from_bytes(res["region_id"][0], byteorder='little')
 
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""
