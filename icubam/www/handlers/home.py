@@ -11,14 +11,11 @@ from icubam import map_builder
 class HomeHandler(base.BaseHandler):
 
   ROUTE = '/'
-  POPUP_TEMPLATE = 'popup.html'
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.token_encoder = token.TokenEncoder(self.config)
-    loader = tornado.template.Loader(self.get_template_path())
-    popup_template = loader.load(self.POPUP_TEMPLATE)
-    self.builder = map_builder.MapBuilder(config, self.db, popup_template)
+    self.builder = map_builder.MapBuilder(config, self.db)
 
   @tornado.web.authenticated
   def get(self):

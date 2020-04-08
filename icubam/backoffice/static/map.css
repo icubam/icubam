@@ -1,0 +1,64 @@
+#map {
+  height: 85%;
+}
+
+.bed-table {
+  max-width: 350px;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.report-number {
+  padding: 6px;
+  margin: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.modal-icu-name {
+  text-align: left;
+}
+
+.positive .form-control:valid {
+  border-color: green!important;
+}
+
+.average .form-control:valid {
+  border-color: orange!important;
+}
+
+.negative .form-control:valid {
+  border-color: #ff0000!important;
+}
+
+a.not-underlined {
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.show-on-hover {
+  display: none;
+}
+
+a:hover + .show-on-hover {
+  display: inline;
+}
+
+#subtitle-cluster {
+  display: block;
+}
+
+#subtitle-full {
+  display: none;
+}
+
+.subtitles {
+  padding: 0;
+  margin: 0;
+}

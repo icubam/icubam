@@ -11,16 +11,16 @@ function togglePopup (cluster_id, color) {
     full.style.display = "block"
     box.style.borderStyle = 'solid'
     box.style.borderColor = color
-    subtitleFull.style.display = 'inline'
-    subtitleCluster.style.display = 'none'
+    if (subtitleFull !== null) subtitleFull.style.display = 'inline'
+    if (subtitleCluster !== null) subtitleCluster.style.display = 'none'
     showed.add(cluster_id)
 
   } else {
     cluster.style.display = "block"
     full.style.display = "none"
     box.style.borderStyle = 'none'
-    subtitleFull.style.display = 'none'
-    subtitleCluster.style.display = 'inline'
+    if (subtitleFull !== null) subtitleFull.style.display = 'none'
+    if (subtitleCluster !== null) subtitleCluster.style.display = 'inline'
     showed.delete(cluster_id)
   }
 }
@@ -103,23 +103,6 @@ function addPopup (obj, map, Popup) {
   popup = new Popup(new google.maps.LatLng(obj.lat, obj.long), content)
   popup.setMap(map);
 }
-
-// function getCenter(data) {
-//   if (data.length === 0) {
-//     // Paris lat-long
-//     return {lat: 48.8566, lng: 2.3522}
-//   }
-//
-//   let center = {lat: 0, lng: 0}
-//   for (i =0; i < data.length; i++) {
-//     center.lat = center.lat + data[i].lat
-//     center.lng = center.lng + data[i].long
-//   }
-//   center.lat =  center.lat / data.length
-//   center.lng =  center.lng / data.length
-//
-//   return center
-// }
 
 function plotMap(data, center) {
   // center = center === null ? getCenter(data) : center
