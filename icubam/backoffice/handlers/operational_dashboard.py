@@ -127,7 +127,7 @@ def _grouper(iterable, n, fillvalue=None):
   ABC DEF Gxx
   """
   args = [iter(iterable)] * n
-  return zip_longest(fillvalue=fillvalue, *args)
+  return list(zip_longest(fillvalue=fillvalue, *args))
 
 
 def _list_extra_plots(input_dir: Path) -> List[str]:
