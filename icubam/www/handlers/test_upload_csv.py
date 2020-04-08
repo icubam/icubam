@@ -10,7 +10,9 @@ class TokenTest(absltest.TestCase):
       r'../../././././blah.___csv___': 'blah.___csv___',
       r"{ '\ : []]{$ROOT": 'root',
       r"\\ \$BLAH.foo": 'blah.foo',
-      r": () {: |: &} ;:": ''
+      r": () {: |: &} ;:": '',
+      r"/blah/": 'blah',
+      r"\/o./ /blah ../.././\$$..": ''
     }
     for rp in root_path:
       for fp in file_path:

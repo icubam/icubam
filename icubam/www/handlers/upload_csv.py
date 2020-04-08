@@ -7,7 +7,6 @@ from icubam.www.handlers import base
 
 
 def clean_path(f_name):
-  time_str = time.strftime("%Y-%m-%d-%H:%M:%S")
   # Sanitize the name some:
   f_name = f_name.lower()
   f_name = os.path.normpath(f_name)
