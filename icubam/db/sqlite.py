@@ -73,14 +73,17 @@ class SQLiteDB:
     """Add or update an ICU."""
     # If not then add. We don't use SQLAlchemy as it doesn't yet support on
     # conflict update for SQLite.
-    self._conn.execute("""INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                            ON CONFLICT(name) DO UPDATE SET
+    query = """INSERT INTO icus (icu_name, dept, city, lat, long, telephone)
+                            VALUES
+                            ('{icu_name}', '{dept}', '{city}',
+                             {lat}, {long}, '{telephone}')
+                            ON CONFLICT(icu_name) DO UPDATE SET
                             dept=excluded.dept,
                             city=excluded.city,
                             lat=excluded.lat,
                             long=excluded.long,
-                            telephone=excluded.telephone""", icu_name, dept, city, lat, long, telephone)
+                            telephone=excluded.telephone"""
+    self._conn.execute(query.format(**locals()))
 
   def add_user(self, icu_name: str, name: str, telephone: str,
                description: str):
@@ -176,7 +179,6 @@ class SQLiteDB:
     if not get_history:
       query = select([query]).group_by("icu_id")
     return pd.read_sql_query(query, self._conn)
-
   def pd_execute(self, query):
     """Run pd.read_sql_query on a query and return the DataFrame."""
     return pd.read_sql_query(query, self._conn)
