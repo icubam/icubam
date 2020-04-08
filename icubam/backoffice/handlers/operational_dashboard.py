@@ -1,5 +1,8 @@
 from typing import List, Dict
 
+import os
+from pathlib import Path
+from itertools import zip_longest
 import numpy as np
 import pandas as pd
 import tornado.web
@@ -113,6 +116,35 @@ def _make_bar_plot(df: pd.DataFrame):
   return p
 
 
+def _grouper(iterable, n, fillvalue=None):
+  """Collect data into fixed-length chunks or blocks
+
+  Copied from https://docs.python.org/3.8/library/itertools.html#itertools-recipes
+  
+  Example
+  -------
+  >>> grouper('ABCDEFG', 3, 'x')
+  ABC DEF Gxx
+  """
+  args = [iter(iterable)] * n
+  return list(zip_longest(fillvalue=fillvalue, *args))
+
+
+def _list_extra_plots(input_dir: Path) -> List[str]:
+  """Return a list of available plot names"""
+  if not isinstance(input_dir, Path):
+    raise ValueError(f'input_dir={input_dir} must be a Path object')
+  if not input_dir.exists():
+    return []
+  out = []
+  for fpath in os.listdir(input_dir):
+    fpath = Path(fpath)
+    if fpath.suffix != '.png':
+      continue
+    out.append(fpath.stem)
+  return list(sorted(out))
+
+
 class OperationalDashHandler(base.AdminHandler):
   ROUTE = 'operational-dashboard'
 
@@ -150,6 +182,12 @@ class OperationalDashHandler(base.AdminHandler):
     script, div = components(p)
     figures.append(dict(script=script, div=div))
 
+    plots_extra = _list_extra_plots(
+      Path(self.config.backoffice.extra_plots_dir)
+    )
+    # stack two columns per row
+    plots_extra = _grouper(plots_extra, 2)
+
     regions = [{
       'name': el.name,
       'id': el.region_id
@@ -161,5 +199,6 @@ class OperationalDashHandler(base.AdminHandler):
       figures=figures,
       regions=regions,
       current_region_name=current_region_name,
-      metrics_layout=metrics_layout
+      metrics_layout=metrics_layout,
+      plots_extra=plots_extra
     )
