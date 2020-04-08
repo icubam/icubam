@@ -41,7 +41,7 @@ class MapBuilder:
     return result
 
   def prepare_jsons(self, user_id=None, center_icu=None, level='dept'):
-    # TODO(olivier): all the map ?
+    # TODO(olivier): all the icus on map ? or restrict somehow ?
     tree = icu_tree.ICUTree()
     for icu in self.db.get_icus():
       tree.add(icu)
