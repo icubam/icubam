@@ -1,0 +1,5 @@
+icu_name,region,dept,city,lat,long,telephone
+hopital1,nord,limousin,san diego,49.7783,4.7198,99
+hopital2,sud,poitou,pekin,54.7783,5.7198,22
+hopital3,est,ardennes,rio,62.7783,6.7198,33
+hopital4,ouest,nord,london,82.7783,7.7198,44
