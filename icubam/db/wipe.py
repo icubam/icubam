@@ -44,7 +44,6 @@ def wipe_db(conn, keep_beds):
   for alteration in ALTERATIONS.items():
     affectations = ",".join([f"{k} = {v}" for (k, v) in alteration[1]])
     query = f"UPDATE {alteration[0]} SET {affectations};"
-    print(query)
     conn.execute(query)
   conn.commit()
   conn.close()

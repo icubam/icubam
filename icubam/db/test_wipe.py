@@ -1,5 +1,5 @@
 from absl.testing import absltest
-from itertools import repeat
+import itertools
 from sqlalchemy import create_engine
 from icubam.db.fake import populate_store_fake
 from icubam.db.wipe import wipe_db
@@ -18,12 +18,12 @@ class WipeTest(absltest.TestCase):
       wipe_db(conn.connection, keep_beds=False)
       users = list(self.store.get_users())
       self.assertItemsEqual([user.name for user in users],
-                            repeat("Jean Dumont", len(users)))
+                            itertools.repeat("Jean Dumont", len(users)))
       self.assertItemsEqual([user.email for user in users],
-                            repeat("jean.dumont@example.org", len(users)))
+                            itertools.repeat("jean.dumont@example.org", len(users)))
       bed_counts = list(self.store.get_bed_counts(None))
       self.assertItemsEqual([bc.n_covid_free for bc in bed_counts],
-                            repeat(2, len(bed_counts)))
+                            itertools.repeat(2, len(bed_counts)))
 
   def test_keep_beds(self):
     with self.engine.connect() as conn:
