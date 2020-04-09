@@ -11,23 +11,33 @@ flags.DEFINE_string("config", "resources/config.toml", "Config file.")
 flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
 flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 
-flags.DEFINE_bool("forceUpdate", False, "replace db content with csv if entry already exist.")
-flags.DEFINE_string("icu_csv_path", "resources/icu.csv", "path to csv file containing ICU data")
-flags.DEFINE_string("user_csv_path", "resources/user.csv", "path to csv file containing user data")
+flags.DEFINE_bool(
+  "forceUpdate", False, "replace db content with csv if entry already exist."
+)
+flags.DEFINE_string(
+  "icu_csv_path", "resources/icu.csv", "path to csv file containing ICU data"
+)
+flags.DEFINE_string(
+  "user_csv_path", "resources/user.csv",
+  "path to csv file containing user data"
+)
 
 FLAGS = flags.FLAGS
 
 
 def main(args=None):
-	cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
-	store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
-	db = store_factory.create()
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
+  store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
+  db = store_factory.create()
 
-	csv = CSV(db)
-	
-	admin_user_id = csv.get_default_admin()
-	csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
-	csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
-		
+  csv = CSV(db)
+
+  admin_user_id = csv.get_default_admin()
+  csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
+  csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
+
+
 if __name__ == "__main__":
-	app.run(main)
+  app.run(main)
