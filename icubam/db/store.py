@@ -416,6 +416,11 @@ class Store(object):
     return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
 
+  def get_user_by_phone(self, phone: int):
+    """Returns the user with the specified phone number."""
+    return self._session.query(User).filter(
+        User.telephone == phone).one_or_none()
+
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session.query(User).all()
