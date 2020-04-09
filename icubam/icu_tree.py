@@ -80,7 +80,7 @@ class ICUTree:
       if icu.long is not None:
         self.long = icu.long
 
-  def propagate(self, icu):
+  def propagate(self, icu, bedcount):
     next_level = self.get_next_level()
     if next_level is None:
       return
@@ -88,25 +88,32 @@ class ICUTree:
     # Recurse
     next_level_name = self.get_level_name(icu, next_level)
     child = self.children.get(next_level_name, ICUTree(next_level))
-    child.add(icu)
+    child.add(icu, bedcount)
 
-    # Update position information
+    # May update position information
     if next_level_name not in self.children:
       self.children[next_level_name] = child
       n = len(self.children)
-      self.lat = (child.lat + (n - 1)*self.lat) / n
-      self.long = (child.long + (n - 1)*self.long) / n
+      if child.lat and child.long:
+        self.lat = (child.lat + (n - 1)*self.lat) / n
+        self.long = (child.long + (n - 1)*self.long) / n
 
-  def add(self, icu):
+  def add(self, icu, bedcount):
+    if not self.should_add(icu, bedcount):
+      return
+
+    bedcount = bedcount if bedcount is not None else store.BedCount()
     self.set_basic_information(icu)
-    bedcount = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
     self.account_for_beds(bedcount)
-    self.propagate(icu)
+    self.propagate(icu, bedcount)
 
-  def add_many(self, icus, active_only=True):
+  def should_add(self, icu: store.ICU, bedcount: store.BedCount):
+    return bedcount is not None and icu.is_active
+
+  def add_many(self, icus, bedcounts):
+    bedcounts_index = {b.icu_id: b for b in bedcounts}
     for icu in icus:
-      if not active_only or icu.is_active:
-        self.add(icu)
+      self.add(icu, bedcounts_index.get(icu.icu_id, None))
 
   @property
   def is_leaf(self):
