@@ -58,7 +58,7 @@ COPY scripts scripts
 # create resource folder
 RUN  mkdir resources
 # copy specific files on root folder
-COPY dev_install.md LICENSE pyproject.toml README.md requirements.txt setup.py ./
+COPY doc/install.md LICENSE pyproject.toml README.md requirements.txt setup.py ./
 # pip/setup tools requires version inside .git
 COPY .git ./.git
 
