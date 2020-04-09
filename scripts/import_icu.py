@@ -145,6 +145,40 @@ class CSV:
 					print("IMPORT CSV : skip USER " + row[header.index("name")] + ", no existing ICU named " + row[header.index("icu_name")] +
 								". you should import/create this ICU first")
 
+	def export_icus(self, csv_file_path:str):
+
+		with open(csv_file_path, 'w') as csvfile:
+			header = ["icu_name","region","dept","city","lat","long","telephone"]
+			writer = csv.DictWriter(csvfile, fieldnames=header)
+			writer.writeheader()
+
+			for icu in self.store.get_icus():
+				region_name = self.store.get_region(icu.region_id).name
+				writer.writerow({
+					"icu_name" : 	icu.name,
+					"region": 		region_name,
+					"dept": 			icu.dept,
+					"city":				icu.city,
+					"lat": 				icu.lat,
+					"long":				icu.long,
+					"telephone":	icu.telephone
+				})
+
+	def export_users(self, csv_file_path:str):
+
+		with open(csv_file_path, 'w') as csvfile:
+			header = ["icu_name","name","tel","description"]
+			writer = csv.DictWriter(csvfile, fieldnames=header)
+			writer.writeheader()
+
+			for user in self.store.get_users():
+				for icu in user.icus :
+					writer.writerow({
+						"icu_name" : 	icu.name,
+						"name": 			user.name,
+						"tel": 				user.telephone,
+						"description":user.description
+					})
 		
 if __name__ == "__main__":
 	app.run(main)
