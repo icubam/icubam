@@ -17,27 +17,27 @@ ALTERATIONS = {
     ("password_hash", 42),
   ],
   "external_clients": [
-    ("name", '"Jean Dumont"'),
-    ("email", '"jean.dumont@example.org"'),
+    ("name", '"Jeanne Externe"'),
+    ("email", '"jeanne.externe@example.org"'),
     ("telephone", "33600000001 + external_clients.external_client_id"),
   ],
 }
 
 def wipe_db(conn, keep_beds):
-    """
-    Wipe sensitive information from a database.
+  """
+  Wipe sensitive information from a database.
 
-    Parameters
-    ----------
-    conn: sqlite3 connection
+  Parameters
+  ----------
+  conn: sqlite3 connection
 
-    keep_beds: bool
-        True if bed information should be kept
+  keep_beds: bool
+      True if bed information should be kept
 
-    Returns
-    -------
-    None
-    """
+  Returns
+  -------
+  None
+  """
   cur = conn.cursor()
   if not keep_beds:
     ALTERATIONS["bed_counts"].extend([("n_covid_free", 2), ("n_covid_occ", 4)])

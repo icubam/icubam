@@ -1,9 +1,9 @@
 from icubam.db.store import BedCount, ICU, Region, Store, User
 
 def populate_store_fake(store):
-    """
-    Populate a store with fake data
-    """
+  """
+  Populate a store with fake data
+  """
   admin_user_id = store.add_user(
       User(
           name='admin',
