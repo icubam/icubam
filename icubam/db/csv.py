@@ -53,31 +53,6 @@ class CSV:
 				# create ICU
 				icu_id = self.store.add_icu(admin_user_id, ICU(**icu_info))
 				print("IMPORT CSV : create ICU " + row[header.index("icu_name")])
-				'''
-				# create ICU default user
-				user_info = {
-					"name":				row[header.index("icu_name")] + "_user",
-					"telephone":	row[header.index("telephone")],
-					"email":			"a@bc.org",
-					"is_active":	True,
-					"is_admin":		False,
-				}
-				user_id = self.store.add_user_to_icu(admin_user_id ,icu_id, User(**user_info))
-
-				# update bed_count
-				bed_info = {
-					"icu_id": icu_id,
-					"n_covid_occ": 0,
-					"n_covid_free": 0,
-					"n_ncovid_occ": 0,
-					"n_ncovid_free": 0,
-					"n_covid_deaths": 0,
-					"n_covid_healed": 0,
-					"n_covid_refused": 0,
-					"n_covid_transfered": 0,
-				}
-				self.store.update_bed_count_for_icu(user_id, BedCount(**bed_info))
-				'''
 
 	def import_users(self,admin_user_id: int, csv_file_path:str, forceUpdate=False):
 		csv_data = csv.reader(open(csv_file_path))
