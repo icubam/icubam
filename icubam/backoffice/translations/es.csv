@@ -1,0 +1,23 @@
+Active,Activo
+Admin,Administrador
+Authentication failed,Error de autenticación
+Create user,Nuevo usuario
+Edit user,Edición de usuario
+Email address,Email
+Failed to save the user,Error de registro de usuario
+ICUs,Unidades de Cuidado intensivo (UCIs)
+Select ICUs,Escoger UCIs
+Name,Nombre
+Password,Contraseña
+Phone Number,Número telefónico
+Save,Guardar
+Sign in to start your session,Identificarse e ingresar
+User management,Manejo de usuarios
+n_covid_occ,Covid+ Occupadas
+n_ncovid_occ,Covid- Occupadas
+n_covid_free,Covid+ Libres
+n_ncovid_free,Covid- Libres
+n_covid_deaths,Muertes
+n_covid_healed,Sanados/Curados
+n_covid_refused,Rechazados
+n_covid_transfered,Transferidos
