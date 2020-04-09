@@ -9,6 +9,8 @@ import click
 import sqlite3
 import sys
 
+from icubam.db.wipe import wipe_db
+
 flags.DEFINE_boolean(
   "force", False, "Do not prompt user confirmation and do not print query."
 )
@@ -17,44 +19,9 @@ flags.DEFINE_boolean(
 )
 FLAGS = flags.FLAGS
 
-ALTERATIONS = {
-  "bed_counts": [
-    ("n_ncovid_free", 3),
-    ("n_ncovid_occ", 5),
-    ("n_covid_deaths", 0),
-    ("n_covid_healed", 0),
-    ("n_covid_refused", 0),
-    ("n_covid_transfered", 0),
-    ("message", '"Have a nice day!"'),
-  ],
-  "icus": [("telephone", "33120000000 + icus.icu_id")
-           ],  # we reuse the ID to respect telephone uniqueness constraint
-  "users": [
-    ("name", '"Jean Dumont"'),
-    ("email", '"jean.dumont@example.org"'),
-    ("telephone", "33600000001 + users.user_id"),
-    ("password_hash", 42),
-  ],
-  "external_clients": [
-    ("name", '"Jean Dumont"'),
-    ("email", '"jean.dumont@example.org"'),
-    ("telephone", "33600000001 + external_clients.external_client_id"),
-  ],
-}
-
-
-def wipe_db(path):
+def wipe_db_path(path, keep_beds):
   conn = sqlite3.connect(path)
-  cur = conn.cursor()
-  if not FLAGS.keep_beds:
-    ALTERATIONS["bed_counts"].extend([("n_covid_free", 2), ("n_covid_occ", 4)])
-  for alteration in ALTERATIONS.items():
-    affectations = ",".join([f"{k} = {v}" for (k, v) in alteration[1]])
-    query = f"UPDATE {alteration[0]} SET {affectations};"
-    print(query)
-    conn.execute(query)
-  conn.commit()
-  conn.close()
+  wipe_db(conn, keep_beds)
 
 
 def main(argv):
@@ -68,7 +35,7 @@ def main(argv):
     ):
       sys.exit(0)
 
-  wipe_db(argv[1])
+  wipe_db_path(argv[1], FLAGS.keep_beds)
 
 
 if __name__ == "__main__":
