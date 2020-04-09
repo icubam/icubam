@@ -11,7 +11,6 @@ flags.DEFINE_string("config", "resources/config.toml", "Config file.")
 flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
 flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 
-flags.DEFINE_bool("forceUpdate", False, "replace db content with csv if entry already exist.")
 flags.DEFINE_string("icu_csv_path", "resources/icu.csv", "path to csv file containing ICU data")
 flags.DEFINE_string("user_csv_path", "resources/user.csv", "path to csv file containing user data")
 
@@ -25,10 +24,8 @@ def main(args=None):
 
 	csv = CSV(db)
 	
-	admin_user_id = csv.get_default_admin()
-	csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
-	csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
-	csv.export_users("USER2.csv")
+	csv.export_icus(FLAGS.icu_csv_path)
+	csv.export_users(FLAGS.user_csv_path)
 		
 if __name__ == "__main__":
 	app.run(main)
