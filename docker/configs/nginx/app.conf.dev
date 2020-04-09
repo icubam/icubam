@@ -7,7 +7,7 @@ upstream app-server {
 }
 
 upstream backoffice-server {
-        server icubam-server:8890;
+        server icubam-bo-server:8890;
 }
 
 
@@ -16,7 +16,7 @@ server {
     server_name localhost;
     server_tokens off;
 
-    location /admin/ {
+    location /bo/ {
         proxy_set_header Host $host;
         proxy_set_header X-Real-Ip $remote_addr;
         proxy_pass http://backoffice-server;
