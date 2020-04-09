@@ -6,6 +6,7 @@ setup(
   license='Apache',
   packages=['icubam'],
   zip_safe=False,
+  python_requires=">=3.7",
   package_data={
     # If any package contains *.txt or *.rst files, include them:
     "": ["*.env"]
