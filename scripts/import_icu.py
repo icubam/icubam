@@ -23,8 +23,8 @@ FLAGS = flags.FLAGS
 def main(args=None):
 	csv = CSV()
 	admin_user_id = csv.get_default_admin()
-	csv.import_icu(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
-	csv.import_user(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
+	csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
+	csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
 
 class CSV:
 	""" """
@@ -38,7 +38,7 @@ class CSV:
 		# create default admin
 		return self.store.add_default_admin()
 
-	def import_icu(self,admin_user_id: int, csv_file_path:str, forceUpdate=False):
+	def import_icus(self,admin_user_id: int, csv_file_path:str, forceUpdate=False):
 		csv_data = csv.reader(open(csv_file_path))
 
 		# check header
@@ -106,7 +106,7 @@ class CSV:
 				self.store.update_bed_count_for_icu(user_id, BedCount(**bed_info))
 				'''
 
-	def import_user(self,admin_user_id: int, csv_file_path:str, forceUpdate=False):
+	def import_users(self,admin_user_id: int, csv_file_path:str, forceUpdate=False):
 		csv_data = csv.reader(open(csv_file_path))
 
 		# check header
