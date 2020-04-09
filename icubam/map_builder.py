@@ -42,7 +42,8 @@ class MapBuilder:
   def prepare_jsons(self, user_id=None, center_icu=None, level='dept'):
     # TODO(olivier): all the icus on map ? or restrict somehow ?
     tree = icu_tree.ICUTree()
-    tree.add_many(self.db.get_icus(), active_only=True)
+    tree.add_many(
+        self.db.get_icus(), self.db.get_latest_bed_counts())
     data = self.to_map_data(tree, level)
     anchor = center_icu if center_icu is not None else tree
     center = {'lat': anchor.lat, 'lng': anchor.long}

@@ -11,6 +11,8 @@ services:
     command: ./start_server.sh
     restart: unless-stopped
     tty: true
+    ports:
+      - "8888:8888"
     environment:
       ENV_MODE : "$ENV_MODE"
       SECRET_COOKIE : "$SECRET_COOKIE"

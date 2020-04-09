@@ -9,9 +9,9 @@ def make_info(count, label, icon, color):
   return {'label': label, 'count': count, 'icon': icon, 'color': color}
 
 
-def build_data(icus, num_users):
+def build_data(icus, bedcounts, num_users):
   tree = icu_tree.ICUTree(level='icu')  # No clustering
-  tree.add_many(icus)
+  tree.add_many(icus, bedcounts)
   result = []
   result.append(
     make_info(len(icus), 'icus', 'hospital-symbol', 'primary'))
@@ -36,6 +36,10 @@ class HomeHandler(BaseHandler):
     if not self.user.is_admin:
       data['Managed'] = build_data(
           self.db.get_managed_icus(self.user.user_id),
+          self.db.get_visible_bed_counts_for_user(self.user.user_id),
           len(self.db.get_managed_users(self.user.user_id)))
-    data['Overall'] = build_data(self.db.get_icus(), len(self.db.get_users()))
+    data['Overall'] = build_data(
+        self.db.get_icus(),
+        self.db.get_latest_bed_counts(),
+        len(self.db.get_users()))
     return self.render("home.html", data=data)
