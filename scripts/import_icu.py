@@ -118,32 +118,35 @@ class CSV:
 				sys.exit(0)
 
 		for row in csv_data:
-			user = self.store.get_user_by_phone(row[header.index("tel")])
-			user_info = {
-				"name":				row[header.index("name")],
-				"telephone":	row[header.index("tel")],
-				"description":row[header.index("description")],
-				"email":			"a@bc.org",
-				"is_active":	True,
-				"is_admin":		False,
-			}
-
-			if user:
-				# update USER
-				if forceUpdate:
-					self.store.update_user(admin_user_id, user.user_id, user_info)
-					print("IMPORT CSV : overwrite USER " + row[header.index("name")] + " --forceUpdate")
-				else:
-					print("IMPORT CSV : skip USER " + row[header.index("name")] + " already exist in db (use --forceUpdate to update anyway)")
+			icu = self.store.get_icu_by_name(row[header.index("icu_name")])
+			if icu is None:
+				print("IMPORT CSV : skip USER " + row[header.index("name")] + ", no existing ICU named " + row[header.index("icu_name")] +
+								". you should import/create this ICU first")
 			else:
-				# create USER
-				icu = self.store.get_icu_by_name(row[header.index("icu_name")])
-				if icu:
+				user = self.store.get_user_by_phone(row[header.index("tel")])				
+				user_info = {
+					"name":				row[header.index("name")],
+					"telephone":	row[header.index("tel")],
+					"description":row[header.index("description")],
+					"email":			"a@bc.org",
+					"is_active":	True,
+					"is_admin":		False,
+				}
+
+				if user:
+					# update USER
+					if (not self.store.can_edit_bed_count(user.user_id, icu.icu_id)):
+						self.store.assign_user_to_icu(admin_user_id,user.user_id,icu.icu_id)
+					if forceUpdate:
+						self.store.update_user(admin_user_id, user.user_id, user_info)
+						print("IMPORT CSV : overwrite USER " + row[header.index("name")] + " --forceUpdate")
+					else:
+						print("IMPORT CSV : skip USER " + row[header.index("name")] + " already exist in db (use --forceUpdate to update anyway)")
+				else:
+					# create USER
 					self.store.add_user_to_icu(admin_user_id ,icu.icu_id, User(**user_info))
 					print("IMPORT CSV : create ICU " + row[header.index("name")])
-				else:
-					print("IMPORT CSV : skip USER " + row[header.index("name")] + ", no existing ICU named " + row[header.index("icu_name")] +
-								". you should import/create this ICU first")
+					
 
 	def export_icus(self, csv_file_path:str):
 
