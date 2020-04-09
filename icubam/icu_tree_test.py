@@ -1,5 +1,5 @@
 from absl.testing import absltest
-
+import datetime
 from icubam import icu_tree
 from icubam.db import store
 from icubam import config
@@ -40,6 +40,13 @@ class ICUTreeTestCase(absltest.TestCase):
     self.icus = self.db.get_icus()
     self.regions = self.db.get_regions()
 
+    self.insert_time = datetime.datetime(2020, 4, 8, 11, 13)
+    # Adding bedcounts: here we cheat a bit since we insert zeros counts
+    # to have those bedcounts on the map and simplify the maths.
+    for icu in self.icus:
+      count = store.BedCount(icu_id=icu.icu_id, create_date=self.insert_time)
+      self.db.update_bed_count_for_icu(self.admin_id, count)
+
   def test_get_next_level(self):
     tree = icu_tree.ICUTree(level='region')
     self.assertEqual(tree.get_next_level(), 'dept')
@@ -75,15 +82,18 @@ class ICUTreeTestCase(absltest.TestCase):
 
   def test_add(self):
     example = self.icus[7]
+    insert_time = self.insert_time + datetime.timedelta(seconds=1)
     self.db.update_bed_count_for_icu(self.admin_id, store.BedCount(
-        icu_id=self.icus[1].icu_id, n_covid_occ=12, n_covid_free=4))
+        icu_id=self.icus[1].icu_id, n_covid_occ=12, n_covid_free=4,
+        create_date=insert_time))
     self.db.update_bed_count_for_icu(self.admin_id, store.BedCount(
-        icu_id=example.icu_id, n_covid_occ=1, n_covid_free=19))
+        icu_id=example.icu_id, n_covid_occ=1, n_covid_free=19,
+        create_date=insert_time))
 
     tree = icu_tree.ICUTree()
     icus = self.db.get_icus()
-    for icu in icus:
-      tree.add(icu)
+    bedcounts = self.db.get_latest_bed_counts()
+    tree.add_many(icus, bedcounts)
 
     self.assertEqual(tree.level, 'country')
     self.assertGreater(len(tree.children), 0)
@@ -114,15 +124,13 @@ class ICUTreeTestCase(absltest.TestCase):
 
   def test_get_leaves(self):
     tree = icu_tree.ICUTree()
-    for icu in self.icus:
-      tree.add(icu)
+    tree.add_many(self.icus, self.db.get_latest_bed_counts())
     nodes = tree.get_leaves()
     self.assertEqual(len(nodes), 9)
 
   def test_extract_below(self):
     tree = icu_tree.ICUTree()
-    for icu in self.icus:
-      tree.add(icu)
+    tree.add_many(self.icus, self.db.get_latest_bed_counts())
     level = 'dept'
     nodes = tree.extract_below(level)
     self.assertEqual(len(nodes), 5)
