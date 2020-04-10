@@ -31,6 +31,7 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user = self.db.get_user(userid)
     if self.user:
       # User who bailed out have no access to ICUBAM
+      # User with unknown consent have access until they decide.
       if self.user.consent is None or self.user.consent:
         return self.user.user_id
 

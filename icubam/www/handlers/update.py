@@ -22,7 +22,6 @@ class UpdateHandler(base.BaseHandler):
     and we should have an agreement form to show."""
     path = self.config.server.consent
     # The user has already agreed, we skip.
-    print('hey', user.consent)
     if not user.consent and path is not None and os.path.exists(path):
       with open(path, 'r') as fp:
         return fp.read()

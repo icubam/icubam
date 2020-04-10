@@ -17,7 +17,12 @@ class ConsentHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def post(self):
-    print('hey')
+    """Depending on which button the user has clicked, we decide to set the
+    consent field of the user to True or False.
+
+    If False, the user has no access to ICUBAM and it is considered as
+    inactive. Otherwise we won't ask again and acces is granted.
+    """"
     agree = bool(int(self.get_body_argument(self.ARGUMENT, '0')))
     result = {}
     if agree:
