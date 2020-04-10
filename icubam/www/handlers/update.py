@@ -48,7 +48,6 @@ class UpdateHandler(base.BaseHandler):
 
     # Show consent form?
     data['consent'] = self.get_consent_html(user)
-    print(data['consent'])
 
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
