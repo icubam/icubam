@@ -101,11 +101,11 @@ class TokenHandler(base.AdminHandler):
 
   def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:
     token_dict["is_active"] = token_dict.get("is_active", "off") == 'on'
-    date = values.get('expiration_date', '')
+    date = token_dict.get('expiration_date', '')
     if date == '':
-      values['expiration_date'] = None
+      token_dict['expiration_date'] = None
     else:
-      values['expiration_date'] = datetime.datetime.strptime(
+      token_dict['expiration_date'] = datetime.datetime.strptime(
       date, self.TIME_FORMAT)
     token_id = token_dict.pop(self.ID_KEY, '')
     regions = set(map(int, token_dict.pop('regions', [])))
