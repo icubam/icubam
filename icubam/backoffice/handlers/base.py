@@ -24,13 +24,19 @@ class BaseHandler(tornado.web.RequestHandler):
     # This dictionary is updated by a PeriodicCallback in the
     # BackofficeApplication
     status = self.application.server_status
-    super().render(path, this_user=self.user, root=self.root_path,
-                   server_status=status, **kwargs)
+    super().render(
+      path,
+      this_user=self.user,
+      root=self.root_path,
+      server_status=status,
+      **kwargs
+    )
 
   def render_list(self, data, objtype, create_handler=None, **kwargs):
     route = None if create_handler is None else create_handler.ROUTE
-    return self.render("list.html", data=data, objtype=objtype,
-                       create_route=route, **kwargs)
+    return self.render(
+      "list.html", data=data, objtype=objtype, create_route=route, **kwargs
+    )
 
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
@@ -55,9 +61,11 @@ class BaseHandler(tornado.web.RequestHandler):
     self.set_header("Access-Control-Allow-Credentials", True)
     self.set_header("Access-Control-Allow-Origin", "*")
     self.set_header(
-        "Access-Control-Allow-Headers", "x-requested-with, Content-Type")
+      "Access-Control-Allow-Headers", "x-requested-with, Content-Type"
+    )
     self.set_header(
-        'Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+      'Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS'
+    )
 
   async def options(self):
     self.set_status(200)
@@ -91,7 +99,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class AdminHandler(BaseHandler):
   """A base handler for admin only routes."""
-
   def get_current_user(self):
     user = super().get_current_user()
     if user is None or not user.is_admin:

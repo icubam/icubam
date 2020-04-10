@@ -6,7 +6,6 @@ from absl import logging
 from icubam import config
 from icubam.db import store
 
-
 flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
 flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
 flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
@@ -19,7 +18,9 @@ FLAGS = flags.FLAGS
 def main(argv):
   fields = ['name', 'telephone', 'email']
   values = {k: FLAGS[k].value for k in fields if FLAGS[k].value is not None}
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   db_factory = store.create_store_factory_for_sqlite_db(cfg)
   db = db_factory.create()
   users = db.get_admins()
@@ -31,8 +32,11 @@ def main(argv):
   user_query = store.ExternalClient(**values)
   user = db.get_external_client_by_email(user_query.email)
   if user is None:
-    logging.info("New access token: {}".format(
-      db.add_external_client(admin_id, user_query)))
+    logging.info(
+      "New access token: {}".format(
+        db.add_external_client(admin_id, user_query)
+      )
+    )
   else:
     c_id = user.external_client_id
     db.update_external_client(admin_id, c_id, values)

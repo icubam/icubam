@@ -5,25 +5,28 @@ from icubam import config
 
 
 class SmsSenderTest(unittest.TestCase):
-
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml', mode='dev')
 
   def test_from_string(self):
     self.assertIsInstance(
-      sms_sender.get(self.config, 'MB'), sms_sender.MBSender)
+      sms_sender.get(self.config, 'MB'), sms_sender.MBSender
+    )
     self.assertIsInstance(
-      sms_sender.get(self.config, 'NX'), sms_sender.NXSender)
+      sms_sender.get(self.config, 'NX'), sms_sender.NXSender
+    )
     self.assertIsInstance(
-      sms_sender.get(self.config, 'nx'), sms_sender.NXSender)
+      sms_sender.get(self.config, 'nx'), sms_sender.NXSender
+    )
     self.assertIsInstance(
-      sms_sender.get(self.config, 'Fake'), sms_sender.FakeSender)
+      sms_sender.get(self.config, 'Fake'), sms_sender.FakeSender
+    )
     self.assertIsInstance(
-      sms_sender.get(self.config, 'fake'), sms_sender.FakeSender)
+      sms_sender.get(self.config, 'fake'), sms_sender.FakeSender
+    )
     with self.assertRaisesRegex(ValueError, 'Incorrect sms carrier'):
       sms_sender.get(self.config, 'dummy_sms_sender_name')
-
 
   def test_from_config(self):
     self.assertIsInstance(sms_sender.get(self.config), sms_sender.FakeSender)

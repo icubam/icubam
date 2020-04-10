@@ -9,23 +9,30 @@ from icubam.messaging.handlers import onoff, schedule
 
 class MessageServerClient:
   """Client for HTTP-based comnunication with the MessageServer"""
-
   def __init__(self, config):
     self.config = config
     self.http_client = httpclient.AsyncHTTPClient()
 
   async def fetch(self, handler, request):
     url = os.path.join(
-        self.config.messaging.base_url, handler.ROUTE.lstrip('/'))
-    return await self.http_client.fetch(httpclient.HTTPRequest(
-        url, body=request.to_json(), method='POST',
-        request_timeout=self.config.messaging.timeout))
+      self.config.messaging.base_url, handler.ROUTE.lstrip('/')
+    )
+    return await self.http_client.fetch(
+      httpclient.HTTPRequest(
+        url,
+        body=request.to_json(),
+        method='POST',
+        request_timeout=self.config.messaging.timeout
+      )
+    )
 
-  async def notify(self,
-                   user_id: int,
-                   icu_ids: List[int],
-                   on: bool = True,
-                   delay: Optional[int] = None):
+  async def notify(
+    self,
+    user_id: int,
+    icu_ids: List[int],
+    on: bool = True,
+    delay: Optional[int] = None
+  ):
     """Notify the scheduler that a user must be added / remove from the loop."""
     if not icu_ids:
       return logging.info('nothing to change. Aborting')
@@ -43,7 +50,9 @@ class MessageServerClient:
     try:
       result = json.loads(response.body.decode())
     except Exception as e:
-      logging.error(f"Could not parse {response.body} as ScheduleResponse: {e}")
+      logging.error(
+        f"Could not parse {response.body} as ScheduleResponse: {e}"
+      )
       return []
 
     return result

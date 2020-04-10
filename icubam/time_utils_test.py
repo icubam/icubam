@@ -5,7 +5,6 @@ from icubam import time_utils
 
 
 class TimeUtilsTest(absltest.TestCase):
-
   def test_time_ago(self):
     ref = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
     ts = datetime.datetime(2020, 3, 27, 16, 0).timestamp()
@@ -30,7 +29,8 @@ class TimeUtilsTest(absltest.TestCase):
     self.assertEqual(time_utils.localewise_time_ago(ts, None, ref), 'now')
     ts = datetime.datetime(2020, 3, 27, 16, 25).timestamp()
     self.assertEqual(
-      time_utils.localewise_time_ago(ts, None, ref), '5 minute ago')
+      time_utils.localewise_time_ago(ts, None, ref), '5 minute ago'
+    )
 
   def test_get_next_timestamp(self):
     pings = [(12, 8), (14, 51)]
@@ -51,6 +51,7 @@ class TimeUtilsTest(absltest.TestCase):
 
     next_one = time_utils.get_next_timestamp(None, ts)
     self.assertEqual(next_one, None)
+
 
 if __name__ == '__main__':
   absltest.main()

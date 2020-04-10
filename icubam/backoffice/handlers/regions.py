@@ -13,10 +13,10 @@ class ListRegionsHandler(base.AdminHandler):
 
   def prepare_for_table(self, region):
     result = [{
-        'key': 'name',
-        'value': region.name,
-        'link': f'{RegionHandler.ROUTE}?id={region.region_id}'}
-    ]
+      'key': 'name',
+      'value': region.name,
+      'link': f'{RegionHandler.ROUTE}?id={region.region_id}'
+    }]
     region_dict = dict()
     region_dict['icus'] = len(region.icus)
     region_dict['created'] = region.create_date
@@ -28,7 +28,8 @@ class ListRegionsHandler(base.AdminHandler):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
     return self.render_list(
-      data=data, objtype="Regions", create_handler=RegionHandler)
+      data=data, objtype="Regions", create_handler=RegionHandler
+    )
 
 
 class RegionHandler(base.AdminHandler):
@@ -41,8 +42,12 @@ class RegionHandler(base.AdminHandler):
 
   def do_render(self, region):
     region = region if region is not None else store.Region()
-    self.render("region.html", region=region, error=False,
-                list_route=ListRegionsHandler.ROUTE)
+    self.render(
+      "region.html",
+      region=region,
+      error=False,
+      list_route=ListRegionsHandler.ROUTE
+    )
 
   @tornado.web.authenticated
   def post(self):
@@ -52,7 +57,8 @@ class RegionHandler(base.AdminHandler):
     try:
       if not region_id:
         region_id = self.db.add_region(
-          self.user.user_id, store.Region(**values))
+          self.user.user_id, store.Region(**values)
+        )
       else:
         self.db.update_region(self.user.user_id, region_id, values)
     except Exception as e:

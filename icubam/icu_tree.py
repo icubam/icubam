@@ -41,7 +41,7 @@ class ICUTree:
       result[key] = getattr(self, key, None)
     return result
 
-  def get_level_name(self, icu, level = None):
+  def get_level_name(self, icu, level=None):
     level = self.level if level is None else level
     region = getattr(icu, level) if hasattr(icu, level) else None
     name = getattr(region, 'name') if hasattr(region, 'name') else region
@@ -95,8 +95,8 @@ class ICUTree:
       self.children[next_level_name] = child
       n = len(self.children)
       if child.lat and child.long:
-        self.lat = (child.lat + (n - 1)*self.lat) / n
-        self.long = (child.long + (n - 1)*self.long) / n
+        self.lat = (child.lat + (n - 1) * self.lat) / n
+        self.long = (child.long + (n - 1) * self.long) / n
 
   def add(self, icu, bedcount):
     if not self.should_add(icu, bedcount):

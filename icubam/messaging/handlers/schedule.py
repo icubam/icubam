@@ -40,7 +40,8 @@ class ScheduleHandler(tornado.web.RequestHandler):
     for msg, when in messages:
       curr = ScheduledMessage(
         msg.icu_id, msg.user_id, msg.user_name, msg.icu_name, msg.phone,
-        msg.attempts, msg.first_sent, when, msg.url)
+        msg.attempts, msg.first_sent, when, msg.url
+      )
       response.append(dataclasses.asdict(curr))
     return response
 

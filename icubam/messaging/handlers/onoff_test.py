@@ -1,8 +1,8 @@
 import unittest
 from icubam.messaging.handlers import onoff
 
-class OnOffRequestTestCase(unittest.TestCase):
 
+class OnOffRequestTestCase(unittest.TestCase):
   def test_silence_request(self):
     userid = 123
     icuids = [773, 32]
@@ -10,7 +10,8 @@ class OnOffRequestTestCase(unittest.TestCase):
     delay = None
 
     request = onoff.OnOffRequest(
-      user_id=userid, icu_ids=icuids, on=on, delay=delay)
+      user_id=userid, icu_ids=icuids, on=on, delay=delay
+    )
     encoded = request.to_json()
     self.assertIsInstance(encoded, str)
 
