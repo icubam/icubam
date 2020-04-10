@@ -118,7 +118,7 @@ class Region(Base):
   __tablename__ = "regions"
 
   region_id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String, unique=True)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -305,6 +305,10 @@ class Store(object):
     """Returns the ICU with the specified ID."""
     return self._session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
+  def get_icu_by_name(self, icu_name: int):
+    """Returns the ICU with the specified name."""
+    return self._session.query(ICU).filter(ICU.name == icu_name).one_or_none()
+
   def get_icus(self) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session.query(ICU).all()
@@ -413,6 +417,11 @@ class Store(object):
     """Returns the user with the specified ID."""
     return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
+
+  def get_user_by_phone(self, phone: int):
+    """Returns the user with the specified phone number."""
+    return self._session.query(User).filter(
+        User.telephone == phone).one_or_none()
 
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
@@ -537,6 +546,11 @@ class Store(object):
     self._session.commit()
     return region.region_id
 
+  def get_region_by_name(self, region_name: str):
+    """Returns the region ID/ return -1 if region dos not exist"""
+    return self._session.query(Region).filter(
+        Region.name == region_name).one_or_none()
+
   def get_region(self, region_id: int) -> Optional[Region]:
     """Returns the region with the specified ID."""
     return self._session.query(Region).filter(
@@ -596,7 +610,7 @@ class Store(object):
     """Returns the latest bed counts of the ICUs.
 
     Args:
-      icu_ids: subquery of ICU IDs or None for all ICUs.
+      icu_ids: subquery ofdef add_external_client ICU IDs or None for all ICUs.
       max_date: Restricts the time of the bed counts to this date.
 
     Returns:
@@ -620,7 +634,7 @@ class Store(object):
     sub = sub.subquery()
     # Group by ICU ID drops bed counts except the most recent ones subject to
     # the date constraint above..
-    latest = session.query(sub.c.rowid).group_by(sub.c.icu_id).subquery()
+    latest = session.querydef add_external_client(sub.c.rowid).group_by(sub.c.icu_id).subquery()
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
@@ -633,7 +647,7 @@ class Store(object):
 
     Args:
       icu_ids: subquery of ICU IDs or None for all ICUs.
-      latest: if true, then only the latest bed counts satisfying the conditions
+      latest: if true, thedef add_external_clientn only the latest bed counts satisfying the conditions
         will be returned.
       max_date: Restricts the time of the bed counts to this date.
 
