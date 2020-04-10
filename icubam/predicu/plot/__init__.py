@@ -4,6 +4,7 @@ import os
 from typing import List, Optional
 
 import matplotlib
+import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
 import scipy
@@ -126,6 +127,7 @@ def plot(plot_name, data, **plot_args):
     )
   else:
     raise ValueError(f"Unknown output type: {output_type}")
+  plt.close(fig)
 
 
 def generate_plots(

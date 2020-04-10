@@ -65,10 +65,7 @@ def load_all_data(
   if cache and os.path.isfile(DATA_PATHS["icubam_cache"]):
     return pd.read_hdf(DATA_PATHS["icubam_cache"])
   pre_icubam = load_pre_icubam_data()
-  if icubam_data is not None:
-    icubam = icubam_data
-  else:
-    icubam = load_icubam_data(api_key=api_key)
+  icubam = load_icubam_data(data=icubam_data, api_key=api_key)
   dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
   pre_icubam = pre_icubam.loc[~pre_icubam.date.isin(dates_in_both)]
   d = pd.concat([pre_icubam, icubam])
@@ -83,8 +80,10 @@ def load_all_data(
   return d
 
 
-def load_icubam_data(api_key):
-  if api_key is None:
+def load_icubam_data(data=None, api_key=None):
+  if data is not None:
+    d = data
+  elif api_key is None:
     d = load_data_file(DATA_PATHS["icubam"])
   else:
     url = (
