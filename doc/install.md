@@ -17,7 +17,6 @@ Steps:
 
 Create a `resources/.env` file containing the following keys:
 ```
-SHEET_ID=
 TOKEN_LOC=
 SECRET_COOKIE=random_secret
 JWT_SECRET=another_secret
