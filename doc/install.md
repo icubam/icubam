@@ -81,3 +81,14 @@ login with user credentials created by the `populate_db_fake.py` script,
 
 To build and run the application using Docker (docker or docker-compose) check the [documentation](./docker/README.md)
 in the docker folder.
+
+## Source code formatting
+
+The codebase is formatted using `yapf`. 
+
+Running `yapf -i <filename>` will reformat a file in-place. Running `yapf -i -r .` at the root of the working copy will reformat the whole project in-place.
+
+For convenience, there is a pre-commit hook available that will reject non-yapfing code. This requires an initial setup step:
+
+- Install the development requirements using `pip install -r requirements-dev.txt` (this will pull yapf and pre-commit)
+- Run `pre-commit install` to set up the git hook. (this only needs to be done once)

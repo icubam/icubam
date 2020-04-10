@@ -43,7 +43,7 @@ jobs:
       run: |
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
-        python scripts/wipe_sensitive_info_db.py test.db --force=True
+        python scripts/wipe_sensitive_info_db.py --filename test.db --force=True
         timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
         python scripts/get_id_url.py --config=resources/config.toml --mode=dev
 
