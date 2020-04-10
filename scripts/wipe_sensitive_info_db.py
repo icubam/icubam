@@ -11,17 +11,14 @@ import sys
 
 from icubam.db.wipe import wipe_db
 
-flags.DEFINE_boolean(
-  "force", False, "Do not prompt user confirmation."
-)
+flags.DEFINE_boolean("force", False, "Do not prompt user confirmation.")
 flags.DEFINE_boolean(
   "keep_beds", False, "Whether to keep bed occupation data."
 )
-flags.DEFINE_string(
-  "filename", None, 'DB file name.'
-)
+flags.DEFINE_string("filename", None, 'DB file name.')
 flags.mark_flag_as_required('filename')
 FLAGS = flags.FLAGS
+
 
 def wipe_db_path(path, keep_beds):
   conn = sqlite3.connect(path)

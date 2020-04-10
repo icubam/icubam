@@ -13,7 +13,6 @@ EMAIL_FROM = 'icubam@localhost'
 
 
 class EmailSenderTest(unittest.TestCase):
-
   def setUp(self):
     super().setUp()
     os.environ['SMTP_HOST'] = SMTP_HOST
@@ -35,10 +34,12 @@ class EmailSenderTest(unittest.TestCase):
     mock_smtp.assert_called_once_with(SMTP_HOST)
     smtp = mock_smtp.return_value
     smtp.login.assert_called_once_with(SMTP_USER, SMTP_PASSWORD)
-    msg = ('Content-Type: text/plain; charset="utf-8"\n'
-           'Content-Transfer-Encoding: 7bit\n'
-           'MIME-Version: 1.0\n'
-           'Subject: Test!\n\nfoo bar.\n')
+    msg = (
+      'Content-Type: text/plain; charset="utf-8"\n'
+      'Content-Transfer-Encoding: 7bit\n'
+      'MIME-Version: 1.0\n'
+      'Subject: Test!\n\nfoo bar.\n'
+    )
     smtp.sendmail.assert_called_once_with(EMAIL_FROM, 'user@test.org', msg)
 
   @patch('smtplib.SMTP_SSL')
@@ -56,6 +57,8 @@ class EmailSenderTest(unittest.TestCase):
     smtp.noop.side_effect = smtplib.SMTPServerDisconnected()
     sender.send('user@test.org', 'Test!', 'foo bar.')
 
-    self.assertEqual(mock_smtp.call_args_list,
-                     [call(SMTP_HOST), call(SMTP_HOST)])
+    self.assertEqual(
+      mock_smtp.call_args_list,
+      [call(SMTP_HOST), call(SMTP_HOST)]
+    )
     smtp.sendmail.assert_called_once()

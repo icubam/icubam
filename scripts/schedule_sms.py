@@ -14,7 +14,9 @@ FLAGS = flags.FLAGS
 
 
 def main(argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   msg_server = server.MessageServer(cfg)
   msg_server.run(FLAGS.delay)
 

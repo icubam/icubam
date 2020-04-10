@@ -19,8 +19,9 @@ class WipeTest(absltest.TestCase):
       users = list(self.store.get_users())
       self.assertItemsEqual([user.name for user in users],
                             itertools.repeat("Jean Dumont", len(users)))
-      self.assertItemsEqual([user.email for user in users],
-                            itertools.repeat("jean.dumont@example.org", len(users)))
+      self.assertItemsEqual([
+        user.email for user in users
+      ], itertools.repeat("jean.dumont@example.org", len(users)))
       bed_counts = list(self.store.get_bed_counts(None))
       self.assertItemsEqual([bc.n_covid_free for bc in bed_counts],
                             itertools.repeat(2, len(bed_counts)))

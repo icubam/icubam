@@ -22,7 +22,6 @@ class Sender(abc.ABC):
 
 class FakeSender(Sender):
   """Just log the message but does nothing real."""
-
   def send(self, dest, contents):
     destination = "+{}".format(dest.strip('+'))
     logging.info(f'Sending {contents} to {destination}.')
@@ -30,7 +29,6 @@ class FakeSender(Sender):
 
 class MBSender(Sender):
   """Initializes and wrap a MessageBird sender object."""
-
   def __init__(self, config):
     super().__init__(config)
     self._api_key = self.config.MB_KEY
@@ -47,12 +45,15 @@ class NXSender(Sender):
   def __init__(self, config):
     super().__init__(config)
     self._client = nexmo.Client(
-      key=self.config.NX_KEY, secret=self.config.NX_API)
+      key=self.config.NX_KEY, secret=self.config.NX_API
+    )
 
   def send(self, dest, contents):
-    return self._client.send_message(
-      {"from": self._originator, "to": dest.strip("+"), "text": contents}
-    )
+    return self._client.send_message({
+      "from": self._originator,
+      "to": dest.strip("+"),
+      "text": contents
+    })
 
 
 class TWSender(Sender):
@@ -63,8 +64,8 @@ class TWSender(Sender):
   def send(self, dest, contents):
     destination = "+{}".format(dest.strip('+'))
     self._client.messages.create(
-      to=destination, from_=self._originator, body=contents)
-
+      to=destination, from_=self._originator, body=contents
+    )
 
 
 def get(config, sms_carrier=None):

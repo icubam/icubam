@@ -12,13 +12,16 @@ FLAGS = flags.FLAGS
 
 
 def main(argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   if FLAGS.phone is not None:
     for sms_carrier in ['TW', 'NX', 'MB']:
       ms = sms_sender.get(cfg, sms_carrier=sms_carrier)
       ms.send(FLAGS.phone, f"Test from  {sms_carrier}")
   else:
     logging.error('Specify a phone number.')
+
 
 if __name__ == "__main__":
   app.run(main)

@@ -23,6 +23,7 @@ ALTERATIONS = {
   ],
 }
 
+
 def wipe_db(conn, keep_beds):
   """
   Wipe sensitive information from a database.
@@ -47,5 +48,3 @@ def wipe_db(conn, keep_beds):
     conn.execute(query)
   conn.commit()
   conn.close()
-
-

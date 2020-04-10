@@ -14,7 +14,9 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   shdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
   if FLAGS.newdb:
     sqldb_factory = store.create_store_factory_for_sqlite_db(cfg)
@@ -28,9 +30,7 @@ def main(unused_argv):
       input(
         "!!Are you sure you want to sync, this will drop all users!! (duh/nay)"
       )
-    )
-    .lower()
-    .strip()
+    ).lower().strip()
   )
   if reply == "duh":
     sync.sync_icus()

@@ -1,0 +1,24 @@
+name: run yapf on source code
+
+on: push
+
+jobs:
+  yapf:
+    runs-on: ubuntu-latest
+    steps:
+    # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
+    - uses: goanpeca/setup-miniconda@v1
+      with:
+         auto-update-conda: true
+         activate-environment: anaconda-client-env
+         python-version: 3.8
+         auto-activate-base: false
+    - name: Install yapf
+      shell: bash -l {0}
+      run: |
+        pip install yapf
+    - name: run yapf
+      shell: bash -l {0}
+      run: |
+        yapf -r --diff .

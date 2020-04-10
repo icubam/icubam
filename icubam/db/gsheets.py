@@ -7,7 +7,6 @@ from googleapiclient.discovery import build
 
 class SheetsDB:
   """Wrap a google sheet and serve up DataFrames from it."""
-
   def __init__(self, token_loc, sheet_id):
     """Given a token file and a sheet id, loads the sheet to be queried."""
     self._token_loc = token_loc
@@ -29,9 +28,8 @@ class SheetsDB:
   def get_sheet_as_pd(self, sheet_name):
     """Returns a pandas DF of bed counts."""
     result = (
-      self.sheet.values()
-      .get(spreadsheetId=self._sheet_id, range=sheet_name)
-      .execute()
+      self.sheet.values().get(spreadsheetId=self._sheet_id,
+                              range=sheet_name).execute()
     )
     values = result.get("values", [])
 

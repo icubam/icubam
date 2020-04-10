@@ -12,11 +12,14 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   store = store_factory.create()
 
   populate_store_fake(store)
+
 
 if __name__ == '__main__':
   app.run(main)

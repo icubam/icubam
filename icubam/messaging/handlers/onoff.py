@@ -59,6 +59,7 @@ class OnOffHandler(tornado.web.RequestHandler):
       icu = user_icus.get(icu_id, None)
       if icu is None:
         logging.error(
-          f"User {user.user_id} does not belong to ICU {icu.icu_id}")
+          f"User {user.user_id} does not belong to ICU {icu.icu_id}"
+        )
         continue
       self.scheduler.schedule(user, icu, request.delay)

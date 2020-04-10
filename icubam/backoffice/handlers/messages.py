@@ -31,19 +31,17 @@ class ListMessagesHandler(base.AdminHandler):
     ]
     msg_dict = {}
     msg_dict['telephone'] = msg['phone']
-    msg_dict['scheduled'] ='{0:%Y/%m/%d at %H:%M:%S}'.format(
-        datetime.datetime.fromtimestamp(msg['when']))
+    msg_dict['scheduled'] = '{0:%Y/%m/%d at %H:%M:%S}'.format(
+      datetime.datetime.fromtimestamp(msg['when'])
+    )
     msg_dict['attempts'] = msg['attempts']
     msg_dict['first sent'] = 'not yet'
     if msg['first_sent'] is not None:
       msg_dict['first sent'] = '{0:%Y/%m/%d at %H:%M:%S}'.format(
-        datetime.datetime.fromtimestamp(msg['first_sent']))
+        datetime.datetime.fromtimestamp(msg['first_sent'])
+      )
     result.extend(self.format_list_item(msg_dict))
-    result.append({
-      'key': 'url',
-      'value': 'link',
-      'link': msg['url']
-    })
+    result.append({'key': 'url', 'value': 'link', 'link': msg['url']})
     return result
 
   @tornado.web.authenticated
@@ -56,4 +54,5 @@ class ListMessagesHandler(base.AdminHandler):
 
     data = [self.prepare_for_table(msg) for msg in messages]
     self.render_list(
-      data=data, objtype='Scheduled Messages', create_handler=None)
+      data=data, objtype='Scheduled Messages', create_handler=None
+    )

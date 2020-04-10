@@ -30,12 +30,15 @@ class HomeHandler(base.BaseHandler):
       return None
 
     data, center = self.builder.prepare_jsons(
-      None, center_icu=icu, level='dept')
-    return self.render('index.html',
-                       API_KEY=self.config.GOOGLE_API_KEY,
-                       center=center,
-                       data=data,
-                       version=icubam.__version__)
+      None, center_icu=icu, level='dept'
+    )
+    return self.render(
+      'index.html',
+      API_KEY=self.config.GOOGLE_API_KEY,
+      center=center,
+      data=data,
+      version=icubam.__version__
+    )
 
 
 class MapByAPIHandler(base.APIKeyProtectedHandler):
@@ -47,10 +50,11 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   @tornado.web.authenticated
   def get(self):
     builder = map_builder.MapBuilder(self.config, self.db)
-    data, center = builder.prepare_jsons(
-      None, center_icu=None, level='dept')
-    return self.render('index.html',
-                       API_KEY=self.config.GOOGLE_API_KEY,
-                       center=center,
-                       data=data,
-                       version=icubam.__version__)
+    data, center = builder.prepare_jsons(None, center_icu=None, level='dept')
+    return self.render(
+      'index.html',
+      API_KEY=self.config.GOOGLE_API_KEY,
+      center=center,
+      data=data,
+      version=icubam.__version__
+    )
