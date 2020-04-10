@@ -11,14 +11,6 @@ from lxml import html
 
 BASE_PATH = os.path.dirname(__file__)
 
-
-def get_cache_path(path):
-  return os.path.join(
-    os.path.dirname(path),
-    "__cache__" + os.path.basename(path),
-  )
-
-
 DATA_PATHS = {
   "icubam": "data/all_bedcounts_2020-04-07_01h01.csv",
   "icu_name_to_department": "data/icu_name_to_department.json",
@@ -26,7 +18,6 @@ DATA_PATHS = {
   "department_population": "data/department_population.csv",
   "departments": "data/france_departments.json",
 }
-DATA_PATHS["icubam_cache"] = get_cache_path(DATA_PATHS["icubam"])
 
 for key, path in DATA_PATHS.items():
   DATA_PATHS[key] = os.path.join(BASE_PATH, path)
@@ -56,14 +47,11 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
 
 def load_all_data(
   clean=True,
-  cache=False,
   spread_cum_jump_correction=False,
   api_key=None,
   max_date=None,
   icubam_data: pd.DataFrame = None,
 ):
-  if cache and os.path.isfile(DATA_PATHS["icubam_cache"]):
-    return pd.read_hdf(DATA_PATHS["icubam_cache"])
   pre_icubam = load_pre_icubam_data()
   icubam = load_icubam_data(data=icubam_data, api_key=api_key)
   dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
@@ -75,8 +63,6 @@ def load_all_data(
   if max_date is not None:
     logging.info("data loaded's max date will be %s (excluded)" % max_date)
     d = d.loc[d.date < pd.to_datetime(max_date).date()]
-  if cache and clean:
-    d.to_hdf(DATA_PATHS["icubam_cache"], "values")
   return d
 
 

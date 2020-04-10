@@ -18,7 +18,7 @@ def export_data(args):
   filename = "predicu_data_clean_{}.csv".format(datetimestr)
   path = os.path.join(output_dir, filename)
   d = predicu.data.load_all_data(
-    clean=True, cache=False, api_key=args.api_key, max_date=args.max_date
+    clean=True, api_key=args.api_key, max_date=args.max_date
   )
   d.to_csv(path)
   logging.info("export DONE.")
