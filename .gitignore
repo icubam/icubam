@@ -19,3 +19,11 @@ __pycache__/
 # Mac and Vscode settings
 .DS_Store
 settings.json
+
+# Tox
+.tox/
+
+# coverage
+htmlcov/
+coverage.xml
+.coverage
