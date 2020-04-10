@@ -13,7 +13,10 @@ FLAGS = flags.FLAGS
 def main(unused_argv):
   cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
   mgt = migrator.Migrator(cfg)
-  mgt.run()
+  reply = input(
+      "!!Are you sure you want to migrate your db!! (y/n)").lower().strip()
+  if reply == "y":
+    mgt.run()
 
 
 if __name__ == "__main__":
