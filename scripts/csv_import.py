@@ -14,7 +14,9 @@ flags.DEFINE_bool(
 )
 
 flags.DEFINE_string("icus_csv", None, "Path to csv file containing ICU data.")
-flags.DEFINE_string("users_csv", None, "Path to csv file containing user data.")
+flags.DEFINE_string(
+  "users_csv", None, "Path to csv file containing user data."
+)
 
 FLAGS = flags.FLAGS
 
