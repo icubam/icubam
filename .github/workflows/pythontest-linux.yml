@@ -31,17 +31,11 @@ jobs:
       run: |
         which python
         pip --version
-        pip install -r requirements.txt
+        pip install tox
     - name: Test with pytest
       shell: bash -l {0}
-      env:
-        JWT_SECRET: faketest
       run: |
-        set -x
-        pip install pytest
-        pip install pytest-cov
-        pip install -e .
-        pytest --cov=icubam --cov-report=xml --cov-report=html
+        tox -e tests
 #    - name: "Upload coverage to Codecov"
 #      uses: "codecov/codecov-action@v1"
 #      with:
