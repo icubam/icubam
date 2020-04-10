@@ -27,7 +27,8 @@ class UpdateHandler(base.BaseHandler):
       return self.set_status(404)
 
     data = self.updater.get_icu_data_by_id(
-      input_data['icu_id'], locale=self.get_user_locale())
+      input_data['icu_id'], locale=self.get_user_locale()
+    )
     data.update(input_data)
     data.update(version=icubam.__version__)
 
@@ -36,13 +37,14 @@ class UpdateHandler(base.BaseHandler):
 
   async def post(self):
     """Reads the form and saves the data to DB"""
-
     def parse(param):
       parts = param.split('=')
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
 
-    cookie_data = self.token_encoder.decode(self.get_secure_cookie(self.COOKIE))
+    cookie_data = self.token_encoder.decode(
+      self.get_secure_cookie(self.COOKIE)
+    )
 
     params_str = self.request.body.decode()
     data = dict([parse(p) for p in params_str.split('&')])

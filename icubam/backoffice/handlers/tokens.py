@@ -18,15 +18,16 @@ class ListTokensHandler(base.AdminHandler):
 
   def prepare_for_table(self, client):
     result = [{
-        'key': 'name',
-        'value': client.name,
-        'link': f'{TokenHandler.ROUTE}?id={client.external_client_id}'}
-    ]
+      'key': 'name',
+      'value': client.name,
+      'link': f'{TokenHandler.ROUTE}?id={client.external_client_id}'
+    }]
     client_dict = dict()
     for key in ['access_key', 'is_active', 'expiration_date']:
       client_dict[key] = getattr(client, key, None)
     client_dict['access_type'] = (
-        client.access_type.name if client.access_type else '')
+      client.access_type.name if client.access_type else ''
+    )
     client_dict['regions'] = ', '.join([r.name for r in client.regions])
     result.extend(self.format_list_item(client_dict))
     for handler in [www_home.MapByAPIHandler, www_db.DBHandler]:
@@ -43,7 +44,8 @@ class ListTokensHandler(base.AdminHandler):
     clients = self.db.get_external_clients()
     data = [self.prepare_for_table(client) for client in clients]
     self.render_list(
-      data=data, objtype='Acces Tokens', create_handler=TokenHandler)
+      data=data, objtype='Acces Tokens', create_handler=TokenHandler
+    )
 
 
 class TokenHandler(base.AdminHandler):
@@ -62,10 +64,12 @@ class TokenHandler(base.AdminHandler):
       regions = [r.region_id for r in user.regions]
     return self.do_render(user=user, regions=regions, error=False)
 
-  def do_render(self,
-                user: Optional[store.User],
-                regions: Optional[List[int]],
-                error=False):
+  def do_render(
+    self,
+    user: Optional[store.User],
+    regions: Optional[List[int]],
+    error=False
+  ):
     user = user if user is not None else store.ExternalClient()
     if user.is_active is None:
       user.is_active = True
@@ -78,26 +82,38 @@ class TokenHandler(base.AdminHandler):
       date = user.expiration_date.strftime(self.TIME_FORMAT)
     options = self.db.get_regions()
     access_types = list(store.AccessTypes.__members__.keys())
-    return self.render("token.html", user=user, options=options,
-                       regions=regions, error=error, access_types=access_types,
-                       date=date, list_route=ListTokensHandler.ROUTE)
+    return self.render(
+      "token.html",
+      user=user,
+      options=options,
+      regions=regions,
+      error=error,
+      access_types=access_types,
+      date=date,
+      list_route=ListTokensHandler.ROUTE
+    )
 
   def create_token(self, token_id, values, regions):
     client_id, _ = self.db.add_external_client(
-      self.user.user_id, store.ExternalClient(**values))
+      self.user.user_id, store.ExternalClient(**values)
+    )
     for rid in regions:
       self.db.assign_external_client_to_region(
-        self.user.user_id, client_id, rid)
+        self.user.user_id, client_id, rid
+      )
 
   def update_token(self, token_id, values, regions):
     self.db.update_external_client(self.user.user_id, token_id, values)
     token = self.db.get_external_client(token_id)
     existing_regions = set([region.region_id for region in token.regions])
     for rid in regions.difference(existing_regions):
-      self.db.assign_external_client_to_region(self.user.user_id, token_id, rid)
+      self.db.assign_external_client_to_region(
+        self.user.user_id, token_id, rid
+      )
     for rid in existing_regions.difference(regions):
       self.db.remove_external_client_from_region(
-        self.user.user_id, token_id, rid)
+        self.user.user_id, token_id, rid
+      )
 
   def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:
     token_dict["is_active"] = token_dict.get("is_active", "off") == 'on'
@@ -106,7 +122,8 @@ class TokenHandler(base.AdminHandler):
       token_dict['expiration_date'] = None
     else:
       token_dict['expiration_date'] = datetime.datetime.strptime(
-      date, self.TIME_FORMAT)
+        date, self.TIME_FORMAT
+      )
     token_id = token_dict.pop(self.ID_KEY, '')
     regions = set(map(int, token_dict.pop('regions', [])))
     return token_id, regions
@@ -121,6 +138,8 @@ class TokenHandler(base.AdminHandler):
     except Exception as e:
       logging.error(f'cannot save token {e}')
       values[self.ID_KEY] = token_id
-      return self.do_render(store.ExternalClient(**values), regions, error=True)
+      return self.do_render(
+        store.ExternalClient(**values), regions, error=True
+      )
 
     return self.redirect(ListTokensHandler.ROUTE)

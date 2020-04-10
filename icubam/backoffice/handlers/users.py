@@ -17,10 +17,10 @@ class ListUsersHandler(base.BaseHandler):
   # No need to send info such as the password of the user.
   def _cleanUser(self, user):
     result = [{
-        'key': 'name',
-        'value': user.name,
-        'link': f'{UserHandler.ROUTE}?id={user.user_id}'}
-    ]
+      'key': 'name',
+      'value': user.name,
+      'link': f'{UserHandler.ROUTE}?id={user.user_id}'
+    }]
     user_dict = dict()
     user_dict['admin'] = user.is_admin
     user_dict['active'] = user.is_active
@@ -39,7 +39,8 @@ class ListUsersHandler(base.BaseHandler):
 
     data = [self._cleanUser(user) for user in users]
     return self.render_list(
-      data=data, objtype='Users', create_handler=UserHandler)
+      data=data, objtype='Users', create_handler=UserHandler
+    )
 
 
 class ProfileHandler(base.BaseHandler):
@@ -48,7 +49,8 @@ class ProfileHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     return self.redirect(
-      '{}?id={}'.format(UserHandler.ROUTE, self.user.user_id))
+      '{}?id={}'.format(UserHandler.ROUTE, self.user.user_id)
+    )
 
 
 class UserHandler(base.BaseHandler):
@@ -62,24 +64,32 @@ class UserHandler(base.BaseHandler):
   def get(self):
     user = self.db.get_user(self.get_query_argument('id', None))
     user_icus = set([i.icu_id for i in user.icus]) if user is not None else []
-    user_micus = set(
-        [i.icu_id for i in user.managed_icus]) if user is not None else []
+    user_micus = set([i.icu_id
+                      for i in user.managed_icus]) if user is not None else []
     return self.do_render(user, user_icus, user_micus, error=False)
 
-  def do_render(self,
-                user: store.User,
-                icus: List[int],
-                managed_icus: List[int],
-                error=False):
+  def do_render(
+    self,
+    user: store.User,
+    icus: List[int],
+    managed_icus: List[int],
+    error=False
+  ):
     """Render the form for a given user."""
 
     user = user if user is not None else store.User()
     self.prepare_for_display(user)
     options = sorted(self.get_options(), key=lambda icu: icu.name)
 
-    return self.render("user.html", options=options, user=user, icus=icus,
-                       managed_icus=managed_icus, error=error,
-                       list_route=ListUsersHandler.ROUTE)
+    return self.render(
+      "user.html",
+      options=options,
+      user=user,
+      icus=icus,
+      managed_icus=managed_icus,
+      error=error,
+      list_route=ListUsersHandler.ROUTE
+    )
 
   def get_options(self):
     return self.db.get_managed_icus(self.user.user_id)
@@ -127,7 +137,8 @@ class UserHandler(base.BaseHandler):
       user_dict[id_key] = user_id
       user = store.User(**user_dict)
       return self.do_render(
-        user=user, icus=icus, managed_icus=managed_icus, error=True)
+        user=user, icus=icus, managed_icus=managed_icus, error=True
+      )
     return self.redirect(ListUsersHandler.ROUTE)
 
   async def create_user(self, user_dict, icus, managed_icus):
@@ -139,7 +150,8 @@ class UserHandler(base.BaseHandler):
       self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
     try:
       await self.message_client.notify(
-          user_id, icus, on=True, delay=self.config.scheduler.new_user_delay)
+        user_id, icus, on=True, delay=self.config.scheduler.new_user_delay
+      )
     except Exception as e:
       logging.error(f'Cannot notify MessageServer {e}')
 
@@ -151,17 +163,26 @@ class UserHandler(base.BaseHandler):
     user_id = db_user.user_id
     user_dict.pop('user_id', None)
     self.db.update_user(self.user.user_id, user_id, user_dict)
-    await self.re_assign(db_user, icus, db_user.icus,
-                         self.db.assign_user_to_icu,
-                         self.db.remove_user_from_icu,
-                         notify=True)
-    await self.re_assign(db_user, managed_icus, db_user.managed_icus,
-                         self.db.assign_user_as_icu_manager,
-                         self.db.remove_manager_user_from_icu,
-                         notify=False)
+    await self.re_assign(
+      db_user,
+      icus,
+      db_user.icus,
+      self.db.assign_user_to_icu,
+      self.db.remove_user_from_icu,
+      notify=True
+    )
+    await self.re_assign(
+      db_user,
+      managed_icus,
+      db_user.managed_icus,
+      self.db.assign_user_as_icu_manager,
+      self.db.remove_manager_user_from_icu,
+      notify=False
+    )
 
   def can_save(
-      self, user_dict: dict, managed_icus: set, db_user: store.User) -> bool:
+    self, user_dict: dict, managed_icus: set, db_user: store.User
+  ) -> bool:
     is_admin = user_dict.get('is_admin', False)
     is_manager = len(managed_icus) > 0
     if not is_admin and not is_manager:
@@ -185,13 +206,15 @@ class UserHandler(base.BaseHandler):
     else:
       await self.update_user(db_user, user_dict, icus, managed_icus)
 
-  async def re_assign(self,
-                      user: store.User,
-                      new_icus: set,
-                      user_icus: set,
-                      add_fn,
-                      rm_fn,
-                      notify: bool = False):
+  async def re_assign(
+    self,
+    user: store.User,
+    new_icus: set,
+    user_icus: set,
+    add_fn,
+    rm_fn,
+    notify: bool = False
+  ):
     if user.user_id is None:
       return
 

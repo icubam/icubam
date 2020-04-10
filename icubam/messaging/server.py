@@ -11,14 +11,14 @@ from icubam.messaging.handlers import onoff, schedule
 
 class MessageServer(base_server.BaseServer):
   """Sends and schedule SMS."""
-
   def __init__(self, config, port=8889):
     super().__init__(config, port)
     self.port = port if port is not None else self.config.messaging.port
     self.sender = sms_sender.get(self.config)
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-        config=self.config, db=self.db_factory.create(), queue=self.queue)
+      config=self.config, db=self.db_factory.create(), queue=self.queue
+    )
     self.callbacks = [self.process]
 
   def make_app(self):
@@ -28,7 +28,7 @@ class MessageServer(base_server.BaseServer):
 
     # Only accepts request from same host
     return tornado.web.Application([
-        (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes)
+      (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes)
     ])
 
   async def process(self):

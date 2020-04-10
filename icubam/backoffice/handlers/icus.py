@@ -12,10 +12,10 @@ class ListICUsHandler(base.BaseHandler):
 
   def prepare_for_table(self, icu):
     result = [{
-        'key': 'name',
-        'value': icu.name,
-        'link': f'{ICUHandler.ROUTE}?id={icu.icu_id}'}
-    ]
+      'key': 'name',
+      'value': icu.name,
+      'link': f'{ICUHandler.ROUTE}?id={icu.icu_id}'
+    }]
     icu_dict = {}
     icu_dict['city'] = icu.city
     icu_dict['dept'] = icu.dept
@@ -35,7 +35,8 @@ class ListICUsHandler(base.BaseHandler):
 
     data = [self.prepare_for_table(icu) for icu in icus]
     return self.render(
-      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE)
+      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE
+    )
 
 
 class ICUHandler(base.BaseHandler):
@@ -51,8 +52,13 @@ class ICUHandler(base.BaseHandler):
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
-    return self.render("icu.html", icu=icu, regions=regions, error=error,
-                       list_route=ListICUsHandler.ROUTE)
+    return self.render(
+      "icu.html",
+      icu=icu,
+      regions=regions,
+      error=error,
+      list_route=ListICUsHandler.ROUTE
+    )
 
   @tornado.web.authenticated
   def get(self):

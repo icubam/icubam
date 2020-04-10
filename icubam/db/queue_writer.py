@@ -1,9 +1,9 @@
 from absl import logging  # noqa: F401
 from icubam.db import store
 
+
 class QueueWriter:
   """Processes an input queue and write the incoming data to DB."""
-
   def __init__(self, queue, db_factory):
     self.queue = queue
     self.db = db_factory.create()
@@ -16,6 +16,7 @@ class QueueWriter:
         # We force the update.
         # TODO(olivier): should we send the user id in the token?
         self.db.update_bed_count_for_icu(
-          None, store.BedCount(**item), force=True)
+          None, store.BedCount(**item), force=True
+        )
       finally:
         self.queue.task_done()

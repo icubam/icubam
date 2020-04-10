@@ -11,6 +11,7 @@ flags.mark_flag_as_required('dest')
 
 FLAGS = flags.FLAGS
 
+
 def upload_file(url, file_path):
   print(f"Uploading {file_path} to {url}")
   files = {"file": (os.path.split(file_path)[1], open(file_path, "rb"))}
@@ -18,8 +19,10 @@ def upload_file(url, file_path):
   r = requests.post(url, files=files)
   print(r)
 
+
 def main(argv):
   upload_file(FLAGS.dest, FLAGS.file_path)
+
 
 if __name__ == '__main__':
   app.run(main)

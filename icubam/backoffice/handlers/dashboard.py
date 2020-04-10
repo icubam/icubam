@@ -29,7 +29,8 @@ class ListBedCountsHandler(base.BaseHandler):
     for key in ['rowid', 'icu_id', 'message', 'create_date', 'icu']:
       bed_count_dict.pop(key, None)
     bed_count_dict['since_update'] = time_utils.localewise_time_ago(
-      last, locale=locale)
+      last, locale=locale
+    )
     result.extend(self.format_list_item(bed_count_dict))
     return result
 
@@ -38,4 +39,5 @@ class ListBedCountsHandler(base.BaseHandler):
     icus = self.db.get_managed_icus(self.user.user_id)
     data = [self.prepare_data(icu) for icu in icus if icu.is_active]
     return self.render_list(
-      data=data, objtype='Bed Counts', create_handler=None)
+      data=data, objtype='Bed Counts', create_handler=None
+    )

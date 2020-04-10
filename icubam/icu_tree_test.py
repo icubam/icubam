@@ -6,7 +6,6 @@ from icubam import config
 
 
 class ICUTreeTestCase(absltest.TestCase):
-
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml')
@@ -19,24 +18,44 @@ class ICUTreeTestCase(absltest.TestCase):
     r1 = self.db.add_region(self.admin_id, store.Region(name='IDF'))
     r2 = self.db.add_region(self.admin_id, store.Region(name='PACA'))
 
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu1', region_id=r1, dept='75', city='Paris', telephone='+65123'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu2', region_id=r1, dept='75', city='Paris'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu3', region_id=r1, dept='92', city='Clamart'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu4', region_id=r1, dept='93', city='Bobigny'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu5', region_id=r1, dept='93', city='Saint-Denis'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu6', region_id=r1, dept='94', city='Vitry'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu7', region_id=r1, dept='94', city='Creteil'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu8', region_id=r1, dept='94', city='Creteil'))
-    self.db.add_icu(self.admin_id, store.ICU(
-      name='icu9', region_id=r2, dept='13', city='Marseille'))
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(
+        name='icu1', region_id=r1, dept='75', city='Paris', telephone='+65123'
+      )
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu2', region_id=r1, dept='75', city='Paris')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu3', region_id=r1, dept='92', city='Clamart')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu4', region_id=r1, dept='93', city='Bobigny')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu5', region_id=r1, dept='93', city='Saint-Denis')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu6', region_id=r1, dept='94', city='Vitry')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu7', region_id=r1, dept='94', city='Creteil')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu8', region_id=r1, dept='94', city='Creteil')
+    )
+    self.db.add_icu(
+      self.admin_id,
+      store.ICU(name='icu9', region_id=r2, dept='13', city='Marseille')
+    )
     self.icus = self.db.get_icus()
     self.regions = self.db.get_regions()
 
@@ -83,12 +102,24 @@ class ICUTreeTestCase(absltest.TestCase):
   def test_add(self):
     example = self.icus[7]
     insert_time = self.insert_time + datetime.timedelta(seconds=1)
-    self.db.update_bed_count_for_icu(self.admin_id, store.BedCount(
-        icu_id=self.icus[1].icu_id, n_covid_occ=12, n_covid_free=4,
-        create_date=insert_time))
-    self.db.update_bed_count_for_icu(self.admin_id, store.BedCount(
-        icu_id=example.icu_id, n_covid_occ=1, n_covid_free=19,
-        create_date=insert_time))
+    self.db.update_bed_count_for_icu(
+      self.admin_id,
+      store.BedCount(
+        icu_id=self.icus[1].icu_id,
+        n_covid_occ=12,
+        n_covid_free=4,
+        create_date=insert_time
+      )
+    )
+    self.db.update_bed_count_for_icu(
+      self.admin_id,
+      store.BedCount(
+        icu_id=example.icu_id,
+        n_covid_occ=1,
+        n_covid_free=19,
+        create_date=insert_time
+      )
+    )
 
     tree = icu_tree.ICUTree()
     icus = self.db.get_icus()
@@ -139,6 +170,7 @@ class ICUTreeTestCase(absltest.TestCase):
     self.assertFalse(nodes[0][0].is_leaf)
     self.assertIsInstance(nodes[0][1], list)
     self.assertTrue(nodes[0][1][0].is_leaf)
+
 
 if __name__ == '__main__':
   absltest.main()

@@ -15,8 +15,10 @@ class MapsHandler(base.BaseHandler):
   def get(self):
     level = self.get_query_argument('level', 'dept')
     data, center = self.builder.prepare_jsons(None, None, level=level)
-    return self.render('map.html',
-                       API_KEY=self.config.GOOGLE_API_KEY,
-                       center=center,
-                       data=data,
-                       version=icubam.__version__)
+    return self.render(
+      'map.html',
+      API_KEY=self.config.GOOGLE_API_KEY,
+      center=center,
+      data=data,
+      version=icubam.__version__
+    )
