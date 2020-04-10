@@ -2,27 +2,25 @@ import matplotlib.gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
-import predicu.data
-import predicu.plot
+from ..data import CUM_COLUMNS
+from ..plot import COLUMN_TO_HUMAN_READABLE
 
 data_source = "all_data"
 
 
 def plot(data):
-  n_rows = (
-    len(predicu.data.CUM_COLUMNS) + len(predicu.data.CUM_COLUMNS) % 2
-  ) // 2
+  n_rows = (len(CUM_COLUMNS) + len(CUM_COLUMNS) % 2) // 2
   fig = plt.figure(figsize=(n_rows * 5, 10))
   gs = matplotlib.gridspec.GridSpec(n_rows, 2)
   ax0 = None
-  for i, col in enumerate(predicu.data.CUM_COLUMNS):
+  for i, col in enumerate(CUM_COLUMNS):
     ax = fig.add_subplot(gs[i // 2, i % 2], sharex=ax0)
     if ax0 is None:
       ax0 = ax
     for g, d in data.groupby("department"):
       d = d.groupby("date")[col].sum().sort_index()
       ax.plot(np.arange(d.values.shape[0]), d.values, label=g)
-    ax.set_title(predicu.plot.COLUMN_TO_HUMAN_READABLE[col])
+    ax.set_title(COLUMN_TO_HUMAN_READABLE[col])
     dates = sorted(list(data.date.unique()))
     ax.set_xticks(np.arange(d.values.shape[0]))
     ax.set_xticklabels(

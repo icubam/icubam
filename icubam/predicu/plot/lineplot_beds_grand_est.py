@@ -9,14 +9,14 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-import predicu.data
-import predicu.plot
+from ..data import ICU_NAMES_GRAND_EST
+from ..plot import RANDOM_COLORS, RANDOM_MARKERS
 
 data_source = "all_data"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(predicu.data.ICU_NAMES_GRAND_EST)]
+  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   n_occ = data.groupby("date").sum()["n_covid_occ"]
   n_free = data.groupby("date").sum()["n_covid_free"]
   n_transfered = (
@@ -42,30 +42,30 @@ def plot(data):
 
   date_range_idx = np.arange(len(n_req))
 
-  ax = predicu.plot.plot_int(
+  ax = plot_int(
     date_range_idx,
     n_tot.values,
     ax=ax,
-    color=next(predicu.plot.RANDOM_COLORS),
-    marker=next(predicu.plot.RANDOM_MARKERS),
+    color=next(RANDOM_COLORS),
+    marker=next(RANDOM_MARKERS),
     label="Total (lits)",
     lw=2,
   )
-  ax = predicu.plot.plot_int(
+  ax = plot_int(
     date_range_idx,
     n_req.values,
     ax=ax,
-    color=next(predicu.plot.RANDOM_COLORS),
-    marker=next(predicu.plot.RANDOM_MARKERS),
+    color=next(RANDOM_COLORS),
+    marker=next(RANDOM_MARKERS),
     label="Lits occupés + transferts",
     lw=2,
   )
-  ax = predicu.plot.plot_int(
+  ax = plot_int(
     date_range_idx,
     n_occ.values,
     ax=ax,
-    color=next(predicu.plot.RANDOM_COLORS),
-    marker=next(predicu.plot.RANDOM_MARKERS),
+    color=next(RANDOM_COLORS),
+    marker=next(RANDOM_MARKERS),
     label="Lits occupés",
     lw=2,
   )

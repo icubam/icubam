@@ -12,7 +12,6 @@ from lxml import html
 BASE_PATH = os.path.dirname(__file__)
 
 DATA_PATHS = {
-  "icubam": "data/all_bedcounts_2020-04-07_01h01.csv",
   "icu_name_to_department": "data/icu_name_to_department.json",
   "pre_icubam": "data/pre_icubam_data.csv",
   "department_population": "data/department_population.csv",
@@ -51,12 +50,16 @@ def load_all_data(
   api_key=None,
   max_date=None,
   icubam_data: pd.DataFrame = None,
+  load_pre_icubam_data: bool = False,
 ):
-  pre_icubam = load_pre_icubam_data()
   icubam = load_icubam_data(data=icubam_data, api_key=api_key)
-  dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
-  pre_icubam = pre_icubam.loc[~pre_icubam.date.isin(dates_in_both)]
-  d = pd.concat([pre_icubam, icubam])
+  if load_pre_icubam_data:
+    pre_icubam = load_pre_icubam_data()
+    dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
+    pre_icubam = pre_icubam.loc[~pre_icubam.date.isin(dates_in_both)]
+    d = pd.concat([pre_icubam, icubam])
+  else:
+    d = icubam
   if clean:
     d = clean_data(d, spread_cum_jump_correction)
   d = d.sort_values(by=["date", "icu_name"])
@@ -69,8 +72,10 @@ def load_all_data(
 def load_icubam_data(data=None, api_key=None):
   if data is not None:
     d = data
-  elif api_key is None:
+  elif "icubam" in DATA_PATHS:
     d = load_data_file(DATA_PATHS["icubam"])
+  elif api_key is None:
+    raise RuntimeError("Provide API key to download ICUBAM data")
   else:
     url = (
       "https://prod.icubam.net/db/"
@@ -350,8 +355,14 @@ def load_public_data():
 
 
 DEPARTMENTS = list(load_icu_name_to_department().values())
-DEPARTMENTS_GRAND_EST = list(load_pre_icubam_data().department.unique())
-ICU_NAMES_GRAND_EST = list(load_pre_icubam_data().icu_name.unique())
+DEPARTMENTS_GRAND_EST = [
+  "Ardennes", "Aube", "Marne", "Haute-Marne", "Meurthe-et-Moselle", "Meuse",
+  "Moselle", "Bas-Rhin", "Haut-Rhin", "Vosges"
+]
+ICU_NAMES_GRAND_EST = list(
+  k for k, v in load_icu_name_to_department().items()
+  if v in set(DEPARTMENTS_GRAND_EST)
+)
 CODE_TO_DEPARTMENT = dict(
   load_france_departments()[["departmentCode", "departmentName"]].itertuples(
     name=None,

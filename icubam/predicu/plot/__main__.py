@@ -3,7 +3,7 @@ import logging
 
 import matplotlib
 
-from predicu.plot import generate_plots
+from ..plot import generate_plots
 
 if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)

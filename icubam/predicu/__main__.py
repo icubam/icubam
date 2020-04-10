@@ -3,7 +3,7 @@ import datetime
 import logging
 import os
 
-import predicu.data
+import .data
 
 
 def export_data(args):
@@ -17,7 +17,7 @@ def export_data(args):
   datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
   filename = "predicu_data_clean_{}.csv".format(datetimestr)
   path = os.path.join(output_dir, filename)
-  d = predicu.data.load_all_data(
+  d = load_all_data(
     clean=True, api_key=args.api_key, max_date=args.max_date
   )
   d.to_csv(path)

@@ -9,8 +9,7 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-import predicu.data
-import predicu.plot
+from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
 data_source = "combined_icubam_public"
 
@@ -20,32 +19,32 @@ def plot(data):
   date_range_idx = np.arange(len(data.date.unique()))
   for dept, dg in data.groupby("department"):
     dg = dg.sort_values(by="date")
-    predicu.plot.plot_int(
+    plot_int(
       x=date_range_idx,
       y=dg.n_hospitalised_patients / dg.department_pop * 100e3,
       ax=ax1,
       marker=None,
-      color=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_GRAND_EST_COLOR[dept],
       label=dept,
       lw=2,
     )
     y1 = dg.n_icu_patients_icubam / dg.department_pop * 100e3
-    predicu.plot.plot_int(
+    plot_int(
       x=date_range_idx,
       y=y1,
       ax=ax2,
       marker=None,
-      color=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_GRAND_EST_COLOR[dept],
       ls="dashed",
       lw=2,
     )
     y2 = dg.n_icu_patients_public / dg.department_pop * 100e3
-    predicu.plot.plot_int(
+    plot_int(
       x=date_range_idx,
       y=y2,
       ax=ax2,
       marker=None,
-      color=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_GRAND_EST_COLOR[dept],
       ls="solid",
       label=dept,
       lw=2,
@@ -54,7 +53,7 @@ def plot(data):
       x=date_range_idx,
       y1=y1,
       y2=y2,
-      facecolor=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dept],
+      facecolor=DEPARTMENT_GRAND_EST_COLOR[dept],
       alpha=0.3,
     )
 

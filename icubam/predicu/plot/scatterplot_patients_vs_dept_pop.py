@@ -9,8 +9,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-import predicu.data
-import predicu.plot
+from ..plot import RANDOM_COLORS
 
 data_source = "combined_icubam_public"
 
@@ -25,8 +24,8 @@ def plot(data):
   )
   data = data.loc[data.date == data.date.max()]
 
-  c_public = next(predicu.plot.RANDOM_COLORS)
-  c_icubam = next(predicu.plot.RANDOM_COLORS)
+  c_public = next(RANDOM_COLORS)
+  c_icubam = next(RANDOM_COLORS)
 
   fig, ax = plt.subplots(1, figsize=(20, 10))
   ax.set_xlim(0, data.department_pop.max() * 1.1)

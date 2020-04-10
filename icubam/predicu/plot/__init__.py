@@ -7,11 +7,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
+import pandas as pd
 import scipy
 import seaborn
-import pandas as pd
 
-import predicu.data
+from ..data import (
+  BEDCOUNT_COLUMNS, DEPARTMENTS, DEPARTMENTS_GRAND_EST, load_all_data,
+  load_combined_icubam_public, load_icubam_data
+)
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -28,10 +31,9 @@ COLUMN_TO_HUMAN_READABLE = {
 }
 
 COL_COLOR = {
-  col:
-  seaborn.color_palette("colorblind",
-                        len(predicu.data.BEDCOUNT_COLUMNS) + 1)[i]
-  for i, col in enumerate(predicu.data.BEDCOUNT_COLUMNS + ["flow"])
+  col: seaborn.color_palette("colorblind",
+                             len(BEDCOUNT_COLUMNS) + 1)[i]
+  for i, col in enumerate(BEDCOUNT_COLUMNS + ["flow"])
 }
 COL_COLOR.update({
   "n_covid_deaths": (0, 0, 0),
@@ -55,14 +57,12 @@ COL_COLOR.update({
   ),
 })
 DEPARTMENT_COLOR = {
-  dpt: seaborn.color_palette("colorblind", len(predicu.data.DEPARTMENTS))[i]
-  for i, dpt in enumerate(predicu.data.DEPARTMENTS)
+  dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS))[i]
+  for i, dpt in enumerate(DEPARTMENTS)
 }
 DEPARTMENT_GRAND_EST_COLOR = {
-  dpt:
-  seaborn.color_palette("colorblind",
-                        len(predicu.data.DEPARTMENTS_GRAND_EST))[i]
-  for i, dpt in enumerate(predicu.data.DEPARTMENTS_GRAND_EST)
+  dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS_GRAND_EST))[i]
+  for i, dpt in enumerate(DEPARTMENTS_GRAND_EST)
 }
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
@@ -104,9 +104,7 @@ for path in os.listdir(os.path.dirname(__file__)):
 
 
 def plot(plot_name, data, **plot_args):
-  plot_module = __import__(
-    f"predicu.plot.{plot_name}", globals(), locals(), ["plot"], 0
-  )
+  plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot
   data_source = plot_module.data_source
   matplotlib.use("agg")
@@ -138,6 +136,7 @@ def generate_plots(
   output_type: str = "png",
   output_dir: str = "/tmp/",
 ):
+  plots = sorted(plots)
   # Note: the default values here should match the defaults in CLI below.
   if plots is None:
     plots = PLOTS
@@ -148,14 +147,12 @@ def generate_plots(
   if plots_unknown:
     raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
   data = {}
-  data["all_data"] = predicu.data.load_all_data(
-    icubam_data=icubam_data, api_key=api_key
-  )
-  data["combined_icubam_public"] = predicu.data.load_combined_icubam_public(
+  data["all_data"] = load_all_data(icubam_data=icubam_data, api_key=api_key)
+  data["combined_icubam_public"] = load_combined_icubam_public(
     icubam_data=icubam_data, api_key=api_key
   )
   if icubam_data is None:
-    data["icubam_data"] = predicu.data.load_icubam_data(api_key=api_key)
+    data["icubam_data"] = load_icubam_data(api_key=api_key)
   else:
     data["icubam_data"] = icubam_data
 

@@ -8,15 +8,15 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-import predicu.data
-import predicu.plot
+from ..data import BEDCOUNT_COLUMNS, ICU_NAMES_GRAND_EST
+from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
 data_source = "all_data"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(predicu.data.ICU_NAMES_GRAND_EST)]
-  agg = {col: "sum" for col in predicu.data.BEDCOUNT_COLUMNS}
+  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
+  agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
   data = data.groupby(["date", "department"]).agg(agg)
   data = data.reset_index()
   data["pct_occ"] = (
@@ -27,16 +27,16 @@ def plot(data):
   date_idx_range = np.arange(len(data.date.unique()))
   for department, d in data.groupby("department"):
     d = d.sort_values(by="date")
-    predicu.plot.plot_int(
+    plot_int(
       date_idx_range,
       d["pct_occ"],
       ax=ax,
-      color=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[department],
+      color=DEPARTMENT_GRAND_EST_COLOR[department],
       label=department,
       lw=2,
     )
   ge_pct_occ = data.groupby("date").pct_occ.mean().sort_index().values
-  predicu.plot.plot_int(
+  plot_int(
     date_idx_range,
     ge_pct_occ,
     ax=ax,
@@ -54,7 +54,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[department],
+        facecolor=DEPARTMENT_GRAND_EST_COLOR[department],
         label=department,
         linewidth=3,
       ) for department in sorted(data.department.unique())
@@ -67,7 +67,7 @@ def plot(data):
     ],
     loc="lower right",
   )
-  # ax.set_ylabel('Pourcentage d\'occupations des lits Covid+')
+  ax.set_ylabel("Pourcentage d'occupations des lits Covid+")
 
   tikzplotlib_kwargs = dict(
     axis_width="14cm",

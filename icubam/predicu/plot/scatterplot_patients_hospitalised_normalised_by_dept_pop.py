@@ -9,8 +9,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-import predicu.data
-import predicu.plot
+from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
 data_source = "combined_icubam_public"
 
@@ -45,7 +44,7 @@ def plot(data):
     width = 0.02 * scale * ax.get_xlim()[1]
     height = 0.02 * scale * ax.get_ylim()[1]
     xy = (row.department_pop, row.n_hospitalised_patients)
-    color = predicu.plot.DEPARTMENT_GRAND_EST_COLOR[row.department]
+    color = DEPARTMENT_GRAND_EST_COLOR[row.department]
     ax.add_artist(
       matplotlib.patches.Ellipse(
         xy=xy,

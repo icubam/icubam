@@ -9,19 +9,18 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-import predicu.data
-import predicu.plot
+from ..data import BEDCOUNT_COLUMNS, ICU_NAMES_GRAND_EST
+from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
 data_source = "all_data"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(predicu.data.ICU_NAMES_GRAND_EST)]
+  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   data = (
     data.groupby(["date", "department"]
                  ).agg({col: "sum"
-                        for col in predicu.data.BEDCOUNT_COLUMNS}
-                       ).reset_index()
+                        for col in BEDCOUNT_COLUMNS}).reset_index()
   )
   dfs = []
   for department, d in data.groupby("department"):
@@ -45,7 +44,7 @@ def plot(data):
         fill=True,
         linewidth=0.7,
         edgecolor="black",
-        facecolor=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[department],
+        facecolor=DEPARTMENT_GRAND_EST_COLOR[department],
         label=department,
       )
       ax.add_patch(rect_patch)
@@ -65,7 +64,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dept],
+        facecolor=DEPARTMENT_GRAND_EST_COLOR[dept],
         label=dept,
       ) for dept in reversed(sorted_depts)
     ],

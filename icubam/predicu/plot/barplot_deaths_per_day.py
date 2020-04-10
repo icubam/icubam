@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import predicu.data
+from ..data import DEPARTMENT_POPULATION, ICU_NAMES_GRAND_EST
 
 data_source = "all_data"
 
@@ -15,14 +15,14 @@ data_source = "all_data"
 def plot(data):
   column = "n_covid_deaths"
   d = data
-  d = d.loc[d.icu_name.isin(predicu.data.ICU_NAMES_GRAND_EST)]
+  d = d.loc[d.icu_name.isin(ICU_NAMES_GRAND_EST)]
   d = d.groupby(["date", "department"]).sum().reset_index()
   d = d.sort_values(by="date")
   fig, ax = plt.subplots(1, figsize=(20, 10))
   x = d.date.values
   y = (
     d.n_covid_deaths.values /
-    d.department.apply(predicu.data.DEPARTMENT_POPULATION.get).values * 1e5
+    d.department.apply(DEPARTMENT_POPULATION.get).values * 1e5
   )
   sns.barplot(x=x, y=y, ax=ax, capsize=0.2)
   ax.axvline(6.5, c="red", alpha=0.7, ls="dotted", lw=6.0)

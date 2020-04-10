@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import predicu.data
+from ..data import load_icu_name_to_department
 
 data_source = "icubam_data"
 
 
 def plot(data):
   d = data.rename(columns={"create_date": "date"})
-  d = predicu.data.format_data(d, predicu.data.load_icu_name_to_department())
+  d = format_data(d, load_icu_name_to_department())
   counts = d.groupby(["date", "icu_name"]).datetime.count().values
   fig, ax = plt.subplots(1, figsize=(12, 8))
   sns.countplot(counts)
