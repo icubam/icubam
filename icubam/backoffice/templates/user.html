@@ -71,9 +71,7 @@
 
          <div class="col-25">
            <label for="is_active">{{_("Actif")}}</label><br/>
-           <input                 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">
-                  Launch Large Modal
-                </button>type="checkbox" name="is_active" id="is_active"
+           <input type="checkbox" name="is_active" id="is_active"
              {% if user.is_active %}checked{% end %}
              data-bootstrap-switch data-off-color="danger" data-on-color="success">
          </div>
