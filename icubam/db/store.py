@@ -647,7 +647,7 @@ class Store(object):
 
     Args:
       icu_ids: subquery of ICU IDs or None for all ICUs.
-      latest: if true, the only the latest bed counts satisfying the conditions
+      latest: if true, then only the latest bed counts satisfying the conditions
         will be returned.
       max_date: Restricts the time of the bed counts to this date.
 
