@@ -32,7 +32,6 @@ def main(args=None):
   csv = CSV(db)
 
   csv.export_icus(FLAGS.icu_csv_path)
-  csv.export_users(FLAGS.user_csv_path)
 
 
 if __name__ == "__main__":

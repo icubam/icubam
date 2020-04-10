@@ -30,13 +30,14 @@ def main(args=None):
     FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
   )
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
-  db = store_factory.create()
+  store = store_factory.create()
 
-  csv = CSV(db)
+  csv = CSV(store)
 
-  admin_user_id = csv.get_default_admin()
-  csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
-  csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
+  with open(FLAGS.icus_csv_path) as icus_f:
+    csv.import_icus(icus_f, FLAGS.forceUpdate)
+  with open(FLAGS.users_csv_path) as users_f:
+    csv.import_users(users_f, FLAGS.forceUpdate)
 
 
 if __name__ == "__main__":
