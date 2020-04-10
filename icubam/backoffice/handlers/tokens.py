@@ -1,4 +1,5 @@
 from absl import logging
+import datetime
 import os.path
 import tornado.escape
 import tornado.web
@@ -49,6 +50,7 @@ class TokenHandler(base.AdminHandler):
 
   ROUTE = 'token'
   ID_KEY = 'external_client_id'
+  TIME_FORMAT = "%m/%d/%Y %I:%M %p"
 
   @tornado.web.authenticated
   def get(self):
@@ -71,11 +73,14 @@ class TokenHandler(base.AdminHandler):
       user.access_type = store.AccessTypes.ALL
     elif isinstance(user.access_type, str):
       user.access_type = store.AccessTypes.__members__[user.access_type]
+    date = ""
+    if user.expiration_date is not None:
+      date = user.expiration_date.strftime(self.TIME_FORMAT)
     options = self.db.get_regions()
     access_types = list(store.AccessTypes.__members__.keys())
     return self.render("token.html", user=user, options=options,
                        regions=regions, error=error, access_types=access_types,
-                       list_route=ListTokensHandler.ROUTE)
+                       date=date, list_route=ListTokensHandler.ROUTE)
 
   def create_token(self, token_id, values, regions):
     client_id, _ = self.db.add_external_client(
@@ -96,6 +101,12 @@ class TokenHandler(base.AdminHandler):
 
   def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:
     token_dict["is_active"] = token_dict.get("is_active", "off") == 'on'
+    date = values.get('expiration_date', '')
+    if date == '':
+      values['expiration_date'] = None
+    else:
+      values['expiration_date'] = datetime.datetime.strptime(
+      date, self.TIME_FORMAT)
     token_id = token_dict.pop(self.ID_KEY, '')
     regions = set(map(int, token_dict.pop('regions', [])))
     return token_id, regions

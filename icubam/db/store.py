@@ -119,7 +119,7 @@ class Region(Base):
   __tablename__ = "regions"
 
   region_id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String, unique=True)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -160,7 +160,7 @@ class ICU(Base):
   icu_id = Column(Integer, primary_key=True)
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
-  name = Column(String)
+  name = Column(String, unique=True)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)
@@ -313,6 +313,10 @@ class Store(object):
     """Returns the ICU with the specified ID."""
     return self._session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
+  def get_icu_by_name(self, icu_name: int):
+    """Returns the ICU with the specified name."""
+    return self._session.query(ICU).filter(ICU.name == icu_name).one_or_none()
+
   def get_icus(self) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
     return self._session.query(ICU).all()
@@ -421,6 +425,11 @@ class Store(object):
     """Returns the user with the specified ID."""
     return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
+
+  def get_user_by_phone(self, phone: int):
+    """Returns the user with the specified phone number."""
+    return self._session.query(User).filter(
+        User.telephone == phone).one_or_none()
 
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
@@ -544,6 +553,11 @@ class Store(object):
     self._session.add(region)
     self._session.commit()
     return region.region_id
+
+  def get_region_by_name(self, region_name: str):
+    """Returns the region ID/ return -1 if region dos not exist"""
+    return self._session.query(Region).filter(
+        Region.name == region_name).one_or_none()
 
   def get_region(self, region_id: int) -> Optional[Region]:
     """Returns the region with the specified ID."""
