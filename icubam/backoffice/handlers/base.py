@@ -3,8 +3,6 @@ import tornado.locale
 import tornado.web
 from typing import List, Dict, Union
 
-from icubam.db import store
-
 
 class BaseHandler(tornado.web.RequestHandler):
   """A base class for handlers."""

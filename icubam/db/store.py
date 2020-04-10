@@ -207,7 +207,7 @@ class ExternalClient(Base):
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
-  # Type of access: map, stats, both
+  # Type of access: it is stored as the key string in the db.
   access_type = Column(Enum(AccessTypes))
 
   create_date = Column(DateTime, default=func.now())
