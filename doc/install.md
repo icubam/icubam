@@ -45,7 +45,7 @@ The database will be named `test.db`, cf. `resources/config.toml`.
 
 A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
 
-To start the tests, install `pytest` and run `pytest`
+To start the tests, install `tox` and run `tox`
 
 ## Running locally
 
