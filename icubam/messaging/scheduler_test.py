@@ -8,7 +8,6 @@ from icubam.messaging import scheduler
 from icubam.messaging import message
 from icubam import config
 
-
 fake_now = datetime(2020, 3, 31, 12, 21).timestamp()
 
 
@@ -21,7 +20,6 @@ class MockQueue:
 
 
 class SchedulerTestCase(tornado.testing.AsyncTestCase):
-
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml')
@@ -29,7 +27,8 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     self.db = self.db_factory.create()
     self.queue = MockQueue()
     self.scheduler = scheduler.MessageScheduler(
-      self.config, self.db, self.queue)
+      self.config, self.db, self.queue
+    )
 
     self.admin = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin, store.ICU(name='my_icu'))
@@ -64,7 +63,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
     # another message with smaller delay: in
     offset = -2
-    success = self.scheduler.schedule_message(msg, delay=delay+offset)
+    success = self.scheduler.schedule_message(msg, delay=delay + offset)
     self.assertTrue(success)
     timeout = self.scheduler.timeouts.get(key, None)
     self.assertIsNotNone(timeout)
@@ -80,7 +79,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     user = self.db.get_user(userid)
     offset = 100
     msg2 = message.Message(self.icu, user, url='url')
-    success = self.scheduler.schedule_message(msg2, delay=delay+offset)
+    success = self.scheduler.schedule_message(msg2, delay=delay + offset)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
@@ -89,7 +88,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     self.db.assign_user_to_icu(self.admin, userid, icuid)
     icu = self.db.get_icu(icuid)
     msg3 = message.Message(icu, user, url='url')
-    success = self.scheduler.schedule_message(msg3, delay=delay+offset)
+    success = self.scheduler.schedule_message(msg3, delay=delay + offset)
     self.assertTrue(success)
     self.assertEqual(len(self.scheduler.timeouts), 3)
 
@@ -127,7 +126,8 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
 
     # New user, in new but inactive icu
     inactive_icu_id = self.db.add_icu(
-      self.admin, store.ICU(name='inactive_icu', is_active=False))
+      self.admin, store.ICU(name='inactive_icu', is_active=False)
+    )
     inactive_icu = self.db.get_icu(inactive_icu_id)
     user4 = store.User(name='armande', telephone='15313', is_active=True)
     userid4 = self.db.add_user_to_icu(self.admin, inactive_icu_id, user4)

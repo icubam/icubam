@@ -2,7 +2,8 @@ class Message:
 
   TEMPLATE = (
     "Bonjour {},\nvoici le lien à suivre pour mettre à jour les données covid"
-    " de {} sur ICUBAM: {}")
+    " de {} sur ICUBAM: {}"
+  )
 
   def __init__(self, icu, user, url: str):
     self.icu_id = icu.icu_id

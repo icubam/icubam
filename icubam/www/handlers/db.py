@@ -9,6 +9,7 @@ from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.db import store
 
+
 def _get_headers(collection, asked_file_type):
   if asked_file_type not in {'csv', 'hdf'}:
     return dict()
@@ -38,7 +39,8 @@ class DBHandler(base.APIKeyProtectedHandler):
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
     self.get_fns['all_bedcounts'] = self.db.get_bed_counts
     self.get_fns['bedcounts'] = functools.partial(
-      self.db.get_visible_bed_counts_for_user, user_id=None, force=True)
+      self.db.get_visible_bed_counts_for_user, user_id=None, force=True
+    )
 
   @tornado.web.authenticated
   def get(self, collection):

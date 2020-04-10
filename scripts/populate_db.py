@@ -14,7 +14,9 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   shdb = gsheets.SheetsDB(cfg.TOKEN_LOC, cfg.SHEET_ID)
   sqldb = sqlite.SQLiteDB(cfg.db.sqlite_path)
   import_sheet = shdb.get_sheet_as_pd("Import")
@@ -41,7 +43,10 @@ def main(unused_argv):
 
 if __name__ == "__main__":
   import sys
-  if not click.confirm("WARNING: !!Make sure you delete the .db file before populating!!. CONTINUE?", err=True):
+  if not click.confirm(
+    "WARNING: !!Make sure you delete the .db file before populating!!. CONTINUE?",
+    err=True
+  ):
     sys.exit(0)
 
   app.run(main)

@@ -1,4 +1,4 @@
-from  absl import logging  # noqa: F401
+from absl import logging  # noqa: F401
 
 from icubam import time_utils
 from icubam.db import store
@@ -29,9 +29,9 @@ class Updater:
 
   def get_url(self, icu_id: str, icu_name: str) -> str:
     return "{}{}?id={}".format(
-      self.config.server.base_url,
-      self.ROUTE.strip('/'),
-      self.token_encoder.encode_icu(icu_id, icu_name))
+      self.config.server.base_url, self.ROUTE.strip('/'),
+      self.token_encoder.encode_icu(icu_id, icu_name)
+    )
 
   def get_urls(self):
     result = []
