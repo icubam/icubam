@@ -16,9 +16,9 @@ def main(unused_argv):
   )
   mgt = migrator.Migrator(cfg)
   if not click.confirm(
-      "WARNING: THIS WILL UPDATE THE DATABASE IN-PLACE. CONTINUE?", err=True
-    ):
-      return
+    "WARNING: THIS WILL UPDATE THE DATABASE IN-PLACE. CONTINUE?", err=True
+  ):
+    return
   else:
     mgt.run()
 
