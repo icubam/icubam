@@ -50,8 +50,7 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     self.assertEqual(response.code, 404)
 
     encoder = token.TokenEncoder(self.config)
-    user = self.
-    response = self.fetch(url_prefix + encoder.encode_data(self.user, self.icu)
+    response = self.fetch(url_prefix + encoder.encode_data(self.user, self.icu))
     self.assertEqual(response.code, 200)
 
   def test_version(self):
