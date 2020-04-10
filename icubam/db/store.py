@@ -610,7 +610,7 @@ class Store(object):
     """Returns the latest bed counts of the ICUs.
 
     Args:
-      icu_ids: subquery ofdef add_external_client ICU IDs or None for all ICUs.
+      icu_ids: subquery of ICU IDs or None for all ICUs.
       max_date: Restricts the time of the bed counts to this date.
 
     Returns:
@@ -634,7 +634,7 @@ class Store(object):
     sub = sub.subquery()
     # Group by ICU ID drops bed counts except the most recent ones subject to
     # the date constraint above..
-    latest = session.querydef add_external_client(sub.c.rowid).group_by(sub.c.icu_id).subquery()
+    latest = session.query(sub.c.rowid).group_by(sub.c.icu_id).subquery()
     # We want BedCount objects and hence to a final join.
     return session.query(BedCount).join(latest,
                                         latest.c.rowid == BedCount.rowid).all()
