@@ -9,9 +9,8 @@ class TokenEncoder:
     self.config = config
 
   def encode(self, value) -> str:
-    return jwt.encode({self.KEY: value},
-                      self.config.JWT_SECRET,
-                      algorithm='HS256').decode()
+    data = {self.KEY: value}
+    return jwt.encode(data, self.config.JWT_SECRET, algorithm='HS256').decode()
 
   def decode(self, token: str):
     try:
