@@ -160,6 +160,8 @@ class ICU(Base):
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
   name = Column(String, unique=True)
+  # This would be a legal identifier of the hospital (finess in France.)
+  legal_id = Column(String)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)
@@ -622,7 +624,7 @@ class Store(object):
                     ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
                       ICU.is_active == True
                     )
-                            
+
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
