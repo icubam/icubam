@@ -69,7 +69,10 @@ class CSVTest(absltest.TestCase):
     )
     desc2 = self.db.get_user_by_phone("111").description
 
-    self.assertLen(self.db.get_user_by_phone("333").icus, 2, "This user should be registered for 2 ICUs.")
+    self.assertLen(
+      self.db.get_user_by_phone("333").icus, 2,
+      "This user should be registered for 2 ICUs."
+    )
 
     n_user = len(self.db.get_users())
     self.assertEqual(
@@ -83,25 +86,10 @@ class CSVTest(absltest.TestCase):
       self.csv.sync_icus_from_csv(csv_f, False)
 
     test_dir = tempfile.mkdtemp()
+    icus = self.db.get_icus()
     str_buf = self.csv.export_icus()
-  #   assert sum(
-  #     1 for line in open(test_dir + "/exported_icu.csv")
-  #   ) == 5, "exported file should have the same line number as imported file"
-  #   assert filecmp.cmp(
-  #     "resources/test/icu2.csv", test_dir + "/exported_icu.csv", shallow=True
-  #   ), "exported file should be the same as imported file"
-
-  # def test_export_users(self):
-  #   self.csv.import_icus(self.admin_id, "resources/test/icu2.csv", False)
-  #   self.csv.import_users(self.admin_id, "resources/test/user2.csv", False)
-
-  #   test_dir = tempfile.mkdtemp()
-  #   self.csv.export_users(test_dir + "/exported_user.csv")
-  #   assert sum(
-  #     1 for line in open(test_dir + "/exported_user.csv")
-  #   ) == 7, "exported file should have the same line number as imported file"
-  #   assert filecmp.cmp(
-  #     "resources/test/user2.csv",
-  #     test_dir + "/exported_user.csv",
-  #     shallow=True
-  #   ), "exported file should be the same as imported file"
+    # Add a row for the header:
+    self.assertLen(
+      str_buf.splitlines(),
+      len(icus) + 1, "Number of rows should be the same."
+    )
