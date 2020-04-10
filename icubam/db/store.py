@@ -161,6 +161,8 @@ class ICU(Base):
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
   name = Column(String, unique=True)
+  # This would be a legal identifier of the hospital (finess in France.)
+  legal_id = Column(String)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)
