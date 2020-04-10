@@ -1,8 +1,11 @@
 import datetime
 
+import pytest
+
 import predicu.data
 
 
+@pytest.mark.slow
 def test_load_public_data():
   data = predicu.data.load_public_data()
   max_date = data.date.max()
