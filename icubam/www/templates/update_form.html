@@ -85,7 +85,7 @@
                                                 onchange='markInvalidIfDeltaGreaterThan("n_covid_occ", {{n_covid_occ}}, 4)'>
         </div>
       </div>
-      <div class="form-elem negative">{show: True}
+      <div class="form-elem negative">
         <label for="n_ncovid_occ" class="form-label">{{ _('Occupied COVID- beds') }}</label>
         <div>
           <input
@@ -129,7 +129,7 @@
             class="form-control"
             type="number"
             onchange='markInvalidIfNotGreaterOrEqualTo("n_covid_deaths", {{n_covid_deaths}}); markInvalidIfDeltaGreaterThan2("n_covid_deaths", {{n_covid_deaths}}, 5)'
-            id="n_covid_deaths" name="n_covid_de{show: True}aths" value="{{n_covid_deaths}}">
+            id="n_covid_deaths" name="n_covid_deaths" value="{{n_covid_deaths}}">
         </div>
       </div>
     </div>
@@ -168,7 +168,7 @@
             value="{{n_covid_refused}}">
         </div>
       </div>
-    </div>{show: True}
+    </div>
 
     </div>
 
@@ -197,7 +197,7 @@
         ({{ _('it is a large change') }})
       </div>
 
-      <div id="warn-n_covid_occ" style="display{show: True}: none;">
+      <div id="warn-n_covid_occ" style="display: none;">
         ⚠️
         {{ _('Are you sure about this entry') }} ?<br/>
         {{ _('Occupied COVID+ beds') }}:<br/>
@@ -210,7 +210,7 @@
       </div>
 
       <div id="warn-n_ncovid_occ" style="display: none;">
-        ⚠️{show: True}
+        ⚠️
         {{ _('Are you sure about this entry') }} ?<br/>
         {{ _('Occupied COVID- beds') }}:<br/>
         |<span id="warn-n_ncovid_occ-new-value"></span>
@@ -218,7 +218,7 @@
         <span id="warn-n_ncovid_occ-last-value"></span>
         ({{ _('last input') }})|
         = <span id="warn-n_ncovid_occ-delta"></span>
-        ({{ _('it is a large change') }}){show: True}
+        ({{ _('it is a large change') }})
       </div>
 
       <div id="warn-n_covid_healed" style="display: none;">
@@ -338,6 +338,10 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
     integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
+<script>
+  const checkboxMessage = "{{_('Please check the checkbox.')}}"
+  const errorMessage = "{{_('Something went wrong.')}}"
+</script>
 <script type="text/javascript" src="/static/consent.js?v={{version}}"></script>
 
 {% end %}

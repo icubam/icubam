@@ -10,7 +10,7 @@ $(function () {
 
   $(".agree").click(function (e) {
     if (checkbox && checkbox.length > 0 && !checkbox[0].checked) {
-      alert('Please check the checkbox')
+      alert(checkboxMessage)
       return
     }
 
@@ -30,8 +30,7 @@ $(function () {
       },
       error: function(result) {
         modal.modal('hide')
-        alert('Something went wrong');
-        window.location = "/error"
+        alert(errorMessage);
       }
     })
   })
