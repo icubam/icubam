@@ -1,9 +1,9 @@
 from absl import logging  # noqa: F401
+import os.path
 
 import icubam
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-from icubam.www import token
 from icubam.www import updater
 
 
@@ -16,7 +16,16 @@ class UpdateHandler(base.BaseHandler):
     super().initialize(config, db_factory)
     self.queue = queue
     self.updater = updater.Updater(self.config, self.db)
-    self.token_encoder = token.TokenEncoder(self.config)
+
+  def get_consent_html(self, user):
+    """To show a consent modal, the user should be seeing it for the first time
+    and we should have an agreement form to show."""
+    path = self.config.server.consent
+    # The user has already agreed, we skip.
+    print('hey', user.consent)
+    if not user.consent and path is not None and os.path.exists(path):
+      with open(path, 'r') as fp:
+        return fp.read()
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
@@ -26,11 +35,21 @@ class UpdateHandler(base.BaseHandler):
     if input_data is None:
       return self.set_status(404)
 
+    userid = int(input_data.get('user_id', -1))
+    user = self.db.get_user(userid)
+    if user is None:
+      logging.error(f"No such user {userid}")
+      return self.set_status(404)
+
     data = self.updater.get_icu_data_by_id(
       input_data['icu_id'], locale=self.get_user_locale()
     )
     data.update(input_data)
     data.update(version=icubam.__version__)
+
+    # Show consent form?
+    data['consent'] = self.get_consent_html(user)
+    print(data['consent'])
 
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)

@@ -4,7 +4,6 @@ import tornado.web
 import icubam
 from icubam.db import store
 from icubam.www.handlers import base
-from icubam.www import token
 from icubam import map_builder
 
 
@@ -14,7 +13,6 @@ class HomeHandler(base.BaseHandler):
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    self.token_encoder = token.TokenEncoder(self.config)
     self.builder = map_builder.MapBuilder(config, self.db)
 
   @tornado.web.authenticated

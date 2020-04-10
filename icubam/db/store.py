@@ -107,6 +107,8 @@ class User(Base):
   locale = Column(String)
   # One of {email, sms}.
   message_type = Column(String, default="email")
+  # Consent to use icubam
+  consent = Column(Boolean)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())

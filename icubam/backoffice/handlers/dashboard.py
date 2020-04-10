@@ -15,11 +15,9 @@ class ListBedCountsHandler(base.BaseHandler):
     self.link_fn = updater.Updater(self.config, self.db).get_url
 
   def prepare_data(self, icu) -> list:
-    result = [{
-      'key': 'icu (update link)',
-      'value': icu.name,
-      'link': self.link_fn(icu.icu_id, icu.name)
-    }]
+    link = {'key': 'icu (update link)', 'value': icu.name}
+    link['link'] = self.link_fn(icu.users[0], icu) if icu.users else '-'
+    result = [link]
 
     bed_count = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
     bed_count_dict = bed_count.to_dict(max_depth=0)
