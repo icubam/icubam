@@ -19,16 +19,18 @@
       <div class="modal-body">
         <p>{% raw consent %}</p>
       </div>
-      <form action='consent' method='POST'>
-        <div class="modal-footer justify-content-between">
-          <button type='submit' name='agree' value='0' class="btn btn-danger agree">
-            {{_("I disagree")}}
-          </button>
-          <button type='submit' name='agree' value='1' class="btn btn-primary agree">
-            {{_("I agree")}}
-          </button>
-        </div>
-      </form>
+      <div class="modal-footer">
+        <input type="checkbox" id="double_check" title="{{_('I understand what I am doing.')}}" name="double_check"/>
+        <label for="double_check">{{_('I understand what I am doing.')}}</label>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type='button' name='agree' value='0' class="btn btn-danger agree">
+          {{_("I disagree")}}
+        </button>
+        <button type='button' name='agree' value='1' class="btn btn-primary agree">
+          {{_("I agree")}}
+        </button>
+      </div>
     </div>
   </div>
 </div>

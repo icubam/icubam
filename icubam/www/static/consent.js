@@ -5,7 +5,15 @@ $(function () {
     modal.modal()
   }
 
+  // The checkbox is required.
+  let checkbox = $("#double_check")
+
   $(".agree").click(function (e) {
+    if (checkbox && checkbox.length > 0 && !checkbox[0].checked) {
+      alert('Please check the checkbox')
+      return
+    }
+
     e.preventDefault();
     $.ajax({
       type: "POST",
