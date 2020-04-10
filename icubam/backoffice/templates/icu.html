@@ -43,7 +43,7 @@
            </div>
 
          <div class="col-25">
-           <label for="validationCustom04">{{_("Phone Number")}}</label>
+           <label for="telephone">{{_("Phone Number")}}</label>
            <input type="tel" id="telephone" name="telephone"
              class="form-control"
              minlength="6"
@@ -53,8 +53,17 @@
              value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
          </div>
 
+         <div class="col-25">
+           <label for="legal_id">{{_("Legal ID")}}</label>
+           <input type="tel" id="legal_id" name="legal_id"
+             class="form-control"
+             title='Legal id'
+             placeholder="13546546"
+             value="{% if icu.legal_id %}{{icu.legal_id}}{% end %}">
+         </div>
+
          <div class="col-20">
-           <label for="name">Active</label><br/>
+           <label for="is_active">Active</label><br/>
            <input
            type="checkbox" name="is_active"
            {% if icu.is_active %} checked{% end %}

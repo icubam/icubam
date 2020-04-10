@@ -26,17 +26,11 @@ def _get_headers(collection, asked_file_type):
   return headers
 
 
-class DBHandler(base.BaseHandler):
+class DBHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/db/(.*)'
   API_COOKIE = 'api'
-
-  def get_current_user(self):
-    key = self.get_query_argument('API_KEY', None)
-    if key is None:
-      return
-
-    return self.db.auth_external_client(key)
+  ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)

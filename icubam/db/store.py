@@ -2,6 +2,7 @@
 from typing import Dict, Any
 
 from absl import logging
+import enum
 import pandas as pd
 from contextlib import contextmanager
 import dataclasses
@@ -10,7 +11,7 @@ import hashlib
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
-from sqlalchemy import Boolean, Float, DateTime, Integer, String
+from sqlalchemy import Boolean, Enum, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
@@ -118,7 +119,7 @@ class Region(Base):
   __tablename__ = "regions"
 
   region_id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String, unique=True)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -159,7 +160,9 @@ class ICU(Base):
   icu_id = Column(Integer, primary_key=True)
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
-  name = Column(String)
+  name = Column(String, unique=True)
+  # This would be a legal identifier of the hospital (finess in France.)
+  legal_id = Column(String)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)
@@ -184,6 +187,13 @@ class ICU(Base):
   managers = relationship("User", secondary=icu_managers, back_populates="icus")
 
 
+class AccessTypes(enum.Enum):
+  MAP = 1
+  STATS = 2
+  UPLOAD = 3
+  ALL = 4
+
+
 class ExternalClient(Base):
   "Represents an external client that can access ICUBAM data." ""
   __tablename__ = "external_clients"
@@ -199,6 +209,8 @@ class ExternalClient(Base):
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
+  # Type of access: it is stored as the key string in the db.
+  access_type = Column(Enum(AccessTypes))
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -302,6 +314,10 @@ class Store(object):
   def get_icu(self, icu_id: int) -> Optional[ICU]:
     """Returns the ICU with the specified ID."""
     return self._session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
+
+  def get_icu_by_name(self, icu_name: int):
+    """Returns the ICU with the specified name."""
+    return self._session.query(ICU).filter(ICU.name == icu_name).one_or_none()
 
   def get_icus(self) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
@@ -411,6 +427,11 @@ class Store(object):
     """Returns the user with the specified ID."""
     return self._session.query(User).filter(
         User.user_id == user_id).one_or_none()
+
+  def get_user_by_phone(self, phone: int):
+    """Returns the user with the specified phone number."""
+    return self._session.query(User).filter(
+        User.telephone == phone).one_or_none()
 
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
@@ -535,6 +556,11 @@ class Store(object):
     self._session.commit()
     return region.region_id
 
+  def get_region_by_name(self, region_name: str):
+    """Returns the region ID/ return -1 if region dos not exist"""
+    return self._session.query(Region).filter(
+        Region.name == region_name).one_or_none()
+
   def get_region(self, region_id: int) -> Optional[Region]:
     """Returns the region with the specified ID."""
     return self._session.query(Region).filter(
@@ -608,7 +634,7 @@ class Store(object):
                     ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
                       ICU.is_active == True
                     )
-                            
+
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
@@ -834,7 +860,7 @@ class Store(object):
         ExternalClient.access_key_hash == access_key_hash).one_or_none()
     if not external_client or not external_client.access_key_valid:
       return None
-    return external_client.external_client_id
+    return external_client
 
   def reset_external_client_access_key(
       self,
