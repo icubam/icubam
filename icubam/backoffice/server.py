@@ -8,9 +8,11 @@ import tornado.locale
 import tornado.web
 from typing import Dict
 import tornado.ioloop
-from icubam.backoffice.handlers import (home, login, logout, users, tokens,
-                                        icus, dashboard, operational_dashboard,
-                                        messages, regions, maps)
+from icubam.backoffice.handlers import (
+  home, login, logout, users, tokens, icus, dashboard, operational_dashboard,
+  messages, regions, maps
+)
+from icubam.db.store import to_pandas
 from icubam import base_server
 
 
@@ -23,7 +25,6 @@ class ServerStatus:
 
 
 class BackofficeApplication(tornado.web.Application):
-
   def __init__(self, config, db_factory, routes, root, **settings):
     self.config = config
     self.root = root
@@ -33,8 +34,43 @@ class BackofficeApplication(tornado.web.Application):
     super().__init__(routes, **settings)
 
     repeat_every = self.config.backoffice.ping_every * 1000
+
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
+    try:
+      from predicu.plot import generate_plots
+    except ImportError:
+      generate_plots = None
+
+    if generate_plots is not None:
+      extra_plots_dir = self.config.backoffice.extra_plots_dir
+
+      if (
+        not os.path.isdir(extra_plots_dir) and
+        not os.path.isdir(os.path.dirname(extra_plots_dir))
+      ):
+        logging.warn(
+          f'predicu plots not generated, as extra_plots_dir '
+          f'is not valid directory: {extra_plots_dir}'
+        )
+      else:
+        repeat_every = self.config.backoffice.extra_plots_make_every * 1000
+        logging.info(
+          f"Registering periodic callback: generate_predicu_plots "
+          f"/{repeat_every/1000}s"
+        )
+        tornado.ioloop.PeriodicCallback(
+          self.generate_predicu_plots, repeat_every
+        ).start()
+
+  async def generate_predicu_plots(self):
+    from predicu.plot import generate_plots
+    db = self.db_factory.create()
+    data = to_pandas(db.get_bed_counts())
+    logging.info('[periodic callback] Starting plots generation with predicu')
+    generate_plots(
+      icubam_data=data, output_dir=self.config.backoffice.extra_plots_dir
+    )
 
   async def ping(self):
     servers = {'server': 'www', 'messaging': 'sms'}
@@ -45,7 +81,8 @@ class BackofficeApplication(tornado.web.Application):
       status.last_ping = datetime.datetime.utcnow()
       try:
         resp = await self.client.fetch(
-            tornado.httpclient.HTTPRequest(url=url, request_timeout=1))
+          tornado.httpclient.HTTPRequest(url=url, request_timeout=1)
+        )
         status.up = resp.code == 200
         status.started = resp.body
       except:
@@ -55,7 +92,6 @@ class BackofficeApplication(tornado.web.Application):
 
 class BackOfficeServer(base_server.BaseServer):
   """Serves and manipulates the Backoffice ICUBAM."""
-
   def __init__(self, config, port):
     super().__init__(config, port, root=config.backoffice.root)
     self.port = port if port is not None else self.config.backoffice.port
@@ -80,37 +116,44 @@ class BackOfficeServer(base_server.BaseServer):
 
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
-      self.routes.append(
-          (route, tornado.web.StaticFileHandler,
-          {'path': self.config.backoffice.extra_plots_dir})
-          )
+      self.routes.append((
+        route, tornado.web.StaticFileHandler, {
+          'path': self.config.backoffice.extra_plots_dir
+        }
+      ))
 
     for folder in ['dist', 'pages', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
       folder = '' if folder == 'static' else folder
-      self.routes.append(
-          (route, tornado.web.StaticFileHandler,
-          {'path': os.path.join(path, 'static', folder)}
-          ))
+      self.routes.append((
+        route, tornado.web.StaticFileHandler, {
+          'path': os.path.join(path, 'static', folder)
+        }
+      ))
     # Those are to get the js of the map page.
     route = os.path.join("/", self.root, r'www/static/(.*)')
-    self.routes.append(
-        (route, tornado.web.StaticFileHandler,
-        {'path': os.path.join(path, '../www/static')}
-        ))
+    self.routes.append((
+      route, tornado.web.StaticFileHandler, {
+        'path': os.path.join(path, '../www/static')
+      }
+    ))
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
     path = os.path.dirname(os.path.abspath(__file__))
     settings = {
-        'cookie_secret': cookie_secret,
-        'login_url': 'login',
+      'cookie_secret': cookie_secret,
+      'login_url': 'login',
     }
     tornado.locale.load_translations(os.path.join(path, 'translations'))
     self.make_routes(path)
-    logging.info('Access the backoffice at http://localhost:{}/{}/'.format(
-      self.port, self.config.backoffice.root))
+    logging.info(
+      'Access the backoffice at http://localhost:{}/{}/'.format(
+        self.port, self.config.backoffice.root
+      )
+    )
 
-    return BackofficeApplication(self.config, self.db_factory, self.routes,
-                                 self.root, **settings)
+    return BackofficeApplication(
+      self.config, self.db_factory, self.routes, self.root, **settings
+    )

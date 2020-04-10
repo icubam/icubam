@@ -47,3 +47,4 @@ sqlite_path = ":memory:"
   ping_every = 60
   root = 'mybo'
   extra_plots_dir = "/tmp/dasboard_plots_dir"
+  extra_plots_make_every = 20  # in seconds
