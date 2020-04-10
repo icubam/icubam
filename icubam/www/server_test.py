@@ -22,8 +22,9 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     self.admin_id = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin_id, store.ICU(name='icu'))
     self.user_id = self.db.add_user_to_icu(
-      self.admin_id, self.icu_id, store.User(
-        name='user', consent=True, is_active=True))
+      self.admin_id, self.icu_id,
+      store.User(name='user', consent=True, is_active=True)
+    )
     self.user = self.db.get_user(self.user_id)
     self.icu = self.db.get_icu(self.icu_id)
 
@@ -50,8 +51,8 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     self.assertEqual(response.code, 404)
 
     encoder = token.TokenEncoder(self.config)
-    response = self.fetch(
-      url_prefix + encoder.encode_data(self.user, self.icu))
+    jwt = encoder.encode_data(self.user, self.icu)
+    response = self.fetch(url_prefix + jwt)
     self.assertEqual(response.code, 200)
 
   def test_version(self):

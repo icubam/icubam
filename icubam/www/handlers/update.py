@@ -52,6 +52,7 @@ class UpdateHandler(base.BaseHandler):
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
 
+  @tornado.web.authenticated
   async def post(self):
     """Reads the form and saves the data to DB"""
     def parse(param):
