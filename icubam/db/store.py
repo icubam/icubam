@@ -326,7 +326,8 @@ class Store(object):
 
   def get_icu_by_name(self, icu_name: int):
     """Returns the ICU with the specified name."""
-    return self._session.query(ICU).filter(ICU.name == icu_name).one_or_none()
+    print(icu_name)
+    return self._session.query(ICU).filter(ICU.name == icu_name).first()
 
   def get_icus(self) -> Iterable[ICU]:
     """Returns all users, e.g. sync. Do not use in user facing code."""

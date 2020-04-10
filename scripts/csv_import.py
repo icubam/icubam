@@ -1,25 +1,21 @@
-import csv
-import sys
 from absl import app
 from absl import flags
 from icubam import config
 import icubam.db.store as db_store
-from icubam.db.csv import CSV
-from icubam.db.store import Store, StoreFactory, BedCount, ExternalClient, ICU, Region, User
+from icubam.db import synchronizer
 
 flags.DEFINE_string("config", "resources/config.toml", "Config file.")
 flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
 flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 
 flags.DEFINE_bool(
-  "forceUpdate", False, "replace db content with csv if entry already exist."
+  "force_update", False,
+  "Allow in-place modifications to already present elements."
 )
+
+flags.DEFINE_string("icus_csv", None, "Path to csv file containing ICU data.")
 flags.DEFINE_string(
-  "icu_csv_path", "resources/icu.csv", "path to csv file containing ICU data"
-)
-flags.DEFINE_string(
-  "user_csv_path", "resources/user.csv",
-  "path to csv file containing user data"
+  "users_csv", None, "Path to csv file containing user data."
 )
 
 FLAGS = flags.FLAGS
@@ -30,13 +26,18 @@ def main(args=None):
     FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
   )
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
-  db = store_factory.create()
+  store = store_factory.create()
+  csv = synchronizer.CSVSynchcronizer(store)
 
-  csv = CSV(db)
+  if FLAGS.icus_csv:
+    print(f"Loading ICU CSV from: {FLAGS.icus_csv}")
+    with open(FLAGS.icus_csv) as icus_f:
+      csv.sync_icus_from_csv(icus_f, FLAGS.force_update)
 
-  admin_user_id = csv.get_default_admin()
-  csv.import_icus(admin_user_id, FLAGS.icu_csv_path, FLAGS.forceUpdate)
-  csv.import_users(admin_user_id, FLAGS.user_csv_path, FLAGS.forceUpdate)
+  if FLAGS.users_csv:
+    print(f"Loading user CSV from: {FLAGS.users_csv}")
+    with open(FLAGS.users_csv) as users_f:
+      csv.sync_users_from_csv(users_f, FLAGS.force_update)
 
 
 if __name__ == "__main__":
