@@ -188,7 +188,8 @@ class ICU(Base):
 class AccessTypes(enum.Enum):
   MAP = 1
   STATS = 2
-  ALL = 3
+  UPLOAD = 3
+  ALL = 4
 
 
 class ExternalClient(Base):
@@ -843,7 +844,7 @@ class Store(object):
         ExternalClient.access_key_hash == access_key_hash).one_or_none()
     if not external_client or not external_client.access_key_valid:
       return None
-    return external_client.external_client_id
+    return external_client
 
   def reset_external_client_access_key(
       self,

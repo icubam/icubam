@@ -24,7 +24,8 @@ class ListTokensHandler(base.AdminHandler):
     client_dict = dict()
     for key in ['access_key', 'is_active', 'expiration_date']:
       client_dict[key] = getattr(client, key, None)
-    client_dict['access_type'] = client.access_type.name
+    client_dict['access_type'] = (
+        client.access_type.name if client.access_type else '')
     client_dict['regions'] = ', '.join([r.name for r in client.regions])
     result.extend(self.format_list_item(client_dict))
     for handler in [www_home.MapByAPIHandler, www_db.DBHandler]:
@@ -46,7 +47,8 @@ class ListTokensHandler(base.AdminHandler):
 
 class TokenHandler(base.AdminHandler):
 
-  ROUTE = "token"
+  ROUTE = 'token'
+  ID_KEY = 'external_client_id'
 
   @tornado.web.authenticated
   def get(self):
@@ -65,6 +67,10 @@ class TokenHandler(base.AdminHandler):
     user = user if user is not None else store.ExternalClient()
     if user.is_active is None:
       user.is_active = True
+    if user.access_type is None:
+      user.access_type = store.AccessTypes.ALL
+    elif isinstance(user.access_type, str):
+      user.access_type = store.AccessTypes.__members__[user.access_type]
     options = self.db.get_regions()
     access_types = list(store.AccessTypes.__members__.keys())
     return self.render("token.html", user=user, options=options,
@@ -72,10 +78,11 @@ class TokenHandler(base.AdminHandler):
                        list_route=ListTokensHandler.ROUTE)
 
   def create_token(self, token_id, values, regions):
-    token_id = self.db.add_external_client(
+    client_id, _ = self.db.add_external_client(
       self.user.user_id, store.ExternalClient(**values))
     for rid in regions:
-      self.db.assign_external_client_to_region(self.user.user_id, token_id, rid)
+      self.db.assign_external_client_to_region(
+        self.user.user_id, client_id, rid)
 
   def update_token(self, token_id, values, regions):
     self.db.update_external_client(self.user.user_id, token_id, values)
@@ -89,8 +96,7 @@ class TokenHandler(base.AdminHandler):
 
   def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:
     token_dict["is_active"] = token_dict.get("is_active", "off") == 'on'
-    id_key = 'external_client_id'
-    token_id = token_dict.pop(id_key, '')
+    token_id = token_dict.pop(self.ID_KEY, '')
     regions = set(map(int, token_dict.pop('regions', [])))
     return token_id, regions
 
@@ -103,7 +109,7 @@ class TokenHandler(base.AdminHandler):
       save_fn(token_id, values, regions)
     except Exception as e:
       logging.error(f'cannot save token {e}')
-      values[id_key] = token_id
+      values[self.ID_KEY] = token_id
       return self.do_render(store.ExternalClient(**values), regions, error=True)
 
     return self.redirect(ListTokensHandler.ROUTE)
