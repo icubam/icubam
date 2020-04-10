@@ -2,6 +2,7 @@
 from typing import Dict, Any
 
 from absl import logging
+import enum
 import pandas as pd
 from contextlib import contextmanager
 import dataclasses
@@ -10,7 +11,7 @@ import hashlib
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
-from sqlalchemy import Boolean, Float, DateTime, Integer, String
+from sqlalchemy import Boolean, Enum, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
@@ -184,6 +185,12 @@ class ICU(Base):
   managers = relationship("User", secondary=icu_managers, back_populates="icus")
 
 
+class AccessTypes(enum.Enum):
+  MAP = 1
+  STATS = 2
+  ALL = 3
+
+
 class ExternalClient(Base):
   "Represents an external client that can access ICUBAM data." ""
   __tablename__ = "external_clients"
@@ -199,6 +206,8 @@ class ExternalClient(Base):
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
+  # Type of access: map, stats, both
+  access_type = Column(Enum(AccessTypes))
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -608,7 +617,7 @@ class Store(object):
                     ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
                       ICU.is_active == True
                     )
-                            
+
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 

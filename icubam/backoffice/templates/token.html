@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% block links %}
+<link rel="stylesheet" href="plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+{% end %}
+
 {% block content %}
 
 <section class="content">
@@ -73,7 +78,39 @@
             data-bootstrap-switch data-off-color="danger"
             data-on-color="success">
           </div>
+        </div>
 
+        <div class="form-row">
+          {% if len(options) > 0 %}
+          <div class="col-5">
+            <label for="regions">{{_("Regions")}}</label>
+            <select class="select2bs4"
+             multiple=""
+             data-placeholder="{{_('Select Regions')}}" style="width: 100%;"
+             name="regions[]" id="regions">
+             {% for region_option in options %}
+               <option value="{{region_option.region_id}}"
+                   {% if region_option.region_id in regions %} selected{% end %}>
+                 {{escape(region_option.name)}}
+               </option>
+             {% end %}
+            </select>
+          </div>
+          {% end %}
+
+          <div class="col-5">
+            <label for="regions">{{_("Access")}}</label>
+            <select class="select2bs4"
+             data-placeholder="{{_('Select Access Type')}}" style="width: 100%;"
+             name="access_type" id="access_type">
+             {% for access in access_types %}
+               <option value="{{access}}"
+                   {% if access == user.access_type.name %} selected{% end %}>
+                 {{escape(access)}}
+               </option>
+             {% end %}
+            </select>
+          </div>
         </div>
 
         <div class="form-row">
@@ -115,10 +152,15 @@
 {% end %}
 
 {% block scripts %}
+<script src="plugins/select2/js/select2.full.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script>
-  $("input[data-bootstrap-switch]").each(function(){
-    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  $(function () {
+    $('.select2bs4').select2()
+
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    })
   })
 </script>
 {% end %}
