@@ -15,20 +15,20 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
   TEST_CONFIG = 'resources/test.toml'
 
   def setUp(self):
-    super().setUp()
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
-    factory = store.create_store_factory_for_sqlite_db(self.config)
-    self.db = factory.create()
+    self.server = server.WWWServer(self.config, port=8888)
+    super().setUp()
+    self.db = self.server.db_factory.create()
     self.admin_id = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin_id, store.ICU(name='icu'))
     self.user_id = self.db.add_user_to_icu(
-      self.admin_id, self.icu_id, store.User(name='user'))
+      self.admin_id, self.icu_id, store.User(
+        name='user', consent=True, is_active=True))
     self.user = self.db.get_user(self.user_id)
     self.icu = self.db.get_icu(self.icu_id)
 
   def get_app(self):
-    www_server = server.WWWServer(self.config, port=8888)
-    return www_server.make_app(cookie_secret='secret')
+    return self.server.make_app(cookie_secret='secret')
 
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)
