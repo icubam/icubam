@@ -22,7 +22,7 @@ class ConsentHandler(base.BaseHandler):
 
     If False, the user has no access to ICUBAM and it is considered as
     inactive. Otherwise we won't ask again and acces is granted.
-    """"
+    """
     agree = bool(int(self.get_body_argument(self.ARGUMENT, '0')))
     result = {}
     if agree:
