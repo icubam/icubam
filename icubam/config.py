@@ -16,7 +16,7 @@ class Config:
 
   # All the secret keys
   ENV_KEYS = [
-    'TOKEN_LOC', 'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY',
+    'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY',
     'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API', 'DB_SALT', 'SMTP_HOST',
     'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM'
   ]
