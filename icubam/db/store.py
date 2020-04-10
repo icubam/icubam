@@ -306,6 +306,9 @@ class Store(object):
       self._session.commit()
       return icu.icu_id
 
+    if self.get_icu_by_name(icu.name):
+      raise KeyError("ICU Name already present in DB.")
+    
     rids = set([i.region_id for i in self.get_managed_icus(admin_user_id)])
     if icu.region_id not in rids:
       raise ValueError("New ICUs can only be created in the manger's region.")
@@ -329,7 +332,7 @@ class Store(object):
     return self._session.query(ICU).filter(ICU.name == icu_name).first()
 
   def get_icus(self) -> Iterable[ICU]:
-    """Returns all users, e.g. sync. Do not use in user facing code."""
+    """Returns all ICUs. Do not use in user facing code."""
     return self._session.query(ICU).all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):

@@ -8,6 +8,11 @@ from typing import TextIO
 
 ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
+BC_COLUMNS = [
+  'icu_name', 'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free',
+  'n_covid_deaths', 'n_covid_healed', 'n_covid_refused', 'n_covid_transfered',
+  'timestamp'
+]
 
 
 class StoreSynchronizer:
@@ -112,6 +117,26 @@ class StoreSynchronizer:
           logging.info("Inserting user {}".format(values['name']))
         except Exception as e:
           logging.error("Cannot add user to icu: {}. Skipping".format(e))
+
+  def sync_bed_counts(self, bedcounts_df):
+    raise NotImplementedError("WIP")
+    bedcounts_df = bedcounts_df[BC_COLUMNS]
+
+    # First check that all ICUs exist:
+    icu_names = set(bedcounts_df['icu_name'].unique())
+    db_icus = dict((icu.name, icu) for icu in self.db.get_icus())
+
+    # Make sure each bedcount has an existent ICU:
+    icu_diff = icu_names - set(db_icus.keys())
+    if icu_diff is not None:
+      KeyError("Missing ICUs in DB: {icu_diff}. Please add them first.")
+
+    # Now we are sure all ICUs are present so we can insert without checking:
+    for bc in bedcounts_df.iterrows():
+      item = None
+      self.db.update_bed_count_for_icu(
+        None, store.BedCount(**item), force=True
+      )
 
 
 class CSVSynchcronizer(StoreSynchronizer):

@@ -5,6 +5,28 @@ from absl.testing import absltest
 from icubam.db import store, synchronizer
 import sqlalchemy as sqla
 
+class SynchronizerTest(absltest.TestCase):
+  def setUp(self):
+    store_factory = store.StoreFactory(
+      sqla.create_engine("sqlite:///:memory:", echo=True)
+    )
+    self.db = store_factory.create()
+    self.csv = synchronizer.CSVSynchcronizer(self.db)
+
+  # def gen_bed_counts(self, amount):
+    # icu_id = self.add_icu(name, region_id=region_id, is_active=is_active)
+    # for index, value in enumerate(values):
+
+    #   self.store.update_bed_count_for_icu(
+    #     self.admin_user_id,
+    #     BedCount(
+    #       icu_id=icu_id,
+    #       n_covid_occ=value,
+    #       create_date=add_seconds(now, index)
+    #     )
+    #   )
+    # return icu_id
+
 
 class CSVTest(absltest.TestCase):
   def setUp(self):
