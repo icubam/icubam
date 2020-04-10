@@ -1,4 +1,5 @@
 from absl import logging  # noqa: F401
+import tornado.web
 import os.path
 
 import icubam
@@ -26,24 +27,35 @@ class UpdateHandler(base.BaseHandler):
       with open(path, 'r') as fp:
         return fp.read()
 
-  async def get(self):
-    """Serves the page with a form to be filled by the user."""
-    user_token = self.get_query_argument(self.QUERY_ARG)
+  def authenticate_from_token(self, user_token):
     input_data = self.token_encoder.decode(user_token)
-
     if input_data is None:
-      return self.set_status(404)
+      return None, None
 
     userid = int(input_data.get('user_id', -1))
     user = self.db.get_user(userid)
     if user is None:
-      logging.error(f"No such user {userid}")
+      return None, None
+
+    icuid = int(input_data.get('icu_id', -1))
+    user_icu_ids = [i.icu_id for i in user.icus]
+    if icuid not in user_icu_ids:
+      return None, None
+
+    return user, input_data
+
+  async def get(self):
+    """Serves the page with a form to be filled by the user."""
+    user_token = self.get_query_argument(self.QUERY_ARG)
+    user, token_data = self.authenticate_from_token(user_token)
+    if user is None:
+      logging.error(f"Token authentication failed")
       return self.set_status(404)
 
-    data = self.updater.get_icu_data_by_id(
-      input_data['icu_id'], locale=self.get_user_locale()
-    )
-    data.update(input_data)
+    locale = self.get_user_locale()
+    icu_id = int(token_data.get('icu_id', -1))
+    data = self.updater.get_icu_data_by_id(icu_id, locale=locale)
+    data.update(token_data)
     data.update(version=icubam.__version__)
 
     # Show consent form?
