@@ -43,6 +43,7 @@ class APIKeyProtectedHandler(BaseHandler):
       return None
 
     if client.access_type in self.ACCESS:
+      self.regions = client.regions
       return client.external_client_id
     else:
       return None
