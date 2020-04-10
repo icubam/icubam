@@ -1,4 +1,5 @@
 from absl import logging
+import datetime
 import os.path
 import tornado.escape
 import tornado.web
@@ -45,6 +46,7 @@ class ListTokensHandler(base.AdminHandler):
 class TokenHandler(base.AdminHandler):
 
   ROUTE = "token"
+  TIME_FORMAT = "%m/%d/%Y %I:%M %p"
 
   @tornado.web.authenticated
   def get(self):
@@ -58,13 +60,22 @@ class TokenHandler(base.AdminHandler):
     user = user if user is not None else store.ExternalClient()
     if user.is_active is None:
       user.is_active = True
+    date = ""
+    if user.expiration_date is not None:
+      date = user.expiration_date.strftime(self.TIME_FORMAT)
     return self.render("token.html", user=user, error=error,
-                       list_route=ListTokensHandler.ROUTE)
+                       date=date, list_route=ListTokensHandler.ROUTE)
 
   @tornado.web.authenticated
   def post(self):
     values = self.parse_from_body(store.ExternalClient)
     values["is_active"] = values.get("is_active", "off") == 'on'
+    date = values.get('expiration_date', '')
+    if date == '':
+      values['expiration_date'] = None
+    else:
+      values['expiration_date'] = datetime.datetime.strptime(
+          date, self.TIME_FORMAT)
     id_key = 'external_client_id'
     token_id = values.pop(id_key, '')
     try:
