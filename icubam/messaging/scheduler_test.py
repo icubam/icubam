@@ -125,6 +125,17 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     self.assertFalse(success)
     self.assertEqual(len(self.scheduler.timeouts), 2)
 
+    # New user, in new but inactive icu
+    inactive_icu_id = self.db.add_icu(
+      self.admin, store.ICU(name='inactive_icu', is_active=False))
+    inactive_icu = self.db.get_icu(inactive_icu_id)
+    user4 = store.User(name='armande', telephone='15313', is_active=True)
+    userid4 = self.db.add_user_to_icu(self.admin, inactive_icu_id, user4)
+    user4 = self.db.get_user(userid4)
+    success = self.scheduler.schedule(user4, inactive_icu, delay=delay)
+    self.assertFalse(success)
+    self.assertEqual(len(self.scheduler.timeouts), 2)
+
   @mock.patch('time.time', mock.MagicMock(return_value=fake_now))
   def test_schedule_all(self):
     self.assertGreater(len(self.scheduler.messages), 0)
