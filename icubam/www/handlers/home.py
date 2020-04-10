@@ -2,6 +2,7 @@ from absl import logging
 import tornado.web
 
 import icubam
+from icubam.db import store
 from icubam.www.handlers import base
 from icubam.www import token
 from icubam import map_builder
@@ -37,14 +38,19 @@ class HomeHandler(base.BaseHandler):
                        version=icubam.__version__)
 
 
-class MapByAPIHandler(HomeHandler):
+class MapByAPIHandler(base.APIKeyProtectedHandler):
   """Same as HomeHandler but accessed with an API KEY"""
 
   ROUTE = '/map'
+  ACCESS = [store.AccessTypes.MAP, store.AccessTypes.ALL]
 
-  def get_current_user(self):
-    key = self.get_query_argument('API_KEY', None)
-    if key is None:
-      return
-
-    return self.db.auth_external_client(key)
+  @tornado.web.authenticated
+  def get(self):
+    builder = map_builder.MapBuilder(self.config, self.db)
+    data, center = builder.prepare_jsons(
+      None, center_icu=None, level='dept')
+    return self.render('index.html',
+                       API_KEY=self.config.GOOGLE_API_KEY,
+                       center=center,
+                       data=data,
+                       version=icubam.__version__)

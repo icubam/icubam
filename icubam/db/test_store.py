@@ -615,11 +615,11 @@ class StoreTest(absltest.TestCase):
     external_client_id2, access_key2 = store.add_external_client(
         admin_user_id, ExternalClient(name="client2"))
 
-    external_client_id = store.auth_external_client(access_key1.key)
-    self.assertEqual(external_client_id, external_client_id1)
+    external_client = store.auth_external_client(access_key1.key)
+    self.assertEqual(external_client.external_client_id, external_client_id1)
 
-    external_client_id = store.auth_external_client(access_key2.key)
-    self.assertEqual(external_client_id, external_client_id2)
+    external_client = store.auth_external_client(access_key2.key)
+    self.assertEqual(external_client.external_client_id, external_client_id2)
 
     self.assertIsNone(store.auth_external_client("test"))
 

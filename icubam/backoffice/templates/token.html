@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block links %}
+<link rel="stylesheet" href="plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
 <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
 <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
@@ -81,7 +83,39 @@
             data-bootstrap-switch data-off-color="danger"
             data-on-color="success">
           </div>
+        </div>
 
+        <div class="form-row">
+          {% if len(options) > 0 %}
+          <div class="col-5">
+            <label for="regions">{{_("Regions")}}</label>
+            <select class="select2bs4"
+             multiple=""
+             data-placeholder="{{_('Select Regions')}}" style="width: 100%;"
+             name="regions[]" id="regions">
+             {% for region_option in options %}
+               <option value="{{region_option.region_id}}"
+                   {% if region_option.region_id in regions %} selected{% end %}>
+                 {{escape(region_option.name)}}
+               </option>
+             {% end %}
+            </select>
+          </div>
+          {% end %}
+
+          <div class="col-5">
+            <label for="access_type">{{_("Access")}}</label>
+            <select class="select2bs4"
+             data-placeholder="{{_('Select Access Type')}}" style="width: 100%;"
+             name="access_type" id="access_type">
+             {% for access in access_types %}
+               <option value="{{access}}"
+                   {% if access == user.access_type.name %} selected{% end %}>
+                 {{escape(access)}}
+               </option>
+             {% end %}
+            </select>
+          </div>
         </div>
 
         <div class="form-row">
@@ -134,10 +168,13 @@
 <script src="plugins/inputmask/min/jquery.inputmask.bundle.min.js"></script>
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
+<script src="plugins/select2/js/select2.full.min.js"></script>
 <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script>
   $(function () {
+    $('.select2bs4').select2()
+
     $('#timepicker').datetimepicker({
       date: '{{date}}',
       icons: {
