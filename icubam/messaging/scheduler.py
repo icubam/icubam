@@ -65,7 +65,7 @@ class MessageScheduler:
 
   def schedule(self, user, icu, delay: Optional[int] = None) -> bool:
     user_icus = {i.icu_id: i for i in user.icus}
-    if not user.is_active or not icu.is_active or icu.icu_id not in user_icus:
+    if not user.is_active or icu.icu_id not in user_icus:
       user_id, icu_id = user.user_id, icu.icu_id
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return False
