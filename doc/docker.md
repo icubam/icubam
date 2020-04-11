@@ -3,15 +3,15 @@
 This folder contains the scripts and configurations required to launch the application in Docker containers, either
 
 - individually (for debugging purposes, using the `docker/scripts/docker_build.sh`, `docker/scripts/docker_run.sh` and
-`docker/scripts/docker_sms_build.sh` scripts), 
+`docker/scripts/docker_sms_build.sh` scripts),
 - or as a deployment of the application using the
 `docker/docker-compose.yml` script (for a host/VM without nginx/proxy), or the `docker/docker-compose-core.yml` script
 if the host/VM already has nginx installed or an equivalent proxy.
 
 Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the `docker-compose.yml`file.
 
-Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) . 
-The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment 
+Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) .
+The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment
 variable (check the files `start_server.sh` and `start_server_sms.sh`).
 
 ## Docker compose
@@ -36,8 +36,8 @@ The LetsEncryot/certbot setup is based on https://github.com/wmnnd/nginx-certbot
 The `configs` folder stores nginx/certbot configuration files for ssl connection support.
 Certbot configuration files are added at runtime when generating/updating the ssl certificate.
 
-Two nginx configurations are provided, 
-- a `dev` file for testing locally, that only supports http (change https to http 
+Two nginx configurations are provided,
+- a `dev` file for testing locally, that only supports http (change https to http
 and remove port 8888 when using the link provided by the running server).
 - a `prod` file that manages ssl connections for testing on an internet reachable host. Depending on the deployment server name, changes to the `nginx/app.conf` file are required.
 In particular, WEB_HOSTNAME should be replaced with the targeted's URL hostname (e.g., www.example.org)
@@ -51,16 +51,16 @@ Compared to the initial `init-letsencrypt.sh`script, explicit setup of the docke
 
 ### Launching the app
 
-The complete application's containers can be launched using docker compose, either in a full version that also starts 
-nginx and certbot for managin ssl connections (to deploy on à clean VM/host), or just the containers for the app 
-and sms servers in case the VM/host used for the deployment already handles ingress communications (e.g., nginx 
+The complete application's containers can be launched using docker compose, either in a full version that also starts
+nginx and certbot for managin ssl connections (to deploy on à clean VM/host), or just the containers for the app
+and sms servers in case the VM/host used for the deployment already handles ingress communications (e.g., nginx
 deployed on the VM/host).
 
 The two compose files are
 - `docker-compose.yml` for the full version
 - `docker-compose-core.yml` for the app only containers version
 
-To launch the complete install (server, sms server, nginx, certbot containers), use the 
+To launch the complete install (server, sms server, nginx, certbot containers), use the
 `docker-compose up` command, from the root of the project, specifiying explicitely the root
 as the configuration file is in a subfolder.
 
@@ -116,7 +116,7 @@ Delete the server container image
 docker rmi icubam-server
 ```
 
-To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam-server bash` or 
+To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam-server bash` or
 ```
 docker exec -it icubam-server "ls -la"`
 docker exec -it icubam-server bash`
@@ -125,7 +125,7 @@ docker exec -it icubam-server bash`
 ### Issues and debug
 
 
-- After changes in configuration files, make sure a stopped container with the current name do not exist 
+- After changes in configuration files, make sure a stopped container with the current name do not exist
  - Check the files being mounted do exists (hint : if they do not exist, a folder with this name is automatically created by compose).
 - If changes done to configuration files are not visible/performed, check that the proper yml file is used in compose
 - If no URL appears in the log, but the server is otherwise starting properly, the issue usually lies in the database (either not present, or wrong format)
