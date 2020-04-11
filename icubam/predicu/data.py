@@ -379,7 +379,9 @@ DEPARTMENT_POPULATION = load_department_population()
 
 
 def load_combined_icubam_public(
-  icubam_data: pd.DataFrame = None, public_data: pd.DataFrame = None, api_key=None
+  icubam_data: pd.DataFrame = None,
+  public_data: pd.DataFrame = None,
+  api_key=None
 ):
   get_dpt_pop = load_department_population().get
   if public_data is None:
