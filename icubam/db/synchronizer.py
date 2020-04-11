@@ -132,12 +132,12 @@ class StoreSynchronizer:
     # Make sure each bedcount has an existent ICU:
     icu_diff = icu_names - set(db_icus.keys())
     if icu_diff is not None:
-      KeyError("Missing ICUs in DB: {icu_diff}. Please add them first.")
+      raise KeyError("Missing ICUs in DB: {icu_diff}. Please add them first.")
 
     # Now we are sure all ICUs are present so we can insert without checking:
     for bc in bedcounts_df.iterrows():
       if bc['timestamp'].tzinfo != pytz.utc:
-        raise Exception("Timestamps must be in UTC, got {}".forma(bc['timestamp'].tzinfo))
+        raise ValueError("Timestamps must be in UTC, got {}".forma(bc['timestamp'].tzinfo))
       item = bc.to_dict()
       self.db.update_bed_count_for_icu(
         user, store.BedCount(**item), force=not user
