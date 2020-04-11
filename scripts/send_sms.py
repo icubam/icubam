@@ -4,8 +4,11 @@ from absl import logging
 from icubam import config
 from icubam.messaging import sms_sender
 
-flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
-flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
+flags.DEFINE_string('config', config.DEFAULT_CONFIG_PATH, 'Config file.')
+flags.DEFINE_string(
+  'dotenv_path', config.DEFAULT_DOTENV_PATH,
+  'Optionally specifies the .env path.'
+)
 flags.DEFINE_string('phone', None, 'The number to send the sms to.')
 flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 FLAGS = flags.FLAGS
