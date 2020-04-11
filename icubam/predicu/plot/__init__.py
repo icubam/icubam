@@ -155,7 +155,6 @@ def generate_plots(
     data["icubam_data"] = load_icubam_data(api_key=api_key)
   else:
     data["icubam_data"] = icubam_data
-
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(

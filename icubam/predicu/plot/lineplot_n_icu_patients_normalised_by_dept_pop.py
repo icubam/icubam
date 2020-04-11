@@ -9,7 +9,7 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 
 data_source = "combined_icubam_public"
 

@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from ..data import ICU_NAMES_GRAND_EST
-from ..plot import RANDOM_COLORS, RANDOM_MARKERS
+from ..plot import RANDOM_COLORS, RANDOM_MARKERS, plot_int
 
 data_source = "all_data"
 

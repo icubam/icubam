@@ -20,8 +20,7 @@ def plot(data):
   data = (
     data.groupby(["date", "department"]
                  ).agg({col: "sum"
-                        for col in BEDCOUNT_COLUMNS}
-                       ).reset_index()
+                        for col in BEDCOUNT_COLUMNS}).reset_index()
   )
   dfs = []
   for department, d in data.groupby("department"):

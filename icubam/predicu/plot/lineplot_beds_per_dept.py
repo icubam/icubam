@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS
+from ..plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS, plot_int
 
 data_source = "all_data"
 

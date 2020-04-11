@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 from ..flow import compute_flow_per_dpt
 
 data_source = "all_data"

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from ..data import BEDCOUNT_COLUMNS, ICU_NAMES_GRAND_EST
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 
 data_source = "all_data"
 
