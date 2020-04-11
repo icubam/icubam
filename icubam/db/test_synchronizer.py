@@ -1,9 +1,12 @@
 import os
-import time
 import tempfile
-from absl.testing import absltest
-from icubam.db import store, synchronizer
+import time
+
 import sqlalchemy as sqla
+from absl.testing import absltest
+
+from icubam.db import store, synchronizer
+
 
 class SynchronizerTest(absltest.TestCase):
   def setUp(self):
@@ -18,7 +21,8 @@ class SynchronizerTest(absltest.TestCase):
     values = range(amount)
     start_time = time.now()
     for index, value in enumerate(values):
-      bc = {'icu_name': icu_name,
+      bc = {
+        'icu_name': icu_name,
         'n_covid_occ': value,
         'n_covid_free': value,
         'n_ncovid_occ': value,
@@ -26,9 +30,9 @@ class SynchronizerTest(absltest.TestCase):
         'n_covid_deaths': value,
         'n_covid_healed': value,
         'n_covid_refused': value,
-        'n_covid_transfered', value,
-        'timestamp'
-            }
+        'n_covid_transfered': value,
+        'timestamp': value
+      }
       self.store.update_bed_count_for_icu(
         self.admin_user_id,
         BedCount(
@@ -38,10 +42,10 @@ class SynchronizerTest(absltest.TestCase):
         )
       )
     return icu_id
+
   def test_sync_bed_counts(self):
     region_id1 = self.add_region(region_name)
     icu_id = self.add_icu(icu_name, region_id=region_id, is_active=is_active)
-
 
 
 class CSVTest(absltest.TestCase):

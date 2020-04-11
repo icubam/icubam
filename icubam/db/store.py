@@ -308,7 +308,7 @@ class Store(object):
 
     if self.get_icu_by_name(icu.name):
       raise KeyError("ICU Name already present in DB.")
-    
+
     rids = set([i.region_id for i in self.get_managed_icus(admin_user_id)])
     if icu.region_id not in rids:
       raise ValueError("New ICUs can only be created in the manger's region.")
