@@ -379,10 +379,13 @@ DEPARTMENT_POPULATION = load_department_population()
 
 
 def load_combined_icubam_public(
-  icubam_data: pd.DataFrame = None, api_key=None
+  icubam_data: pd.DataFrame = None, public_data: pd.DataFrame = None, api_key=None
 ):
   get_dpt_pop = load_department_population().get
-  dp = load_public_data()
+  if public_data is None:
+    dp = load_public_data()
+  else:
+    dp = public_data
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
   dp = dp.loc[dp.department.isin(DEPARTMENTS_GRAND_EST)]
   di = load_all_data(icubam_data=icubam_data, api_key=api_key)

@@ -128,16 +128,27 @@ def plot(plot_name, data, **plot_args):
   plt.close(fig)
 
 
+DEFAULTS = {
+  "plots": None,
+  "matplotlib_style": "seaborn-whitegrid",
+  "api_key": None,
+  "icubam_data": None,
+  "public_data": None,
+  "output_type": "png",
+  "output_dir": "/tmp",
+}
+
+
 def generate_plots(
-  plots: Optional[List[str]] = None,
-  matplotlib_style: str = "seaborn-whitegrid",
-  api_key: Optional[str] = None,
-  icubam_data: pd.DataFrame = None,
-  output_type: str = "png",
-  output_dir: str = "/tmp/",
+  plots: Optional[List[str]] = DEFAULTS["plots"],
+  matplotlib_style: str = DEFAULTS["matplotlib_style"],
+  api_key: Optional[str] = DEFAULTS["api_key"],
+  icubam_data: pd.DataFrame = DEFAULTS["icubam_data"],
+  public_data: pd.DataFrame = DEFAULTS["public_data"],
+  output_type: str = DEFAULTS["output_type"],
+  output_dir: str = DEFAULTS["output_dir"],
 ):
   plots = sorted(plots)
-  # Note: the default values here should match the defaults in CLI below.
   if plots is None:
     plots = PLOTS
   if not os.path.isdir(output_dir):
@@ -149,7 +160,7 @@ def generate_plots(
   data = {}
   data["all_data"] = load_all_data(icubam_data=icubam_data, api_key=api_key)
   data["combined_icubam_public"] = load_combined_icubam_public(
-    icubam_data=icubam_data, api_key=api_key
+    icubam_data=icubam_data, public_data=public_data, api_key=api_key
   )
   if icubam_data is None:
     data["icubam_data"] = load_icubam_data(api_key=api_key)
