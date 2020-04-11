@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import dotmap
 import toml
 
-DEFAULT_DOTENV_PATH = "resources/.env"
+DEFAULT_DOTENV_PATH = "resources/icubam.env"
 DEFAULT_CONFIG_PATH = "resources/config.toml"
 
 
