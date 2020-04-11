@@ -95,7 +95,7 @@ Note: in order to reload the configuration, the containers (not the image) must 
 Note: One way to quickly set environment variables from a dedicated file
 ```
 set -a
-. $HOMR/icubam_secrets/envars-production.env
+. $HOME/icubam_secrets/envars-production.env
 set -a
 ```
 
