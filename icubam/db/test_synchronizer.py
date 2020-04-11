@@ -13,19 +13,35 @@ class SynchronizerTest(absltest.TestCase):
     self.db = store_factory.create()
     self.csv = synchronizer.CSVSynchcronizer(self.db)
 
-  # def gen_bed_counts(self, amount):
-    # icu_id = self.add_icu(name, region_id=region_id, is_active=is_active)
-    # for index, value in enumerate(values):
+  def gen_bed_counts(self, icu_name, region_name, amount):
+    bed_counts = {}
+    values = range(amount)
+    start_time = time.now()
+    for index, value in enumerate(values):
+      bc = {'icu_name': icu_name,
+        'n_covid_occ': value,
+        'n_covid_free': value,
+        'n_ncovid_occ': value,
+        'n_ncovid_free': value,
+        'n_covid_deaths': value,
+        'n_covid_healed': value,
+        'n_covid_refused': value,
+        'n_covid_transfered', value,
+        'timestamp'
+            }
+      self.store.update_bed_count_for_icu(
+        self.admin_user_id,
+        BedCount(
+          icu_id=icu_id,
+          n_covid_occ=value,
+          create_date=add_seconds(now, index)
+        )
+      )
+    return icu_id
+  def test_sync_bed_counts(self):
+    region_id1 = self.add_region(region_name)
+    icu_id = self.add_icu(icu_name, region_id=region_id, is_active=is_active)
 
-    #   self.store.update_bed_count_for_icu(
-    #     self.admin_user_id,
-    #     BedCount(
-    #       icu_id=icu_id,
-    #       n_covid_occ=value,
-    #       create_date=add_seconds(now, index)
-    #     )
-    #   )
-    # return icu_id
 
 
 class CSVTest(absltest.TestCase):

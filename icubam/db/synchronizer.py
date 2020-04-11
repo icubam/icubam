@@ -1,10 +1,13 @@
 """Synchronize the internal store from an external source."""
-from absl import logging
-from collections import defaultdict
-from icubam.db import store
-import pandas as pd
 import copy
+from collections import defaultdict
 from typing import TextIO
+
+import pandas as pd
+import pytz
+from absl import logging
+
+from icubam.db import store
 
 ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
@@ -16,11 +19,11 @@ BC_COLUMNS = [
 
 
 class StoreSynchronizer:
-  """This will take data from the google sheet and put it into the sqlite DB.
+  """This will take data from pandas DFs and insert it into the store.
 
-  If the ICU name is already present, or the user telephone is already present,
-  then it will *not* get updated.  If there is no existing row then
-  a new row with the ICU or user info will get added."""
+  If ICUs or Users already exists, their data will get updated.
+  If there is no existing row then a new row with the ICU or user info will get added.
+  """
   def __init__(self, store_db):
     self._store = store_db
 
@@ -118,7 +121,7 @@ class StoreSynchronizer:
         except Exception as e:
           logging.error("Cannot add user to icu: {}. Skipping".format(e))
 
-  def sync_bed_counts(self, bedcounts_df):
+  def sync_bed_counts(self, bedcounts_df, user=None):
     raise NotImplementedError("WIP")
     bedcounts_df = bedcounts_df[BC_COLUMNS]
 
@@ -133,9 +136,11 @@ class StoreSynchronizer:
 
     # Now we are sure all ICUs are present so we can insert without checking:
     for bc in bedcounts_df.iterrows():
-      item = None
+      if bc['timestamp'].tzinfo != pytz.utc:
+        raise Exception("Timestamps must be in UTC, got {}".forma(bc['timestamp'].tzinfo))
+      item = bc.to_dict()
       self.db.update_bed_count_for_icu(
-        None, store.BedCount(**item), force=True
+        user, store.BedCount(**item), force=not user
       )
 
 
