@@ -31,7 +31,7 @@ class StoreSynchronizerTest(absltest.TestCase):
       store.ICU(name=name, region_id=region_id, is_active=is_active)
     )
 
-  def gen_bed_counts(self, start_time, icu_name, amount):
+  def gen_bed_count_set(self, start_time, icu_name, amount):
     bed_counts = []
     values = range(amount)
     for value in values:
@@ -50,6 +50,18 @@ class StoreSynchronizerTest(absltest.TestCase):
       bed_counts.append(bc)
     return bed_counts
 
+  def gen_bed_counts(self, start_time, region_names, icu_base_names, num_icus, do_adds=True):
+    bed_counts = []
+    for region_name in region_names:
+      if do_adds:
+        region_id = self.add_region(region_name)
+      for icu_base_name in icu_base_names:
+        icu_name = f'{region_name}_{icu_base_name}'
+        if do_adds:
+          self.add_icu(icu_name, region_id=region_id, is_active=True)
+        bed_counts.extend(self.gen_bed_count_set(start_time, icu_name, num_icus))
+    return bed_counts
+
   def test_sync_bed_counts(self):
     region_names = ['Region1', 'Region2']
     icu_base_names = ['ICU1', 'ICU2', 'ICU3']
@@ -57,25 +69,63 @@ class StoreSynchronizerTest(absltest.TestCase):
     bed_counts = []
     start_time = datetime.now(tz.tzutc())
 
-    for region_name in region_names:
-      region_id = self.add_region(region_name)
-      for icu_base_name in icu_base_names:
-        icu_name = f'{region_name}_{icu_base_name}'
-        icu_id = self.add_icu(icu_name, region_id=region_id, is_active=True)
-        bed_counts.extend(self.gen_bed_counts(start_time, icu_name, num_icus))
+    # Inject a first set of bedcounts
+    bed_counts = self.gen_bed_counts(
+      start_time, region_names, icu_base_names, num_icus
+    )
     bed_counts_df = pd.DataFrame(bed_counts)
     self.sync.sync_bed_counts(bed_counts_df)
+
+    # Make sure the right amount are there
     bedcount = self.db.get_bed_counts()
     self.assertLen(
       bedcount,
       len(region_names) * len(icu_base_names) * num_icus
     )
+
+    # Make sure latests returns just the subset and their times are correct
     bedcount = self.db.get_latest_bed_counts()
     self.assertLen(bedcount, len(region_names) * len(icu_base_names))
     self.assertEqual(
       bedcount[0].create_date.replace(tzinfo=tz.tzutc()),
       bed_counts_df['create_date'].max().to_pydatetime()
     )
+
+    # Make sure if we re-inject we get twice as much back
+    self.sync.sync_bed_counts(bed_counts_df)
+    bedcount = self.db.get_bed_counts()
+    self.assertLen(
+      bedcount,
+      len(region_names) * len(icu_base_names) * num_icus * 2
+    )
+
+    # Now if we re-inject with more future times, make sure they
+    # override the elements in 'latest'
+    bed_counts = self.gen_bed_counts(
+      start_time + timedelta(days=2), region_names, icu_base_names, num_icus, do_adds=False
+    )
+    bed_counts_df = pd.DataFrame(bed_counts)
+    self.sync.sync_bed_counts(bed_counts_df)
+    bedcount = self.db.get_latest_bed_counts()
+    self.assertEqual(
+      bedcount[0].create_date.replace(tzinfo=tz.tzutc()),
+      bed_counts_df['create_date'].max().to_pydatetime()
+    )
+
+  def test_sync_bed_counts_exceptions(self):
+    # Without existent ICU
+    start_time = datetime.now(tz.tzutc())
+    bed_counts_df = pd.DataFrame(self.gen_bed_count_set(start_time, 'Test', 10))
+    with self.assertRaises(KeyError):
+      self.sync.sync_bed_counts(bed_counts_df)
+
+    # Without UTC Time
+    region_id = self.add_region('Region')
+    icu_id = self.add_icu('ICU', region_id=region_id, is_active=True)
+    start_time = datetime.now()
+    bed_counts_df = pd.DataFrame(self.gen_bed_count_set(start_time, 'ICU', 10))
+    with self.assertRaises(ValueError):
+      self.sync.sync_bed_counts(bed_counts_df)
 
 
 class CSVTest(absltest.TestCase):

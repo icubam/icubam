@@ -138,7 +138,7 @@ class StoreSynchronizer:
     for idx, bc in bedcounts_df.iterrows():
       if bc['create_date'].tzinfo != tz.tzutc():
         raise ValueError(
-          "Timestamps must be in UTC, got {}".forma(bc['create_date'].tzinfo)
+          "Timestamps must be in UTC, got {}".format(bc['create_date'].tzinfo)
         )
       item = bc.to_dict()
       # Replace icu_name with corresponding ID:
