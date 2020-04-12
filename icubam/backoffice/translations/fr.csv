@@ -34,3 +34,5 @@
 "second","seconde","singular"
 "second","secondes","plural"
 "{delta} {units} ago","il y a {delta} {units}"
+"never","jamais"
+"now","à l'instant"

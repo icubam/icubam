@@ -35,12 +35,11 @@ class ListBedCountsHandler(base.BaseHandler):
     stale = time_utils.is_stale(
       last, days_threshold=self.config.server.num_days_for_stale
     )
-    sort_date = last
     result.append({
       'key': 'since_update',
       'value': display_date,
       'warning': stale,
-      'sort_value': sort_date,
+      'sort_value': 0 if last is None else last,
       'link': False,
     })
     return result
