@@ -51,7 +51,7 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   def get(self):
     builder = map_builder.MapBuilder(self.config, self.db)
     regions = None
-    if self.regions is not None:
+    if self.regions:
       regions = [r.region_id for r in self.regions]
     data, center = builder.prepare_jsons(
       user_id=None, center_icu=None, regions=regions, level='dept'

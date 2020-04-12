@@ -52,7 +52,7 @@ class MapBuilder:
   ):
     tree = icu_tree.ICUTree()
     icus = self.db.get_icus()
-    if regions is not None and len(regions) > 0:
+    if regions:
       icus = [icu for icu in icus if icu.region_id in regions]
     tree.add_many(icus, self.db.get_latest_bed_counts())
     data = self.to_map_data(tree, level)
