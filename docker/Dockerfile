@@ -1,7 +1,7 @@
 # ARG required due to build option in docker-compose
 ARG ENV_MODE
 
-FROM ubuntu:18.04
+FROM python:3.7
 
 # silence error messages
 ENV TERM linux
@@ -10,31 +10,11 @@ ENV TERM linux
 ENV BASH_ENV ~/.bashrc
 SHELL ["/bin/bash", "-c"]
 
-# comment out the line in the default .bashrc that does an early exit if not in
-# interactive mode. It should be noted that the -i option of docker run does
-# not launch the shell in interactive mode. CCheck Dockerfile.3 for a demo.
-RUN sed -e '/[\ -z \"\$PS1\"\ ]\ &&\ return/ s/^#*/#/' -i /root/.bashrc
-
 # General installs in the docker
-RUN apt-get -y update && apt-get -y upgrade
-
-RUN apt-get -y install \
-    apt-utils \
-    build-essential \
-    software-properties-common
-
-RUN apt-get install -y \
-    curl \
-	git \
-	screen \
-	ufw \
-    vim \
-	wget
-
-# Install miniconda and add to PATH
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-RUN sh Miniconda3-latest-Linux-x86_64.sh -b
-ENV PATH /root/miniconda3/bin:$PATH
+RUN apt-get -y update \
+    && apt-get install -y git \
+       wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # expose ports for flask app - both server and backoffice
 EXPOSE 8888 8890
@@ -57,15 +37,14 @@ COPY icubam icubam
 COPY scripts scripts
 # create resource folder
 RUN  mkdir resources
+
 # copy specific files on root folder
-COPY doc/install.md LICENSE pyproject.toml README.md requirements.txt setup.py ./
+COPY LICENSE pyproject.toml README.md requirements.txt setup.py ./
+
 # pip/setup tools requires version inside .git
 COPY .git ./.git
 
-# prepare for the conda environment
-RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
-RUN conda create -n icubam python=3.8
-RUN conda activate icubam && pip install -r requirements.txt && pip install -e .
+RUN pip install -r requirements.txt && pip install -e .
 
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
