@@ -34,5 +34,8 @@
 "second","seconde","singular"
 "second","secondes","plural"
 "{delta} {units} ago","il y a {delta} {units}"
+<<<<<<< HEAD
 "never","jamais"
 "now","à l'instant"
+=======
+>>>>>>> 578073712ad1fafcee796e43cf384c89e4b434e2
