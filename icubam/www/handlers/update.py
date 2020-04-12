@@ -30,16 +30,23 @@ class UpdateHandler(base.BaseHandler):
   def authenticate_from_token(self, user_token):
     input_data = self.token_encoder.decode(user_token)
     if input_data is None:
+      logging.error("No token to be found.")
       return None, None
 
     userid = int(input_data.get('user_id', -1))
     user = self.db.get_user(userid)
     if user is None:
+      logging.error(f"User does not exist.")
       return None, None
 
     icuid = int(input_data.get('icu_id', -1))
     user_icu_ids = [i.icu_id for i in user.icus]
     if icuid not in user_icu_ids:
+      logging.error(f"User does not belong the ICU.")
+      return None, None
+
+    if user.consent is not None and not user.consent:
+      logging.error(f"User has bailed out from ICUBAM.")
       return None, None
 
     return user, input_data
