@@ -5,7 +5,7 @@ import numpy as np
 from ..data import CUM_COLUMNS
 from ..plot import COLUMN_TO_HUMAN_READABLE
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):

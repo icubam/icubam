@@ -6,7 +6,7 @@ import seaborn as sns
 
 from ..data import load_icu_name_to_department, format_data
 
-data_source = "icubam_data"
+data_source = "icubam"
 
 
 def plot(data):

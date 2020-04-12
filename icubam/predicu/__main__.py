@@ -3,7 +3,7 @@ import datetime
 import logging
 import os
 
-from .data import load_all_data
+from .data import load_bedcounts
 
 
 def export_data(args):
@@ -17,7 +17,7 @@ def export_data(args):
   datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
   filename = "predicu_data_clean_{}.csv".format(datetimestr)
   path = os.path.join(output_dir, filename)
-  d = load_all_data(clean=True, api_key=args.api_key, max_date=args.max_date)
+  d = load_bedcounts(clean=True, api_key=args.api_key, max_date=args.max_date)
   d.to_csv(path)
   logging.info("export DONE.")
 

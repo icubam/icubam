@@ -8,7 +8,7 @@ import pandas as pd
 from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
 from ..plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS, plot_int
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
@@ -18,12 +18,12 @@ def plot(data):
   data = data.reset_index()
 
   fig, ax = plt.subplots(1, figsize=(7, 4))
-  date_idx_range = np.arange(len(data.date.unique()))
   for department, dg in data.groupby("department"):
     dg = dg.sort_values(by="date")
-    y = dg.n_covid_occ  # + dg.n_covid_transfered.diff(1).fillna(0)
+    x = np.arange(len(dg))
+    y = dg.n_covid_occ.values  # + dg.n_covid_transfered.diff(1).fillna(0)
     plot_int(
-      date_idx_range,
+      x,
       y,
       ax=ax,
       color=DEPARTMENT_GRAND_EST_COLOR[department],

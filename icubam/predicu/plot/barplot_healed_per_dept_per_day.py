@@ -9,10 +9,10 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
+from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS, DEPARTMENTS_GRAND_EST
 from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):

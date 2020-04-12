@@ -13,7 +13,7 @@ from ..plot import (
   COL_COLOR, COLUMN_TO_HUMAN_READABLE, RANDOM_MARKERS, plot_int
 )
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):

@@ -9,7 +9,7 @@ import seaborn as sns
 
 from ..data import DEPARTMENT_POPULATION, ICU_NAMES_GRAND_EST
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):

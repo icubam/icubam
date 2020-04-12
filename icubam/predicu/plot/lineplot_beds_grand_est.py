@@ -12,7 +12,7 @@ import pandas as pd
 from ..data import ICU_NAMES_GRAND_EST
 from ..plot import RANDOM_COLORS, RANDOM_MARKERS, plot_int
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):

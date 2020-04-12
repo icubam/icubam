@@ -1,7 +1,7 @@
 import itertools
 import logging
 import os
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -12,8 +12,8 @@ import scipy
 import seaborn
 
 from ..data import (
-  BEDCOUNT_COLUMNS, DEPARTMENTS, DEPARTMENTS_GRAND_EST, load_all_data,
-  load_combined_icubam_public, load_icubam_data
+  BEDCOUNT_COLUMNS, DATA_PATHS, DEPARTMENTS, DEPARTMENTS_GRAND_EST,
+  load_if_not_cached
 )
 
 COLUMN_TO_HUMAN_READABLE = {
@@ -67,6 +67,16 @@ DEPARTMENT_GRAND_EST_COLOR = {
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
 
+DEFAULTS = {
+  "plots": None,
+  "matplotlib_style": "seaborn-whitegrid",
+  "api_key": None,
+  "icubam_data": None,
+  "public_data": None,
+  "output_type": "png",
+  "output_dir": "/tmp",
+}
+
 
 def plot_int(
   x,
@@ -103,16 +113,25 @@ for path in os.listdir(os.path.dirname(__file__)):
     PLOTS.append(plot_name)
 
 
-def plot(plot_name, data, **plot_args):
+def plot(
+  plot_name: str,
+  cached_data: Dict[str, pd.DataFrame],
+  output_dir: str = DEFAULTS["output_dir"],
+  output_type: str = DEFAULTS["output_type"],
+  api_key: str = DEFAULTS["api_key"],
+  matplotlib_style: str = DEFAULTS["matplotlib_style"],
+):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot
   data_source = plot_module.data_source
+  cached_data[data_source] = load_if_not_cached(
+    data_source, cached_data, api_key=api_key
+  )
   matplotlib.use("agg")
-  matplotlib.style.use(plot_args["matplotlib_style"])
-  fig, tikzplotlib_kwargs = plot_fun(data=data[data_source].copy())
-  output_type = plot_args["output_type"]
-  if plot_args["output_type"] == "tex":
-    output_path = os.path.join(plot_args["output_dir"], f"{plot_name}.tex")
+  matplotlib.style.use(matplotlib_style)
+  fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source].copy())
+  if output_type == "tex":
+    output_path = os.path.join(output_dir, f"{plot_name}.tex")
     __import__("tikzplotlib").save(
       filepath=output_path,
       figure=fig,
@@ -120,57 +139,34 @@ def plot(plot_name, data, **plot_args):
       standalone=True,
     )
   elif output_type in ["png", "pdf"]:
-    fig.savefig(
-      os.path.join(plot_args["output_dir"], f"{plot_name}.{output_type}")
-    )
+    fig.savefig(os.path.join(output_dir, f"{plot_name}.{output_type}"))
   else:
     raise ValueError(f"Unknown output type: {output_type}")
   plt.close(fig)
-
-
-DEFAULTS = {
-  "plots": None,
-  "matplotlib_style": "seaborn-whitegrid",
-  "api_key": None,
-  "icubam_data": None,
-  "public_data": None,
-  "output_type": "png",
-  "output_dir": "/tmp",
-}
 
 
 def generate_plots(
   plots: Optional[List[str]] = DEFAULTS["plots"],
   matplotlib_style: str = DEFAULTS["matplotlib_style"],
   api_key: Optional[str] = DEFAULTS["api_key"],
-  icubam_data: pd.DataFrame = DEFAULTS["icubam_data"],
-  public_data: pd.DataFrame = DEFAULTS["public_data"],
   output_type: str = DEFAULTS["output_type"],
   output_dir: str = DEFAULTS["output_dir"],
 ):
-  plots = sorted(plots)
   if plots is None:
     plots = PLOTS
+  plots = sorted(plots)
   if not os.path.isdir(output_dir):
     logging.info("creating directory %s" % output_dir)
     os.makedirs(output_dir)
   plots_unknown = set(plots).difference(PLOTS)
   if plots_unknown:
     raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
-  data = {}
-  data["all_data"] = load_all_data(icubam_data=icubam_data, api_key=api_key)
-  data["combined_icubam_public"] = load_combined_icubam_public(
-    icubam_data=icubam_data, public_data=public_data, api_key=api_key
-  )
-  if icubam_data is None:
-    data["icubam_data"] = load_icubam_data(api_key=api_key)
-  else:
-    data["icubam_data"] = icubam_data
+  cached_data = dict()
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(
       name,
-      data=data,
+      cached_data=cached_data,
       matplotlib_style=matplotlib_style,
       output_dir=output_dir,
       output_type=output_type,

@@ -11,7 +11,7 @@ import scipy.stats
 
 from ..plot import RANDOM_COLORS
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):

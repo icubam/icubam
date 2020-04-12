@@ -11,7 +11,7 @@ import scipy.stats
 
 from ..plot import DEPARTMENT_GRAND_EST_COLOR
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):

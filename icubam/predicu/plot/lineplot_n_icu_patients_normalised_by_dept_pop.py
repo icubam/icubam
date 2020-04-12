@@ -11,7 +11,7 @@ import pandas as pd
 
 from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):

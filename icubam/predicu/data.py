@@ -4,6 +4,7 @@ import logging
 import os
 import pickle
 import urllib.request
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -11,9 +12,12 @@ from lxml import html
 
 BASE_PATH = os.path.dirname(__file__)
 
+DATA_SOURCES = {
+  "icubam", "pre_icubam", "bedcounts", "public", "combined_bedcounts_public"
+}
+
 DATA_PATHS = {
   "icu_name_to_department": "data/icu_name_to_department.json",
-  "pre_icubam": "data/pre_icubam_data.csv",
   "department_population": "data/department_population.csv",
   "departments": "data/france_departments.json",
 }
@@ -44,17 +48,32 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
 }
 
 
-def load_all_data(
+def load_if_not_cached(data_source, cached_data, **kwargs):
+  if data_source not in DATA_SOURCES:
+    raise ValueError(f"Unknown data source: {data_source}")
+  load_data_fun = globals().get(f"load_{data_source}", None)
+  if load_data_fun is None:
+    raise RuntimeError(
+      f"No loading function associated to data source {data_source}"
+    )
+  if cached_data is None or data_source not in cached_data:
+    return load_data_fun(cached_data=cached_data, **kwargs)
+  return cached_data[data_source]
+
+
+def load_bedcounts(
   clean=True,
   spread_cum_jump_correction=False,
   api_key=None,
   max_date=None,
-  icubam_data: pd.DataFrame = None,
-  load_pre_icubam_data: bool = False,
+  cached_data=None,
+  pre_icubam_data_path=None,
 ):
-  icubam = load_icubam_data(data=icubam_data, api_key=api_key)
-  if load_pre_icubam_data:
-    pre_icubam = load_pre_icubam_data()
+  icubam = load_if_not_cached("icubam", cached_data, api_key=api_key)
+  if pre_icubam_data_path is not None:
+    pre_icubam = load_if_not_cached(
+      "pre_icubam", cached_data, data_path=pre_icubam_data_path
+    )
     dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
     pre_icubam = pre_icubam.loc[~pre_icubam.date.isin(dates_in_both)]
     d = pd.concat([pre_icubam, icubam])
@@ -69,12 +88,8 @@ def load_all_data(
   return d
 
 
-def load_icubam_data(data=None, api_key=None):
-  if data is not None:
-    d = data
-  elif "icubam" in DATA_PATHS:
-    d = load_data_file(DATA_PATHS["icubam"])
-  elif api_key is None:
+def load_icubam(cached_data=None, api_key=None):
+  if api_key is None:
     raise RuntimeError("Provide API key to download ICUBAM data")
   else:
     url = (
@@ -95,8 +110,8 @@ def load_icubam_data(data=None, api_key=None):
   return d
 
 
-def load_pre_icubam_data():
-  d = load_data_file(DATA_PATHS["pre_icubam"])
+def load_pre_icubam(data_path, cached_data=None):
+  d = load_data_file(data_path)
   d = d.rename(
     columns={
       "Hopital": "icu_name",
@@ -312,7 +327,7 @@ def load_france_departments():
   return pd.read_json(DATA_PATHS["departments"])
 
 
-def load_public_data():
+def load_public(cached_data=None):
   filename_prefix = "donnees-hospitalieres-covid19-2020"
   logging.info("scrapping public data")
   url = (
@@ -378,19 +393,12 @@ DEPARTMENT_TO_CODE = dict(
 DEPARTMENT_POPULATION = load_department_population()
 
 
-def load_combined_icubam_public(
-  icubam_data: pd.DataFrame = None,
-  public_data: pd.DataFrame = None,
-  api_key=None
-):
+def load_combined_bedcounts_public(api_key=None, cached_data=None):
   get_dpt_pop = load_department_population().get
-  if public_data is None:
-    dp = load_public_data()
-  else:
-    dp = public_data
+  dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
   dp = dp.loc[dp.department.isin(DEPARTMENTS_GRAND_EST)]
-  di = load_all_data(icubam_data=icubam_data, api_key=api_key)
+  di = load_if_not_cached("bedcounts", cached_data)
   di = di.loc[di.icu_name.isin(ICU_NAMES_GRAND_EST)]
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
