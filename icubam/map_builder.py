@@ -43,14 +43,16 @@ class MapBuilder:
     result.sort(key=lambda x: x['lat'], reverse=True)
     return result
 
-  def prepare_jsons(self,
-                    user_id: Optional[int] = None,
-                    center_icu: Optional[store.ICU] = None,
-                    regions: Optional[List[int]] = None,
-                    level: str = 'dept'):
+  def prepare_jsons(
+    self,
+    user_id: Optional[int] = None,
+    center_icu: Optional[store.ICU] = None,
+    regions: Optional[List[int]] = None,
+    level: str = 'dept'
+  ):
     tree = icu_tree.ICUTree()
     icus = self.db.get_icus()
-    if regions:
+    if regions is not None and len(regions) > 0:
       icus = [icu for icu in icus if icu.region_id in regions]
     tree.add_many(icus, self.db.get_latest_bed_counts())
     data = self.to_map_data(tree, level)
