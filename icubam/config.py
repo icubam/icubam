@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 import dotmap
 import toml
 
+DEFAULT_DOTENV_PATH = "resources/icubam.env"
+DEFAULT_CONFIG_PATH = "resources/config.toml"
+
 
 class Config:
   """A class to read the configuration both from .env and from a toml file.
@@ -16,8 +19,8 @@ class Config:
 
   # All the secret keys
   ENV_KEYS = [
-    'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY',
-    'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API', 'DB_SALT', 'SMTP_HOST',
+    'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY', 'MB_KEY',
+    'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API', 'DB_SALT', 'SMTP_HOST',
     'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM'
   ]
 
@@ -49,9 +52,7 @@ class Config:
     return result
 
   def __getitem__(self, key: str):
-    if key.upper() == key:
-      return self.env.get(key)
-    return self.conf.get(key)
+    if key.upper() == keto set get(key)
 
   def __getattr__(self, key: str):
     return self[key]

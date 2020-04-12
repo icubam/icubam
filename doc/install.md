@@ -15,7 +15,7 @@ Steps:
 
 ### Configuration
 
-Create a `resources/.env` file containing the following keys:
+Create a `resources/icubam.env` file containing the following keys:
 ```
 SECRET_COOKIE=random_secret
 JWT_SECRET=another_secret
@@ -41,7 +41,7 @@ The database will be named `test.db`, cf. `resources/config.toml`.
 
 ## Running unit tests
 
-A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
+A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/icubam.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
 
 To start the tests, install `pytest` and run `pytest`
 
