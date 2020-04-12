@@ -86,7 +86,7 @@ class BackOfficeServer(base_server.BaseServer):
         }
       ))
 
-    for folder in ['dist', 'pages', 'plugins', 'static']:
+    for folder in ['dist', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
       folder = '' if folder == 'static' else folder
       self.routes.append((
