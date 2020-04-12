@@ -38,6 +38,7 @@ def is_stale(ts, ts_reference=None, days_threshold=1) -> bool:
 
   if ts_reference is None:
     ts_reference = int(datetime.datetime.utcnow().timestamp())
+
   delta = int(ts_reference - ts)
   return delta > days_threshold * 86400
 
