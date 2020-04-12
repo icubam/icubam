@@ -129,10 +129,6 @@ html {
   color: red;
 }
 
-.stale-item {
-  background-color: #ddd!important;
-}
-
 .explanation {
   font-size: 12px;
   margin-left: 5px;
