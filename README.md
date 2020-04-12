@@ -18,7 +18,7 @@ dans les USI en leur envoyant des SMS avec un lien HTTP vers un formulaire
 qu'ils peuvent remplir en 15 secondes, montre en main.
 
 ![map](https://icubam.github.io/assets/images/map.jpg)
-
+![steps](https://icubam.github.io/assets/images/workflow_icubam.png)
 ## More information about ICUBAM
 
 This software stack is currently being used by the ICU system in Eastern France
