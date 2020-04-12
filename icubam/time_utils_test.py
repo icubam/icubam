@@ -59,6 +59,5 @@ class TimeUtilsTest(absltest.TestCase):
     self.assertFalse(time_utils.is_stale(ts, ref, days_threshold=2))
 
 
-
 if __name__ == '__main__':
   absltest.main()
