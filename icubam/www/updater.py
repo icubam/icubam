@@ -24,13 +24,14 @@ class Updater:
     self.token_encoder = token.TokenEncoder(self.config)
 
   def get_user_url(self, user, icu_id: str) -> str:
-    icu_name = {i.icu_id: i.name for i in user.icus}.get(icu_id, '-')
-    return self.get_url(icu_id, icu_name)
+    icu = {i.icu_id: i for i in user.icus}.get(icu_id, None)
+    if icu is not None:
+      return self.get_url(user, icu)
 
-  def get_url(self, icu_id: str, icu_name: str) -> str:
+  def get_url(self, user, icu) -> str:
     return "{}{}?id={}".format(
       self.config.server.base_url, self.ROUTE.strip('/'),
-      self.token_encoder.encode_icu(icu_id, icu_name)
+      self.token_encoder.encode_data(user, icu)
     )
 
   def get_urls(self):

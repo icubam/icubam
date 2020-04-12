@@ -50,7 +50,10 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   def get(self):
     locale = self.get_user_locale()
     builder = map_builder.MapBuilder(self.config, self.db, locale)
-    data, center = builder.prepare_jsons(None, center_icu=None, level='dept')
+    regions = [r.region_id for r in self.regions] if self.regions else None
+    data, center = builder.prepare_jsons(
+      None, center_icu=None, regions=regions, level='dept'
+    )
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,

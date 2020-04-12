@@ -27,7 +27,7 @@ def main(argv):
   encoder = token.TokenEncoder(cfg)
   for user in sqldb.get_users():
     for icu in user.icus:
-      print(encoder.encode_icu(icu.name, icu.icu_id))
+      print(encoder.encode_data(user, icu))
       if not FLAGS.all:
         exit()
 
