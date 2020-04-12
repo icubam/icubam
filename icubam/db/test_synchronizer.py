@@ -50,7 +50,9 @@ class StoreSynchronizerTest(absltest.TestCase):
       bed_counts.append(bc)
     return bed_counts
 
-  def gen_bed_counts(self, start_time, region_names, icu_base_names, num_icus, do_adds=True):
+  def gen_bed_counts(
+    self, start_time, region_names, icu_base_names, num_icus, do_adds=True
+  ):
     bed_counts = []
     for region_name in region_names:
       if do_adds:
@@ -59,7 +61,9 @@ class StoreSynchronizerTest(absltest.TestCase):
         icu_name = f'{region_name}_{icu_base_name}'
         if do_adds:
           self.add_icu(icu_name, region_id=region_id, is_active=True)
-        bed_counts.extend(self.gen_bed_count_set(start_time, icu_name, num_icus))
+        bed_counts.extend(
+          self.gen_bed_count_set(start_time, icu_name, num_icus)
+        )
     return bed_counts
 
   def test_sync_bed_counts(self):
@@ -102,7 +106,11 @@ class StoreSynchronizerTest(absltest.TestCase):
     # Now if we re-inject with more future times, make sure they
     # override the elements in 'latest'
     bed_counts = self.gen_bed_counts(
-      start_time + timedelta(days=2), region_names, icu_base_names, num_icus, do_adds=False
+      start_time + timedelta(days=2),
+      region_names,
+      icu_base_names,
+      num_icus,
+      do_adds=False
     )
     bed_counts_df = pd.DataFrame(bed_counts)
     self.sync.sync_bed_counts(bed_counts_df)
@@ -115,7 +123,9 @@ class StoreSynchronizerTest(absltest.TestCase):
   def test_sync_bed_counts_exceptions(self):
     # Without existent ICU
     start_time = datetime.now(tz.tzutc())
-    bed_counts_df = pd.DataFrame(self.gen_bed_count_set(start_time, 'Test', 10))
+    bed_counts_df = pd.DataFrame(
+      self.gen_bed_count_set(start_time, 'Test', 10)
+    )
     with self.assertRaises(KeyError):
       self.sync.sync_bed_counts(bed_counts_df)
 

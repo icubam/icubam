@@ -29,10 +29,7 @@ class StoreSynchronizer:
 
   def prepare(self):
     # Gather the managers and admins already present
-    users = {
-      user.telephone: (user, user.icus)
-      for user in self.db.get_users()
-    }
+    users = {user.telephone: (user, user.icus) for user in self.db.get_users()}
     self._managers = defaultdict(list)
     self._default_admin = None
     for user, icus in users.values():
@@ -67,9 +64,7 @@ class StoreSynchronizer:
             self._default_admin, store.Region(name=region)
           )
           logging.info("Adding Region {}".format(region))
-        icu_dict['region_id'] = self.db.get_region_by_name(
-          region
-        ).region_id
+        icu_dict['region_id'] = self.db.get_region_by_name(region).region_id
 
       # If an ICU exists with the same name, update:
       if db_icu is not None:
