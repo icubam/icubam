@@ -33,6 +33,7 @@ class ICUTree:
     self.lat = 0.0
     self.long = 0.0
     self.color = get_color(self.ratio)
+    self.timestamp = 0
     self.children = dict()
 
   def as_dict(self):
@@ -65,6 +66,7 @@ class ICUTree:
       self.death += bedcount.n_covid_deaths
     if bedcount.n_covid_healed:
       self.healed += bedcount.n_covid_healed
+    self.timestamp = max(self.timestamp, bedcount.create_date)
 
   def set_basic_information(self, icu):
     if self.label is None:

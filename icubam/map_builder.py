@@ -1,11 +1,13 @@
 from absl import logging
+import functools
 import os.path
 import json
 from typing import List, Dict
 import tornado.template
 
-from icubam.db import store
 from icubam import icu_tree
+from icubam import time_utils
+from icubam.db import store
 
 
 class MapBuilder:
@@ -34,7 +36,12 @@ class MapBuilder:
           'beds': sorted(icus, key=lambda x: x.label)
         },
       ]
-      popup = self.popup_template.generate(cluster=cluster, views=views)
+      is_stale = functools.partial(
+        time_utils.is_stale(days_threshold=self.config.server.num_days_for_stale)
+      )
+      popup = self.popup_template.generate(
+        cluster=cluster, views=views, is_stale=is_stale
+      )
       curr = {'popup': popup.decode()}
       curr.update(cluster.as_dict())
       result.append(curr)
