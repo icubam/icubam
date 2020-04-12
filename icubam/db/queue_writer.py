@@ -12,11 +12,12 @@ class QueueWriter:
     async for item in self.queue:
       try:
         item.pop('icu_name', None)
-        # Here we do not necessarily have acccess to the user.
-        # We force the update.
-        # TODO(olivier): should we send the user id in the token?
-        self.db.update_bed_count_for_icu(
-          None, store.BedCount(**item), force=True
-        )
+        item.pop('user_name', None)
+        user_id = item.pop('user_id', None)
+        if user_id is None:
+          logging.error("No user in request")
+          return
+
+        self.db.update_bed_count_for_icu(user_id, store.BedCount(**item))
       finally:
         self.queue.task_done()

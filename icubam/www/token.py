@@ -10,8 +10,7 @@ class TokenEncoder:
 
   def encode(self, value) -> str:
     data = {self.KEY: value}
-    as_bytes = jwt.encode(data, self.config.JWT_SECRET, algorithm='HS256')
-    return as_bytes.decode()
+    return jwt.encode(data, self.config.JWT_SECRET, algorithm='HS256').decode()
 
   def decode(self, token: str):
     try:
@@ -21,5 +20,10 @@ class TokenEncoder:
       return
     return obj.get(self.KEY, None)
 
-  def encode_icu(self, icu_id: int, icu_name: str) -> str:
-    return self.encode({'icu_id': icu_id, 'icu_name': icu_name})
+  def encode_data(self, user, icu) -> str:
+    return self.encode({
+      'icu_id': icu.icu_id,
+      'icu_name': icu.name,
+      'user_id': user.user_id,
+      'user_name': user.name
+    })
