@@ -5,7 +5,7 @@ from unittest import mock, SkipTest
 from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
-  base, home, login, logout, users, tokens, icus, dashboard,
+  base, home, login, logout, users, tokens, icus, bedcounts,
   operational_dashboard, regions, messages, maps
 )
 
@@ -57,7 +57,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       tokens.TokenHandler,
       regions.ListRegionsHandler,
       regions.RegionHandler,
-      dashboard.ListBedCountsHandler,
+      bedcounts.ListBedCountsHandler,
       operational_dashboard.OperationalDashHandler,
       messages.ListMessagesHandler,
       maps.MapsHandler,
