@@ -18,7 +18,7 @@ FLAGS = flags.FLAGS
 
 def add_pre_icubam_bed_counts(pre_icubam_data_path, csv_synchronizer):
   d = load_pre_icubam_data(data_path=pre_icubam_data_path)
-  d["timestamp"] = d.datetime.dt.localize("Europe/Paris")
+  d["create_date"] = d.datetime.dt.tz_localize("Europe/Paris")
   csv_synchronizer.sync_bed_counts(d[list(synchronizer.BC_COLUMNS)])
 
 
