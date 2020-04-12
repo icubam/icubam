@@ -15,7 +15,6 @@ class HomeHandler(base.BaseHandler):
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.token_encoder = token.TokenEncoder(self.config)
-    self.builder = map_builder.MapBuilder(config, self.db)
 
   @tornado.web.authenticated
   def get(self):
@@ -29,7 +28,9 @@ class HomeHandler(base.BaseHandler):
       logging.error('No such ICU {}'.format(icu_data['icu_id']))
       return None
 
-    data, center = self.builder.prepare_jsons(
+    locale = self.get_user_locale()
+    builder = map_builder.MapBuilder(self.config, self.db, locale)
+    data, center = builder.prepare_jsons(
       None, center_icu=icu, level='dept'
     )
     return self.render(
@@ -49,7 +50,8 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def get(self):
-    builder = map_builder.MapBuilder(self.config, self.db)
+    locale = self.get_user_locale()
+    builder = map_builder.MapBuilder(self.config, self.db, locale)
     data, center = builder.prepare_jsons(None, center_icu=None, level='dept')
     return self.render(
       'index.html',

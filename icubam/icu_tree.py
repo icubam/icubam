@@ -66,7 +66,7 @@ class ICUTree:
       self.death += bedcount.n_covid_deaths
     if bedcount.n_covid_healed:
       self.healed += bedcount.n_covid_healed
-    self.timestamp = max(self.timestamp, bedcount.create_date)
+    self.timestamp = max(self.timestamp, bedcount.create_date.timestamp())
 
   def set_basic_information(self, icu):
     if self.label is None:

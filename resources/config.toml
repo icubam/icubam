@@ -29,12 +29,12 @@ default_locale='fr-fr'
   PORT = 8888  # will be lower cased when reading.
   base_url = "http://localhost:8888/"
   upload_dir = "uploads/"
-  num_days_for_stale = 1
+  num_days_for_stale = 0.5
   [server.prod]
   port = 443
   base_url = "https://test.icubam.net/"
   upload_dir = "uploads/"
-  num_days_for_stale = 1
+  num_days_for_stale = 0.5
 
 [messaging]
   [messaging.dev]
