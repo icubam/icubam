@@ -7,7 +7,6 @@ from icubam.backoffice.handlers import base
 class MapsHandler(base.BaseHandler):
   ROUTE = "map"
 
-
   @tornado.web.authenticated
   def get(self):
     locale = self.get_user_locale()

@@ -37,8 +37,12 @@ class BaseHandler(tornado.web.RequestHandler):
     route = None if create_handler is None else create_handler.ROUTE
     columns = json.dumps([x['key'] for x in data[0]])
     return self.render(
-      "list.html", data=data, columns=columns, objtype=objtype,
-      create_route=route, **kwargs
+      "list.html",
+      data=data,
+      columns=columns,
+      objtype=objtype,
+      create_route=route,
+      **kwargs
     )
 
   def get_template_path(self):
