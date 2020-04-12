@@ -34,8 +34,8 @@ class ListICUsHandler(base.BaseHandler):
       icus = self.db.get_managed_icus(self.user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    return self.render(
-      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE
+    return self.render_list(
+      data=data, objtype='ICUs', create_handler=ICUHandler
     )
 
 
