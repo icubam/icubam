@@ -17,11 +17,9 @@ Steps:
 
 Create a `resources/icubam.env` file containing the following keys:
 ```
-SHEET_ID=
-TOKEN_LOC=
 SECRET_COOKIE=random_secret
 JWT_SECRET=another_secret
-GOOGLE_API_KEY=
+GOOGLE_API_KEY=a google maps api key
 TW_KEY=
 TW_API=
 DB_SALT=
