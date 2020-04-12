@@ -22,14 +22,24 @@ class ListBedCountsHandler(base.BaseHandler):
     bed_count = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
     bed_count_dict = bed_count.to_dict(max_depth=0)
     locale = self.get_user_locale()
-    last = bed_count_dict.pop('last_modified', None)
+    last = bed_count_dict.pop('create_date', None)
     last = None if last is None else last.timestamp()
     for key in ['rowid', 'icu_id', 'message', 'create_date', 'icu']:
       bed_count_dict.pop(key, None)
-    bed_count_dict['since_update'] = time_utils.localewise_time_ago(
-      last, locale=locale
-    )
     result.extend(self.format_list_item(bed_count_dict))
+
+    display_date = time_utils.localewise_time_ago(last, locale=locale)
+    stale = time_utils.is_stale(
+      last, days_threshold=self.config.server.num_days_for_stale
+    )
+    sort_date = last
+    result.append({
+      'key': 'since_update',
+      'value': display_date,
+      'warning': stale,
+      'sort_value': sort_date,
+      'link': False,
+    })
     return result
 
   @tornado.web.authenticated

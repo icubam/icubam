@@ -6,8 +6,11 @@ from absl import logging
 from icubam import config
 from icubam.db import store
 
-flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
-flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
+flags.DEFINE_string('config', config.DEFAULT_CONFIG_PATH, 'Config file.')
+flags.DEFINE_string(
+  'dotenv_path', config.DEFAULT_DOTENV_PATH,
+  'Optionally specifies the .env path.'
+)
 flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_string('name', None, 'Meta data.')
 flags.DEFINE_string('email', None, 'Meta data.')

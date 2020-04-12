@@ -8,7 +8,6 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-
 <script src="static/navigate.js"></script>
 {% end %}
 
@@ -66,6 +65,12 @@
                     <i class="fas fa-times text-danger"></i>
                   {% else %}
                     {{item['value']}}
+                    {% if item.get('warning', False) %}
+                      <i class='fas fa-exclamation-triangle text-danger'></i>
+                    {% end %}
+                    {% if 'sort_value' in item %}
+                    ::{{item['sort_value']}}
+                    {% end %}
                   {% end %}
                   </td>
                 {% end %}
@@ -95,6 +100,7 @@
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 <script src="static/table.js"></script>
 <script>
-  $(x => setDatatable("#my_data"))
+  let columns = {% raw columns %}
+  $(x => setDatatable("#my_data", columns))
 </script>
 {% end %}

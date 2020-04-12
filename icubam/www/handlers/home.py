@@ -13,7 +13,7 @@ class HomeHandler(base.BaseHandler):
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    self.builder = map_builder.MapBuilder(config, self.db)
+    self.token_encoder = token.TokenEncoder(self.config)
 
   @tornado.web.authenticated
   def get(self):
@@ -27,9 +27,9 @@ class HomeHandler(base.BaseHandler):
       logging.error('No such ICU {}'.format(icu_data['icu_id']))
       return None
 
-    data, center = self.builder.prepare_jsons(
-      None, center_icu=icu, level='dept'
-    )
+    locale = self.get_user_locale()
+    builder = map_builder.MapBuilder(self.config, self.db, locale)
+    data, center = builder.prepare_jsons(None, center_icu=icu, level='dept')
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,
@@ -47,8 +47,12 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def get(self):
-    builder = map_builder.MapBuilder(self.config, self.db)
-    data, center = builder.prepare_jsons(None, center_icu=None, level='dept')
+    locale = self.get_user_locale()
+    builder = map_builder.MapBuilder(self.config, self.db, locale)
+    regions = [r.region_id for r in self.regions] if self.regions else None
+    data, center = builder.prepare_jsons(
+      None, center_icu=None, regions=regions, level='dept'
+    )
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,

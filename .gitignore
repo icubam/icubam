@@ -19,3 +19,5 @@ __pycache__/
 # Mac and Vscode settings
 .DS_Store
 settings.json
+
+*.lvimrc
