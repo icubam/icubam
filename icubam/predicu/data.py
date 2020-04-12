@@ -95,8 +95,8 @@ def load_icubam_data(data=None, api_key=None):
   return d
 
 
-def load_pre_icubam_data():
-  d = load_data_file(DATA_PATHS["pre_icubam"])
+def load_pre_icubam_data(data_path=DATA_PATHS["pre_icubam"]):
+  d = load_data_file(data_path)
   d = d.rename(
     columns={
       "Hopital": "icu_name",
