@@ -1,7 +1,7 @@
 from absl import logging
 import os.path
 import json
-from typing import List, Dict
+from typing import Dict, List, Optional
 import tornado.template
 
 from icubam.db import store
@@ -43,10 +43,16 @@ class MapBuilder:
     result.sort(key=lambda x: x['lat'], reverse=True)
     return result
 
-  def prepare_jsons(self, user_id=None, center_icu=None, level='dept'):
-    # TODO(olivier): all the icus on map ? or restrict somehow ?
+  def prepare_jsons(self,
+                    user_id: Optional[int] = None,
+                    center_icu: Optional[store.ICU] = None,
+                    regions: Optional[List[int]] = None,
+                    level: str = 'dept'):
     tree = icu_tree.ICUTree()
-    tree.add_many(self.db.get_icus(), self.db.get_latest_bed_counts())
+    icus = self.db.get_icus()
+    if regions:
+      icus = [icu for icu in icus if icu.region_id in regions]
+    tree.add_many(icus, self.db.get_latest_bed_counts())
     data = self.to_map_data(tree, level)
     anchor = center_icu if center_icu is not None else tree
     center = {'lat': anchor.lat, 'lng': anchor.long}

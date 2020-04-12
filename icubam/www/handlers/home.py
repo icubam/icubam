@@ -50,7 +50,11 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   @tornado.web.authenticated
   def get(self):
     builder = map_builder.MapBuilder(self.config, self.db)
-    data, center = builder.prepare_jsons(None, center_icu=None, level='dept')
+    regions = None
+    if self.regions is not None:
+      regions = [r.region_id for r in self.regions]
+    data, center = builder.prepare_jsons(
+      user_id=None, center_icu=None, regions=regions, level='dept')
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,
