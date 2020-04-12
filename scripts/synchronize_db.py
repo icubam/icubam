@@ -6,8 +6,8 @@ from icubam.db import store
 from icubam.db import gsheets
 from icubam.db import synchronizer
 
-flags.DEFINE_string("config", "resources/config.toml", "Config file.")
-flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
+flags.DEFINE_string("config", config.DEFAULT_CONFIG_PATH, "Config file.")
+flags.DEFINE_string("dotenv_path", config.DEFAULT_DOTENV_PATH, "Config file.")
 flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 flags.DEFINE_bool('newdb', True, 'Old sqliteDB or new Store.')
 FLAGS = flags.FLAGS
