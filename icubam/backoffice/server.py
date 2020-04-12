@@ -9,7 +9,7 @@ import tornado.web
 from typing import Dict
 import tornado.ioloop
 from icubam.backoffice.handlers import (
-  home, login, logout, users, tokens, icus, dashboard, operational_dashboard,
+  home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
   messages, regions, maps
 )
 from icubam import base_server
@@ -73,7 +73,7 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(icus.ICUHandler)
     self.add_handler(regions.ListRegionsHandler)
     self.add_handler(regions.RegionHandler)
-    self.add_handler(dashboard.ListBedCountsHandler)
+    self.add_handler(bedcounts.ListBedCountsHandler)
     self.add_handler(operational_dashboard.OperationalDashHandler)
     self.add_handler(messages.ListMessagesHandler)
     self.add_handler(maps.MapsHandler)
