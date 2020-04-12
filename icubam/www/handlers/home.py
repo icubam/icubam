@@ -4,6 +4,7 @@ import tornado.web
 import icubam
 from icubam.db import store
 from icubam.www.handlers import base
+from icubam.www import token
 from icubam import map_builder
 
 
