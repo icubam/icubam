@@ -141,6 +141,7 @@ class StoreSynchronizer:
       del item['icu_name']
       item['last_modified'] = item['create_date']
       # import ipdb; ipdb.set_trace()
+      logging.info(f"Inserting BedCount: {item} into DB.")
       self.db.update_bed_count_for_icu(
         user, store.BedCount(**item), force=not user
       )
