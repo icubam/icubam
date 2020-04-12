@@ -52,7 +52,9 @@ class Config:
     return result
 
   def __getitem__(self, key: str):
-    if key.upper() == keto set get(key)
+    if key.upper() == key:
+      return self.env.get(key)
+    return self.conf.get(key)
 
   def __getattr__(self, key: str):
     return self[key]
