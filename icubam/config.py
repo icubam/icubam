@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 import dotmap
 import toml
 
+DEFAULT_DOTENV_PATH = "resources/icubam.env"
+DEFAULT_CONFIG_PATH = "resources/config.toml"
+
 
 class Config:
   """A class to read the configuration both from .env and from a toml file.
@@ -16,9 +19,9 @@ class Config:
 
   # All the secret keys
   ENV_KEYS = [
-    'SHEET_ID', 'TOKEN_LOC', 'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET',
-    'GOOGLE_API_KEY', 'MB_KEY', 'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API',
-    'DB_SALT', 'SMTP_HOST', 'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM'
+    'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY', 'MB_KEY',
+    'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API', 'DB_SALT', 'SMTP_HOST',
+    'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM'
   ]
 
   def __init__(self, toml_config, mode='dev', env_path=None):
