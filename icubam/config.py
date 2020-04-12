@@ -54,7 +54,7 @@ class Config:
   def __getitem__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
-    return self.conf.get(key)
+    return self.conf.get(key) if self.conf.has_key(key) else None
 
   def __getattr__(self, key: str):
     return self[key]
