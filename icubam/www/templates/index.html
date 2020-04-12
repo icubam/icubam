@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block links %}
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css?v={{version}}">
 <link rel="stylesheet" href="/static/popup.css?v={{version}}">
 <script type="text/javascript" src="/static/popup.js?v={{version}}"></script>
@@ -13,8 +13,8 @@
 <div class='bed_map'>
   <h2>ICUBAM</h2>
   <div class='subtitles'>
-    <p id="subtitle-cluster"/>{{ _('Available beds') }}</p>
-    <p id="subtitle-full"/>{{ _('Occupied / Total COVID beds') }}</p>
+    <p id="subtitle-cluster" />{{ _('Available beds') }}</p>
+    <p id="subtitle-full" />{{ _('Occupied / Total COVID beds') }}</p>
   </div>
 
   <div id="map"></div>
@@ -27,11 +27,10 @@
   let center = {% raw center %}
   let showed = new Set()
   let all_showed = false
-  function initMap () {
+  function initMap() {
     plotMap(data, center)
   }
 </script>
-<script async defer
-  src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap">
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=initMap">
 </script>
 {% end %}

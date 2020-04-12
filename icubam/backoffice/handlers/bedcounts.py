@@ -8,7 +8,7 @@ from icubam.db import store
 
 
 class ListBedCountsHandler(base.BaseHandler):
-  ROUTE = 'dashboard'
+  ROUTE = 'bedcounts'
 
   def initialize(self):
     super().initialize()
@@ -24,7 +24,10 @@ class ListBedCountsHandler(base.BaseHandler):
     locale = self.get_user_locale()
     last = bed_count_dict.pop('create_date', None)
     last = None if last is None else last.timestamp()
-    for key in ['rowid', 'icu_id', 'message', 'create_date', 'icu']:
+    to_pop = [
+      'rowid', 'icu_id', 'message', 'create_date', 'last_modified', 'icu'
+    ]
+    for key in to_pop:
       bed_count_dict.pop(key, None)
     result.extend(self.format_list_item(bed_count_dict))
 
