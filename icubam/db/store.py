@@ -730,13 +730,13 @@ class Store(object):
                      icu_ids=None,
                      latest=False,
                      **kargs) -> Iterable[BedCount]:
-    """Returns the (latest) bed counts.
+    """Returns all or latest bed counts.
 
     kargs are used for additional filtering, e.g. max_date.
 
     Args:
       icu_ids: a list or subquery of ICU IDs or None for all ICUs.
-      latest: if true, then only the latest bed counts satisfying the conditions
+      latest: if True, then only the latest bed counts satisfying the conditions
         will be returned.
 
     Returns:

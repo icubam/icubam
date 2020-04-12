@@ -1,26 +1,40 @@
 import os
 import tempfile
-import time
+from datetime import datetime, timedelta
 
+import pandas as pd
 import sqlalchemy as sqla
 from absl.testing import absltest
+from dateutil import tz
 
 from icubam.db import store, synchronizer
 
 
-class SynchronizerTest(absltest.TestCase):
+class StoreSynchronizerTest(absltest.TestCase):
   def setUp(self):
     store_factory = store.StoreFactory(
       sqla.create_engine("sqlite:///:memory:", echo=True)
     )
     self.db = store_factory.create()
-    self.csv = synchronizer.CSVSynchcronizer(self.db)
+    self.sync = synchronizer.StoreSynchronizer(self.db)
+    self.sync.prepare()
 
-  def gen_bed_counts(self, icu_name, region_name, amount):
-    bed_counts = {}
+    # Helper functions.
+  def add_region(self, name="region"):
+    return self.db.add_region(
+      self.sync._default_admin, store.Region(name=name)
+    )
+
+  def add_icu(self, name="icu", region_id=None, is_active=True):
+    return self.db.add_icu(
+      self.sync._default_admin,
+      store.ICU(name=name, region_id=region_id, is_active=is_active)
+    )
+
+  def gen_bed_counts(self, start_time, icu_name, amount):
+    bed_counts = []
     values = range(amount)
-    start_time = time.now()
-    for index, value in enumerate(values):
+    for value in values:
       bc = {
         'icu_name': icu_name,
         'n_covid_occ': value,
@@ -31,21 +45,37 @@ class SynchronizerTest(absltest.TestCase):
         'n_covid_healed': value,
         'n_covid_refused': value,
         'n_covid_transfered': value,
-        'timestamp': value
+        'create_date': start_time + timedelta(hours=value)
       }
-      self.store.update_bed_count_for_icu(
-        self.admin_user_id,
-        BedCount(
-          icu_id=icu_id,
-          n_covid_occ=value,
-          create_date=add_seconds(now, index)
-        )
-      )
-    return icu_id
+      bed_counts.append(bc)
+    return bed_counts
 
   def test_sync_bed_counts(self):
-    region_id1 = self.add_region(region_name)
-    icu_id = self.add_icu(icu_name, region_id=region_id, is_active=is_active)
+    region_names = ['Region1', 'Region2']
+    icu_base_names = ['ICU1', 'ICU2', 'ICU3']
+    num_icus = 10
+    bed_counts = []
+    start_time = datetime.now(tz.tzutc())
+
+    for region_name in region_names:
+      region_id = self.add_region(region_name)
+      for icu_base_name in icu_base_names:
+        icu_name = f'{region_name}_{icu_base_name}'
+        icu_id = self.add_icu(icu_name, region_id=region_id, is_active=True)
+        bed_counts.extend(self.gen_bed_counts(start_time, icu_name, num_icus))
+    bed_counts_df = pd.DataFrame(bed_counts)
+    self.sync.sync_bed_counts(bed_counts_df)
+    bedcount = self.db.get_bed_counts()
+    self.assertLen(
+      bedcount,
+      len(region_names) * len(icu_base_names) * num_icus
+    )
+    bedcount = self.db.get_latest_bed_counts()
+    self.assertLen(bedcount, len(region_names) * len(icu_base_names))
+    self.assertEqual(
+      bedcount[0].create_date.replace(tzinfo=tz.tzutc()),
+      bed_counts_df['create_date'].max().to_pydatetime()
+    )
 
 
 class CSVTest(absltest.TestCase):
