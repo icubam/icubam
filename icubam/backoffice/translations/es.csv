@@ -33,9 +33,24 @@ Edit,Editar
 Create,Crear
 Manage ICU,Gestionar UCI
 
+Home,Inicio
+Logout,Desconectarse
+All rights reserved,Todos los derechos reservados
+Where is the ICU?,¿Dónde está la UCI?
+
 icus,UCIs
 users,Usuarios
 Occupied,Ocupadas
 Free,Disponibles
 deceased,Fallecidos
 Healed,Recuperados
+
+Add,Crear
+dataTables.english.lang,//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json
+
+name,Nombre
+city,Ciudad
+dept,Comuna
+region,Región
+active,Activa
+managers,Administradores

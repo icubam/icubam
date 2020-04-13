@@ -16,15 +16,15 @@
 <section class="content">
   <div class="container-fluid">
 
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>{{_(objtype)}}</h1>
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
+  <section class="content-header">
+   <div class="container-fluid">
+     <div class="row mb-2">
+       <div class="col-sm-6">
+         <h1>{{ _(objtype) }}</h1>
+       </div>
+     </div>
+   </div><!-- /.container-fluid -->
+  </section>
 
     <section class="content">
       <div class="card">
@@ -105,7 +105,7 @@
   const upload_type = "{{upload_type}}"
   let columns = {% raw columns %}
   $(function () {
-    $(x => setDatatable("#my_data", columns))
+    $(x => setDatatable("#my_data", columns, "{{ _('dataTables.english.lang') }}"))
   })
 </script>
 <script src="static/table.js"></script>
