@@ -21,6 +21,8 @@ n_covid_deaths,Muertes
 n_covid_healed,Sanados/Curados
 n_covid_refused,Rechazados
 n_covid_transfered,Transferidos
+
+Bed Counts,Recuento de camas
 Users,Usuarios
 ICUs,UCIs
 Dashboards,Tableros
@@ -29,6 +31,7 @@ Operational dashboard,Tablero operacional
 Access Tokens,Tokens de accesos
 Regions,Regiones
 Messages,Mensajes
+
 Manage ICUs,Gestionar UCIs
 Edit,Editar
 Create,Crear
