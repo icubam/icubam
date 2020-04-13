@@ -5,137 +5,113 @@
 <section class="content">
   <div class="container-fluid">
 
-  <section class="content-header">
-   <div class="container-fluid">
-     <div class="row mb-2">
-       <div class="col-sm-6">
-         <h2> Manage ICUs</h2>
-       </div>
-     </div>
-   </div><!-- /.container-fluid -->
-  </section>
-
-  <section class="content">
-    <div class="card card-primary">
-
-     <div class="card-header">
-       <h3 class="card-title">
-         {% if icu.icu_id %} Edit {% else %} Create {% end %} ICU
-       </h3>
-     </div>
-
-     <form role="form" action="icu" method="post">
-
-       <!-- The hidden ID in case we're editing the icu. -->
-       <input type="text" id="icu_id" name="icu_id"
-              hidden value="{% if icu.icu_id is not None%}{{icu.icu_id}}{% end %}"
-        </input>
-
-       <div class="card-body">
-
-        <div class="form-row">
-           <div class="col-25">
-             <label for="name">Name</label>
-             <input type="text" id="name" name="name"
-               class="form-control"
-               placeholder="Name"
-               value="{% if icu.name %}{{icu.name}}{% end %}" required autofocus>
-           </div>
-
-         <div class="col-25">
-           <label for="telephone">{{_("Phone Number")}}</label>
-           <input type="tel" id="telephone" name="telephone"
-             class="form-control"
-             minlength="6"
-             pattern="^\+?\d{0,13}"
-             title='Phone Number (Format: (+)332222222)'
-             placeholder="+33 7 3333 333"
-             value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
-         </div>
-
-         <div class="col-25">
-           <label for="legal_id">{{_("Legal ID")}}</label>
-           <input type="tel" id="legal_id" name="legal_id"
-             class="form-control"
-             title='Legal id'
-             placeholder="13546546"
-             value="{% if icu.legal_id %}{{icu.legal_id}}{% end %}">
-         </div>
-
-         <div class="col-20">
-           <label for="is_active">Active</label><br/>
-           <input
-           type="checkbox" name="is_active"
-           {% if icu.is_active %} checked{% end %}
-           data-bootstrap-switch data-off-color="danger"
-           data-on-color="success">
-         </div>
-        </div>
-
-        <div class="form-row">
-          <div class="col-25">
-            <label>Region</label>
-              <select class="form-control" name="region_id">
-                {% for region in regions %}
-                  <option
-                    value="{{region.region_id}}"
-                    {% if icu.region_id == region.region_id %} selected {% end %}>
-                      {{region.name}}
-                {% end %}
-              </select>
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h2>{{_("Manage your")}} {{_("ICUs")}}</h2>
           </div>
-           <div class="col-25">
-             <label for="city">City</label>
-             <input type="text" id="city" name="city"
-               class="form-control"
-               placeholder="City"
-               value="{% if icu.city %}{{icu.city}}{% end %}" required autofocus>
-           </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
 
-           <div class="col-25">
-             <label for="dept">Department / State</label>
-             <input type="text" id="dept" name="dept"
-               class="form-control"
-               placeholder="Department"
-               value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
-           </div>
+    <section class="content">
+      <div class="card card-primary">
+
+        <div class="card-header">
+          <h3 class="card-title">
+            {% if icu.icu_id %} {{_("Edit")}} {% else %} {{_("Create")}} {% end %} {{_("ICU")}}
+          </h3>
         </div>
 
-        <div class="form-row">
-           <div class="col-25">
-             <label for="lat">Latitude</label>
-             <input type="number" step="0.0001" id="lat" name="lat"
-               class="form-control"
-               placeholder="Latitude"
-               value="{%if icu.lat %}{{icu.lat}}{% end %}" required autofocus>
-           </div>
+        <form role="form" action="icu" method="post">
 
-           <div class="col-25">
-             <label for="long">Longitude</label>
-             <input type="number" step="0.0001" id="long" name="long"
-               class="form-control"
-               placeholder="Longitude"
-               value="{% if icu.long %}{{icu.long}}{% end %}" required autofocus>
-           </div>
-        </div>
+          <!-- The hidden ID in case we're editing the icu. -->
+          <input type="text" id="icu_id" name="icu_id" hidden
+            value="{% if icu.icu_id is not None%}{{icu.icu_id}}{% end %}" </input>
 
-       <div class="card-footer">
-         <button
-            type='button' onclick='navigateTo("{{list_route}}")'
-            class="btn btn-warning">Cancel</button>
-         <button type="submit" class="btn btn-primary">Submit</button>
-       </div>
-     </form>
+          <div class="card-body">
+
+            <div class="form-row">
+              <div class="col-25">
+                <label for="name">{{_("Name")}}</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="Name"
+                  value="{% if icu.name %}{{icu.name}}{% end %}" required autofocus>
+              </div>
+
+              <div class="col-25">
+                <label for="telephone">{{_("Phone Number")}}</label>
+                <input type="tel" id="telephone" name="telephone" class="form-control" minlength="6"
+                  pattern="^\+?\d{0,13}" title='Phone Number (Format: (+)332222222)' placeholder="+33 7 3333 333"
+                  value="{% if icu.telephone %}{{icu.telephone}}{% end %}" required>
+              </div>
+
+              <div class="col-25">
+                <label "Manage your" ,"Gérer vos"for="legal_id">{{_("Legal ID")}}</label>
+                <input type="tel" id="legal_id" name="legal_id" class="form-control" title='Legal id'
+                  placeholder="13546546" value="{% if icu.legal_id %}{{icu.legal_id}}{% end %}">
+              </div>
+
+              <div class="col-20">
+                <label for="is_active">{{_("Active")}}</label><br />
+                <input type="checkbox" name="is_active" {% if icu.is_active %} checked{% end %} data-bootstrap-switch
+                  data-off-color="danger" data-on-color="success">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-25">
+                <label>{{_("Region")}}</label>
+                <select class="form-control" name="region_id">
+                  {% for region in regions %}
+                  <option value="{{region.region_id}}" {% if icu.region_id == region.region_id %} selected {% end %}>
+                    {{region.name}}
+                    {% end %}
+                </select>
+              </div>
+              <div class="col-25">
+                <label for="city">{{_("city")}}</label>
+                <input type="text" id="city" name="city" class="form-control" placeholder="City"
+                  value="{% if icu.city %}{{icu.city}}{% end %}" required autofocus>
+              </div>
+
+              <div class="col-25">
+                <label for="dept">{{_("dept")}}</label>
+                <input type="text" id="dept" name="dept" class="form-control" placeholder="Department"
+                  value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-25">
+                <label for="lat">{{_("Latitude")}}</label>
+                <input type="number" step="0.0001" id="lat" name="lat" class="form-control" placeholder="Latitude"
+                  value="{%if icu.lat %}{{icu.lat}}{% end %}" required autofocus>
+              </div>
+
+              <div class="col-25">
+                <label for="long">{{_("Longitude")}}</label>
+                <input type="number" step="0.0001" id="long" name="long" class="form-control" placeholder="Longitude"
+                  value="{% if icu.long %}{{icu.long}}{% end %}" required autofocus>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type='button' onclick='navigateTo("{{list_route}}")'
+                class="btn btn-warning">{{_("Cancel")}}</button>
+              <button type="submit" class="btn btn-primary">{{_("Submit")}}</button>
+            </div>
+        </form>
+      </div>
+    </section>
+
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{_("Failed to save ICU")}}
     </div>
-  </section>
+    {% end %}
 
-{% if error %}
- <div class="alert alert-danger" role="alert">
-   {{_("Failed to save ICU")}}
- </div>
-{% end %}
-
-</div>
+  </div>
 </section>
 
 {% end %}
@@ -143,7 +119,7 @@
 {% block scripts %}
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script>
-  $("input[data-bootstrap-switch]").each(function(){
+  $("input[data-bootstrap-switch]").each(function () {
     $(this).bootstrapSwitch('state', $(this).prop('checked'));
   })
 </script>
