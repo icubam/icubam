@@ -15,7 +15,7 @@ class ListBedCountsHandler(base.BaseHandler):
     self.link_fn = updater.Updater(self.config, self.db).get_url
 
   def prepare_data(self, icu, locale) -> list:
-    link = {'key': 'icu (update link)', 'value': icu.name}
+    link = {'key': 'ICU (update link)', 'value': icu.name}
     link['link'] = self.link_fn(icu.users[0], icu) if icu.users else '-'
     result = [link]
 
