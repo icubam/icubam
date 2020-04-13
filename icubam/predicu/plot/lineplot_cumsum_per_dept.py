@@ -2,8 +2,8 @@ import matplotlib.gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..data import CUM_COLUMNS
-from ..plot import COLUMN_TO_HUMAN_READABLE
+from icubam.predicu.data import CUM_COLUMNS
+from icubam.predicu.plot import COLUMN_TO_HUMAN_READABLE
 
 data_source = "bedcounts"
 

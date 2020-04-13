@@ -8,14 +8,13 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-from ..data import BEDCOUNT_COLUMNS, ICU_NAMES_GRAND_EST
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
+from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.predicu.plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 
 data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
   data = data.groupby(["date", "department"]).agg(agg)
   data = data.reset_index()

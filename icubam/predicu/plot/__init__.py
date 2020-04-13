@@ -11,7 +11,7 @@ import pandas as pd
 import scipy
 import seaborn
 
-from ..data import (
+from icubam.predicu.data import (
   BEDCOUNT_COLUMNS, DATA_PATHS, DEPARTMENTS, DEPARTMENTS_GRAND_EST,
   load_if_not_cached
 )
@@ -68,7 +68,6 @@ RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
 
 
-
 def plot_int(
   x,
   y,
@@ -117,7 +116,10 @@ def plot(
   plot_fun = plot_module.plot
   data_source = plot_module.data_source
   cached_data[data_source] = load_if_not_cached(
-    data_source, cached_data, api_key=api_key, icubam_host=icubam_host,
+    data_source,
+    cached_data,
+    api_key=api_key,
+    icubam_host=icubam_host,
   )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)

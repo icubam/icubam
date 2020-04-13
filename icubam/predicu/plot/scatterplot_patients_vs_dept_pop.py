@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from ..plot import RANDOM_COLORS
+from icubam.predicu.plot import RANDOM_COLORS
 
 data_source = "combined_bedcounts_public"
 

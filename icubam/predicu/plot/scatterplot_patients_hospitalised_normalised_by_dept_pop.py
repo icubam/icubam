@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from icubam.predicu.plot import DEPARTMENT_GRAND_EST_COLOR
 
 data_source = "combined_bedcounts_public"
 

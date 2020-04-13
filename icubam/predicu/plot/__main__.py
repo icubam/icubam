@@ -3,7 +3,7 @@ import logging
 
 import matplotlib
 
-from ..plot import generate_plots
+from icubam.predicu.plot import generate_plots
 
 if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)
@@ -11,12 +11,13 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument(
     "--api-key",
-    help="API key for pulling data from ICUBAM.",
+    help="API key for pulling data from icubam.predicu.UBAM.",
     default=None,
   )
   parser.add_argument(
     "--icubam-host",
-    help="Host of the ICUBAM instance from which the data should be pulled.",
+    help=
+    "Host of the ICUBAM instance from icubam.predicu.ich the data should be pulled.",
     default=None,
   )
   parser.add_argument(

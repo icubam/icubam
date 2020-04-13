@@ -5,14 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS, plot_int
+from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.predicu.plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS, plot_int
 
 data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
   data = data.groupby(["date", "department"]).agg(agg)
   data = data.reset_index()
