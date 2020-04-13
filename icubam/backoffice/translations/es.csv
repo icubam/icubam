@@ -13,10 +13,10 @@ Save,Guardar
 Sign in to start your session,Identificarse e ingresar
 Sign In,Ingresar
 User management,Manejo de usuarios
-n_covid_occ,Covid+ Occupadas
-n_ncovid_occ,Covid- Occupadas
-n_covid_free,Covid+ Libres
-n_ncovid_free,Covid- Libres
+n_covid_occ,Covid+ ocupadas
+n_ncovid_occ,Covid- ocupadas
+n_covid_free,Covid+ libres
+n_ncovid_free,Covid- libres
 n_covid_deaths,Muertes
 n_covid_healed,Sanados/Curados
 n_covid_refused,Rechazados
@@ -49,6 +49,9 @@ Occupied,Ocupadas
 Free,Disponibles
 deceased,Fallecidos
 Healed,Recuperados
+
+icu (update link),UCI (Link de actualización)
+since_update,Última actualización
 
 Add,Crear
 dataTables.english.lang,//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json
