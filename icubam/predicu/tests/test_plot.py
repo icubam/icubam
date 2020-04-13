@@ -4,12 +4,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from .. import data as data_module
-from ..data import (
+import icubam.predicu.data
+from icubam.predicu.data import (
   BASE_PATH, DATA_PATHS, DEPARTMENTS_GRAND_EST, ICU_NAMES_GRAND_EST,
-  load_combined_bedcounts_public
+  load_combined_bedcounts_public, format_data, load_icu_name_to_department
 )
-from ..plot import PLOTS, generate_plots
+from icubam.predicu.plot import PLOTS, generate_plots
 
 
 def test_generate_plots_wrong_name():
@@ -22,28 +22,29 @@ def monkeypatch_data_load_fun(data_source, data, monkeypatch):
   def new_data_load_fun(*args, **kwargs):
     return data
 
-  monkeypatch.setattr(data_module, f"load_{data_source}", new_data_load_fun)
+  monkeypatch.setattr(icubam.predicu.data, f"load_{data_source}", new_data_load_fun)
 
 
 @pytest.mark.parametrize("name", PLOTS)
 def test_generate_plots(name, tmpdir, monkeypatch):
   output_dir = str(tmpdir.mkdir("sub"))
-  test_public_path = os.path.join(BASE_PATH, "tests/data/public_data.h5")
-  test_public = pd.read_hdf(test_public_path, 'values')
+  test_public_path = os.path.join(BASE_PATH, "tests/data/public_data.csv")
+  test_public = pd.read_csv(test_public_path, index_col=False)
+  test_public['date'] = pd.to_datetime(test_public['date']).dt.date
   monkeypatch_data_load_fun("public", test_public, monkeypatch)
-  test_bedcounts = pd.read_hdf(
-    os.path.join(
+  test_bedcounts_path = os.path.join(
       BASE_PATH,
-      "tests/data/fake_all_bedcounts_2020-04-08_16h41.h5",
-    ), "values"
-  )
+      "tests/data/fake_all_bedcounts_2020-04-08_16h41.csv")
+  test_bedcounts = pd.read_csv(test_bedcounts_path, index_col=False)
+  test_bedcounts['date'] = pd.to_datetime(test_bedcounts['date']).dt.date
+  test_bedcounts['datetime'] = pd.to_datetime(test_bedcounts['datetime'])
   monkeypatch_data_load_fun("bedcounts", test_bedcounts, monkeypatch)
   monkeypatch_data_load_fun("icubam", test_bedcounts, monkeypatch)
   icu_names_grand_est = list(
     test_bedcounts.loc[test_bedcounts.department.isin(DEPARTMENTS_GRAND_EST)
                        ].icu_name.unique()
   )
-  monkeypatch.setattr(data_module, "ICU_NAMES_GRAND_EST", icu_names_grand_est)
+  monkeypatch.setattr(icubam.predicu.data, "ICU_NAMES_GRAND_EST", icu_names_grand_est)
   generate_plots(
     plots=[name],
     output_dir=output_dir,

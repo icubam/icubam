@@ -15,7 +15,7 @@ data_source = "combined_bedcounts_public"
 
 
 def plot(data):
-  fig, (ax1, ax2) = plt.subplots(2, figsize=(20, 10), sharex=True)
+  fig, (ax1, ax2) = plt.subplots(2, figsize=(10, 10), sharex=True)
   date_range_idx = np.arange(len(data.date.unique()))
   for dept, dg in data.groupby("department"):
     dg = dg.sort_values(by="date")

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from ..data import load_public
+from icubam.predicu.data import load_public
 
 
 @pytest.mark.slow

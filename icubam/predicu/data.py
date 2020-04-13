@@ -13,7 +13,7 @@ from lxml import html
 BASE_PATH = os.path.dirname(__file__)
 
 DATA_SOURCES = {
-  "icubam", "pre_icubam", "bedcounts", "public", "combined_bedcounts_public"
+  "icubam", "bedcounts", "public", "combined_bedcounts_public"
 }
 
 DATA_PATHS = {
@@ -65,20 +65,12 @@ def load_bedcounts(
   clean=True,
   spread_cum_jump_correction=False,
   api_key=None,
+  icubam_host=None,
   max_date=None,
   cached_data=None,
-  pre_icubam_data_path=None,
 ):
-  icubam = load_if_not_cached("icubam", cached_data, api_key=api_key)
-  if pre_icubam_data_path is not None:
-    pre_icubam = load_if_not_cached(
-      "pre_icubam", cached_data, data_path=pre_icubam_data_path
-    )
-    dates_in_both = set(icubam.date.unique()) & set(pre_icubam.date.unique())
-    pre_icubam = pre_icubam.loc[~pre_icubam.date.isin(dates_in_both)]
-    d = pd.concat([pre_icubam, icubam])
-  else:
-    d = icubam
+  d = load_if_not_cached("icubam", cached_data, api_key=api_key,
+                         icubam_host=icubam_host)
   if clean:
     d = clean_data(d, spread_cum_jump_correction)
   d = d.sort_values(by=["date", "icu_name"])
@@ -88,13 +80,14 @@ def load_bedcounts(
   return d
 
 
-def load_icubam(cached_data=None, api_key=None):
-  if api_key is None:
+def load_icubam(cached_data=None, api_key=None, icubam_host=None):
+  if api_key is None or icubam_host is None:
     raise RuntimeError("Provide API key to download ICUBAM data")
   else:
+    protocol = "http" if icubam_host.startswith("localhost") else "https"
     url = (
-      "https://prod.icubam.net/db/"
-      "all_bedcounts?format=csv&API_KEY={}".format(api_key)
+      f"{protocol}://{icubam_host}/"
+      f"db/all_bedcounts?format=csv&API_KEY={api_key}"
     )
     logging.info("downloading data from %s" % url)
     d = pd.read_csv(url.format(api_key))
@@ -393,7 +386,7 @@ DEPARTMENT_TO_CODE = dict(
 DEPARTMENT_POPULATION = load_department_population()
 
 
-def load_combined_bedcounts_public(api_key=None, cached_data=None):
+def load_combined_bedcounts_public(api_key=None, cached_data=None, **kwargs):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)

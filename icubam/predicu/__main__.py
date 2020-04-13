@@ -17,7 +17,8 @@ def export_data(args):
   datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
   filename = "predicu_data_clean_{}.csv".format(datetimestr)
   path = os.path.join(output_dir, filename)
-  d = load_bedcounts(clean=True, api_key=args.api_key, max_date=args.max_date)
+  d = load_bedcounts(clean=True, api_key=args.api_key, max_date=args.max_date,
+                     icubam_host=args.icubam_host)
   d.to_csv(path)
   logging.info("export DONE.")
 
@@ -30,6 +31,7 @@ if __name__ == "__main__":
   parser_export.set_defaults(func=export_data)
   parser_export.add_argument("--output-dir", "-o", default="/tmp/")
   parser_export.add_argument("--api-key", default=None)
+  parser_export.add_argument("--icubam-host", default="localhost")
   parser_export.add_argument(
     "--max-date",
     default=None,

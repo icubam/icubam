@@ -67,15 +67,6 @@ DEPARTMENT_GRAND_EST_COLOR = {
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
 
-DEFAULTS = {
-  "plots": None,
-  "matplotlib_style": "seaborn-whitegrid",
-  "api_key": None,
-  "icubam_data": None,
-  "public_data": None,
-  "output_type": "png",
-  "output_dir": "/tmp",
-}
 
 
 def plot_int(
@@ -116,16 +107,17 @@ for path in os.listdir(os.path.dirname(__file__)):
 def plot(
   plot_name: str,
   cached_data: Dict[str, pd.DataFrame],
-  output_dir: str = DEFAULTS["output_dir"],
-  output_type: str = DEFAULTS["output_type"],
-  api_key: str = DEFAULTS["api_key"],
-  matplotlib_style: str = DEFAULTS["matplotlib_style"],
+  output_dir: str,
+  output_type: str,
+  api_key: str,
+  icubam_host: str,
+  matplotlib_style: str,
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot
   data_source = plot_module.data_source
   cached_data[data_source] = load_if_not_cached(
-    data_source, cached_data, api_key=api_key
+    data_source, cached_data, api_key=api_key, icubam_host=icubam_host,
   )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
@@ -146,11 +138,12 @@ def plot(
 
 
 def generate_plots(
-  plots: Optional[List[str]] = DEFAULTS["plots"],
-  matplotlib_style: str = DEFAULTS["matplotlib_style"],
-  api_key: Optional[str] = DEFAULTS["api_key"],
-  output_type: str = DEFAULTS["output_type"],
-  output_dir: str = DEFAULTS["output_dir"],
+  plots: Optional[List[str]] = None,
+  matplotlib_style: str = "seaborn-whitegrid",
+  api_key: Optional[str] = None,
+  icubam_host: Optional[str] = None,
+  output_type: str = "png",
+  output_dir: str = "/tmp",
 ):
   if plots is None:
     plots = PLOTS
@@ -170,4 +163,6 @@ def generate_plots(
       matplotlib_style=matplotlib_style,
       output_dir=output_dir,
       output_type=output_type,
+      api_key=api_key,
+      icubam_host=icubam_host,
     )
