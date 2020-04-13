@@ -29,6 +29,7 @@ def add_pre_icubam_bed_counts(pre_icubam_data_path, csv_synchronizer):
   # Antoine's inputs of 2020-03-18 are already present in the database
   # because Gabriel Dulac Arnold entered them manually
   d = d.loc[d.create_date.dt.date > datetime.date(2020, 3, 18)]
+  d = d.loc[d.create_date.dt.date < datetime.date(2020, 3, 25)]
   csv_synchronizer.sync_bed_counts(d[list(synchronizer.BC_COLUMNS)])
 
 
