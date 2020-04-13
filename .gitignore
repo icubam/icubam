@@ -13,7 +13,7 @@ __pycache__/
 /*.egg-info
 
 # Configs
-.env
+*.env
 .ini
 
 # Database
