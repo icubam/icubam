@@ -167,7 +167,9 @@ class OperationalDashHandler(base.AdminHandler):
 
     figures = []
 
-    bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
+    bed_counts = self.db.get_visible_bed_counts_for_user(
+      self.current_user.user_id
+    )
 
     bed_counts = to_pandas(bed_counts)
 
