@@ -29,13 +29,13 @@ default_locale='fr-fr'
   PORT = 8888  # will be lower cased when reading.
   base_url = "http://localhost:8888/"
   upload_dir = "uploads/"
-  consent = 'resources/consent2.html'
+  consent = 'resources/consent.html'
   num_days_for_stale = 1.0
   [server.prod]
   port = 443
   base_url = "https://test.icubam.net/"
   upload_dir = "uploads/"
-  consent = 'resources/consent2.html'
+  consent = 'resources/consent.html'
   num_days_for_stale = 1.0
 
 [messaging]
@@ -50,12 +50,12 @@ default_locale='fr-fr'
 
 [scheduler]
   [scheduler.prod]
-  max_retries = 3
+  max_retries = 1
   new_user_delay = 60
   reminder_delay = 1800  # 30 minutes in seconds
   ping = ['9:30', '17:30']
   [scheduler.dev]
-  max_retries = 1
+  max_retries = 3
   reminder_delay = 45
   new_user_delay = 60
   ping = ['12:30', '17:30', '14:12']
