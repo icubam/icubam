@@ -4,7 +4,7 @@ import tornado.httpserver
 
 from icubam import config
 from icubam.backoffice import server
-from icubam.backoffice.handlers import dashboard
+from icubam.backoffice.handlers import bedcounts
 from icubam.db import store
 
 
@@ -21,12 +21,12 @@ class TestListBedCountsHandler(tornado.testing.AsyncTestCase):
     self.app = self.server.make_app()
     self.request = tornado.httpserver.HTTPRequest(
       method='GET',
-      uri=dashboard.ListBedCountsHandler.ROUTE,
+      uri=bedcounts.ListBedCountsHandler.ROUTE,
       headers=None,
       body=None
     )
     self.request.connection = MockConnection()
-    self.handler = dashboard.ListBedCountsHandler(self.app, self.request)
+    self.handler = bedcounts.ListBedCountsHandler(self.app, self.request)
     self.handler.initialize()
 
     self.admin_id = self.handler.db.add_default_admin()

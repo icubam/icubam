@@ -5,7 +5,14 @@
     <table class='bed-table'>
       {% for obj in view['beds'] %}
         <tr>
-          <td class='report-number modal-icu-name'>{{obj.label}}</td>
+          <td class='report-number modal-icu-name'>
+            {{obj.label}}
+            {% if view['name'] == 'full' and is_stale(obj.timestamp)%}
+              <i class='fa fa-exclamation-triangle text-danger'></i>
+              <br/><span class='explanation'>{{when(obj.timestamp)}}</span>
+            {% end %}
+          </td>      
+
           {% if obj.phone %}
           <td style="background-color:{{obj.color}}" class='report-number'>
             {{obj.occ}} / {{obj.total}}
@@ -15,6 +22,7 @@
               {{obj.free}}
             </td>
           {% end %}
+
           {% if obj.phone %}
           <td class='report-number' onclick='togglePopup("{{cluster}}")'>
             <a href="tel:+{{obj.phone}}" class='not-underlined'>

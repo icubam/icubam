@@ -6,6 +6,7 @@ import tornado.web
 from icubam import base_server
 from icubam.db import queue_writer
 from icubam.www import updater
+from icubam.www.handlers import consent
 from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import static
@@ -37,6 +38,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(home.MapByAPIHandler, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
+    self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(
       upload_csv.UploadHandler, **{
         **kwargs,

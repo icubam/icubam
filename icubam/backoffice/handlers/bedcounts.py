@@ -8,30 +8,40 @@ from icubam.db import store
 
 
 class ListBedCountsHandler(base.BaseHandler):
-  ROUTE = 'dashboard'
+  ROUTE = 'bedcounts'
 
   def initialize(self):
     super().initialize()
     self.link_fn = updater.Updater(self.config, self.db).get_url
 
   def prepare_data(self, icu) -> list:
-    result = [{
-      'key': 'icu (update link)',
-      'value': icu.name,
-      'link': self.link_fn(icu.icu_id, icu.name)
-    }]
+    link = {'key': 'icu (update link)', 'value': icu.name}
+    link['link'] = self.link_fn(icu.users[0], icu) if icu.users else '-'
+    result = [link]
 
     bed_count = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
     bed_count_dict = bed_count.to_dict(max_depth=0)
     locale = self.get_user_locale()
-    last = bed_count_dict.pop('last_modified', None)
+    last = bed_count_dict.pop('create_date', None)
     last = None if last is None else last.timestamp()
-    for key in ['rowid', 'icu_id', 'message', 'create_date', 'icu']:
+    to_pop = [
+      'rowid', 'icu_id', 'message', 'create_date', 'last_modified', 'icu'
+    ]
+    for key in to_pop:
       bed_count_dict.pop(key, None)
-    bed_count_dict['since_update'] = time_utils.localewise_time_ago(
-      last, locale=locale
-    )
     result.extend(self.format_list_item(bed_count_dict))
+
+    display_date = time_utils.localewise_time_ago(last, locale=locale)
+    stale = time_utils.is_stale(
+      last, days_threshold=self.config.server.num_days_for_stale
+    )
+    result.append({
+      'key': 'since_update',
+      'value': display_date,
+      'warning': stale,
+      'sort_value': 0 if last is None else last,
+      'link': False,
+    })
     return result
 
   @tornado.web.authenticated

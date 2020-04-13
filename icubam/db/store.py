@@ -107,6 +107,8 @@ class User(Base):
   locale = Column(String)
   # One of {email, sms}.
   message_type = Column(String, default="email")
+  # Consent to use icubam
+  consent = Column(Boolean)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -306,6 +308,9 @@ class Store(object):
       self._session.commit()
       return icu.icu_id
 
+    if self.get_icu_by_name(icu.name):
+      raise KeyError("ICU Name already present in DB.")
+
     rids = set([i.region_id for i in self.get_managed_icus(admin_user_id)])
     if icu.region_id not in rids:
       raise ValueError("New ICUs can only be created in the manger's region.")
@@ -329,7 +334,7 @@ class Store(object):
     return self._session.query(ICU).filter(ICU.name == icu_name).first()
 
   def get_icus(self) -> Iterable[ICU]:
-    """Returns all users, e.g. sync. Do not use in user facing code."""
+    """Returns all ICUs. Do not use in user facing code."""
     return self._session.query(ICU).all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):
@@ -727,13 +732,13 @@ class Store(object):
                      icu_ids=None,
                      latest=False,
                      **kargs) -> Iterable[BedCount]:
-    """Returns the (latest) bed counts.
+    """Returns all or latest bed counts.
 
     kargs are used for additional filtering, e.g. max_date.
 
     Args:
       icu_ids: a list or subquery of ICU IDs or None for all ICUs.
-      latest: if true, then only the latest bed counts satisfying the conditions
+      latest: if True, then only the latest bed counts satisfying the conditions
         will be returned.
 
     Returns:
