@@ -44,7 +44,8 @@ class TestListBedCountsHandler(tornado.testing.AsyncTestCase):
     )
     self.handler.db.update_bed_count_for_icu(self.admin_id, bedcount)
     icu = self.handler.db.get_icu(self.icuid)
-    data = self.handler.prepare_data(icu)
+    locale = self.handler.get_user_locale()
+    data = self.handler.prepare_data(icu, locale)
     self.assertIsInstance(data, list)
     self.assertGreater(len(data), 0)
     for k in ['key', 'value', 'link']:
