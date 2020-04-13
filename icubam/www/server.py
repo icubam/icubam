@@ -28,8 +28,11 @@ class WWWServer(base_server.BaseServer):
     self.path = home.HomeHandler.PATH
 
   def make_routes(self):
-    self.routes.append((r'/(favicon.ico)', tornado.web.StaticFileHandler, {
-          'path': os.path.join(self.path, 'static')}))
+    self.routes.append(
+      (r'/(favicon.ico)', tornado.web.StaticFileHandler, {
+        'path': os.path.join(self.path, 'static')
+      }
+    ))
     self.add_handler(
       update.UpdateHandler,
       config=self.config,
