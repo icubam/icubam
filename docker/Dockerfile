@@ -1,7 +1,7 @@
 # ARG required due to build option in docker-compose
 ARG ENV_MODE
 
-FROM python:3.7
+FROM python:3.7-slim-buster as builder
 
 # silence error messages
 ENV TERM linux
@@ -45,6 +45,12 @@ COPY LICENSE pyproject.toml README.md requirements.txt setup.py ./
 COPY .git ./.git
 
 RUN pip install -r requirements.txt && pip install -e .
+
+# clear pip cache
+RUN rm -rf ~/.cache/pip
+
+# make sure final image is clean
+FROM builder as launcher
 
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
