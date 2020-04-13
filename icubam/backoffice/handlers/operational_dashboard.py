@@ -67,7 +67,7 @@ def _prepare_data(bed_counts: List) -> Dict:
   return df, metrics_layout
 
 
-def _make_bar_plot(df: pd.DataFrame):
+def _make_bar_plot(df: pd.DataFrame, locale):
   """Generate a Bokeh figure"""
   df_viz = ColumnDataSource.from_df(df.reset_index())
 
@@ -78,7 +78,7 @@ def _make_bar_plot(df: pd.DataFrame):
   )
   p.xaxis.major_label_orientation = math.pi / 4
   p.y_range.start = 0
-  p.yaxis.axis_label = 'Fraction (%)'
+  p.yaxis.axis_label = locale.translate('Fraction (%)')
 
   p.vbar(
     x=dodge('index', 0.25, range=p.x_range),
@@ -86,7 +86,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de remplissage lits (covid)",
+    legend_label=locale.translate("Taux de remplissage lits (covid)"),
     color="#0f2080"
   )
   p.vbar(
@@ -95,7 +95,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de remplissage lits (total)",
+    legend_label=locale.translate("Taux de remplissage lits (total)"),
     color="#85c0f9",
   )
   p.vbar(
@@ -104,7 +104,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de refus (covid) / capacité totale",
+    legend_label=locale.translate("Taux de refus (covid) / capacité totale"),
     color="#f5793a",
   )
   p.legend.location = "center_left"
@@ -183,7 +183,8 @@ class OperationalDashHandler(base.AdminHandler):
 
     df, metrics_layout = _prepare_data(bed_counts)
 
-    p = _make_bar_plot(df)
+    locale = self.get_user_locale()
+    p = _make_bar_plot(df, locale)
 
     script, div = components(p)
     figures.append(dict(script=script, div=div))

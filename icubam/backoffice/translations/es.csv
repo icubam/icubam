@@ -1,5 +1,5 @@
 Active,Activo
-Admin,Administrador
+Admin,Administrador ICUBAM
 Authentication failed,Error de autenticación
 Create user,Nuevo usuario
 Edit user,Edición de usuario
@@ -62,3 +62,40 @@ dept,Comuna
 region,Región
 active,Activa
 managers,Administradores
+
+admin,Administrador ICUBAM
+created,Creación
+manages,Administra
+
+Actif,Activo
+Managed ICUs,UCIs administradas
+Already set,Ya establecida
+Cancel,Cancelar
+
+Legal ID,RUT
+Region,Región
+City,Ciudad
+Department / State,Comuna
+Latitude,Latitud
+Longitude,Longitud
+Submit,Enviar
+
+Manage Regions,Gestionar regiones
+
+Clicker pour afficher,Haga click para mostrar todo
+Tout montrer,Mostrar todo
+
+Occupied COVID+ beds,Camas COVID+ ocupadas
+Available COVID+ beds,Camas COVID+ disponibles
+COVID deceased,Fallecidos COVID
+COVID healed,Recuperados COVID
+Refused,Rechazados
+(due to unavailability),(por capacidad)
+Transfers,Transferidos
+(to other ICU),(a otras UCIs)
+Toutes les régions,Todas las regiones
+
+Taux de refus (covid) / capacité totale,Tasa de rechazo (COVID) / capacidad total
+Taux de remplissage lits (total),Tasa de ocupación de camas (total)
+Taux de remplissage lits (covid),Tasa de ocupación de camas (COVID)
+Fraction (%),Fracción (%)
