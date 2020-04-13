@@ -16,27 +16,26 @@
 <section class="content">
   <div class="container-fluid">
 
-  <section class="content-header">
-   <div class="container-fluid">
-     <div class="row mb-2">
-       <div class="col-sm-6">
-         <h1>{{objtype}}</h1>
-       </div>
-     </div>
-   </div><!-- /.container-fluid -->
-  </section>
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{{_(objtype)}}</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
 
     <section class="content">
       <div class="card">
         {% if create_route %}
         <div class="card-header">
-          <h3 class="card-title">Add</h3>
-          <button type="button" class="btn badge badge-primary"
-            data-card-widget="remove" onclick="navigateTo('{{create_route}}')">
+          <h3 class="card-title">{{_("Add")}}</h3>
+          <button type="button" class="btn badge badge-primary" data-card-widget="remove"
+            onclick="navigateTo('{{create_route}}')">
             <i class="fas fa-plus"></i>
           </button>
-          <button type="button" class="btn badge badge-warning"
-            data-card-widget="remove">
+          <button type="button" class="btn badge badge-warning" data-card-widget="remove">
             <i class="fas fa-upload"></i>
           </button>
         </div>
@@ -48,33 +47,33 @@
           <table id="my_data" class="table table-bordered table-striped">
             <thead>
               <tr>
-              {% for item in data[0] %}
+                {% for item in data[0] %}
                 <th>{{_(item["key"])}}</th>
-              {% end %}
+                {% end %}
               </tr>
             </thead>
             {% for row in data %}
-              <tr>
-                {% for item in row %}
-                  <td>
-                  {% if item['link'] %}
-                    <a href="{{item['link']}}">{{item['value']}}</a>
-                  {% elif isinstance(item['value'], bool) and item['value'] %}
-                    <i class="fas fa-check text-success"></i>
-                  {% elif isinstance(item['value'], bool) and not item['value'] %}
-                    <i class="fas fa-times text-danger"></i>
-                  {% else %}
-                    {{item['value']}}
-                    {% if item.get('warning', False) %}
-                      <i class='fas fa-exclamation-triangle text-danger'></i>
-                    {% end %}
-                    {% if 'sort_value' in item %}
-                    ::{{item['sort_value']}}
-                    {% end %}
-                  {% end %}
-                  </td>
+            <tr>
+              {% for item in row %}
+              <td>
+                {% if item['link'] %}
+                <a href="{{item['link']}}">{{item['value']}}</a>
+                {% elif isinstance(item['value'], bool) and item['value'] %}
+                <i class="fas fa-check text-success"></i>
+                {% elif isinstance(item['value'], bool) and not item['value'] %}
+                <i class="fas fa-times text-danger"></i>
+                {% else %}
+                {{item['value']}}
+                {% if item.get('warning', False) %}
+                <i class='fas fa-exclamation-triangle text-danger'></i>
                 {% end %}
-              </tr>
+                {% if 'sort_value' in item %}
+                ::{{item['sort_value']}}
+                {% end %}
+                {% end %}
+              </td>
+              {% end %}
+            </tr>
             {% end %}
           </table>
           {% end %}
