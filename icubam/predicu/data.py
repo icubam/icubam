@@ -235,9 +235,9 @@ def get_clean_daily_values(d):
   clean_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
-    d.groupby(['icu_name', 'department'])
-    .first().reset_index()[['icu_name', 'department']]
-    .itertuples(name=None, index=False)
+    d.groupby(['icu_name', 'department']
+              ).first().reset_index()[['icu_name', 'department'
+                                       ]].itertuples(name=None, index=False)
   )
   for date, icu_name in itertools.product(dates, icu_names):
     sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
