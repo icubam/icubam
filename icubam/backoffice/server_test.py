@@ -25,12 +25,13 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   def get_app(self):
     return self.server.make_app(cookie_secret='secret')
 
-  def fetch(self, url, **kwargs):
+  def fetch(self, url, follow_redirects=False, **kwargs):
     prefix = '/' + self.app.root + '/'
-    return super().fetch(prefix + url.lstrip('/'), **kwargs)
+    path = prefix + url.lstrip('/')
+    return super().fetch(path, follow_redirects=follow_redirects, **kwargs)
 
   def test_homepage_without_cookie(self):
-    response = self.fetch(home.HomeHandler.ROUTE)
+    response = self.fetch(home.HomeHandler.ROUTE, follow_redirects=True)
     self.assertEqual(response.code, 200)
 
   def test_login(self):
@@ -44,7 +45,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.assertTrue(error_reason in response.effective_url)
 
   def test_logout(self):
-    response = self.fetch(logout.LogoutHandler.ROUTE)
+    response = self.fetch(logout.LogoutHandler.ROUTE, follow_redirects=True)
     self.assertEqual(response.code, 200)
 
   def test_homepage_without(self):
