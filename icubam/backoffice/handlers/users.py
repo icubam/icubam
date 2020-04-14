@@ -39,7 +39,7 @@ class ListUsersHandler(base.BaseHandler):
 
     data = [self._cleanUser(user) for user in users]
     return self.render_list(
-      data=data, objtype='Users', create_handler=UserHandler
+      data=data, objtype='Users', create_handler=UserHandler, upload=True
     )
 
 

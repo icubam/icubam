@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block links %}
+<link rel="stylesheet" href="static/upload.css">
 <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 <script src="plugins/jquery/jquery.min.js"></script>
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -8,7 +9,6 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="static/navigate.js"></script>
 {% end %}
 
 {% block content %}
@@ -35,11 +35,15 @@
             onclick="navigateTo('{{create_route}}')">
             <i class="fas fa-plus"></i>
           </button>
-          <button type="button" class="btn badge badge-warning" data-card-widget="remove">
-            <i class="fas fa-upload"></i>
-          </button>
+          {% if upload_type %}
+          <label for="file-upload" class="btn badge badge-warning upload-button">
+            <i class="fa fa-upload"></i>
+          </label>
+          <input id="file-upload" type="file" accept="text/csv" />
+          {% end %}
         </div>
         {% end %}
+
         <!-- /.card-header -->
         <div class="card-body">
 
@@ -97,9 +101,14 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="static/table.js"></script>
 <script>
+  const upload_type = "{{upload_type}}"
   let columns = {% raw columns %}
-  $(x => setDatatable("#my_data", columns))
+  $(function () {
+    $(x => setDatatable("#my_data", columns))
+  })
 </script>
+<script src="static/table.js"></script>
+<script src="static/navigate.js"></script>
+<script src="static/upload.js"></script>
 {% end %}
