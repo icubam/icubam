@@ -56,9 +56,12 @@ class BaseHandler(tornado.web.RequestHandler):
     return self.db.get_user(int(tornado.escape.json_decode(userid)))
 
   def get_user_locale(self):
-    locale = self.get_query_argument('hl', default=self.config.default_locale)
     # We fallback to Accept-Language header.
-    return tornado.locale.get(locale) if locale else None
+    locale_code = self.get_query_argument('hl', default=None)
+    if locale_code is None:
+      return self.get_browser_locale()
+    else:
+      return tornado.locale.get(locale_code)
 
   def set_default_headers(self):
     self.set_header("Access-Control-Allow-Credentials", True)

@@ -19,10 +19,13 @@ function formatColumn (column) {
 }
 
 
-function setDatatable (table_id, columns) {
+function setDatatable (table_id, columns, language_url) {
   let table = $(table_id).DataTable({
     responsive: true,
     autoWidth: false,
-    columns: columns.map(x => formatColumn(x))
+    columns: columns.map(x => formatColumn(x)),
+    language: {
+      url: language_url
+    }
   })
 }

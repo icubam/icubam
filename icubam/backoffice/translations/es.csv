@@ -1,0 +1,112 @@
+Active,Activo
+Admin,Administrador ICUBAM
+Authentication failed,Error de autenticación
+Create user,Nuevo usuario
+Edit user,Edición de usuario
+Email address,Email
+user,usuario
+Select ICUs,Escoger UCIs
+Name,Nombre
+Password,Contraseña
+Phone Number,Número telefónico
+Save,Guardar
+Sign in to start your session,Identificarse e ingresar
+Sign In,Ingresar
+User management,Manejo de usuarios
+n_covid_occ,Covid+ ocupadas
+n_ncovid_occ,Covid- ocupadas
+n_covid_free,Covid+ libres
+n_ncovid_free,Covid- libres
+n_covid_deaths,Muertes
+n_covid_healed,Sanados/Curados
+n_covid_refused,Rechazados
+n_covid_transfered,Transferidos
+
+Bed Counts,Recuento de camas
+Users,Usuarios
+ICUs,UCIs
+Dashboards,Tableros
+Map,Mapa
+Operational dashboard,Tablero operacional
+Access Tokens,Tokens de accesos
+Acces Tokens,Tokens de accesos
+Regions,Regiones
+Messages,Mensajes
+
+Manage ICUs,Gestionar UCIs
+Edit,Editar
+Create,Crear
+Manage ICU,Gestionar UCI
+
+Home,Inicio
+Logout,Desconectarse
+All rights reserved,Todos los derechos reservados
+Where is the ICU?,¿Dónde está la UCI?
+
+Overall,Resumen
+icus,UCIs
+users,usuarios
+Occupied,Ocupadas
+Free,Disponibles
+deceased,Fallecidos
+Healed,Recuperados
+
+icu (update link),UCI (Link de actualización)
+since_update,Última actualización
+
+Add,Crear
+dataTables.english.lang,//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json
+
+name,Nombre
+city,Ciudad
+dept,Comuna
+region,Región
+active,Activa
+managers,Administradores
+
+admin,Administrador ICUBAM
+created,Creación
+manages,Administra
+
+Actif,Activo
+Managed ICUs,UCIs administradas
+Already set,Ya establecida
+Cancel,Cancelar
+
+Legal ID,RUT
+Region,Región
+City,Ciudad
+Department / State,Comuna
+Latitude,Latitud
+Longitude,Longitud
+Submit,Enviar
+
+regions,regiones
+
+Click here to display all,Haga click para mostrar todo
+Display all,Mostrar todo
+
+Occupied COVID+ beds,Camas COVID+ ocupadas
+Available COVID+ beds,Camas COVID+ disponibles
+COVID deceased,Fallecidos COVID
+COVID healed,Recuperados COVID
+Refused,Rechazados
+(due to unavailability),(por capacidad)
+Transfers,Transferidos
+(to other ICU),(a otras UCIs)
+All regions,Todas las regiones
+
+Rejection rate (covid) / total capacity,Tasa de rechazo (COVID) / capacidad total
+Beds utilization rate (total),Tasa de ocupación de camas (total)
+Beds utilization rate (covid),Tasa de ocupación de camas (COVID)
+Rate (%),Fracción (%)
+
+Failed to save,Error guardando
+Manage your,Gestionar
+
+access tokens,tokens de acceso
+access token,token de acceso
+Access,Acceso
+Access Key,Llave de Acceso
+Expires,Expiración
+Created,Creación
