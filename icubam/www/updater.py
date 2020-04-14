@@ -49,7 +49,6 @@ class Updater:
     last_update = bed_count.last_modified
     if last_update is not None:
       last_update = last_update.timestamp()
-      
     result = bed_count.to_dict()
     apply_default(result, value=def_val, prefix='n_')
     result['since_update'] = time_utils.localewise_time_ago(
