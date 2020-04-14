@@ -63,4 +63,4 @@ def get(config, protocol=None):
     return SMTPEmailSender(config)
   elif protocol == 'fake':
     return FakeEmailSender(config)
-  raise ValueError(f'Incorrect email protocol {procotol}.')
+  raise ValueError(f'Incorrect email protocol {protocol}.')

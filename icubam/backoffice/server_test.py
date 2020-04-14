@@ -1,12 +1,11 @@
-import os.path
 import tornado.testing
-from unittest import mock, SkipTest
+from unittest import mock
 
 from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
   base, home, login, logout, users, tokens, icus, bedcounts,
-  operational_dashboard, regions, messages, maps
+  operational_dashboard, regions, maps
 )
 
 

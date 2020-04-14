@@ -3,8 +3,7 @@ import logging
 import tornado.escape
 import tornado.web
 
-from icubam.backoffice.handlers import base, home, icus, users
-from icubam.db import store
+from icubam.backoffice.handlers import base, icus, users
 from icubam.messaging import client
 
 

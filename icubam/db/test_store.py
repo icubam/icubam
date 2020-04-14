@@ -1,11 +1,10 @@
-from collections import defaultdict
 import os
 import time
 
 from absl.testing import absltest
 from datetime import datetime, timedelta
 import icubam.db.store as db_store
-from icubam.db.store import Store, StoreFactory, BedCount, ExternalClient, ICU, Region, User
+from icubam.db.store import BedCount, ExternalClient, ICU, Region, StoreFactory, User
 from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -319,18 +318,18 @@ class StoreTest(absltest.TestCase):
     icu_id1 = self.add_icu("icu1")
     store.assign_user_as_icu_manager(admin_user_id, manager_user_id, icu_id1)
 
-    user1 = store.add_user_to_icu(manager_user_id, icu_id1, User(name="user1"))
-    user2 = store.add_user_to_icu(manager_user_id, icu_id1, User(name="user2"))
+    store.add_user_to_icu(manager_user_id, icu_id1, User(name="user1"))
+    store.add_user_to_icu(manager_user_id, icu_id1, User(name="user2"))
 
     icu_id2 = self.add_icu("icu2")
     store.assign_user_as_icu_manager(admin_user_id, manager_user_id, icu_id2)
 
-    user3 = store.add_user_to_icu(manager_user_id, icu_id2, User(name="user3"))
+    store.add_user_to_icu(manager_user_id, icu_id2, User(name="user3"))
 
     # Add a user to a ICU which is not managed by the manager user. This should
     # not be present in the set of managed users.
     icu_id3 = self.add_icu("icu3")
-    user4 = store.add_user_to_icu(admin_user_id, icu_id3, User(name="user4"))
+    store.add_user_to_icu(admin_user_id, icu_id3, User(name="user4"))
 
     users = store.get_managed_users(manager_user_id)
     self.assertItemsEqual([user.name for user in users],
@@ -466,11 +465,9 @@ class StoreTest(absltest.TestCase):
       )
 
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
-    icu_id4 = self.add_icu_with_values(
-      region_id2, "icu4", now, [5], is_active=False
-    )
+    self.add_icu_with_values(region_id2, "icu4", now, [5], is_active=False)
 
     # Admin user should see bed counts of all ICUs.
     now_plus_1 = add_seconds(now, 1)
@@ -520,7 +517,7 @@ class StoreTest(absltest.TestCase):
     now = datetime.now()
 
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     def get_values(icu_ids, max_date=None):
@@ -720,9 +717,9 @@ class StoreTest(absltest.TestCase):
 
     now = datetime.now()
 
-    icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
-    icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
+    self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     def get_values(latest=True, max_date=None):
       return key_by_name_and_create_date(
@@ -787,7 +784,7 @@ class StoreTest(absltest.TestCase):
     now = datetime.now()
 
     icu_id1 = self.add_icu_with_values(region_id, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id, "icu3", now, [5])
 
     def get_values(icu_ids=None, latest=True, max_date=None):
@@ -844,7 +841,7 @@ class StoreTest(absltest.TestCase):
       )
     )
     store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
-    store = store_factory.create()
+    store_factory.create()
 
   def test_not_detached(self):
     store = self.store

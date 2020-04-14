@@ -1,5 +1,4 @@
 """Data store for ICUBAM."""
-from typing import Dict, Any
 
 from absl import logging
 import enum

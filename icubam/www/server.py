@@ -1,11 +1,10 @@
+from absl import logging  # noqa: F401
 import os.path
-from absl import logging
 import tornado.locale
 from tornado import queues
 import tornado.web
 from icubam import base_server
 from icubam.db import queue_writer
-from icubam.www import updater
 from icubam.www.handlers import consent
 from icubam.www.handlers import db
 from icubam.www.handlers import home
@@ -13,7 +12,6 @@ from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
 from icubam.www.handlers.version import VersionHandler
-import glob
 
 
 class WWWServer(base_server.BaseServer):

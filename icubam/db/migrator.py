@@ -1,5 +1,4 @@
 from absl import logging
-from datetime import datetime
 from icubam.db import store
 import sqlite3
 

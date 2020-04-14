@@ -1,5 +1,3 @@
-import os
-import tempfile
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -147,7 +145,7 @@ class StoreSynchronizerTest(absltest.TestCase):
 
     # Without UTC Time
     region_id = self.add_region('Region')
-    icu_id = self.add_icu('ICU', region_id=region_id, is_active=True)
+    self.add_icu('ICU', region_id=region_id, is_active=True)
     start_time = datetime.now()
     bed_counts_df = pd.DataFrame(self.gen_bed_count_set(start_time, 'ICU', 10))
     with self.assertRaises(ValueError):
@@ -215,7 +213,7 @@ class CSVTest(absltest.TestCase):
     self.assertEqual(
       n_user, 5, f"5 users should be in DB (4 imported + admin), got {n_user}."
     )
-    desc2 = self.db.get_user_by_phone("111").description
+    self.db.get_user_by_phone("111").description
 
     self.assertLen(
       self.db.get_user_by_phone("333").icus, 2,
@@ -233,7 +231,6 @@ class CSVTest(absltest.TestCase):
     with open("resources/test/icu2.csv") as csv_f:
       self.csv.sync_icus_from_csv(csv_f, False)
 
-    test_dir = tempfile.mkdtemp()
     icus = self.db.get_icus()
     str_buf = self.csv.export_icus()
     # Add a row for the header:
