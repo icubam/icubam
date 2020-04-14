@@ -1,4 +1,3 @@
-from absl import logging
 import tornado.web
 
 import icubam
