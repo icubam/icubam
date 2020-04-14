@@ -1,6 +1,8 @@
+from absl import logging
 import os.path
 import tornado.locale
 import tornado.web
+from typing import Tuple
 
 from icubam.db import store
 from icubam.www import token
@@ -18,22 +20,41 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user = None
     self.token_encoder = token.TokenEncoder(self.config)
 
+  def decode_token(self, user_token: str) -> Tuple[store.User, int]:
+    """Returns the user object and the icu id encoded in the token."""
+    input_data = self.token_encoder.decode(user_token)
+    if input_data is None:
+      logging.error("No token to be found.")
+      return None, None
+
+    userid, icuid = input_data
+    user = self.db.get_user(userid)
+    if user is None:
+      logging.error(f"User does not exist.")
+      return None, None
+
+    user_icu_ids = {i.icu_id: i for i in user.icus}
+    icu = user_icu_ids.get(icuid, None)
+    if icu is None:
+      logging.error(f"User does not belong the ICU.")
+      return None, None
+
+    if user.consent is not None and not user.consent:
+      logging.error(f"User has bailed out from ICUBAM.")
+      return None, None
+
+    return user, icu
+
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
 
   def get_current_user(self):
-    encoded_data = self.get_secure_cookie(self.COOKIE)
-    if encoded_data is None:
+    user_token = self.get_secure_cookie(self.COOKIE)
+    if user_token is None:
       return None
 
-    data = self.token_encoder.decode(encoded_data)
-    userid = int(data.get('user_id', -1))
-    self.user = self.db.get_user(userid)
-    if self.user:
-      # User who bailed out have no access to ICUBAM
-      # User with unknown consent have access until they decide.
-      if self.user.consent is None or self.user.consent:
-        return self.user.user_id
+    self.user, self.icu = self.decode_token(user_token)
+    return self.user
 
   def get_user_locale(self):
     locale = self.get_query_argument('hl', default=self.config.default_locale)

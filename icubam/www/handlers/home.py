@@ -18,19 +18,11 @@ class HomeHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    icu_data = self.token_encoder.decode(self.get_secure_cookie(self.COOKIE))
-    if icu_data is None:
-      logging.error('Cookie cannot be decoded.')
-      return None
-
-    icu = self.db.get_icu(icu_data['icu_id'])
-    if icu is None:
-      logging.error('No such ICU {}'.format(icu_data['icu_id']))
-      return None
-
     locale = self.get_user_locale()
     builder = map_builder.MapBuilder(self.config, self.db, locale)
-    data, center = builder.prepare_jsons(None, center_icu=icu, level='dept')
+    data, center = builder.prepare_jsons(
+      None, center_icu=self.icu, level='dept'
+    )
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,
