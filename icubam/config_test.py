@@ -1,14 +1,9 @@
-import unittest
-
 from icubam import config
 
-
-class ConfigTestCase(unittest.TestCase):
+def test_read():
   TEST_CONFIG_PATH = 'resources/test.toml'
-
-  def test_read(self):
-    mode = 'dev'
-    cfg = config.Config(self.TEST_CONFIG_PATH, mode=mode)
-    self.assertEqual(cfg.db.sqlite_path, ':memory:')
-    self.assertEqual(cfg.server.port, 8888)
-    self.assertEqual(cfg.scheduler.max_retries, 3)
+  mode = 'dev'
+  cfg = config.Config(TEST_CONFIG_PATH, mode=mode)
+  assert cfg.db.sqlite_path == ':memory:'
+  assert cfg.server.port == 8888
+  assert cfg.scheduler.max_retries == 3
