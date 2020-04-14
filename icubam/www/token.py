@@ -21,4 +21,4 @@ class TokenEncoder:
     return obj.get(self.KEY, None)
 
   def encode_data(self, user, icu) -> str:
-    return self.encode((icu.icu_id, user.user_id))
+    return self.encode((user.user_id, icu.icu_id))
