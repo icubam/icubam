@@ -156,6 +156,7 @@ class CSVSynchcronizer(StoreSynchronizer):
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     self.sync_icus(icus_df, force_update)
+    return icus_df.shape[0]
 
   def sync_users_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and synchronize."""
@@ -164,6 +165,7 @@ class CSVSynchcronizer(StoreSynchronizer):
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     self.sync_users(users_df, force_update)
+    return users_df.shape[0]
 
   def export_icus(self) -> TextIO:
     db_cols = copy.copy(ICU_COLUMNS)
