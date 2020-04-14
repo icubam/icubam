@@ -36,4 +36,4 @@ docker run -dt \
     --env TW_KEY=$TW_KEY \
     --env TW_API=$TW_API \
     $1  \
-    ./start_server_sms.sh
+    ./docker/start_server_sms.sh

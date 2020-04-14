@@ -27,10 +27,6 @@ WORKDIR /home/icubam
 
 # get docker config and move startup scripts for the server and sms containers
 COPY docker docker
-RUN mv ./docker/start_server.sh .
-RUN mv ./docker/start_server_sms.sh .
-RUN mv ./docker/start_server_bo.sh .
-
 # copy code and scripts
 COPY icubam icubam
 COPY scripts scripts
@@ -58,4 +54,4 @@ EXPOSE 8888 8890
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
 # default command
-CMD ["./start_server.sh"]
+CMD ["./docker/start_server.sh"]

@@ -44,4 +44,4 @@ docker run -d -p $2:8888 \
     --env TW_KEY=$TW_KEY \
     --env TW_API=$TW_API \
      $1  \
-    ./start_server.sh
+    ./docker/start_server.sh
