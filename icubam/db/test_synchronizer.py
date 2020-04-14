@@ -71,52 +71,68 @@ class StoreSynchronizerTest(absltest.TestCase):
     bed_counts = []
     start_time = datetime.now(tz.tzutc())
 
-    # Inject a first set of bedcounts
-    bed_counts = self.gen_bed_counts(
+    # Inject a first set of bed_countss
+    bed_counts_dict = self.gen_bed_counts(
       start_time, region_names, icu_base_names, num_icus
     )
-    bed_counts_df = pd.DataFrame(bed_counts)
+    bed_counts_df = pd.DataFrame(bed_counts_dict)
     self.sync.sync_bed_counts(bed_counts_df)
 
     # Make sure the right amount are there
-    bedcount = self.db.get_bed_counts()
+    bed_counts = self.db.get_bed_counts()
     self.assertLen(
-      bedcount,
+      bed_counts,
       len(region_names) * len(icu_base_names) * num_icus
     )
 
     # Make sure latests returns just the subset and their times are correct
-    bedcount = self.db.get_latest_bed_counts()
-    self.assertLen(bedcount, len(region_names) * len(icu_base_names))
+    bed_counts = self.db.get_latest_bed_counts()
+    self.assertLen(bed_counts, len(region_names) * len(icu_base_names))
     self.assertEqual(
-      bedcount[0].create_date.replace(tzinfo=tz.tzutc()),
+      bed_counts[0].create_date.replace(tzinfo=tz.tzutc()),
       bed_counts_df['create_date'].max().to_pydatetime()
     )
 
     # Make sure if we re-inject we get twice as much back
     self.sync.sync_bed_counts(bed_counts_df)
-    bedcount = self.db.get_bed_counts()
+    bed_counts = self.db.get_bed_counts()
     self.assertLen(
-      bedcount,
+      bed_counts,
       len(region_names) * len(icu_base_names) * num_icus * 2
     )
 
     # Now if we re-inject with more future times, make sure they
     # override the elements in 'latest'
-    bed_counts = self.gen_bed_counts(
+    bed_counts_dict = self.gen_bed_counts(
       start_time + timedelta(days=2),
       region_names,
       icu_base_names,
       num_icus,
       do_adds=False
     )
-    bed_counts_df = pd.DataFrame(bed_counts)
+    bed_counts_df = pd.DataFrame(bed_counts_dict)
     self.sync.sync_bed_counts(bed_counts_df)
-    bedcount = self.db.get_latest_bed_counts()
+    bed_counts = self.db.get_latest_bed_counts()
     self.assertEqual(
-      bedcount[0].create_date.replace(tzinfo=tz.tzutc()),
+      bed_counts[0].create_date.replace(tzinfo=tz.tzutc()),
       bed_counts_df['create_date'].max().to_pydatetime()
     )
+
+    # Test that field can be set to None
+    bed_counts_dict = self.gen_bed_counts(
+      start_time + timedelta(days=11),
+      region_names,
+      icu_base_names,
+      num_icus,
+      do_adds=False
+    )
+    bed_counts_df = pd.DataFrame(bed_counts_dict)
+    bed_counts_df['n_covid_healed'] = None
+    self.sync.sync_bed_counts(bed_counts_df)
+    bed_counts = self.db.get_latest_bed_counts()
+    self.assertIsNone(bed_counts[0].n_covid_healed)
+
+
 
   def test_sync_bed_counts_exceptions(self):
     # Without existent ICU
@@ -142,7 +158,7 @@ class CSVTest(absltest.TestCase):
       sqla.create_engine("sqlite:///:memory:", echo=True)
     )
     self.db = store_factory.create()
-    self.csv = synchronizer.CSVSynchcronizer(self.db)
+    self.csv = synchronizer.CSVSynchronizer(self.db)
 
   def test_import_icus(self):
     # Import icu.csv, contain 3 ICUs:
