@@ -180,7 +180,6 @@ def plot_one_region(d, reg):
   # plt.savefig("region-total.png")
 
 
-api_key= "ecff5f8874c011eab17b005056b5c1bb"
 # api_key = sys.argv[1]
 
 # d = predicu.data.load_combined_icubam_public(api_key=api_key)
