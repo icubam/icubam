@@ -132,8 +132,6 @@ class StoreSynchronizerTest(absltest.TestCase):
     bed_counts = self.db.get_latest_bed_counts()
     self.assertIsNone(bed_counts[0].n_covid_healed)
 
-
-
   def test_sync_bed_counts_exceptions(self):
     # Without existent ICU
     start_time = datetime.now(tz.tzutc())
