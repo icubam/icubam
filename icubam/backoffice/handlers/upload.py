@@ -13,7 +13,7 @@ class UploadHandler(base.BaseHandler):
 
   def answer(self, msg, error=False):
     logging.error(msg)
-    self.set_status(404 if error else 200)
+    self.set_status(400 if error else 200)
     self.write(json.dumps({'msg': msg}))
 
   @tornado.web.authenticated
