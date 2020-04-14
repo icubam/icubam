@@ -35,7 +35,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
   def render_list(self, data, objtype, create_handler=None, **kwargs):
     route = None if create_handler is None else create_handler.ROUTE
-    columns = json.dumps([x['key'] for x in data[0]])
+    item = data[0] if data else []
+    columns = json.dumps([x['key'] for x in item])
     return self.render(
       "list.html",
       data=data,
