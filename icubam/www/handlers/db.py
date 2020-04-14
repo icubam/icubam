@@ -110,10 +110,6 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def post(self, collection):
-    if collection not in ['bedcounts']:
-      logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
-      self.set_status(404)
-      return
 
     # Send to the correct endpoint:
     if collection == 'bedcounts':
@@ -146,6 +142,9 @@ class DBHandler(base.APIKeyProtectedHandler):
         logging.info(f"Received {file_path} from {self.request.remote_ip}.")
       except IOError as e:
         logging.error(f"Failed to write file due to IOError: {e}")
+    
+    # Or 404 if bad endpoint:
     else:
-      logging.debug("POST API called with incorrect collection: {collection}.")
-      self.redirect(home.HomeHandler.ROUTE)
+      logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
+      self.set_status(404)
+      return
