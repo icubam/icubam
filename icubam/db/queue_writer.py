@@ -11,8 +11,6 @@ class QueueWriter:
   async def process(self):
     async for item in self.queue:
       try:
-        item.pop('icu_name', None)
-        item.pop('user_name', None)
         user_id = item.pop('user_id', None)
         if user_id is None:
           logging.error("No user in request")

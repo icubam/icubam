@@ -3,7 +3,7 @@ import itertools
 from sqlalchemy import create_engine
 from icubam.db.fake import populate_store_fake
 from icubam.db.wipe import wipe_db
-from icubam.db.store import Store, StoreFactory
+from icubam.db.store import StoreFactory
 
 
 class WipeTest(absltest.TestCase):

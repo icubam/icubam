@@ -1,12 +1,8 @@
-import datetime
-import json
-
 import matplotlib.gridspec
 import matplotlib.lines
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
-import pandas as pd
 import scipy.stats
 
 from icubam.predicu.plot import RANDOM_COLORS

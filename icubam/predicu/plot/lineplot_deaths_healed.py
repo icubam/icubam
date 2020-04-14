@@ -1,13 +1,5 @@
-import itertools
-
-import matplotlib.cm
-import matplotlib.gridspec
-import matplotlib.patches
 import matplotlib.pyplot as plt
-import matplotlib.style
 import numpy as np
-import pandas as pd
-import scipy.interpolate
 
 from icubam.predicu.data import BEDCOUNT_COLUMNS
 from icubam.predicu.plot import (

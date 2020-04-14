@@ -3,8 +3,7 @@ import logging
 import tornado.escape
 import tornado.web
 
-from icubam.backoffice.handlers import base, home, icus, users
-from icubam.db import store
+from icubam.backoffice.handlers import base, icus, users
 from icubam.messaging import client
 
 
@@ -52,7 +51,9 @@ class ListMessagesHandler(base.AdminHandler):
   @tornado.web.authenticated
   async def get(self):
     try:
-      messages = await self.client.get_scheduled_messages(self.user.user_id)
+      messages = await self.client.get_scheduled_messages(
+        self.current_user.user_id
+      )
     except Exception as e:
       logging.error(f'Cannot contact message server: {e}')
       return self.redirect(self.root_path)

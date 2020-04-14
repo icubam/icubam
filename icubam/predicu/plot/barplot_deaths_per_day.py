@@ -1,10 +1,4 @@
-import datetime
-
-import matplotlib.gridspec
 import matplotlib.pyplot as plt
-import matplotlib.style
-import numpy as np
-import pandas as pd
 import seaborn as sns
 
 from icubam.predicu.data import DEPARTMENT_POPULATION
@@ -13,7 +7,6 @@ data_source = "bedcounts"
 
 
 def plot(data):
-  column = "n_covid_deaths"
   d = data
   d = d.groupby(["date", "department"]).sum().reset_index()
   d = d.sort_values(by="date")
