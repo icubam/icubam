@@ -1,3 +1,4 @@
 yapf
 pre-commit
 tables==3.6.1
+flake8
