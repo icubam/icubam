@@ -32,7 +32,9 @@ def test_generate_plots(name, tmpdir, monkeypatch):
   test_public['date'] = pd.to_datetime(test_public['date']).dt.date
   monkeypatch_data_load_fun("public", test_public, monkeypatch)
   test_bedcounts_path = os.path.join(BASE_PATH, "tests/data/bedcounts.csv")
-  test_bedcounts = pd.read_csv(test_bedcounts_path, index_col=False)
+  test_bedcounts = pd.read_csv(
+    test_bedcounts_path, index_col=False, comment="#"
+  )
   test_bedcounts['date'] = pd.to_datetime(test_bedcounts['date']).dt.date
   test_bedcounts['datetime'] = pd.to_datetime(test_bedcounts['datetime'])
   monkeypatch_data_load_fun("bedcounts", test_bedcounts, monkeypatch)
