@@ -26,7 +26,6 @@ class BaseHandler(tornado.web.RequestHandler):
     status = self.application.server_status
     super().render(
       path,
-      this_user=self.current_user,
       root=self.root_path,
       server_status=status,
       **kwargs
