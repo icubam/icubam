@@ -30,7 +30,7 @@ fi
 echo "### Creating dummy certificate for ${domains[0]} ..."
 path="/etc/letsencrypt/live/${domains[0]}"
 mkdir -p "$data_path/conf/live/${domains[0]}"
-docker-compose -f docker/docker-compose.yml --project-directory . \
+docker-compose -f docker/docker-compose-proxy.yml --project-directory . \
   run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:1024 -days 1\
     -keyout '$path/privkey.pem' \
@@ -40,12 +40,12 @@ echo
 
 
 echo "### Starting nginx ..."
-docker-compose -f docker/docker-compose.yml --project-directory . \
+docker-compose -f docker/docker-compose-proxy.yml --project-directory . \
   up --force-recreate -d nginx
 echo
 
 echo "### Deleting dummy certificate for ${domains[0]} ..."
-docker-compose -f docker/docker-compose.yml --project-directory . \
+docker-compose -f docker/docker-compose-proxy.yml --project-directory . \
   run --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/live/${domains[0]} && \
   rm -Rf /etc/letsencrypt/archive/${domains[0]} && \
@@ -69,7 +69,7 @@ esac
 # Enable staging mode if needed
 if [ "${staging}" != "0" ]; then staging_arg="--staging"; fi
 
-docker-compose -f docker/docker-compose.yml --project-directory . \
+docker-compose -f docker/docker-compose-proxy.yml --project-directory . \
   run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     ${staging_arg} \
@@ -81,5 +81,5 @@ docker-compose -f docker/docker-compose.yml --project-directory . \
 echo
 
 echo "### Reloading nginx ..."
-docker-compose  -f docker/docker-compose.yml --project-directory . \
+docker-compose  -f docker/docker-compose-proxy.yml --project-directory . \
   exec nginx nginx -s reload

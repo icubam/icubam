@@ -61,8 +61,7 @@ and remove port 8888 when using the link provided by the running server).
 In particular, WEB_HOSTNAME should be replaced with the targeted's URL hostname (e.g., www.example.org)
 for both the `server_name` and also in the path for the ssl certificates.
 
-Compared to the initial `init-letsencrypt.sh`script, explicit setup of the docker-compose.yml file and root path has been added as all the docker related files are in a specific subfolder.
-
+Compared to the initial `init-letsencrypt.sh`script, explicit setup of the docker-compose-proxy.yml file and root path has been added as all the docker related files are in a specific subfolder.
 
 ### Environment variables
 
@@ -82,7 +81,7 @@ Two kinds of environment variables must be set
 - IMAGE_TAG: tag of the Docker image to use
 - LOGS_DIR: folder where log files (e.g., './logs')
 
-Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the `docker-compose.yml`file.
+Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the `docker-compose-proxy.yml`file.
 
 **Application's environement variables**
 
