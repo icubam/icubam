@@ -52,7 +52,9 @@ class Updater:
       
     result = bed_count.to_dict()
     apply_default(result, value=def_val, prefix='n_')
-    result['since_update'] = time_utils.localewise_time_ago(last_update, locale)
+    result['since_update'] = time_utils.localewise_time_ago(
+      last_update, locale
+    )
     result['home_route'] = home.HomeHandler.ROUTE
     result['update_route'] = self.ROUTE
     return result
