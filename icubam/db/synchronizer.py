@@ -206,7 +206,7 @@ class CSVPreprocessor(CSVSynchronizer):
   ):
     """Sync bedcount CSVs from IdF RoR uplink."""
     bedcounts_df = pd.read_csv(csv_contents)
-    col_diff = set(ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
+    col_diff = set(self.ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     

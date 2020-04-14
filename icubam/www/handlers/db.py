@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import functools
 import io
 import os
@@ -16,7 +16,7 @@ def _get_headers(collection, asked_file_type):
     return dict()
 
   extension = 'csv' if asked_file_type == 'csv' else 'h5'
-  datestr = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%M')
+  datestr = datetime.now().strftime('%Y-%m-%d_%Hh%M')
   filename = f'{collection}_{datestr}.{extension}'
   content_type = (
     'text/csv' if asked_file_type == 'csv' else 'application/octetstream'
@@ -34,8 +34,10 @@ class DBHandler(base.APIKeyProtectedHandler):
   API_COOKIE = 'api'
   ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
 
-  def initialize(self, config, db_factory):
+  def initialize(self, upload_path, config, db_factory):
     super().initialize(config, db_factory)
+    self.upload_path = upload_path
+
     keys = ['icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
     self.get_fns['all_bedcounts'] = self.db.get_bed_counts
@@ -57,7 +59,7 @@ class DBHandler(base.APIKeyProtectedHandler):
 
     if collection in ['bedcounts', 'all_bedcounts']:
       if isinstance(max_ts, str) and max_ts.isnumeric():
-        max_ts = datetime.datetime.fromtimestamp(int(max_ts))
+        max_ts = datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
     else:
@@ -94,13 +96,16 @@ class DBHandler(base.APIKeyProtectedHandler):
       file = self.request.files["file"][0]
       file_format = self.get_query_argument('format', default=None)
       
+      file_name = None
       # Pre-process with the correct method:
       if file_format == 'ror_idf':
-        csvp.preprocess_ror_idf(io.StringIO(file["body"]))
+        input_buf = io.StringIO(file["body"].decode('utf-8'))
+        csvp.sync_bedcounts_ror_idf(input_buf)
         file_name = 'ror_idf'
       else:
         logging.debug("API called with incorrect file_format: {file_format}.")
         self.redirect(home.HomeHandler.ROUTE)
+        return
 
       # Save the file locally just in case: 
       time_str = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
