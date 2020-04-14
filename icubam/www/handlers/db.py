@@ -118,7 +118,6 @@ class DBHandler(base.APIKeyProtectedHandler):
       # Get the file object and format request:
       file = self.request.files["file"][0]
       file_format = self.get_query_argument('format', default=None)
-
       file_name = None
       # Pre-process with the correct method:
       if file_format == 'ror_idf':
