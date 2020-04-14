@@ -33,8 +33,11 @@ class BaseHandler(tornado.web.RequestHandler):
       **kwargs
     )
 
-  def render_list(self, data, objtype, create_handler=None, **kwargs):
+  def render_list(
+    self, data, objtype, create_handler=None, upload=False, **kwargs
+  ):
     route = None if create_handler is None else create_handler.ROUTE
+    upload_type = route if upload else None
     item = data[0] if data else []
     columns = json.dumps([x['key'] for x in item])
     return self.render(
@@ -43,6 +46,7 @@ class BaseHandler(tornado.web.RequestHandler):
       columns=columns,
       objtype=objtype,
       create_route=route,
+      upload_type=upload_type,
       **kwargs
     )
 
