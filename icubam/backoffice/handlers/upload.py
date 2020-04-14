@@ -30,7 +30,7 @@ class UploadHandler(base.BaseHandler):
     sync_fns = {
       'user': sync.sync_users_from_csv,
       'icu': sync.sync_icus_from_csv,
-      'bedcounts': sync.sinc_bedcount_from_csv
+      'bedcounts': sync.sync_bedcount_from_csv
     }
     objtype = data.get('objtype', None)
     sync_fn = sync_fns.get(objtype, None)
