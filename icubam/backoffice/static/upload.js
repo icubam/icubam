@@ -14,7 +14,9 @@ $(function () {
         $.post('upload', JSON.stringify(data), function (resp, status) {
             let answer = JSON.parse(resp)
             alert(answer.msg)
-            location.reload()
+            if (status === 'success') {
+                location.reload()
+            }
         })
     }
 })
