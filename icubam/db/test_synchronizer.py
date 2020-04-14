@@ -130,7 +130,7 @@ class StoreSynchronizerTest(absltest.TestCase):
 
     # Without UTC Time
     region_id = self.add_region('Region')
-    icu_id = self.add_icu('ICU', region_id=region_id, is_active=True)
+    self.add_icu('ICU', region_id=region_id, is_active=True)
     start_time = datetime.now()
     bed_counts_df = pd.DataFrame(self.gen_bed_count_set(start_time, 'ICU', 10))
     with self.assertRaises(ValueError):
