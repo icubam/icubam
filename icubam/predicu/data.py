@@ -153,35 +153,48 @@ def clean_data(d, spread_cum_jump_correction=False):
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
-  d = aggregate_multiple_inputs(d)
-  # d = fix_noncum_inputs(d)
-  d = get_clean_daily_values(d)
-  if spread_cum_jump_correction:
+  d = aggregate_multiple_inputs(d, "15Min") ## merge(15min) + rolling median smoothing + restore monotonic growth in cumu. inputs
+  d = fill_in_missing_days(d, "3D") ## if interval > 3D, then fill in by linear interpolation
+  d = get_clean_daily_values(d) ## reduces data to 1/day max (and makes it be exactly 1/day)
+  if spread_cum_jump_correction: ## pas verifiee ?
     d = spread_cum_jumps(d, icu_to_first_input_date)
   d = d[ALL_COLUMNS]
   return d
 
-
-def aggregate_multiple_inputs(d):
+def aggregate_multiple_inputs(d, TimeDeltaChosen="15Min"):
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
     dg = dg.sort_index()
-    mask = ((dg.index.to_series().diff(1) >
-             pd.Timedelta("15Min")).shift(-1).fillna(True).astype(bool))
+
+    ## this groups inputs when they are separated bu less than 15 Min in time (in the same ICU)
+    mask = (
+      (dg.index.to_series().diff(1) > pd.Timedelta(TimeDeltaChosen))
+      .shift(-1)
+      .fillna(True)
+      .astype(bool)
+    )
     dg = dg.loc[mask]
 
+    ## rolling median average, 5 points (for cumulative qtities)
     for col in CUM_COLUMNS:
       dg[col] = (
-        dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
+        dg[col]
+        .rolling(5, center=True, min_periods=1)
+        .median()
+        .astype(int)
       )
-
+    ## rolling median average, 3 points (for non-cumulative qtities)
     for col in NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
-        dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
+        dg[col]
+        .rolling(3, center=True, min_periods=1)
+        .median()
+        .astype(int)
       )
 
+    ## si la valeur decroit dans une colonne cumulative, alors on redresse ne appliquant la valeur precedente
     for col in CUM_COLUMNS:
       new_col = []
       last_val = -100000
@@ -198,6 +211,46 @@ def aggregate_multiple_inputs(d):
   return pd.concat(res_dfs)
 
 
+def fill_in_missing_days(d, TimeDeltaChosen="3D"):
+  res_dfs = []
+  for icu_name, dg in d.groupby("icu_name"):
+    dg = dg.sort_values(by=['datetime'])
+
+    ## looking for time intervals larger than 3 Days (or whatever)
+    timeDelta = dg['datetime'].diff(1)
+    for i, td in enumerate(timeDelta) :
+      if td > pd.Timedelta(TimeDeltaChosen): ## if no input in 3 complete days (72 hours)
+        Ndays = td//pd.Timedelta("1D")
+        slope = 1.0/Ndays
+        val_init = dg.iloc[i-1] # because of the diff, the indexing goes like this
+        val_final = dg.iloc[i]
+
+        ## adding intermediate days
+        for added_day in range(Ndays):
+          added_datetime = val_init.datetime + pd.Timedelta("1D")*added_day
+          added_date     = val_init.date     + pd.Timedelta("1D")*added_day
+          new_row={'datetime': added_datetime,
+          'icu_name': val_init.icu_name,
+          'date': added_date,
+          'department': val_init.department,
+          'n_covid_deaths':     np.round(val_init.n_covid_deaths+     (val_final.n_covid_deaths-     val_init.n_covid_deaths)*     added_day*1.0/Ndays,4),
+          'n_covid_healed':     np.round(val_init.n_covid_healed+     (val_final.n_covid_healed-     val_init.n_covid_healed)*     added_day*1.0/Ndays,4),
+          'n_covid_transfered': np.round(val_init.n_covid_transfered+ (val_final.n_covid_transfered- val_init.n_covid_transfered)* added_day*1.0/Ndays,4),
+          'n_covid_refused':    np.round(val_init.n_covid_refused+    (val_final.n_covid_refused-    val_init.n_covid_refused)*    added_day*1.0/Ndays,4),
+          'n_covid_free':       np.round(val_init.n_covid_free+       (val_final.n_covid_free-       val_init.n_covid_free)*       added_day*1.0/Ndays,4),
+          'n_ncovid_free':      np.round(val_init.n_ncovid_free+      (val_final.n_ncovid_free-      val_init.n_ncovid_free)*      added_day*1.0/Ndays,4),
+          'n_covid_occ':        np.round(val_init.n_covid_occ+        (val_final.n_covid_occ-        val_init.n_covid_occ)*        added_day*1.0/Ndays,4),
+          'n_ncovid_occ':       np.round(val_init.n_ncovid_occ+       (val_final.n_ncovid_occ-       val_init.n_ncovid_occ)*       added_day*1.0/Ndays,4)}
+          dg = dg.append(pd.Series(new_row), ignore_index=True) ## this is an insert, we will sort by date later.
+      # else: time delay short enough, nothing to insert
+    dg = dg.sort_values(by=['datetime'])
+    res_dfs.append(dg)
+  return pd.concat(res_dfs)
+
+
+
+## make the data set have exactly 1 data point per day (no more, no less)
+## It creates the data point if there is none in that day (by taking the last value that was recorded)
 def get_clean_daily_values(d):
   icu_name_to_department = load_icu_name_to_department()
   dates = sorted(list(d.date.unique()))
