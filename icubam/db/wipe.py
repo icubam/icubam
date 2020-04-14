@@ -39,7 +39,7 @@ def wipe_db(conn, keep_beds):
   -------
   None
   """
-  cur = conn.cursor()
+  conn.cursor()
   if not keep_beds:
     ALTERATIONS["bed_counts"].extend([("n_covid_free", 2), ("n_covid_occ", 4)])
   for alteration in ALTERATIONS.items():

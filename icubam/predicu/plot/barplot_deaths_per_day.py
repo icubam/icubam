@@ -1,8 +1,4 @@
-import matplotlib.gridspec
 import matplotlib.pyplot as plt
-import matplotlib.style
-import numpy as np
-import pandas as pd
 import seaborn as sns
 
 from ..data import DEPARTMENT_POPULATION, ICU_NAMES_GRAND_EST
@@ -11,7 +7,6 @@ data_source = "all_data"
 
 
 def plot(data):
-  column = "n_covid_deaths"
   d = data
   d = d.loc[d.icu_name.isin(ICU_NAMES_GRAND_EST)]
   d = d.groupby(["date", "department"]).sum().reset_index()

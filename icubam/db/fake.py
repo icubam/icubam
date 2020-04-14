@@ -1,4 +1,4 @@
-from icubam.db.store import BedCount, ICU, Region, Store, User
+from icubam.db.store import BedCount, ICU, Region, User
 
 
 def populate_store_fake(store):

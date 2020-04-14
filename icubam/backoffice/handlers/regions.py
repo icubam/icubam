@@ -4,7 +4,6 @@ import tornado.escape
 import tornado.web
 
 from icubam.backoffice.handlers import base
-from icubam.backoffice.handlers import home
 from icubam.db import store
 
 

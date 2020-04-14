@@ -1,11 +1,9 @@
 import os.path
-from absl import logging
 import tornado.locale
 from tornado import queues
 import tornado.web
 from icubam import base_server
 from icubam.db import queue_writer
-from icubam.www import updater
 from icubam.www.handlers import consent
 from icubam.www.handlers import db
 from icubam.www.handlers import home

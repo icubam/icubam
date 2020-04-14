@@ -1,5 +1,3 @@
-import itertools
-
 import matplotlib.cm
 import matplotlib.gridspec
 import matplotlib.patches

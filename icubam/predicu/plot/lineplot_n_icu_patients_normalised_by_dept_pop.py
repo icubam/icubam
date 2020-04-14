@@ -4,7 +4,6 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
-import pandas as pd
 
 from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
 

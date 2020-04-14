@@ -4,7 +4,7 @@ import time
 from absl.testing import absltest
 from datetime import datetime, timedelta
 import icubam.db.store as db_store
-from icubam.db.store import Store, StoreFactory, BedCount, ExternalClient, ICU, Region, User
+from icubam.db.store import BedCount, ExternalClient, ICU, Region, StoreFactory, User
 from icubam import config
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -465,7 +465,7 @@ class StoreTest(absltest.TestCase):
       )
 
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
     icu_id4 = self.add_icu_with_values(
       region_id2, "icu4", now, [5], is_active=False
@@ -519,7 +519,7 @@ class StoreTest(absltest.TestCase):
     now = datetime.now()
 
     icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     def get_values(icu_ids, max_date=None):
@@ -719,9 +719,9 @@ class StoreTest(absltest.TestCase):
 
     now = datetime.now()
 
-    icu_id1 = self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
-    icu_id3 = self.add_icu_with_values(region_id2, "icu3", now, [5])
+    self.add_icu_with_values(region_id1, "icu1", now, [1, 2])
+    self.add_icu_with_values(region_id1, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id2, "icu3", now, [5])
 
     def get_values(latest=True, max_date=None):
       return key_by_name_and_create_date(
@@ -786,7 +786,7 @@ class StoreTest(absltest.TestCase):
     now = datetime.now()
 
     icu_id1 = self.add_icu_with_values(region_id, "icu1", now, [1, 2])
-    icu_id2 = self.add_icu_with_values(region_id, "icu2", now, [4, 3])
+    self.add_icu_with_values(region_id, "icu2", now, [4, 3])
     icu_id3 = self.add_icu_with_values(region_id, "icu3", now, [5])
 
     def get_values(icu_ids=None, latest=True, max_date=None):
@@ -843,7 +843,7 @@ class StoreTest(absltest.TestCase):
       )
     )
     store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
-    store = store_factory.create()
+    store_factory.create()
 
   def test_not_detached(self):
     store = self.store

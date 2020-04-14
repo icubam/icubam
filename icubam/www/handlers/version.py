@@ -1,8 +1,6 @@
 from subprocess import check_output
 from typing import Any, Dict
 
-import tornado.web
-
 import icubam
 from icubam.www.handlers import base
 from icubam.www import updater
