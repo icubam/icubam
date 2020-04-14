@@ -1,5 +1,4 @@
 from absl import logging  # noqa: F401
-from typing import Tuple
 from icubam import time_utils
 from icubam.db import store
 from icubam.www.handlers import home
