@@ -13,7 +13,7 @@ class HomeHandler(base.BaseHandler):
 
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    self.icu = None
+    self.icu = None  # should be overwritten by the authentication
 
   @tornado.web.authenticated
   def get(self):
