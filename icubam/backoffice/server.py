@@ -9,7 +9,7 @@ import tornado.web
 import tornado.ioloop
 from icubam.backoffice.handlers import (
   home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
-  messages, regions, maps
+  messages, regions, maps, upload
 )
 from icubam import base_server
 
@@ -76,6 +76,7 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(operational_dashboard.OperationalDashHandler)
     self.add_handler(messages.ListMessagesHandler)
     self.add_handler(maps.MapsHandler)
+    self.add_handler(upload.UploadHandler)
 
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
