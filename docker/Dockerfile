@@ -16,15 +16,13 @@ RUN apt-get -y update \
        wget \
     && rm -rf /var/lib/apt/lists/*
 
-# expose ports for flask app - both server and backoffice
-EXPOSE 8888 8890
-
 # Create app directory and copy code
 RUN mkdir /home/icubam
 WORKDIR /home/icubam
 
-# must copy explicitely to handle cases where image is build in an environment without extra files (db, config)
-# or with extra file (e.g., after a first init).
+# must copy explicitely to handle cases where image is build in an environment with and without extra files
+# (db, config) in the context (e.g., relaunching after a first init).
+
 # TODO:  download code directly in the container from repository/package instead orf relying on local files
 
 # get docker config and move startup scripts for the server and sms containers
@@ -32,9 +30,11 @@ COPY docker docker
 RUN mv ./docker/start_server.sh .
 RUN mv ./docker/start_server_sms.sh .
 RUN mv ./docker/start_server_bo.sh .
+
 # copy code and scripts
 COPY icubam icubam
 COPY scripts scripts
+
 # create resource folder
 RUN  mkdir resources
 
@@ -51,6 +51,9 @@ RUN rm -rf ~/.cache/pip
 
 # make sure final image is clean
 FROM builder as launcher
+
+# expose ports for flask app - both server and backoffice
+EXPOSE 8888 8890
 
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
