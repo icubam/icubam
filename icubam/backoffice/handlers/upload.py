@@ -32,14 +32,15 @@ class UploadHandler(base.BaseHandler):
       'user': sync.sync_users_from_csv,
       'icu': sync.sync_icus_from_csv
     }
-    sync_fn = sync_fns.get(data.get('objtype', None), None)
+    objtype = data.get('objtype', None)
+    sync_fn = sync_fns.get(objtype, None)
     if sync_fn is None:
       return self.answer(
         'Cannot find proper synchronization method.', error=True
       )
 
-    sync_fn(io.StringIO(content), force_update=True)
+    num_updates = sync_fn(io.StringIO(content), force_update=True)
     try:
-      return self.answer('all good!')
+      return self.answer(f'Updated {num_updates} {objtype}')
     except:
       return self.answer('Failing while syncing csv content', error=True)
