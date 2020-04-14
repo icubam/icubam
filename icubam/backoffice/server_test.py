@@ -1,3 +1,4 @@
+import json
 import tornado.testing
 from unittest import mock
 
@@ -5,7 +6,7 @@ from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
   base, home, login, logout, users, tokens, icus, bedcounts,
-  operational_dashboard, regions, maps
+  operational_dashboard, regions, maps, consent
 )
 
 
@@ -16,8 +17,9 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.config = config.Config(self.TEST_CONFIG, mode='dev')
     self.server = server.BackOfficeServer(self.config, port=8889)
     self.db = self.server.db_factory.create()
-    userid = self.db.add_default_admin()
-    self.user = self.db.get_user(userid)
+    self.admin_id = self.db.add_default_admin()
+    self.admin = self.db.get_user(self.admin_id)
+    self.user = self.db.get_user(self.admin_id)
     self.app = self.get_app()
     super().setUp()
 
@@ -75,3 +77,16 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       m.return_value = self.user
       response = self.fetch(handler.ROUTE + '?region=1', method='GET')
       self.assertEqual(response.code, 200, msg=handler.__name__)
+
+  def test_consent_reset(self):
+    handler = consent.ConsentResetHandler
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = self.admin
+      response = self.fetch(
+        handler.ROUTE, method='POST', body=json.dumps(self.user.user_id)
+      )
+    self.assertEqual(response.code, 200)
+    resp_data = json.loads(response.body)
+    self.assertIn('error', resp_data)
+    self.assertIn('msg', resp_data)
+    self.assertIsNone(resp_data['error'])

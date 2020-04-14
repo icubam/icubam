@@ -9,7 +9,7 @@ import tornado.web
 import tornado.ioloop
 from icubam.backoffice.handlers import (
   home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
-  messages, regions, maps, upload
+  messages, regions, maps, upload, consent
 )
 from icubam import base_server
 
@@ -77,6 +77,7 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(messages.ListMessagesHandler)
     self.add_handler(maps.MapsHandler)
     self.add_handler(upload.UploadHandler)
+    self.add_handler(consent.ConsentResetHandler)
 
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
@@ -94,13 +95,14 @@ class BackOfficeServer(base_server.BaseServer):
           'path': os.path.join(path, 'static', folder)
         }
       ))
-    # Those are to get the js of the map page.
-    route = os.path.join("/", self.root, r'www/static/(.*)')
-    self.routes.append((
-      route, tornado.web.StaticFileHandler, {
-        'path': os.path.join(path, '../www/static')
-      }
-    ))
+    # Those are to get the js of the map page and the favicons
+    route_pattern = os.path.join("/", self.root, r'www/static/(.*)')
+    for route in [r'/(favicon.icon)', route_pattern]:
+      self.routes.append((
+        route, tornado.web.StaticFileHandler, {
+          'path': os.path.join(path, '../www/static')
+        }
+      ))
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
