@@ -33,14 +33,14 @@ class BaseHandler(tornado.web.RequestHandler):
       logging.error(f"User does not exist.")
       return None, None
 
+    if user.consent is not None and not user.consent:
+      logging.error(f"User has bailed out from ICUBAM.")
+      return None, None
+
     user_icu_ids = {i.icu_id: i for i in user.icus}
     icu = user_icu_ids.get(icuid, None)
     if icu is None:
       logging.error(f"User does not belong the ICU.")
-      return None, None
-
-    if user.consent is not None and not user.consent:
-      logging.error(f"User has bailed out from ICUBAM.")
       return None, None
 
     return user, icu
