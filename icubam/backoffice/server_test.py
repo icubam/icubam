@@ -58,8 +58,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       regions.ListRegionsHandler,
       regions.RegionHandler,
       bedcounts.ListBedCountsHandler,
-      #TODO this test fails (see below)
-      #operational_dashboard.OperationalDashHandler,
+      operational_dashboard.OperationalDashHandler,
       #TODO this test fails, probably because the message server is not started
       #messages.ListMessagesHandler,
       maps.MapsHandler,
@@ -72,9 +71,6 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
 
   def test_operational_dashboard(self):
     handler = operational_dashboard.OperationalDashHandler
-    # TODO: The following fails only in tests for some reason.
-    # Manyally tested, skiping this test for now.
-    raise SkipTest
     with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
       m.return_value = self.user
       response = self.fetch(handler.ROUTE + '?region=1', method='GET')

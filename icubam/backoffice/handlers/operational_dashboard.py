@@ -13,7 +13,7 @@ from bokeh.plotting import figure
 from bokeh.transform import dodge
 from bokeh.models import ColumnDataSource
 
-from icubam.db.store import to_pandas
+from icubam.db.store import to_pandas, BedCount
 from icubam.backoffice.handlers import base
 
 
@@ -168,8 +168,14 @@ class OperationalDashHandler(base.AdminHandler):
     bed_counts = self.db.get_visible_bed_counts_for_user(
       self.current_user.user_id
     )
-
-    bed_counts = to_pandas(bed_counts)
+    if bed_counts:
+      bed_counts = to_pandas(bed_counts)
+    else:
+      # when no data, make sure the resulting dataframe has
+      # correct column names.
+      columns = [key for key in dir(BedCount) if not key.startswith('_')]
+      columns += ['icu_dept']
+      bed_counts = pd.DataFrame([], columns=columns)
 
     if current_region is not None:
       mask = bed_counts['icu_region_id'] == current_region.region_id
