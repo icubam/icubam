@@ -167,6 +167,15 @@ class CSVSynchronizer(StoreSynchronizer):
     self.sync_users(users_df, force_update)
     return users_df.shape[0]
 
+  def sync_bedcounts_from_csv(self, csv_contents: TextIO, force_update=False):
+    """Check that columns correspond, insert into a DF and synchronize."""
+    bedcounts_df = pd.read_csv(csv_contents)
+    col_diff = set(BC_COLUMNS) - set(bedcounts_df.columns)
+    if len(col_diff) > 0:
+      raise ValueError(f"Missing columns in input data: {col_diff}.")
+    self.sync_users(bedcounts_df, force_update)
+    return bedcounts_df.shape[0]
+
   def export_icus(self) -> TextIO:
     db_cols = copy.copy(ICU_COLUMNS)
     db_cols.remove('region')
@@ -181,3 +190,41 @@ class CSVSynchronizer(StoreSynchronizer):
 
   def export_users(self, csv_file_path: str):
     raise NotImplementedError("Cannot export users to CSV.")
+
+
+class CSVPreprocessor(CSVSynchronizer):
+  """Set of helper functions to preprocess non-standard CSVs."""
+
+  ROR_COLUMNS_MAP = {
+    'COD_ROR_EG': 'ror_code',
+    'NOM': 'icu_name',
+    'DHM_SAI': 'create_date',
+    'NBR_LIT_DSP': 'n_covid_free',
+    'NBR_LIT_INS': 'n_covid_tot'
+  }
+
+  def sync_bedcounts_ror_idf(
+    self, csv_contents: TextIO, user=None, force_update=False
+  ):
+    """Sync bedcount CSVs from IdF RoR uplink."""
+    bedcounts_df = pd.read_csv(csv_contents)
+    col_diff = set(ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
+    if len(col_diff) > 0:
+      raise ValueError(f"Missing columns in input data: {col_diff}.")
+    
+    # Remap columns and delete or default certain ones:
+    bc = bedcounts_df
+    bc.replace(self.ROR_COLUMNS_MAP)
+    del bc['ror_code']
+    bc['n_covid_occ'] = bc['n_covid_tot'] - bc['n_covid_free']
+    del bc['n_covid_tot']
+    bc[[
+      'n_covid_deaths', 'n_covid_healed', 'n_covid_refused',
+      'n_covid_transfered'
+    ]] = None
+
+    # Parse datetime and convert to UTC:
+    bc['create_date'] = pd.to_datetime(
+      bc['create_date']
+    ).dt.tz_localize("Europe/Paris").dt.tz_convert(tz.tzutc())
+    self.sync_bed_counts(bc, user, force_update)

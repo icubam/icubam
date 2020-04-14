@@ -1,13 +1,14 @@
-from absl import logging  # noqa: F401
 import datetime
-import io
 import functools
+import io
 import os
-import tornado.web
 import tempfile
-from icubam.www.handlers import base
-from icubam.www.handlers import home
-from icubam.db import store
+
+import tornado.web
+from absl import logging  # noqa: F401
+
+from icubam.db import store, synchronizer
+from icubam.www.handlers import base, home
 
 
 def _get_headers(collection, asked_file_type):
@@ -83,3 +84,34 @@ class DBHandler(base.APIKeyProtectedHandler):
       os.remove(tmp_path)
     else:
       self.write(data.to_html())
+
+  @tornado.web.authenticated
+  def post(self, collection):
+    if collection == 'bedcounts':
+      csvp = synchronizer.CSVPreprocessor(self.db)
+      
+      # Get the file object and format request:
+      file = self.request.files["file"][0]
+      file_format = self.get_query_argument('format', default=None)
+      
+      # Pre-process with the correct method:
+      if file_format == 'ror_idf':
+        csvp.preprocess_ror_idf(io.StringIO(file["body"]))
+        file_name = 'ror_idf'
+      else:
+        logging.debug("API called with incorrect file_format: {file_format}.")
+        self.redirect(home.HomeHandler.ROUTE)
+
+      # Save the file locally just in case: 
+      time_str = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+      file_path = os.path.join(self.upload_path, f"{time_str}-{file_name}")
+      try:
+        with open(file_path, "wb") as f:
+          f.write(file["body"])
+        logging.info(f"Received {file_path} from {self.request.remote_ip}.")
+      except IOError as e:
+        logging.error(f"Failed to write file due to IOError: {e}")
+    else:
+      logging.debug("POST API called with incorrect collection: {collection}.")
+      self.redirect(home.HomeHandler.ROUTE)
+    
