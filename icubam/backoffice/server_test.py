@@ -78,7 +78,6 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       response = self.fetch(handler.ROUTE + '?region=1', method='GET')
       self.assertEqual(response.code, 200, msg=handler.__name__)
 
-<<<<<<< HEAD
   def test_consent_reset(self):
     handler = consent.ConsentResetHandler
     with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
@@ -91,8 +90,3 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.assertIn('error', resp_data)
     self.assertIn('msg', resp_data)
     self.assertIsNone(resp_data['error'])
-=======
-  def test_csv_uploader(self):
-    handler = handlers.
-    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
->>>>>>> 6ee81eb... Moved upload endpoint and added RoR preprocessor.
