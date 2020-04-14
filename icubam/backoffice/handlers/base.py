@@ -24,12 +24,7 @@ class BaseHandler(tornado.web.RequestHandler):
     # This dictionary is updated by a PeriodicCallback in the
     # BackofficeApplication
     status = self.application.server_status
-    super().render(
-      path,
-      root=self.root_path,
-      server_status=status,
-      **kwargs
-    )
+    super().render(path, root=self.root_path, server_status=status, **kwargs)
 
   def render_list(
     self, data, objtype, create_handler=None, upload=False, **kwargs
