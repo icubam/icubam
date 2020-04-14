@@ -209,7 +209,7 @@ class CSVPreprocessor(CSVSynchronizer):
     col_diff = set(self.ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
-    
+
     # Remap columns and delete or default certain ones:
     bc = bedcounts_df
     bc.replace(self.ROR_COLUMNS_MAP)
