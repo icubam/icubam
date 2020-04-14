@@ -100,7 +100,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       # Pre-process with the correct method:
       if file_format == 'ror_idf':
         input_buf = io.StringIO(file["body"].decode('utf-8'))
-        # csvp.sync_bedcounts_ror_idf(input_buf)
+        csvp.sync_bedcounts_ror_idf(input_buf)
         file_name = 'ror_idf'
       else:
         logging.debug("API called with incorrect file_format: {file_format}.")
