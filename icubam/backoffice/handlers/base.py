@@ -19,19 +19,12 @@ class BaseHandler(tornado.web.RequestHandler):
       self.root_path = '/{}/'.format(root)
     else:
       self.root_path = '/'
-    self.user = None
 
   def render(self, path, **kwargs):
     # This dictionary is updated by a PeriodicCallback in the
     # BackofficeApplication
     status = self.application.server_status
-    super().render(
-      path,
-      this_user=self.user,
-      root=self.root_path,
-      server_status=status,
-      **kwargs
-    )
+    super().render(path, root=self.root_path, server_status=status, **kwargs)
 
   def render_list(
     self, data, objtype, create_handler=None, upload=False, **kwargs
@@ -53,16 +46,14 @@ class BaseHandler(tornado.web.RequestHandler):
   def get_template_path(self):
     return os.path.join(self.PATH, 'templates/')
 
+  # Tornado's @tornado.web.authenticated decorator will put the result of this
+  # function in the `current_user` field of the handler
+  # See https://www.tornadoweb.org/en/stable/guide/security.html#user-authentication
   def get_current_user(self):
-    if self.user is not None:
-      return self.user
-
     userid = self.get_secure_cookie(self.COOKIE)
     if not userid:
       return None
-
-    self.user = self.db.get_user(int(tornado.escape.json_decode(userid)))
-    return self.user
+    return self.db.get_user(int(tornado.escape.json_decode(userid)))
 
   def get_user_locale(self):
     locale = self.get_query_argument('hl', default=self.config.default_locale)

@@ -1,6 +1,14 @@
 name: run yapf on source code
 
-on: push
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   yapf:
@@ -18,7 +26,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install yapf
-    - name: run yapf
+    - name: Run yapf
       shell: bash -l {0}
       run: |
         yapf -r --diff .
