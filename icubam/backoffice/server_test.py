@@ -75,7 +75,3 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       m.return_value = self.user
       response = self.fetch(handler.ROUTE + '?region=1', method='GET')
       self.assertEqual(response.code, 200, msg=handler.__name__)
-
-  def test_csv_uploader(self):
-    handler = handlers.
-    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
