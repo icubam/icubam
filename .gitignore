@@ -24,4 +24,13 @@ __pycache__/
 .DS_Store
 settings.json
 
+# local vim configuration
 *.lvimrc
+
+# data files
+*.csv
+*.h5
+*.pickle
+*.pkl
+*.npy
+*.npz
