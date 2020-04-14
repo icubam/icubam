@@ -422,13 +422,15 @@ def load_public_data():
     download_url,
     sep=";",
   )
-  d = d.loc[d.sexe == 0]
+  d = d.loc[d.sexe == 0]  ## load only the data for women+men (all summed)
   d = d.rename(
     columns={
       "dep": "department_code",
       "jour": "date",
       "hosp": "n_hospitalised_patients",
       "rea": "n_icu_patients",
+      "rad": "n_hospital_healed",
+      "dc": "n_hospital_death",
     }
   )
   d["date"] = pd.to_datetime(d["date"]).dt.date
@@ -437,6 +439,8 @@ def load_public_data():
     "department_code",
     "n_hospitalised_patients",
     "n_icu_patients",
+    "n_hospital_healed",
+    "n_hospital_death",
   ]]
 
 
