@@ -12,7 +12,7 @@ Files/folders are mounted (bind) in the containers (nginx/certbot) defined in th
 
 Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) .
 The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment
-variable (check the files `start_server.sh` and `start_server_sms.sh`).
+variable (check the files `docker/start_server.sh`, `docker/start_server_bo.sh` and `docker/start_server_sms.sh`).
 
 ## Docker compose
 
