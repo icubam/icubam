@@ -6,7 +6,7 @@ import matplotlib.style
 import numpy as np
 
 from icubam.predicu.data import BEDCOUNT_COLUMNS
-from icubam.predicu.plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
+from icubam.predicu.plot import DEPARTMENT_COLOR, plot_int
 
 data_source = "bedcounts"
 
@@ -27,7 +27,7 @@ def plot(data):
       date_idx_range,
       d["pct_occ"],
       ax=ax,
-      color=DEPARTMENT_GRAND_EST_COLOR[department],
+      color=DEPARTMENT_COLOR[department],
       label=department,
       lw=2,
     )
@@ -50,7 +50,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=DEPARTMENT_GRAND_EST_COLOR[department],
+        facecolor=DEPARTMENT_COLOR[department],
         label=department,
         linewidth=3,
       ) for department in sorted(data.department.unique())

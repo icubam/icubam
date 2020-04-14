@@ -4,23 +4,25 @@ import logging
 import os
 import pickle
 import urllib.request
+from pathlib import Path
 from typing import Dict
 
 import numpy as np
 import pandas as pd
 from lxml import html
 
-BASE_PATH = os.path.dirname(__file__)
+BASE_PATH = Path(__file__).resolve().parent
 
 DATA_SOURCES = {"icubam", "bedcounts", "public", "combined_bedcounts_public"}
 
 DATA_PATHS = {
   "department_population": "data/department_population.csv",
   "departments": "data/france_departments.json",
+  "department_typo_fixes": "data/icubam_department_typo_fixes.json",
 }
 
 for key, path in DATA_PATHS.items():
-  DATA_PATHS[key] = os.path.join(BASE_PATH, path)
+  DATA_PATHS[key] = Path(BASE_PATH) / path
 
 
 def load_department_population():
@@ -34,10 +36,6 @@ def load_france_departments():
   return pd.read_json(DATA_PATHS["departments"])
 
 
-DEPARTMENTS_GRAND_EST = [
-  "Ardennes", "Aube", "Marne", "Haute-Marne", "Meurthe-et-Moselle", "Meuse",
-  "Moselle", "Bas-Rhin", "Haut-Rhin", "Vosges"
-]
 CODE_TO_DEPARTMENT = dict(
   load_france_departments()[["departmentCode", "departmentName"]].itertuples(
     name=None,
@@ -106,11 +104,10 @@ def load_bedcounts(
   if max_date is not None:
     logging.info("data loaded's max date will be %s (excluded)" % max_date)
     d = d.loc[d.date < pd.to_datetime(max_date).date()]
-  d = d.loc[d.department.isin(DEPARTMENTS_GRAND_EST)]
   return d
 
 
-def load_icubam(cached_data=None, api_key=None, icubam_host=None):
+def load_icubam(cached_data=None, api_key=None, icubam_host=None, clean=True):
   if api_key is None or icubam_host is None:
     raise RuntimeError("Provide API key and host to download ICUBAM data")
   else:
@@ -121,9 +118,13 @@ def load_icubam(cached_data=None, api_key=None, icubam_host=None):
     )
     logging.info("downloading data from %s" % url)
     d = pd.read_csv(url.format(api_key))
-  d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
-  d = format_data(d)
-  d = d.loc[d.department.isin(DEPARTMENTS_GRAND_EST)]
+  if clean:
+    d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
+    with open(DATA_PATHS["department_typo_fixes"]) as f:
+      department_typo_fixes = json.load(f)
+    for wrong_name, right_name in department_typo_fixes.items():
+      d.loc[d.department == wrong_name, "department"] = right_name
+    d = format_data(d)
   return d
 
 
@@ -375,9 +376,7 @@ def load_combined_bedcounts_public(api_key=None, cached_data=None, **kwargs):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
-  dp = dp.loc[dp.department.isin(DEPARTMENTS_GRAND_EST)]
   di = load_if_not_cached("bedcounts", cached_data)
-  di = di.loc[di.department.isin(DEPARTMENTS_GRAND_EST)]
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
   di["n_icu_patients"] = di.n_covid_occ + di.n_ncovid_occ.fillna(0)

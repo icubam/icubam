@@ -12,8 +12,7 @@ import scipy
 import seaborn
 
 from icubam.predicu.data import (
-  BEDCOUNT_COLUMNS, DATA_PATHS, DEPARTMENTS, DEPARTMENTS_GRAND_EST,
-  load_if_not_cached
+  BEDCOUNT_COLUMNS, DATA_PATHS, DEPARTMENTS, load_if_not_cached
 )
 
 COLUMN_TO_HUMAN_READABLE = {
@@ -59,10 +58,6 @@ COL_COLOR.update({
 DEPARTMENT_COLOR = {
   dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS))[i]
   for i, dpt in enumerate(DEPARTMENTS)
-}
-DEPARTMENT_GRAND_EST_COLOR = {
-  dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS_GRAND_EST))[i]
-  for i, dpt in enumerate(DEPARTMENTS_GRAND_EST)
 }
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
