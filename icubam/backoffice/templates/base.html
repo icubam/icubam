@@ -34,10 +34,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-          <a href="{{root}}" class="nav-link">{{_("Home")}}</a>
+          <a href="{{root}}" class="nav-link">{{ _('Home') }}</a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-          <a href="logout" class="nav-link">{{_("Logout")}}</a>
+          <a href="logout" class="nav-link">{{ _('Logout') }}</a>
         </li>
       </ul>
 
@@ -114,46 +114,46 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <li class="nav-item">
               <a href="list_users" class="nav-link">
                 <i class="nav-icon fas fa-users"></i>
-                <p>{{_("Users")}}</p>
+                <p>{{ _('Users') }}</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="list_icus" class="nav-link">
                 <i class="nav-icon fas fa-ambulance"></i>
-                <p>{{_("ICUs")}}</p>
+                <p>{{ _('ICUs') }}</p>
               </a>
             </li>
             {% if current_user.is_admin %}
             <li class="nav-item">
               <a href="list_regions" class="nav-link">
                 <i class="nav-icon fas fa-flag"></i>
-                <p>{{_("Regions")}}</p>
+                <p>{{ _('Regions') }}</p>
               </a>
             </li>
             {% end %}
             <li class="nav-item">
               <a href="map" class="nav-link">
                 <i class="nav-icon fas fa-map-marker-alt"></i>
-                <p>{{_("Map")}}</p>
+                <p>{{ _('Map') }}</p>
               </a>
             </li>
             {% if current_user.is_admin %}
             <li class="nav-item">
               <a href="operational-dashboard" class="nav-link">
                 <i class="nav-icon fas fa-chart-pie"></i>
-                <p>{{_("Operational Dashboard")}}</p>
+                <p>{{ _('Operational dashboard') }}</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="list_tokens" class="nav-link">
                 <i class="nav-icon fas fa-key"></i>
-                <p>{{_("Access Tokens")}}</p>
+                <p>{{ _('Access Tokens') }}</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="list_messages" class="nav-link">
                 <i class="nav-icon fas fa-sms"></i>
-                <p>{{_("Messages")}}</p>
+                <p>{{ _('Messages') }}</p>
               </a>
             </li>
             {% end %}
@@ -171,9 +171,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <footer class="main-footer">
       <div class="float-right d-none d-sm-inline">
-        Where is the ICU?
+        {{ _('Where is the ICU?') }}
       </div>
-      <strong>Copyright &copy; 2020 ICUBAM</strong> All rights reserved.
+      <!-- Default to the left -->
+      <strong>Copyright &copy; 2020 ICUBAM</strong> {{ _('All rights reserved') }}.
     </footer>
   </div>
 

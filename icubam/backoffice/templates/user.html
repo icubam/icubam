@@ -35,8 +35,9 @@
 
             <!-- The hidden ID in case we're editing the user. -->
             <input type="text" id="user_id" name="user_id" hidden
-              value="{% if user.user_id is not None%}{{user.user_id}}{% end %}" </input>
-            <!-- Required and does not accept names that contain only spaces. -->
+              value="{% if user.user_id is not None%}{{user.user_id}}{% end %}" />
+            <!-- Required and does not
+              accept names that contain only spaces. -->
             <div class="form-row">
               <div class="col-25">
                 <label for="exampleInputEmail1">{{_("Name")}}</label>
@@ -115,9 +116,9 @@
 
           </div>
 
-
           <div class="card-footer">
-            <button type='button' onclick='navigateTo("{{list_route}}")' class="btn btn-warning">Cancel</button>
+            <button type='button' onclick='navigateTo("{{list_route}}")'
+              class="btn btn-warning">{{ _('Cancel') }}</button>
             <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
           </div>
         </form>
@@ -126,7 +127,7 @@
 
     {% if error %}
     <div class="alert alert-danger" role="alert">
-      {{_("Failed to save the user")}}.
+      {{_("Failed to save") }} {{ _("user")}}.
     </div>
     {% end %}
 
