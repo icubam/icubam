@@ -3,11 +3,9 @@ from typing import List, Dict
 import os
 from pathlib import Path
 from itertools import zip_longest
-import numpy as np
 import pandas as pd
 import tornado.web
 import math
-from collections import defaultdict
 
 from absl import logging
 from bokeh.embed import components

@@ -1,7 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.style
-import numpy as np
-import pandas as pd
 import seaborn as sns
 
 from ..data import load_icu_name_to_department, format_data

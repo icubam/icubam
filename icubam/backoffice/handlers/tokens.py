@@ -6,7 +6,6 @@ import tornado.web
 from typing import Optional, Tuple, List
 
 from icubam.backoffice.handlers import base
-from icubam.backoffice.handlers import home
 from icubam.www.handlers import home as www_home
 from icubam.www.handlers import db as www_db
 from icubam.db import store

@@ -1,4 +1,3 @@
-import collections
 from icubam.backoffice.handlers.base import BaseHandler
 
 import tornado.web

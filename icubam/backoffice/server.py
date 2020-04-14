@@ -6,7 +6,6 @@ import os.path
 import tornado.ioloop
 import tornado.locale
 import tornado.web
-from typing import Dict
 import tornado.ioloop
 from icubam.backoffice.handlers import (
   home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,

@@ -2,3 +2,7 @@
     rev: 'v0.29.0'  
     hooks:
     -   id: yapf
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+    - id: flake8 

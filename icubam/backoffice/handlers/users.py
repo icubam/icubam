@@ -8,7 +8,6 @@ from typing import List, Optional, Dict
 from icubam.messaging import client
 from icubam.backoffice.handlers import base
 from icubam.db import store
-from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
