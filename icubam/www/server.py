@@ -40,7 +40,12 @@ class WWWServer(base_server.BaseServer):
     kwargs = dict(config=self.config, db_factory=self.db_factory)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
-    self.add_handler(db.DBHandler, **kwargs)
+    self.add_handler(db.DBHandler, **{
+        **kwargs,
+        **{
+          'upload_path': self.config.server.upload_dir
+        }
+      })
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(
