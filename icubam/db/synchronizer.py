@@ -147,7 +147,7 @@ class StoreSynchronizer:
       )
 
 
-class CSVSynchcronizer(StoreSynchronizer):
+class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
   def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and sychronize."""
