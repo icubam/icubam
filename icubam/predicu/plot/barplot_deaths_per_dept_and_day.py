@@ -1,5 +1,4 @@
 import itertools
-import sys
 
 import matplotlib.cm
 import matplotlib.gridspec

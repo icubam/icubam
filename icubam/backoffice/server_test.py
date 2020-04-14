@@ -1,4 +1,3 @@
-import os.path
 import tornado.testing
 from unittest import mock, SkipTest
 

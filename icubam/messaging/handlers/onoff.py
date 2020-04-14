@@ -2,7 +2,6 @@ from typing import Optional
 
 from absl import logging
 import dataclasses
-import json
 import tornado.web
 from typing import List
 

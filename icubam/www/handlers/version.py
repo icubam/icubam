@@ -1,7 +1,5 @@
-import sys
 from subprocess import check_output
-from typing import Dict, Any, Optional, Callable
-import traceback
+from typing import Any, Dict
 
 import tornado.web
 

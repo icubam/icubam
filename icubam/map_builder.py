@@ -2,7 +2,7 @@ from absl import logging
 import functools
 import os.path
 import json
-from typing import Dict, List, Optional
+from typing import List, Optional
 import tornado.template
 
 from icubam import icu_tree

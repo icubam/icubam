@@ -2,7 +2,7 @@ from absl import logging
 import dataclasses
 import time
 import tornado.ioloop
-from typing import Optional, List, Tuple
+from typing import List, Optional
 
 from icubam.messaging import message
 from icubam.www import updater

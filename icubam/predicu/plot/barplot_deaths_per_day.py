@@ -1,5 +1,3 @@
-import datetime
-
 import matplotlib.gridspec
 import matplotlib.pyplot as plt
 import matplotlib.style
