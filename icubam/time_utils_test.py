@@ -14,11 +14,13 @@ def test_time_ago():
   ts = datetime.datetime(2020, 3, 26, 17, 0).timestamp()
   assert time_utils.time_ago(ts, ref) == (23, 'hour')
 
+
 def test_parse_hour_test():
   assert time_utils.parse_hour("23:12") == (23, 12)
   assert time_utils.parse_hour("23h12", sep='h') == (23, 12)
   assert time_utils.parse_hour("wqw") == ("", "")
   assert time_utils.parse_hour(23.12) == (23.12)
+
 
 def test_localewise_time_ago():
   ref = datetime.datetime(2020, 3, 27, 16, 30).timestamp()
@@ -27,6 +29,7 @@ def test_localewise_time_ago():
   assert time_utils.localewise_time_ago(ts, None, ref) == 'now'
   ts = datetime.datetime(2020, 3, 27, 16, 25).timestamp()
   assert time_utils.localewise_time_ago(ts, None, ref) == '5 minute ago'
+
 
 def test_get_next_timestamp():
   pings = [(12, 8), (14, 51)]
@@ -47,6 +50,7 @@ def test_get_next_timestamp():
 
   next_one = time_utils.get_next_timestamp(None, ts)
   assert next_one == None
+
 
 def test_is_stale():
   ts = datetime.datetime(2020, 3, 27, 16, 30).timestamp()

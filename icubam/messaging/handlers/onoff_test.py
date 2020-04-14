@@ -1,5 +1,6 @@
 from icubam.messaging.handlers import onoff
 
+
 def test_silence_request():
   userid = 123
   icuids = [773, 32]

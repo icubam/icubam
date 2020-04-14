@@ -1,5 +1,6 @@
 from icubam import config
 
+
 def test_read():
   TEST_CONFIG_PATH = 'resources/test.toml'
   mode = 'dev'
