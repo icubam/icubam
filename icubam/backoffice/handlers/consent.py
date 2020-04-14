@@ -18,12 +18,13 @@ class ConsentResetHandler(base.BaseHandler):
     try:
       user_id = json.loads(self.request.body.decode())
     except Exception as err:
-      return self.answer(f'Cannot read request', error=err)
+      return self.answer(f'Cannot read request', error=f'{err}')
 
     try:
       self.db.update_user(
         self.current_user.user_id, user_id, dict(consent=None)
       )
     except Exception as err:
-      return self.answer(f'Cannot reset consent: {e}', error=err)
+      return self.answer('Cannot reset consent', error=f'{err}')
+
     return self.answer('OK!')
