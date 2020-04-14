@@ -1,6 +1,5 @@
 import datetime
 
-import pandas as pd
 from absl import app, flags
 from dateutil import tz
 

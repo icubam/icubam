@@ -6,8 +6,6 @@ import matplotlib.cm
 import matplotlib.gridspec
 import matplotlib.pyplot as plt
 import matplotlib.style
-import numpy as np
-import pandas as pd
 
 from icubam.predicu.data import CUM_COLUMNS, NCUM_COLUMNS, load_bedcounts
 from icubam.predicu.plot import COLUMN_TO_HUMAN_READABLE, COL_COLOR
