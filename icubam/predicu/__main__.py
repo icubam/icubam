@@ -21,7 +21,8 @@ def export_data(args):
     clean=True,
     api_key=args.api_key,
     max_date=args.max_date,
-    icubam_host=args.icubam_host
+    icubam_host=args.icubam_host,
+    spread_cum_jump_correction=args.spread_cum_jump_correction,
   )
   d.to_csv(path)
   logging.info("export DONE.")
@@ -35,6 +36,9 @@ if __name__ == "__main__":
   parser_export.set_defaults(func=export_data)
   parser_export.add_argument("--output-dir", "-o", default="/tmp/")
   parser_export.add_argument("--api-key", default=None)
+  parser_export.add_argument(
+    "--spread-cum-jump-correction", default=False, action="store_true"
+  )
   parser_export.add_argument("--icubam-host", default="localhost")
   parser_export.add_argument(
     "--max-date",
