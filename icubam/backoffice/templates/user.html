@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
 <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
 <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<link rel="stylesheet" href="static/user.css">
 {% end %}
 
 {% block content %}
@@ -117,15 +118,24 @@
 
 
           <div class="card-footer">
-            <button type='button' onclick='navigateTo("{{list_route}}")' class="btn btn-warning">Cancel</button>
-            <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
+            <div class='submit-group'>
+              <button type='button' onclick='navigateTo("{{list_route}}")'
+                class="btn btn-warning">{{_("Cancel")}}</button>
+              <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
+            </div>
+            <div class='submit-group'>
+              {%if user.consent is not None and not user.consent %}
+              <button type='button' onclick='resetConsent({{user.user_id}})'
+                class="btn btn-danger">{{_("Reset Consent")}}</button>
+              {% end %}
+            </div>
           </div>
         </form>
       </div>
     </section>
 
     {% if error %}
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger" role="alert" id='error'>
       {{_("Failed to save the user")}}.
     </div>
     {% end %}
