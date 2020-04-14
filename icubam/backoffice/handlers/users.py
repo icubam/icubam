@@ -32,10 +32,10 @@ class ListUsersHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    if self.user.is_admin:
+    if self.current_user.is_admin:
       users = self.db.get_users()
     else:
-      users = self.db.get_managed_users(self.user.user_id)
+      users = self.db.get_managed_users(self.current_user.user_id)
 
     data = [self._cleanUser(user) for user in users]
     return self.render_list(
@@ -49,7 +49,7 @@ class ProfileHandler(base.BaseHandler):
   @tornado.web.authenticated
   def get(self):
     return self.redirect(
-      '{}?id={}'.format(UserHandler.ROUTE, self.user.user_id)
+      '{}?id={}'.format(UserHandler.ROUTE, self.current_user.user_id)
     )
 
 
@@ -92,7 +92,7 @@ class UserHandler(base.BaseHandler):
     )
 
   def get_options(self):
-    return self.db.get_managed_icus(self.user.user_id)
+    return self.db.get_managed_icus(self.current_user.user_id)
 
   def prepare_for_display(self, user: store.User):
     if user.is_active is None:
@@ -147,7 +147,7 @@ class UserHandler(base.BaseHandler):
     logging.info(f'Creating user {user_id}')
 
     for icu_id in icus:
-      self.db.assign_user_to_icu(self.user.user_id, user_id, icu_id)
+      self.db.assign_user_to_icu(self.current_user.user_id, user_id, icu_id)
     try:
       await self.message_client.notify(
         user_id, icus, on=True, delay=self.config.scheduler.new_user_delay
@@ -156,13 +156,15 @@ class UserHandler(base.BaseHandler):
       logging.error(f'Cannot notify MessageServer {e}')
 
     for icu_id in managed_icus:
-      self.db.assign_user_as_icu_manager(self.user.user_id, user_id, icu_id)
+      self.db.assign_user_as_icu_manager(
+        self.current_user.user_id, user_id, icu_id
+      )
 
   async def update_user(self, db_user, user_dict, icus, managed_icus):
     logging.info(f'Updating user {db_user.user_id}')
     user_id = db_user.user_id
     user_dict.pop('user_id', None)
-    self.db.update_user(self.user.user_id, user_id, user_dict)
+    self.db.update_user(self.current_user.user_id, user_id, user_dict)
     await self.re_assign(
       db_user,
       icus,
@@ -221,7 +223,7 @@ class UserHandler(base.BaseHandler):
     old_icus = set([i.icu_id for i in user_icus])
     to_add = new_icus.difference(old_icus)
     for icu_id in to_add:
-      add_fn(self.user.user_id, user.user_id, icu_id)
+      add_fn(self.current_user.user_id, user.user_id, icu_id)
 
     if notify:
       try:
@@ -231,7 +233,7 @@ class UserHandler(base.BaseHandler):
 
     to_remove = old_icus.difference(new_icus)
     for icu_id in to_remove:
-      rm_fn(self.user.user_id, user.user_id, icu_id)
+      rm_fn(self.current_user.user_id, user.user_id, icu_id)
 
     if notify:
       try:

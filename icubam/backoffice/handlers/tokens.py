@@ -95,24 +95,24 @@ class TokenHandler(base.AdminHandler):
 
   def create_token(self, token_id, values, regions):
     client_id, _ = self.db.add_external_client(
-      self.user.user_id, store.ExternalClient(**values)
+      self.current_user.user_id, store.ExternalClient(**values)
     )
     for rid in regions:
       self.db.assign_external_client_to_region(
-        self.user.user_id, client_id, rid
+        self.current_user.user_id, client_id, rid
       )
 
   def update_token(self, token_id, values, regions):
-    self.db.update_external_client(self.user.user_id, token_id, values)
+    self.db.update_external_client(self.current_user.user_id, token_id, values)
     token = self.db.get_external_client(token_id)
     existing_regions = set([region.region_id for region in token.regions])
     for rid in regions.difference(existing_regions):
       self.db.assign_external_client_to_region(
-        self.user.user_id, token_id, rid
+        self.current_user.user_id, token_id, rid
       )
     for rid in existing_regions.difference(regions):
       self.db.remove_external_client_from_region(
-        self.user.user_id, token_id, rid
+        self.current_user.user_id, token_id, rid
       )
 
   def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:

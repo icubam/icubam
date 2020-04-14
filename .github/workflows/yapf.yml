@@ -18,7 +18,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install yapf
-    - name: run yapf
+    - name: Run yapf
       shell: bash -l {0}
       run: |
         yapf -r --diff .

@@ -13,148 +13,124 @@
 <section class="content">
   <div class="container-fluid">
 
-  <section class="content-header">
-   <div class="container-fluid">
-     <div class="row mb-2">
-       <div class="col-sm-6">
-         <h1>{{_("User management")}}</h1>
-       </div>
-     </div>
-   </div><!-- /.container-fluid -->
-  </section>
-
-  <section class="content">
-    <div class="card card-primary">
-
-     <div class="card-header">
-       <h3 class="card-title">{% if user.user_id %}{{_("Edit user")}}{% else %}{{_("Create user")}}{% end %}</h3>
-     </div>
-
-     <form role="form" action="user" method="post">
-       <div class="card-body">
-
-        <!-- The hidden ID in case we're editing the user. -->
-        <input type="text" id="user_id" name="user_id"
-               hidden value="{% if user.user_id is not None%}{{user.user_id}}{% end %}"</input>
-        <!-- Required and does not accept names that contain only spaces. -->
-        <div class="form-row">
-           <div class="col-25">
-             <label for="exampleInputEmail1">{{_("Name")}}</label>
-             <input type="text" id="name" name="name"
-               class="form-control"
-               pattern=".*\S.*"
-               placeholder="Name"
-               value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
-           </div>
-
-          <div class="col-25">
-            <label for="validationCustom04">{{_("Phone Number")}}</label>
-            <input type="tel" id="telephone" name="telephone"
-              class="form-control"
-              minlength="6"
-￼
-              pattern="^\+?\d{0,13}"
-              title='{(_("Phone Number")}} (Format: (+)332222222)'
-              placeholder="+33 7 3333 333"
-              value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{{_("Manage your")}} {{_("users")}}</h1>
           </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
 
-          {% if this_user.is_admin %}
-          <div class="col-25">
-              <label for="is_admin_">{{_("Admin")}}</label><br/>
-              <input
-               type="checkbox" name="is_admin" id="is_admin"
-               {% if user.is_admin %}checked{% end %}
-               data-bootstrap-switch data-off-color="danger" data-on-color="success">
-          </div>
-         {% end %}
+    <section class="content">
+      <div class="card card-primary">
 
-         <div class="col-25">
-           <label for="is_active">{{_("Actif")}}</label><br/>
-           <input type="checkbox" name="is_active" id="is_active"
-             {% if user.is_active %}checked{% end %}
-             data-bootstrap-switch data-off-color="danger" data-on-color="success">
-         </div>
-      </div>
-
-         {% if len(options) > 0 %}
-         <div class="form-group">
-           <label for="icus">{{_("ICUs")}}</label>
-           <select class="select2bs4"
-            multiple=""
-            data-placeholder="{{_('Select ICUs')}}" style="width: 100%;"
-            name="icus[]" id="icus">
-            {% for icu_option in options %}
-              <option value="{{icu_option.icu_id}}"
-                  {% if icu_option.icu_id in icus %} selected{% end %}>
-                {{escape(icu_option.name)}}
-              </option>
-            {% end %}
-           </select>
-         </div>
-
-         <div class="form-group">
-           <label for="managed_icus">{{_("Managed ICUs")}}</label>
-           <select class="select2bs4"
-            name="managed_icus[]"
-            id="managed_icus"
-            multiple=""
-            data-placeholder="{{_('Select ICUs')}}" style="width: 100%;">
-            {% for icu_option in options %}
-              <option value="{{icu_option.icu_id}}"
-                  {% if icu_option.icu_id in managed_icus %} selected{% end %}>
-                {{escape(icu_option.name)}}
-              </option>
-            {% end %}
-           </select>
-         </div>
-         {% end %}
-
-        <div class="form-row" id="auth_block">
-         <div class="col-25">
-           <label for="exampleInputEmail1">{{_("Email address")}}</label>
-           <input type="</div>email" id="email" name="email"
-             class="form-control"
-             size="30"
-             placeholder="name@site.com"
-             value="{% if user.email %}{{user.email}}{% end %}">
-         </div>
-         <div class="col-25">
-          <!--  Min lenght = 5, and no spaces allowed. This means that users
-          cannot try to fool us by sending a password that has only spaces.
-          -->
-           <label for="exampleInputPassword1">
-             {{_("Password")}}
-             {% if user.password_hash %}
-              <span class="text-warning">{{_("Already set")}}</span>
-             {% end %}
-           </label>
-           <input type="password" id="password" name="password"
-             class="form-control" minlength="5" pattern="[^\s]+"
-             placeholder="Password" size="20">
-         </div>
+        <div class="card-header">
+          <h3 class="card-title">{% if user.user_id %}{{_("Edit user")}}{% else %}{{_("Create user")}}{% end %}</h3>
         </div>
 
+        <form role="form" action="user" method="post">
+          <div class="card-body">
+
+            <!-- The hidden ID in case we're editing the user. -->
+            <input type="text" id="user_id" name="user_id" hidden
+              value="{% if user.user_id is not None%}{{user.user_id}}{% end %}" </input>
+            <!-- Required and does not accept names that contain only spaces. -->
+            <div class="form-row">
+              <div class="col-25">
+                <label for="exampleInputEmail1">{{_("Name")}}</label>
+                <input type="text" id="name" name="name" class="form-control" pattern=".*\S.*" placeholder="Name"
+                  value="{% if user.name %}{{user.name}}{% end %}" required autofocus>
+              </div>
+
+              <div class="col-25">
+                <label for="validationCustom04">{{_("Phone Number")}}</label>
+                <input type="tel" id="telephone" name="telephone" class="form-control" minlength="6" ￼
+                  pattern="^\+?\d{0,13}" title='{(_("Phone Number")}} (Format: (+)332222222)'
+                  placeholder="+33 7 3333 333" value="{% if user.telephone %}{{user.telephone}}{% end %}" required>
+              </div>
+
+              {% if current_user.is_admin %}
+              <div class="col-25">
+                <label for="is_admin_">{{_("Admin")}}</label><br />
+                <input type="checkbox" name="is_admin" id="is_admin" {% if user.is_admin %}checked{% end %}
+                  data-bootstrap-switch data-off-color="danger" data-on-color="success">
+              </div>
+              {% end %}
+
+              <div class="col-25">
+                <label for="is_active">{{_("Actif")}}</label><br />
+                <input type="checkbox" name="is_active" id="is_active" {% if user.is_active %}checked{% end %}
+                  data-bootstrap-switch data-off-color="danger" data-on-color="success">
+              </div>
+            </div>
+
+            {% if len(options) > 0 %}
+            <div class="form-group">
+              <label for="icus">{{_("ICUs")}}</label>
+              <select class="select2bs4" multiple="" data-placeholder="{{_('Select ICUs')}}" style="width: 100%;"
+                name="icus[]" id="icus">
+                {% for icu_option in options %}
+                <option value="{{icu_option.icu_id}}" {% if icu_option.icu_id in icus %} selected{% end %}>
+                  {{escape(icu_option.name)}}
+                </option>
+                {% end %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="managed_icus">{{_("Managed ICUs")}}</label>
+              <select class="select2bs4" name="managed_icus[]" id="managed_icus" multiple=""
+                data-placeholder="{{_('Select ICUs')}}" style="width: 100%;">
+                {% for icu_option in options %}
+                <option value="{{icu_option.icu_id}}" {% if icu_option.icu_id in managed_icus %} selected{% end %}>
+                  {{escape(icu_option.name)}}
+                </option>
+                {% end %}
+              </select>
+            </div>
+            {% end %}
+
+            <div class="form-row" id="auth_block">
+              <div class="col-25">
+                <label for="exampleInputEmail1">{{_("Email")}}</label>
+                <input type="</div>email" id="email" name="email" class="form-control" size="30"
+                  placeholder="name@site.com" value="{% if user.email %}{{user.email}}{% end %}">
+              </div>
+              <div class="col-25">
+                <!--  Min lenght = 5, and no spaces allowed. This means that users
+          cannot try to fool us by sending a password that has only spaces.
+          -->
+                <label for="exampleInputPassword1">
+                  {{_("Password")}}
+                  {% if user.password_hash %}
+                  <span class="text-warning">{{_("Already set")}}</span>
+                  {% end %}
+                </label>
+                <input type="password" id="password" name="password" class="form-control" minlength="5" pattern="[^\s]+"
+                  placeholder="Password" size="20">
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="card-footer">
+            <button type='button' onclick='navigateTo("{{list_route}}")' class="btn btn-warning">Cancel</button>
+            <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
+          </div>
+        </form>
       </div>
+    </section>
 
-
-       <div class="card-footer">
-         <button
-            type='button' onclick='navigateTo("{{list_route}}")'
-            class="btn btn-warning">Cancel</button>
-         <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
-       </div>
-     </form>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{_("Failed to save the user")}}.
     </div>
-  </section>
+    {% end %}
 
-{% if error %}
- <div class="alert alert-danger" role="alert">
-    {{_("Failed to save the user")}}.
- </div>
-{% end %}
-
-</div>
+  </div>
 </section>
 {% end %}
 
