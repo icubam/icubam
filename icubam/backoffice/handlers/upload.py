@@ -2,11 +2,9 @@
 from absl import logging
 import io
 import json
-import tornado.escape
 import tornado.web
 
 from icubam.backoffice.handlers import base
-from icubam.db import store
 from icubam.db import synchronizer
 
 
@@ -41,7 +39,7 @@ class UploadHandler(base.BaseHandler):
       )
 
     sync_fn(io.StringIO(content), force_update=True)
-    return self.answer('all good!')
-    # try:
-    # except Exception as e:
-    #   return self.error('Failing while syncing csv content.')
+    try:
+      return self.answer('all good!')
+    except:
+      return self.answer('Failing while syncing csv content', error=True)
