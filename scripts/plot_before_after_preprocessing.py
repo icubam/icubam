@@ -65,8 +65,10 @@ def main(args):
     clean=False, api_key=args.api_key, icubam_host=args.icubam_host
   )
   data_clean = load_bedcounts(
-    api_key=args.api_key, icubam_host=args.icubam_host,
-    clean=True, spread_cum_jump_correction=True,
+    api_key=args.api_key,
+    icubam_host=args.icubam_host,
+    clean=True,
+    spread_cum_jump_correction=True,
   )
   for icu_name, dg in data_clean.groupby("icu_name"):
     path = os.path.join(args.output_dir, "{}.pdf".format(icu_name))
