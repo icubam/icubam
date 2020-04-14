@@ -1,5 +1,5 @@
 import tornado.testing
-from unittest import mock, SkipTest
+from unittest import mock
 
 from icubam import config
 from icubam.backoffice import server
