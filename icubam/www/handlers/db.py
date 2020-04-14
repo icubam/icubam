@@ -32,7 +32,9 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/db/(.*)'
   API_COOKIE = 'api'
-  ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL, store.AccessTypes.UPLOAD]
+  ACCESS = [
+    store.AccessTypes.STATS, store.AccessTypes.ALL, store.AccessTypes.UPLOAD
+  ]
 
   def initialize(self, upload_path, config, db_factory):
     super().initialize(config, db_factory)
@@ -91,11 +93,11 @@ class DBHandler(base.APIKeyProtectedHandler):
   def post(self, collection):
     if collection == 'bedcounts':
       csvp = synchronizer.CSVPreprocessor(self.db)
-      
+
       # Get the file object and format request:
       file = self.request.files["file"][0]
       file_format = self.get_query_argument('format', default=None)
-      
+
       file_name = None
       # Pre-process with the correct method:
       if file_format == 'ror_idf':
@@ -107,7 +109,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         self.redirect(home.HomeHandler.ROUTE)
         return
 
-      # Save the file locally just in case: 
+      # Save the file locally just in case:
       time_str = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
       file_path = os.path.join(self.upload_path, f"{time_str}-{file_name}")
       try:
@@ -119,4 +121,3 @@ class DBHandler(base.APIKeyProtectedHandler):
     else:
       logging.debug("POST API called with incorrect collection: {collection}.")
       self.redirect(home.HomeHandler.ROUTE)
-    
