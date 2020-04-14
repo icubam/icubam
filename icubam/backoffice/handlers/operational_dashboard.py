@@ -78,7 +78,7 @@ def _make_bar_plot(df: pd.DataFrame, locale):
   )
   p.xaxis.major_label_orientation = math.pi / 4
   p.y_range.start = 0
-  p.yaxis.axis_label = locale.translate('Fraction (%)')
+  p.yaxis.axis_label = locale.translate("Rate (%)")
 
   p.vbar(
     x=dodge('index', 0.25, range=p.x_range),
@@ -86,7 +86,7 @@ def _make_bar_plot(df: pd.DataFrame, locale):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label=locale.translate("Taux de remplissage lits (covid)"),
+    legend_label=locale.translate("Beds utilization rate (covid)"),
     color="#0f2080"
   )
   p.vbar(
@@ -95,7 +95,7 @@ def _make_bar_plot(df: pd.DataFrame, locale):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label=locale.translate("Taux de remplissage lits (total)"),
+    legend_label=locale.translate("Beds utilization rate (total)"),
     color="#85c0f9",
   )
   p.vbar(
@@ -104,7 +104,7 @@ def _make_bar_plot(df: pd.DataFrame, locale):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label=locale.translate("Taux de refus (covid) / capacité totale"),
+    legend_label=locale.translate("Rejection rate (covid) / total capacity"),
     color="#f5793a",
   )
   p.legend.location = "center_left"
@@ -150,9 +150,10 @@ class OperationalDashHandler(base.AdminHandler):
   def get(self):
     """Serves a page with a table gathering current bedcount data with some extra information."""
     arg_region = self.get_query_argument('region', default=None)
+    locale = self.get_user_locale()
 
     current_region = None
-    current_region_name = "Toutes les régions"
+    current_region_name = locale.translate("All regions")
     if arg_region is not None and arg_region.isdigit():
       try:
         current_region = self.db.get_region(int(arg_region))
@@ -183,7 +184,6 @@ class OperationalDashHandler(base.AdminHandler):
 
     df, metrics_layout = _prepare_data(bed_counts)
 
-    locale = self.get_user_locale()
     p = _make_bar_plot(df, locale)
 
     script, div = components(p)

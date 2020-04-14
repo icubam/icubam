@@ -4,7 +4,7 @@ Authentication failed,Error de autenticación
 Create user,Nuevo usuario
 Edit user,Edición de usuario
 Email address,Email
-Failed to save the user,Error de registro de usuario
+user,usuario
 Select ICUs,Escoger UCIs
 Name,Nombre
 Password,Contraseña
@@ -29,6 +29,7 @@ Dashboards,Tableros
 Map,Mapa
 Operational dashboard,Tablero operacional
 Access Tokens,Tokens de accesos
+Acces Tokens,Tokens de accesos
 Regions,Regiones
 Messages,Mensajes
 
@@ -44,7 +45,7 @@ Where is the ICU?,¿Dónde está la UCI?
 
 Overall,Resumen
 icus,UCIs
-users,Usuarios
+users,usuarios
 Occupied,Ocupadas
 Free,Disponibles
 deceased,Fallecidos
@@ -80,10 +81,10 @@ Latitude,Latitud
 Longitude,Longitud
 Submit,Enviar
 
-Manage Regions,Gestionar regiones
+regions,regiones
 
-Clicker pour afficher,Haga click para mostrar todo
-Tout montrer,Mostrar todo
+Click here to display all,Haga click para mostrar todo
+Display all,Mostrar todo
 
 Occupied COVID+ beds,Camas COVID+ ocupadas
 Available COVID+ beds,Camas COVID+ disponibles
@@ -93,9 +94,19 @@ Refused,Rechazados
 (due to unavailability),(por capacidad)
 Transfers,Transferidos
 (to other ICU),(a otras UCIs)
-Toutes les régions,Todas las regiones
+All regions,Todas las regiones
 
-Taux de refus (covid) / capacité totale,Tasa de rechazo (COVID) / capacidad total
-Taux de remplissage lits (total),Tasa de ocupación de camas (total)
-Taux de remplissage lits (covid),Tasa de ocupación de camas (COVID)
-Fraction (%),Fracción (%)
+Rejection rate (covid) / total capacity,Tasa de rechazo (COVID) / capacidad total
+Beds utilization rate (total),Tasa de ocupación de camas (total)
+Beds utilization rate (covid),Tasa de ocupación de camas (COVID)
+Rate (%),Fracción (%)
+
+Failed to save,Error guardando
+Manage your,Gestionar
+
+access tokens,tokens de acceso
+access token,token de acceso
+Access,Acceso
+Access Key,Llave de Acceso
+Expires,Expiración
+Created,Creación
