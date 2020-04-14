@@ -1,3 +1,4 @@
+from absl import logging  # noqa: F401
 import os.path
 import tornado.locale
 from tornado import queues

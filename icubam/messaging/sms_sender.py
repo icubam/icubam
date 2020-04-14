@@ -75,7 +75,6 @@ def get(config, sms_carrier=None):
   that is if the sender object is 'XXSender' the carrier name should be 'XX'
   """
   sms_carrier = sms_carrier or config.sms.carrier
-  "{}Sender".format(sms_carrier)
   obj = None
   for key, member in inspect.getmembers(sys.modules[__name__]):
     if key.upper() == "{}Sender".format(sms_carrier).upper():

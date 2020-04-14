@@ -1,4 +1,4 @@
-name: run yapf on source code
+name: run python linters on source code
 
 on:
   # Trigger the workflow on push or pull request,
@@ -22,11 +22,12 @@ jobs:
          activate-environment: anaconda-client-env
          python-version: 3.8
          auto-activate-base: false
-    - name: Install yapf
+    - name: Install linters
       shell: bash -l {0}
       run: |
-        pip install yapf
-    - name: Run yapf
+        pip install yapf flake8
+    - name: Run linters
       shell: bash -l {0}
       run: |
         yapf -r --diff .
+        flake8

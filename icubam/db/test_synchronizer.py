@@ -1,4 +1,3 @@
-import tempfile
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -216,7 +215,6 @@ class CSVTest(absltest.TestCase):
     with open("resources/test/icu2.csv") as csv_f:
       self.csv.sync_icus_from_csv(csv_f, False)
 
-    tempfile.mkdtemp()
     icus = self.db.get_icus()
     str_buf = self.csv.export_icus()
     # Add a row for the header:
