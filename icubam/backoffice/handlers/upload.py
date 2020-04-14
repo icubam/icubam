@@ -13,8 +13,7 @@ class UploadHandler(base.BaseHandler):
 
   def answer(self, msg, error=False):
     logging.error(msg)
-    self.set_status(400 if error else 200)
-    self.write(json.dumps({'msg': msg}))
+    self.write(json.dumps({'msg': msg, 'error': error}))
 
   @tornado.web.authenticated
   def post(self):
@@ -39,8 +38,8 @@ class UploadHandler(base.BaseHandler):
         'Cannot find proper synchronization method.', error=True
       )
 
-    num_updates = sync_fn(io.StringIO(content), force_update=True)
     try:
+      num_updates = sync_fn(io.StringIO(content), force_update=True)
       return self.answer(f'Updated {num_updates} {objtype}')
     except:
       return self.answer('Failing while syncing csv content', error=True)
