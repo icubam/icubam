@@ -29,7 +29,7 @@ class UpdateFormHandler(base.BaseHandler):
 
   def get_current_user(self):
     """This route is not secured at first."""
-    return "unknown_user"
+    return None
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
