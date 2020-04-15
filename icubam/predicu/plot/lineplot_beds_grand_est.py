@@ -3,14 +3,12 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..data import ICU_NAMES_GRAND_EST
-from ..plot import RANDOM_COLORS, RANDOM_MARKERS, plot_int
+from icubam.predicu.plot import RANDOM_COLORS, RANDOM_MARKERS, plot_int
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   n_occ = data.groupby("date").sum()["n_covid_occ"]
   n_free = data.groupby("date").sum()["n_covid_free"]
   n_transfered = (

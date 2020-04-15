@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from ..data import DEPARTMENT_POPULATION, ICU_NAMES_GRAND_EST
+from icubam.predicu.data import DEPARTMENT_POPULATION
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
   d = data
-  d = d.loc[d.icu_name.isin(ICU_NAMES_GRAND_EST)]
   d = d.groupby(["date", "department"]).sum().reset_index()
   d = d.sort_values(by="date")
   fig, ax = plt.subplots(1, figsize=(20, 10))
