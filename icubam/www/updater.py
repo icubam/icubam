@@ -15,7 +15,8 @@ def apply_default(data: dict, value: int, prefix: str):
 class Updater:
   """Helper class for dealing with updating the counts."""
 
-  ROUTE = '/update'
+  GET_ROUTE = '/update_form'
+  POST_ROUTE = '/update'
 
   def __init__(self, config, db):
     self.config = config
@@ -54,5 +55,5 @@ class Updater:
       last_update, locale
     )
     result['home_route'] = home.HomeHandler.ROUTE
-    result['update_route'] = self.ROUTE
+    result['update_route'] = self.POST_ROUTE
     return result
