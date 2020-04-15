@@ -31,12 +31,13 @@ class WWWServer(base_server.BaseServer):
       }
     ))
     self.add_handler(
-      update.UpdateHandler,
+      update.UpdateBedCountsHandler,
       config=self.config,
       db_factory=self.db_factory,
       queue=self.writing_queue,
     )
     kwargs = dict(config=self.config, db_factory=self.db_factory)
+    self.add_handler(update.UpdateHandler, **kwargs)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
     self.add_handler(

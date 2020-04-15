@@ -9,13 +9,13 @@ from icubam.www import updater
 
 
 class UpdateHandler(base.BaseHandler):
+  """Shows the update form to user coming with the proper token."""
 
   ROUTE = updater.Updater.ROUTE
   QUERY_ARG = 'id'
 
-  def initialize(self, config, db_factory, queue):
+  def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    self.queue = queue
     self.updater = updater.Updater(self.config, self.db)
 
   def get_consent_html(self, user):
@@ -27,49 +27,37 @@ class UpdateHandler(base.BaseHandler):
       with open(path, 'r') as fp:
         return fp.read()
 
-  def authenticate_from_token(self, user_token):
-    input_data = self.token_encoder.decode(user_token)
-    if input_data is None:
-      logging.error("No token to be found.")
-      return None, None
-
-    userid = int(input_data.get('user_id', -1))
-    user = self.db.get_user(userid)
-    if user is None:
-      logging.error(f"User does not exist.")
-      return None, None
-
-    icuid = int(input_data.get('icu_id', -1))
-    user_icu_ids = [i.icu_id for i in user.icus]
-    if icuid not in user_icu_ids:
-      logging.error(f"User does not belong the ICU.")
-      return None, None
-
-    if user.consent is not None and not user.consent:
-      logging.error(f"User has bailed out from ICUBAM.")
-      return None, None
-
-    return user, input_data
+  def get_current_user(self):
+    """This route is not secured at first."""
+    return None
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
-    user, token_data = self.authenticate_from_token(user_token)
-    if user is None:
-      logging.error(f"Token authentication failed")
+    user, icu = self.decode_token(user_token)
+    if user is None or icu is None:
+      logging.error("Token authentication failed")
+      self.clear_cookie(self.COOKIE)
       return self.set_status(404)
 
     locale = self.get_user_locale()
-    icu_id = int(token_data.get('icu_id', -1))
-    data = self.updater.get_icu_data_by_id(icu_id, locale=locale)
-    data.update(token_data)
-    data.update(version=icubam.__version__)
-
-    # Show consent form?
+    data = self.updater.get_icu_data_by_id(icu.icu_id, locale=locale)
+    data['icu_name'] = icu.name
+    data['version'] = icubam.__version__
     data['consent'] = self.get_consent_html(user)
-
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
+
+
+class UpdateBedCountsHandler(base.BaseHandler):
+  """Register new bedcounts coming from the form."""
+
+  ROUTE = updater.Updater.POST_ROUTE
+
+  def initialize(self, config, db_factory, queue):
+    super().initialize(config, db_factory)
+    self.queue = queue
+    self.updater = updater.Updater(self.config, self.db)
 
   @tornado.web.authenticated
   async def post(self):
@@ -79,13 +67,15 @@ class UpdateHandler(base.BaseHandler):
       value = int(parts[1]) if parts[1].isnumeric() else 0
       return parts[0], value
 
-    cookie_data = self.token_encoder.decode(
-      self.get_secure_cookie(self.COOKIE)
-    )
+    try:
+      params_str = self.request.body.decode()
+      data = dict([parse(p) for p in params_str.split('&')])
+    except Exception as e:
+      logging.error(f'Error receiving update form: {e}')
+      return
 
-    params_str = self.request.body.decode()
-    data = dict([parse(p) for p in params_str.split('&')])
-    data.update(cookie_data)
+    data['user_id'] = self.user.user_id
+    data['icu_id'] = self.icu.icu_id
     await self.queue.put(data)
 
     self.redirect(home.HomeHandler.ROUTE)

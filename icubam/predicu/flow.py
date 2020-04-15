@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .data import CUM_COLUMNS
+from icubam.predicu.data import CUM_COLUMNS
 
 
 def compute_flow(d):
