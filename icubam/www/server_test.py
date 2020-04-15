@@ -33,7 +33,7 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
 
   def test_homepage_without_cookie(self):
     response = self.fetch(home.HomeHandler.ROUTE)
-    self.assertEqual(response.code, 404)
+    self.assertEqual(response.code, 401)
 
   def test_homepage_with_cookie(self):
     """If there is a cookie, the route is reachable."""
