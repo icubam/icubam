@@ -106,7 +106,9 @@ def load_bedcounts(
 
 
 def load_icubam(cached_data=None, api_key=None, icubam_host=None, clean=True):
-  if 'raw_icubam' not in cached_data:
+  if cached_data is not None and 'raw_icubam' in cached_data:
+    d = cached_data['raw_icubam']
+  else:
     if api_key is None or icubam_host is None:
       raise RuntimeError("Provide API key and host to download ICUBAM data")
     else:
@@ -117,8 +119,6 @@ def load_icubam(cached_data=None, api_key=None, icubam_host=None, clean=True):
       )
       logging.info("downloading data from %s" % url)
       d = pd.read_csv(url.format(api_key))
-  else:
-    d = cached_data['raw_icubam']
   if clean:
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
     with open(DATA_PATHS["department_typo_fixes"]) as f:
