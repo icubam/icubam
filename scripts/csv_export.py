@@ -20,7 +20,7 @@ def main(args=None):
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   db = store_factory.create()
 
-  csv = synchronizer.CSVSynchcronizer(db)
+  csv = synchronizer.CSVSynchronizer(db)
 
   out_buf = csv.export_icus()
   if FLAGS.output:

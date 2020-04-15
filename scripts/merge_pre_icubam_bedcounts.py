@@ -38,7 +38,7 @@ def main(args=None):
   )
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   store = store_factory.create()
-  csv_synchronizer = synchronizer.CSVSynchcronizer(store)
+  csv_synchronizer = synchronizer.CSVSynchronizer(store)
   add_pre_icubam_bed_counts(FLAGS.pre_icubam_data_path, csv_synchronizer)
 
 
