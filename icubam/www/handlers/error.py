@@ -8,4 +8,5 @@ class ErrorHandler(base.BaseHandler):
     super().initialize(config, db_factory)
 
   def get(self):
+    self.set_status(401)
     return self.render('error.html')
