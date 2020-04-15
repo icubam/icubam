@@ -183,6 +183,6 @@ scripts),
 
 ### Issues and debug
 
-- If configuration files are updated, it is recommented to deete the existing containers et restart them to properly reload the configuration files.
+- If configuration files are updated, it is recommended to delete the existing containers et restart them to properly reload the configuration files.
 - Check the files being mounted do exists (if they do not exist, a folder with this name is automatically created by compose).
 - If changes done to configuration files are not visible/performed, check that the proper yml file is used in compose
