@@ -28,14 +28,14 @@ docker-compose docker/docker-compose-init-db.yml up
 docker-compose docker/docker-compose-init-db.yml down
 ```
 
-#### Run the application
+#### Develop with docker-compose
 ```
 docker-compose docker/docker-compose-dev.yml build
 docker-compose docker/docker-compose-dev.yml up -d
 ```
 
 #### Restart a container after making a change
-For example, Iif we make a change in the source code of the server (e.g. a template), we can see it simply restarting `app-server:`
+For example, if we make a change in the source code of the server (e.g. a template), we can see it simply restarting `app-server:`
 ```
 docker-compose docker/docker-compose-dev.yml restart app-server
 ```
