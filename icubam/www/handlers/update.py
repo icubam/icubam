@@ -27,6 +27,13 @@ class UpdateHandler(base.BaseHandler):
       with open(path, 'r') as fp:
         return fp.read()
 
+  def get_current_user(self):
+    # There is a cookie. we use it.
+    if self.get_secure_cookie(self.COOKIE):
+      return super().get_current_user()
+    else:  # the user is coming on his own via the link with token.
+      return "unknown_user"
+
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
