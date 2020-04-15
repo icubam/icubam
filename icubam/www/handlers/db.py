@@ -1,13 +1,15 @@
-from absl import logging  # noqa: F401
 import datetime
-import io
 import functools
+import io
 import os
-import tornado.web
 import tempfile
-from icubam.www.handlers import base
-from icubam.www.handlers import home
+
+import tornado.web
+from absl import logging  # noqa: F401
+
+import icubam.predicu.data
 from icubam.db import store
+from icubam.www.handlers import base, home
 
 
 def _get_headers(collection, asked_file_type):
@@ -46,6 +48,9 @@ class DBHandler(base.APIKeyProtectedHandler):
   def get(self, collection):
     file_format = self.get_query_argument('format', default=None)
     max_ts = self.get_query_argument('max_ts', default=None)
+    should_preprocess = (
+      self.get_query_argument('preprocess', default=None) is not None
+    )
     data = None
 
     get_fn = self.get_fns.get(collection, None)
@@ -59,6 +64,12 @@ class DBHandler(base.APIKeyProtectedHandler):
         max_ts = datetime.datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
+      if collection == 'all_bedcounts' and should_preprocess:
+        cached_data = {'icubam': data}
+        data = icubam.predicu.data.load_bedcounts(
+          cached_data=cached_data,
+          clean=True,
+        )
     else:
       data = store.to_pandas(get_fn(), max_depth=0)
 
