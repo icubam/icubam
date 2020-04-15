@@ -37,7 +37,7 @@ function log_to_file() {
 
 function detailed_status() {
   local status_code=0
-  for cid in $(docker-compose -f "${DOCKER_DIR}/docker-compose.yml" --project-directory "${PROJECT_DIR}" ps -q); do
+  for cid in $(docker-compose -f "${DOCKER_DIR}/docker-compose-core.yml" -f "${DOCKER_DIR}/docker-compose-proxy.yml" --project-directory "${PROJECT_DIR}" ps -q); do
     if [ "$(docker inspect -f '{{.State.Status}}' "${cid}")" != "running" ]; then
       status_code=1
       print_status "${cid}"
@@ -50,7 +50,7 @@ function detailed_status() {
 }
 
 function status() {
-  docker-compose -f "${DOCKER_DIR}/docker-compose.yml" --project-directory "${PROJECT_DIR}" ps
+  docker-compose -f "${DOCKER_DIR}/docker-compose-core.yml"  -f "${DOCKER_DIR}/docker-compose-proxy.yml" --project-directory "${PROJECT_DIR}" ps
 }
 
 function main() {

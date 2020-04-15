@@ -10,11 +10,37 @@ upstream backoffice-server {
         server icubam-bo-server:8890;
 }
 
-
 server {
     listen 80;
-    server_name localhost;
+    server_name WEB_HOSTNAME;
     server_tokens off;
+
+    # for certbot cert setup/renewal dns challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    if ($host = WEB_HOSTNAME) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    # redirects to https
+    location / {
+        return 301 https://$host$request_uri;
+    }
+
+    return 404; # managed by Certbot
+}
+
+server {
+    listen 443 ssl;
+    server_name WEB_HOSTNAME;
+    server_tokens off;
+
+    ssl_certificate /etc/letsencrypt/live/WEB_HOSTNAME/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/WEB_HOSTNAME/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     location /bo/ {
         proxy_set_header Host $host;
@@ -31,5 +57,4 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-
 }
