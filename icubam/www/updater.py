@@ -15,8 +15,8 @@ def apply_default(data: dict, value: int, prefix: str):
 class Updater:
   """Helper class for dealing with updating the counts."""
 
-  GET_ROUTE = '/update_form'
-  POST_ROUTE = '/update'
+  ROUTE = '/update'
+  POST_ROUTE = '/update_counts'
 
   def __init__(self, config, db):
     self.config = config

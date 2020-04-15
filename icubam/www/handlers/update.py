@@ -11,7 +11,7 @@ from icubam.www import updater
 class UpdateFormHandler(base.BaseHandler):
   """Shows the update form to user coming with the proper token."""
 
-  ROUTE = updater.Updater.GET_ROUTE
+  ROUTE = updater.Updater.ROUTE
   QUERY_ARG = 'id'
 
   def initialize(self, config, db_factory):
