@@ -14,7 +14,8 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get -y update \
     && apt-get install -y git \
        wget \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean -y
 
 # Create app directory and copy code
 RUN mkdir /home/icubam
