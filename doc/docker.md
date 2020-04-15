@@ -19,11 +19,25 @@ To start properly, the application requires
 of the project (note: while both must be present to be mounted, only one will be used).  You can use the `docker/docker-compose-init-db.yml` script, see instructions below.
 - the configuration file (default name: ``config.toml``)
 
-### Initalize DBs with docker-compose:
+### Use docker-compose for development
+
+#### Initalize DBs with docker-compose:
 ```
 docker-compose docker/docker-compose-init-db.yml build
 docker-compose docker/docker-compose-init-db.yml up
 docker-compose docker/docker-compose-init-db.yml down
+```
+
+#### Run the application
+```
+docker-compose docker/docker-compose-dev.yml build
+docker-compose docker/docker-compose-dev.yml up -d
+```
+
+#### Restart a container after making a change
+For example, Iif we make a change in the source code of the server (e.g. a template), we can see it simply restarting `app-server:`
+```
+docker-compose docker/docker-compose-dev.yml restart app-server
 ```
 
 
