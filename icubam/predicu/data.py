@@ -1,11 +1,9 @@
 import itertools
 import json
 import logging
-import os
 import pickle
 import urllib.request
 from pathlib import Path
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -372,11 +370,15 @@ def load_public(cached_data=None):
   ]]
 
 
-def load_combined_bedcounts_public(api_key=None, cached_data=None, **kwargs):
+def load_combined_bedcounts_public(
+  api_key=None, cached_data=None, icubam_host=None, **kwargs
+):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
-  di = load_if_not_cached("bedcounts", cached_data)
+  di = load_if_not_cached(
+    "bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host
+  )
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
   di["n_icu_patients"] = di.n_covid_occ + di.n_ncovid_occ.fillna(0)
