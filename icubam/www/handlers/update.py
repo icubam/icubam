@@ -8,7 +8,7 @@ from icubam.www.handlers import home
 from icubam.www import updater
 
 
-class UpdateFormHandler(base.BaseHandler):
+class UpdateHandler(base.BaseHandler):
   """Shows the update form to user coming with the proper token."""
 
   ROUTE = updater.Updater.ROUTE
@@ -49,7 +49,7 @@ class UpdateFormHandler(base.BaseHandler):
     self.render('update_form.html', **data)
 
 
-class UpdateHandler(base.BaseHandler):
+class UpdateBedCountsHandler(base.BaseHandler):
   """Register new bedcounts coming from the form."""
 
   ROUTE = updater.Updater.POST_ROUTE
