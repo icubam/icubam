@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
 <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
 <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<link rel="stylesheet" href="static/user.css">
 {% end %}
 
 {% block content %}
@@ -35,8 +36,9 @@
 
             <!-- The hidden ID in case we're editing the user. -->
             <input type="text" id="user_id" name="user_id" hidden
-              value="{% if user.user_id is not None%}{{user.user_id}}{% end %}" </input>
-            <!-- Required and does not accept names that contain only spaces. -->
+              value="{% if user.user_id is not None%}{{user.user_id}}{% end %}" />
+            <!-- Required and does not
+              accept names that contain only spaces. -->
             <div class="form-row">
               <div class="col-25">
                 <label for="exampleInputEmail1">{{_("Name")}}</label>
@@ -115,10 +117,18 @@
 
           </div>
 
-
           <div class="card-footer">
-            <button type='button' onclick='navigateTo("{{list_route}}")' class="btn btn-warning">Cancel</button>
-            <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
+            <div class='submit-group'>
+              <button type='button' onclick='navigateTo("{{list_route}}")'
+                class="btn btn-warning">{{_("Cancel")}}</button>
+              <button type="submit" class="btn btn-primary">{{_("Save")}}</button>
+            </div>
+            <div class='submit-group'>
+              {%if user.consent is not None and not user.consent %}
+              <button type='button' onclick='resetConsent({{user.user_id}})'
+                class="btn btn-danger">{{_("Reset Consent")}}</button>
+              {% end %}
+            </div>
           </div>
         </form>
       </div>
@@ -126,7 +136,7 @@
 
     {% if error %}
     <div class="alert alert-danger" role="alert">
-      {{_("Failed to save the user")}}.
+      {{_("Failed to save") }} {{ _("user")}}.
     </div>
     {% end %}
 

@@ -35,7 +35,7 @@ function toggleAll () {
   }
 }
 
-function CenterControl(controlDiv, map) {
+function CenterControl(controlDiv, map, displayAllText, displayAllAltText) {
   // Set CSS for the control border.
   var controlUI = document.createElement('div');
   controlUI.style.backgroundColor = '#fff';
@@ -45,7 +45,7 @@ function CenterControl(controlDiv, map) {
   controlUI.style.cursor = 'pointer';
   controlUI.style.marginBottom = '22px';
   controlUI.style.textAlign = 'center';
-  controlUI.title = 'Clicker pour afficher';
+  controlUI.title = displayAllAltText;
   controlDiv.appendChild(controlUI);
 
   // Set CSS for the control interior.
@@ -56,7 +56,7 @@ function CenterControl(controlDiv, map) {
   controlText.style.lineHeight = '38px';
   controlText.style.paddingLeft = '5px';
   controlText.style.paddingRight = '5px';
-  controlText.innerHTML = 'Tout montrer';
+  controlText.innerHTML = displayAllText;
   controlUI.appendChild(controlText);
   controlUI.addEventListener('click', function() {
     toggleAll();
@@ -104,7 +104,7 @@ function addPopup (obj, map, Popup) {
   popup.setMap(map);
 }
 
-function plotMap(data, center) {
+function plotMap(data, center, displayAllText, displayAllAltText) {
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
@@ -208,7 +208,7 @@ function plotMap(data, center) {
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var centerControlDiv = document.createElement('div');
-  var centerControl = new CenterControl(centerControlDiv, map);
+  var centerControl = new CenterControl(centerControlDiv, map, displayAllText, displayAllAltText);
   centerControlDiv.index = 1;
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
 }

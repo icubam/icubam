@@ -5,15 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
 
-from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
-from ..flow import compute_flow_per_dpt
+from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.predicu.plot import DEPARTMENT_COLOR, plot_int
+from icubam.predicu.flow import compute_flow_per_dpt
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
   data = data.groupby(["date", "department"]).agg(agg)
   data = data.reset_index()
@@ -38,7 +37,7 @@ def plot(data):
       date_idx_range,
       y,
       ax=ax,
-      color=DEPARTMENT_GRAND_EST_COLOR[department],
+      color=DEPARTMENT_COLOR[department],
       label=department,
       lw=1,
       fill_below=True,
@@ -62,7 +61,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=DEPARTMENT_GRAND_EST_COLOR[dpt],
+        facecolor=DEPARTMENT_COLOR[dpt],
         label=dpt,
         linewidth=3,
       ) for dpt in sorted_depts

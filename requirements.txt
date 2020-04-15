@@ -19,4 +19,3 @@ lxml==4.5.0
 matplotlib==3.2.1
 seaborn==0.10.0
 scipy==1.4.1
-tables==3.6.1
