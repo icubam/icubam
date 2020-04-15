@@ -31,7 +31,10 @@ class BaseHandler(tornado.web.RequestHandler):
       userid, icuid = input_data
     except Exception as e:
       logging.error(f'Token is not a 2-tuple as expected: {e}')
-      return None, None
+      userid, icuid = None, None
+      if isinstance(input_data, dict):
+        userid = input_data.get('user_id', None)
+        icuid = input_data.get('user_id', None)
 
     user = self.db.get_user(userid)
     if user is None:
