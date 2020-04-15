@@ -8,7 +8,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: db-builder
-    command: "./build_dbs.sh"
+    command: "./build_fake_dbs.sh"
     tty: true
     environment:
       ENV_MODE : "$ENV_MODE"
@@ -24,11 +24,11 @@ services:
         source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
         target: /home/icubam/resources/config.toml
       - type: bind
-        source: .
+        source: "${ICUBAM_COMPOSE_CONTEXT:-.}"
         target: /home/icubam/db
       - type: bind
-        source: "./build_dbs.sh"
-        target: /home/icubam/build_dbs.sh
+        source: "./build_fake_dbs.sh"
+        target: /home/icubam/build_fake_dbs.sh
     networks:
       - icubam-network
 
