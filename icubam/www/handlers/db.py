@@ -65,7 +65,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
       if collection == 'all_bedcounts' and should_preprocess:
-        cached_data = {'icubam': data}
+        cached_data = {'raw_icubam': data}
         data = icubam.predicu.data.load_bedcounts(
           cached_data=cached_data,
           clean=True,
