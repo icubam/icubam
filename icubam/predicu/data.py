@@ -1,11 +1,11 @@
 import itertools
 import json
 import logging
-import os
+#import os
 import pickle
 import urllib.request
 from pathlib import Path
-from typing import Dict
+#from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -185,35 +185,40 @@ def clean_data(d, spread_cum_jump_correction=False):
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
-  d = aggregate_multiple_inputs(d)
-  # d = fix_noncum_inputs(d)
-  d = get_clean_daily_values(d)
-  if spread_cum_jump_correction:
+  d = aggregate_multiple_inputs(d, "15Min") ## merge(15min) + rolling median smoothing + restore monotonic growth in cumu. inputs
+  d = fill_in_missing_days(d, "3D") ## if interval > 3D, then fill in by linear interpolation
+  d = get_clean_daily_values(d) ## reduces data to 1/day max (and makes it be exactly 1/day)
+  if spread_cum_jump_correction: ## pas verifiee ?
     d = spread_cum_jumps(d, icu_to_first_input_date)
   d = d[ALL_COLUMNS]
   return d
 
 
-def aggregate_multiple_inputs(d):
+def aggregate_multiple_inputs(d, TimeDeltaChosen="15Min"):
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
     dg = dg.sort_index()
+
+    ## this groups inputs when they are separated bu less than 15 Min in time (in the same ICU)
     mask = ((dg.index.to_series().diff(1) >
-             pd.Timedelta("15Min")).shift(-1).fillna(True).astype(bool))
+             pd.Timedelta(TimeDeltaChosen)).shift(-1).fillna(True).astype(bool))
     dg = dg.loc[mask]
 
+    ## rolling median average, 5 points (for cumulative qtities)
     for col in CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
 
+    ## rolling median average, 3 points (for non-cumulative qtities)
     for col in NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
       )
 
+    ## si la valeur decroit dans une colonne cumulative, alors on redresse ne appliquant la valeur precedente
     for col in CUM_COLUMNS:
       new_col = []
       last_val = -100000
@@ -230,6 +235,46 @@ def aggregate_multiple_inputs(d):
   return pd.concat(res_dfs)
 
 
+def fill_in_missing_days(d, TimeDeltaChosen="3D"):
+  res_dfs = []
+  for icu_name, dg in d.groupby("icu_name"):
+    dg = dg.sort_values(by=['datetime'])
+
+    ## looking for time intervals larger than 3 Days (or whatever)
+    timeDelta = dg['datetime'].diff(1)
+    for i, td in enumerate(timeDelta) :
+      if td > pd.Timedelta(TimeDeltaChosen): ## if no input in 3 complete days (72 hours)
+        Ndays = td//pd.Timedelta("1D")
+        slope = 1.0/Ndays
+        val_init = dg.iloc[i-1] # because of the diff, the indexing goes like this
+        val_final = dg.iloc[i]
+
+        ## adding intermediate days
+        for added_day in range(Ndays):
+          added_datetime = val_init.datetime + pd.Timedelta("1D")*added_day
+          added_date     = val_init.date     + pd.Timedelta("1D")*added_day
+          new_row={'datetime': added_datetime,
+          'icu_name': val_init.icu_name,
+          'date': added_date,
+          'department': val_init.department,
+          'n_covid_deaths':     np.round(val_init.n_covid_deaths+     (val_final.n_covid_deaths-     val_init.n_covid_deaths)*     added_day*1.0/Ndays,4),
+          'n_covid_healed':     np.round(val_init.n_covid_healed+     (val_final.n_covid_healed-     val_init.n_covid_healed)*     added_day*1.0/Ndays,4),
+          'n_covid_transfered': np.round(val_init.n_covid_transfered+ (val_final.n_covid_transfered- val_init.n_covid_transfered)* added_day*1.0/Ndays,4),
+          'n_covid_refused':    np.round(val_init.n_covid_refused+    (val_final.n_covid_refused-    val_init.n_covid_refused)*    added_day*1.0/Ndays,4),
+          'n_covid_free':       np.round(val_init.n_covid_free+       (val_final.n_covid_free-       val_init.n_covid_free)*       added_day*1.0/Ndays,4),
+          'n_ncovid_free':      np.round(val_init.n_ncovid_free+      (val_final.n_ncovid_free-      val_init.n_ncovid_free)*      added_day*1.0/Ndays,4),
+          'n_covid_occ':        np.round(val_init.n_covid_occ+        (val_final.n_covid_occ-        val_init.n_covid_occ)*        added_day*1.0/Ndays,4),
+          'n_ncovid_occ':       np.round(val_init.n_ncovid_occ+       (val_final.n_ncovid_occ-       val_init.n_ncovid_occ)*       added_day*1.0/Ndays,4)}
+          dg = dg.append(pd.Series(new_row), ignore_index=True) ## this is an insert, we will sort by date later.
+      # else: time delay short enough, nothing to insert
+    dg = dg.sort_values(by=['datetime'])
+    res_dfs.append(dg)
+  return pd.concat(res_dfs)
+
+
+
+## make the data set have exactly 1 data point per day (no more, no less)
+## It creates the data point if there is none in that day (by taking the last value that was recorded)
 def get_clean_daily_values(d):
   dates = sorted(list(d.date.unique()))
   icu_names = sorted(list(d.icu_name.unique()))
@@ -354,13 +399,15 @@ def load_public(cached_data=None):
     download_url,
     sep=";",
   )
-  d = d.loc[d.sexe == 0]
+  d = d.loc[d.sexe == 0]  ## load only the data for women+men (all summed)
   d = d.rename(
     columns={
       "dep": "department_code",
       "jour": "date",
       "hosp": "n_hospitalised_patients",
       "rea": "n_icu_patients",
+      "rad": "n_hospital_healed",
+      "dc": "n_hospital_death",
     }
   )
   d["date"] = pd.to_datetime(d["date"]).dt.date
@@ -369,14 +416,16 @@ def load_public(cached_data=None):
     "department_code",
     "n_hospitalised_patients",
     "n_icu_patients",
+    "n_hospital_healed",
+    "n_hospital_death",
   ]]
 
 
-def load_combined_bedcounts_public(api_key=None, cached_data=None, **kwargs):
+def load_combined_bedcounts_public(api_key=None, cached_data=None, icubam_host=None, **kwargs):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
-  di = load_if_not_cached("bedcounts", cached_data)
+  di = load_if_not_cached("bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host)
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
   di["n_icu_patients"] = di.n_covid_occ + di.n_ncovid_occ.fillna(0)
@@ -385,3 +434,36 @@ def load_combined_bedcounts_public(api_key=None, cached_data=None, **kwargs):
   )
   combined["department_pop"] = combined.department.apply(get_dpt_pop)
   return combined
+
+
+def dep2region(str_dep_code):
+  france_dep2region = load_france_departments()
+  # regioncode = int(france_dep2region[france_dep2region["departmentCode"]==str(dep_code)]["regionCode"].iloc[0])
+  # str_dep_code = str(dep_code)
+  # if dep_code<10 :
+  #   str_dep_code = '0'+str_dep_code
+  if str_dep_code not in france_dep2region.departmentCode.unique() :
+    print("ce numero, ", str_dep_code, " n'est pas un numero de departement")
+  regioncode = france_dep2region[france_dep2region["departmentCode"]==str_dep_code]["regionCode"]
+  return regioncode
+# ## test:
+# france_dep2region = predicu.data.load_france_departments()
+# for dep_code in france_dep2region.departmentCode.unique():
+#   # dep_code = int(dep_code)
+#   print(dep_code,  predicu.data.dep2region(dep_code))
+
+
+def region2dep(str_reg_code):
+  france_dep2region = load_france_departments()
+  # str_reg_code = str(reg_code)
+  # if reg_code<10 :
+  #   str_reg_code = '0'+str_reg_code
+  if str_reg_code not in france_dep2region.regionCode.unique() :
+    print("ce numero, ", str_reg_code, " n'est pas un numero de region")
+  dep_codes = france_dep2region[france_dep2region["regionCode"]==str_reg_code]["departmentCode"]
+  return dep_codes
+# ## test:
+# france_dep2region = predicu.data.load_france_departments()
+# for reg_code in france_dep2region.regionCode.unique():
+#   reg_code = int(reg_code)
+#   print("region numéro ", reg_code, ", liste des depts: ", predicu.data.region2dep(reg_code))
