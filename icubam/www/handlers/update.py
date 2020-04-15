@@ -9,13 +9,13 @@ from icubam.www import updater
 
 
 class UpdateHandler(base.BaseHandler):
+  """Shows the update form to user coming with the proper token."""
 
   ROUTE = updater.Updater.ROUTE
   QUERY_ARG = 'id'
 
-  def initialize(self, config, db_factory, queue):
+  def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
-    self.queue = queue
     self.updater = updater.Updater(self.config, self.db)
 
   def get_consent_html(self, user):
@@ -28,18 +28,15 @@ class UpdateHandler(base.BaseHandler):
         return fp.read()
 
   def get_current_user(self):
-    # There is a cookie. we use it.
-    if self.get_secure_cookie(self.COOKIE):
-      return super().get_current_user()
-    else:  # the user is coming on his own via the link with token.
-      return "unknown_user"
+    """This route is not secured at first."""
+    return None
 
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
     user, icu = self.decode_token(user_token)
     if user is None or icu is None:
-      logging.error(f"Token authentication failed")
+      logging.error("Token authentication failed")
       self.clear_cookie(self.COOKIE)
       return self.set_status(404)
 
@@ -50,6 +47,17 @@ class UpdateHandler(base.BaseHandler):
     data['consent'] = self.get_consent_html(user)
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
+
+
+class UpdateBedCountsHandler(base.BaseHandler):
+  """Register new bedcounts coming from the form."""
+
+  ROUTE = updater.Updater.POST_ROUTE
+
+  def initialize(self, config, db_factory, queue):
+    super().initialize(config, db_factory)
+    self.queue = queue
+    self.updater = updater.Updater(self.config, self.db)
 
   @tornado.web.authenticated
   async def post(self):
