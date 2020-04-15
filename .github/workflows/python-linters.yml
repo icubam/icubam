@@ -1,4 +1,4 @@
-name: run python linters on source code
+name: Lint python
 
 on:
   # Trigger the workflow on push or pull request,
