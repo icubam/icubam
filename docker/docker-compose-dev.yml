@@ -1,0 +1,124 @@
+version: '3.2'
+services:
+
+  # ICUBAM service
+  app-server:
+    build:
+      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      dockerfile: ./docker/Dockerfile
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    container_name: icubam-server
+    command: ./start_server.sh
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8888:8888"
+    environment:
+      ENV_MODE : "$ENV_MODE"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
+    working_dir: /home/icubam
+    volumes:
+      - type: bind
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
+        target: /home/icubam/resources/config.toml
+      - type: bind
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
+        target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
+    networks:
+      - icubam-network
+
+  # ICUBAM sms service
+  app-sms:
+    build:
+      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      dockerfile: ./docker/Dockerfile
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    container_name: icubam-sms-server
+    command: ./start_server_sms.sh
+    restart: unless-stopped
+    tty: true
+    environment:
+      ENV_MODE : "$ENV_MODE"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
+    working_dir: /home/icubam
+    volumes:
+      - type: bind
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
+        target: /home/icubam/resources/config.toml
+      - type: bind
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
+        target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
+    networks:
+      - icubam-network
+
+  # ICUBAM back-office service
+  app-backoffice:
+    build:
+      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      dockerfile: ./docker/Dockerfile
+    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    container_name: icubam-bo-server
+    command: ./start_server_bo.sh
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8890:8890"
+    environment:
+      ENV_MODE : "$ENV_MODE"
+      SECRET_COOKIE : "$SECRET_COOKIE"
+      JWT_SECRET : "$JWT_SECRET"
+      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+      TW_KEY : "$TW_KEY"
+      TW_API : "$TW_API"
+      DB_SALT: "$DB_SALT"
+    working_dir: /home/icubam
+    volumes:
+      - type: bind
+        source: "${ICUBAM_CONFIG_PATH:-./resources/config.toml}"
+        target: /home/icubam/resources/config.toml
+      - type: bind
+        source:  "${ICUBAM_PROD_DB_PATH:-./icubam.db}"
+        target: /home/icubam/icubam.db
+      - type: bind
+        source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
+        target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
+    networks:
+      - icubam-network
+
+
+# Docker Networks
+networks:
+  icubam-network:
+    driver: bridge
