@@ -27,7 +27,12 @@ class BaseHandler(tornado.web.RequestHandler):
       logging.error("No token to be found.")
       return None, None
 
-    userid, icuid = input_data
+    try:
+      userid, icuid = input_data
+    except Exception as e:
+      logging.error(f'{e}')
+      return None, None
+
     user = self.db.get_user(userid)
     if user is None:
       logging.error(f"User does not exist.")

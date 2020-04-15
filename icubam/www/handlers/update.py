@@ -33,6 +33,7 @@ class UpdateHandler(base.BaseHandler):
     user, icu = self.decode_token(user_token)
     if user is None or icu is None:
       logging.error(f"Token authentication failed")
+      self.clear_cookie(self.COOKIE)
       return self.set_status(404)
 
     locale = self.get_user_locale()
