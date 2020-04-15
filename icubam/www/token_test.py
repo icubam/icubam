@@ -4,7 +4,6 @@ from icubam import config
 
 
 class TokenTest(unittest.TestCase):
-
   def test_encode(self):
     cfg = config.Config('resources/test.toml')
     tkn = token.TokenEncoder(cfg)

@@ -7,5 +7,6 @@ class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
   PATH = "static/"
 
   def initialize(self, root, default_filename: str = None) -> None:
-    super().initialize(path=os.path.join(root, self.PATH),
-                       default_filename=default_filename)
+    super().initialize(
+      path=os.path.join(root, self.PATH), default_filename=default_filename
+    )

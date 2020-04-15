@@ -3,6 +3,8 @@ import re
 import tornado.web
 import logging
 import time
+
+from icubam.db import store
 from icubam.www.handlers import base
 
 
@@ -20,18 +22,12 @@ def clean_path(f_name):
     return f"{f_name}.{f_ext}"
 
 
-class UploadHandler(base.BaseHandler):
+class UploadHandler(base.APIKeyProtectedHandler):
   """Accept file uploads over POST."""
 
   ROUTE = "/upload_csv"
   API_COOKIE = 'api'
-
-  def get_current_user(self):
-    key = self.get_query_argument('API_KEY', None)
-    if key is None:
-      return
-
-    return self.db.auth_external_client(key)
+  ACCESS = [store.AccessTypes.UPLOAD, store.AccessTypes.ALL]
 
   def initialize(self, upload_path, config, db_factory):
     self.upload_path = upload_path
@@ -42,9 +38,7 @@ class UploadHandler(base.BaseHandler):
     file = self.request.files["file"][0]
     file_name = clean_path(file["filename"])
     time_str = time.strftime("%Y-%m-%d-%H:%M:%S")
-    file_path = os.path.join(
-      self.upload_path, f"{time_str}-{file_name}"
-    )
+    file_path = os.path.join(self.upload_path, f"{time_str}-{file_name}")
     try:
       with open(file_path, "wb") as f:
         f.write(file["body"])

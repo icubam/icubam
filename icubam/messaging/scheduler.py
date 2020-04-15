@@ -2,7 +2,7 @@ from absl import logging
 import dataclasses
 import time
 import tornado.ioloop
-from typing import Optional, List, Tuple
+from typing import List, Optional
 
 from icubam.messaging import message
 from icubam.www import updater
@@ -18,7 +18,6 @@ class ScheduledMessage:
 
 class MessageScheduler:
   """Schedules the sending of SMS to users."""
-
   def __init__(self, config, db, queue):
     self.config = config
     self.db = db
@@ -45,7 +44,8 @@ class MessageScheduler:
     return int(time_utils.get_next_timestamp(self.when) - time.time())
 
   def schedule_message(
-      self, msg: message.Message, delay: Optional[int] = None) -> bool:
+    self, msg: message.Message, delay: Optional[int] = None
+  ) -> bool:
     """Schedules a message to be sent later."""
     delay = self.computes_delay(delay)
     if delay < 0:
@@ -65,7 +65,7 @@ class MessageScheduler:
 
   def schedule(self, user, icu, delay: Optional[int] = None) -> bool:
     user_icus = {i.icu_id: i for i in user.icus}
-    if not user.is_active or icu.icu_id not in user_icus:
+    if not user.is_active or not icu.is_active or icu.icu_id not in user_icus:
       user_id, icu_id = user.user_id, icu.icu_id
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return False
@@ -115,8 +115,11 @@ class MessageScheduler:
     if msg.first_sent is None:
       msg.first_sent = time.time()
 
-    logging.info('Sending to {} now ({}/{})'.format(
-      msg.icu_name, msg.attempts, self.max_retries + 1))
+    logging.info(
+      'Sending to {} now ({}/{})'.format(
+        msg.icu_name, msg.attempts, self.max_retries + 1
+      )
+    )
     if self.queue is not None:
       await self.queue.put(msg)
     self.schedule_message(msg, delay=self.reminder_delay)

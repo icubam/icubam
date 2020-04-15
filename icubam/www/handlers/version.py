@@ -1,9 +1,5 @@
-import sys
 from subprocess import check_output
-from typing import Dict, Any, Optional, Callable
-import traceback
-
-import tornado.web
+from typing import Any, Dict
 
 import icubam
 from icubam.www.handlers import base

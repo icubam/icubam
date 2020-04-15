@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block links %}
+<link rel="stylesheet" href="static/upload.css">
 <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 <script src="plugins/jquery/jquery.min.js"></script>
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -8,8 +9,6 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-
-<script src="static/navigate.js"></script>
 {% end %}
 
 {% block content %}
@@ -21,7 +20,7 @@
    <div class="container-fluid">
      <div class="row mb-2">
        <div class="col-sm-6">
-         <h1>{{objtype}}</h1>
+         <h1>{{ _(objtype) }}</h1>
        </div>
      </div>
    </div><!-- /.container-fluid -->
@@ -31,17 +30,20 @@
       <div class="card">
         {% if create_route %}
         <div class="card-header">
-          <h3 class="card-title">Add</h3>
+          <h3 class="card-title">{{ _('Add') }}</h3>
           <button type="button" class="btn badge badge-primary"
             data-card-widget="remove" onclick="navigateTo('{{create_route}}')">
             <i class="fas fa-plus"></i>
           </button>
-          <button type="button" class="btn badge badge-warning"
-            data-card-widget="remove">
-            <i class="fas fa-upload"></i>
-          </button>
+          {% if upload_type %}
+          <label for="file-upload" class="btn badge badge-warning upload-button">
+            <i class="fa fa-upload"></i>
+          </label>
+          <input id="file-upload" type="file" accept="text/csv" />
+          {% end %}
         </div>
         {% end %}
+
         <!-- /.card-header -->
         <div class="card-body">
 
@@ -49,27 +51,33 @@
           <table id="my_data" class="table table-bordered table-striped">
             <thead>
               <tr>
-              {% for item in data[0] %}
+                {% for item in data[0] %}
                 <th>{{_(item["key"])}}</th>
-              {% end %}
+                {% end %}
               </tr>
             </thead>
             {% for row in data %}
-              <tr>
-                {% for item in row %}
-                  <td>
-                  {% if item['link'] %}
-                    <a href="{{item['link']}}">{{item['value']}}</a>
-                  {% elif isinstance(item['value'], bool) and item['value'] %}
-                    <i class="fas fa-check text-success"></i>
-                  {% elif isinstance(item['value'], bool) and not item['value'] %}
-                    <i class="fas fa-times text-danger"></i>
-                  {% else %}
-                    {{item['value']}}
-                  {% end %}
-                  </td>
+            <tr>
+              {% for item in row %}
+              <td>
+                {% if item['link'] %}
+                <a href="{{item['link']}}">{{item['value']}}</a>
+                {% elif isinstance(item['value'], bool) and item['value'] %}
+                <i class="fas fa-check text-success"></i>
+                {% elif isinstance(item['value'], bool) and not item['value'] %}
+                <i class="fas fa-times text-danger"></i>
+                {% else %}
+                {{item['value']}}
+                {% if item.get('warning', False) %}
+                <i class='fas fa-exclamation-triangle text-danger'></i>
                 {% end %}
-              </tr>
+                {% if 'sort_value' in item %}
+                ::{{item['sort_value']}}
+                {% end %}
+                {% end %}
+              </td>
+              {% end %}
+            </tr>
             {% end %}
           </table>
           {% end %}
@@ -93,8 +101,14 @@
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="static/table.js"></script>
 <script>
-  $(x => setDatatable("#my_data"))
+  const upload_type = "{{upload_type}}"
+  let columns = {% raw columns %}
+  $(function () {
+    $(x => setDatatable("#my_data", columns, "{{ _('dataTables.english.lang') }}"))
+  })
 </script>
+<script src="static/table.js"></script>
+<script src="static/navigate.js"></script>
+<script src="static/upload.js"></script>
 {% end %}

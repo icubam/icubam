@@ -1,6 +1,14 @@
 name: DB wipe script smoke test
 
-on: [push, pull_request]
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
@@ -35,7 +43,7 @@ jobs:
       run: |
         pip install -e .
         python scripts/populate_db_fake.py --mode=dev
-        python scripts/wipe_sensitive_info_db.py test.db --force=True
+        python scripts/wipe_sensitive_info_db.py --filename test.db --force=True
         timeout 5 python scripts/run_server.py --config=resources/config.toml --mode=dev || echo "Normal timeout" | grep "Normal timeout"
         python scripts/get_id_url.py --config=resources/config.toml --mode=dev
 

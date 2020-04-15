@@ -1,4 +1,3 @@
-import collections
 from icubam.backoffice.handlers.base import BaseHandler
 
 import tornado.web
@@ -13,10 +12,8 @@ def build_data(icus, bedcounts, num_users):
   tree = icu_tree.ICUTree(level='icu')  # No clustering
   tree.add_many(icus, bedcounts)
   result = []
-  result.append(
-    make_info(len(icus), 'icus', 'hospital-symbol', 'primary'))
-  result.append(
-    make_info(num_users, 'users', 'user-md', 'secondary'))
+  result.append(make_info(len(icus), 'icus', 'hospital-symbol', 'primary'))
+  result.append(make_info(num_users, 'users', 'user-md', 'secondary'))
 
   keys = ['occ', 'free', 'death', 'healed']
   labels = ['Occupied', 'Free', 'deceased', 'Healed']
@@ -33,13 +30,14 @@ class HomeHandler(BaseHandler):
   @tornado.web.authenticated
   def get(self):
     data = dict()
-    if not self.user.is_admin:
+    if not self.current_user.is_admin:
       data['Managed'] = build_data(
-          self.db.get_managed_icus(self.user.user_id),
-          self.db.get_visible_bed_counts_for_user(self.user.user_id),
-          len(self.db.get_managed_users(self.user.user_id)))
+        self.db.get_managed_icus(self.current_user.user_id),
+        self.db.get_visible_bed_counts_for_user(self.current_user.user_id),
+        len(self.db.get_managed_users(self.current_user.user_id))
+      )
     data['Overall'] = build_data(
-        self.db.get_icus(),
-        self.db.get_latest_bed_counts(),
-        len(self.db.get_users()))
+      self.db.get_icus(), self.db.get_latest_bed_counts(),
+      len(self.db.get_users())
+    )
     return self.render("home.html", data=data)

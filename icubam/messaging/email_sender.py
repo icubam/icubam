@@ -8,7 +8,6 @@ from absl import logging
 
 class EmailSender(abc.ABC):
   """Base class for email senders."""
-
   def __init__(self, config):
     self.config = config
 
@@ -20,7 +19,6 @@ class EmailSender(abc.ABC):
 
 class SMTPEmailSender(EmailSender):
   """Sends emails using an SMTP server."""
-
   def __init__(self, config):
     super().__init__(config)
     self.smtp = self._connect()
@@ -54,7 +52,6 @@ class SMTPEmailSender(EmailSender):
 
 
 class FakeEmailSender(EmailSender):
-
   def send(self, email, subject, contents):
     logging.info(f'Sending |{contents}| with subject |{subject}| to {email}.')
 
@@ -66,4 +63,4 @@ def get(config, protocol=None):
     return SMTPEmailSender(config)
   elif protocol == 'fake':
     return FakeEmailSender(config)
-  raise ValueError(f'Incorrect email protocol {procotol}.')
+  raise ValueError(f'Incorrect email protocol {protocol}.')
