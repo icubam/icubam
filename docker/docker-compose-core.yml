@@ -84,6 +84,7 @@ services:
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
       TW_KEY : "$TW_KEY"
       TW_API : "$TW_API"
+      DB_SALT: "$DB_SALT"
     working_dir: /home/icubam
     volumes:
       - type: bind
