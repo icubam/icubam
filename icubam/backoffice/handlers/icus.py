@@ -28,14 +28,14 @@ class ListICUsHandler(base.BaseHandler):
 
   @tornado.web.authenticated
   def get(self):
-    if self.user.is_admin:
+    if self.current_user.is_admin:
       icus = self.db.get_icus()
     else:
-      icus = self.db.get_managed_icus(self.user.user_id)
+      icus = self.db.get_managed_icus(self.current_user.user_id)
 
     data = [self.prepare_for_table(icu) for icu in icus]
-    return self.render(
-      "list.html", data=data, objtype='ICUs', create_route=ICUHandler.ROUTE
+    return self.render_list(
+      data=data, objtype='ICUs', create_handler=ICUHandler, upload=True
     )
 
 
@@ -43,10 +43,10 @@ class ICUHandler(base.BaseHandler):
   ROUTE = "icu"
 
   def do_render(self, icu, error=False):
-    if self.user.is_admin:
+    if self.current_user.is_admin:
       regions = self.db.get_regions()
-    if not self.user.is_admin:
-      regions = [e.region for e in self.user.managed_icus]
+    if not self.current_user.is_admin:
+      regions = [e.region for e in self.current_user.managed_icus]
     regions.sort(key=lambda r: r.name)
 
     icu = icu if icu is not None else store.ICU()
@@ -74,9 +74,11 @@ class ICUHandler(base.BaseHandler):
     icu_id = values.pop(id_key, '')
     try:
       if not icu_id:
-        icu_id = self.db.add_icu(self.user.user_id, store.ICU(**values))
+        icu_id = self.db.add_icu(
+          self.current_user.user_id, store.ICU(**values)
+        )
       else:
-        self.db.update_icu(self.user.user_id, icu_id, values)
+        self.db.update_icu(self.current_user.user_id, icu_id, values)
     except Exception as e:
       logging.error(f'Cannot save ICU: {e}')
       values[id_key] = icu_id

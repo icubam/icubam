@@ -1,5 +1,4 @@
 from absl import logging  # noqa: F401
-
 from icubam import time_utils
 from icubam.db import store
 from icubam.www.handlers import home
@@ -24,13 +23,14 @@ class Updater:
     self.token_encoder = token.TokenEncoder(self.config)
 
   def get_user_url(self, user, icu_id: str) -> str:
-    icu_name = {i.icu_id: i.name for i in user.icus}.get(icu_id, '-')
-    return self.get_url(icu_id, icu_name)
+    icu = {i.icu_id: i for i in user.icus}.get(icu_id, None)
+    if icu is not None:
+      return self.get_url(user, icu)
 
-  def get_url(self, icu_id: str, icu_name: str) -> str:
+  def get_url(self, user, icu) -> str:
     return "{}{}?id={}".format(
       self.config.server.base_url, self.ROUTE.strip('/'),
-      self.token_encoder.encode_icu(icu_id, icu_name)
+      self.token_encoder.encode_data(user, icu)
     )
 
   def get_urls(self):
@@ -48,9 +48,11 @@ class Updater:
     last_update = bed_count.last_modified
     if last_update is not None:
       last_update = last_update.timestamp()
-    data = bed_count.to_dict()
-    apply_default(data, value=def_val, prefix='n_')
-    data['since_update'] = time_utils.localewise_time_ago(last_update, locale)
-    data['home_route'] = home.HomeHandler.ROUTE
-    data['update_route'] = self.ROUTE
-    return data
+    result = bed_count.to_dict()
+    apply_default(result, value=def_val, prefix='n_')
+    result['since_update'] = time_utils.localewise_time_ago(
+      last_update, locale
+    )
+    result['home_route'] = home.HomeHandler.ROUTE
+    result['update_route'] = self.ROUTE
+    return result

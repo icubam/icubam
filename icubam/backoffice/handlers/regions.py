@@ -4,7 +4,6 @@ import tornado.escape
 import tornado.web
 
 from icubam.backoffice.handlers import base
-from icubam.backoffice.handlers import home
 from icubam.db import store
 
 
@@ -57,10 +56,10 @@ class RegionHandler(base.AdminHandler):
     try:
       if not region_id:
         region_id = self.db.add_region(
-          self.user.user_id, store.Region(**values)
+          self.current_user.user_id, store.Region(**values)
         )
       else:
-        self.db.update_region(self.user.user_id, region_id, values)
+        self.db.update_region(self.current_user.user_id, region_id, values)
     except Exception as e:
       logging.error(f'Cannot save region {e}')
       values[id_key] = region_id

@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple
 import functools
 import time
 import datetime
@@ -32,6 +32,17 @@ def time_ago(ts, ts_reference=None) -> Tuple[int, str]:
   return curr, 'now'
 
 
+def is_stale(ts, ts_reference=None, days_threshold=1) -> bool:
+  if ts is None:
+    return True
+
+  if ts_reference is None:
+    ts_reference = int(datetime.datetime.utcnow().timestamp())
+
+  delta = int(ts_reference - ts)
+  return delta > days_threshold * 86400
+
+
 def localewise_time_ago(ts, locale, ts_reference=None):
   count, units = time_ago(ts, ts_reference)
   if count <= 0:
@@ -50,7 +61,7 @@ def parse_hour(hour, sep=':') -> Tuple:
     return hour
   try:
     return tuple([int(x) for x in hour.split(sep)])
-  except Exception as e:
+  except Exception:
     return "", ""
 
 

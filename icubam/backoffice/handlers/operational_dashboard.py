@@ -3,11 +3,9 @@ from typing import List, Dict
 import os
 from pathlib import Path
 from itertools import zip_longest
-import numpy as np
 import pandas as pd
 import tornado.web
 import math
-from collections import defaultdict
 
 from absl import logging
 from bokeh.embed import components
@@ -15,7 +13,7 @@ from bokeh.plotting import figure
 from bokeh.transform import dodge
 from bokeh.models import ColumnDataSource
 
-from icubam.db.store import to_pandas
+from icubam.db.store import to_pandas, BedCount
 from icubam.backoffice.handlers import base
 
 
@@ -69,7 +67,7 @@ def _prepare_data(bed_counts: List) -> Dict:
   return df, metrics_layout
 
 
-def _make_bar_plot(df: pd.DataFrame):
+def _make_bar_plot(df: pd.DataFrame, locale):
   """Generate a Bokeh figure"""
   df_viz = ColumnDataSource.from_df(df.reset_index())
 
@@ -80,7 +78,7 @@ def _make_bar_plot(df: pd.DataFrame):
   )
   p.xaxis.major_label_orientation = math.pi / 4
   p.y_range.start = 0
-  p.yaxis.axis_label = 'Fraction (%)'
+  p.yaxis.axis_label = locale.translate("Rate (%)")
 
   p.vbar(
     x=dodge('index', 0.25, range=p.x_range),
@@ -88,7 +86,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de remplissage lits (covid)",
+    legend_label=locale.translate("Beds utilization rate (covid)"),
     color="#0f2080"
   )
   p.vbar(
@@ -97,7 +95,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de remplissage lits (total)",
+    legend_label=locale.translate("Beds utilization rate (total)"),
     color="#85c0f9",
   )
   p.vbar(
@@ -106,7 +104,7 @@ def _make_bar_plot(df: pd.DataFrame):
     source=df_viz,
     width=0.2,
     alpha=0.8,
-    legend_label="Taux de refus (covid) / capacité totale",
+    legend_label=locale.translate("Rejection rate (covid) / total capacity"),
     color="#f5793a",
   )
   p.legend.location = "center_left"
@@ -152,9 +150,10 @@ class OperationalDashHandler(base.AdminHandler):
   def get(self):
     """Serves a page with a table gathering current bedcount data with some extra information."""
     arg_region = self.get_query_argument('region', default=None)
+    locale = self.get_user_locale()
 
     current_region = None
-    current_region_name = "Toutes les régions"
+    current_region_name = locale.translate("All regions")
     if arg_region is not None and arg_region.isdigit():
       try:
         current_region = self.db.get_region(int(arg_region))
@@ -167,9 +166,17 @@ class OperationalDashHandler(base.AdminHandler):
 
     figures = []
 
-    bed_counts = self.db.get_visible_bed_counts_for_user(self.user.user_id)
-
-    bed_counts = to_pandas(bed_counts)
+    bed_counts = self.db.get_visible_bed_counts_for_user(
+      self.current_user.user_id
+    )
+    if bed_counts:
+      bed_counts = to_pandas(bed_counts)
+    else:
+      # when no data, make sure the resulting dataframe has
+      # correct column names.
+      columns = [key for key in dir(BedCount) if not key.startswith('_')]
+      columns += ['icu_dept']
+      bed_counts = pd.DataFrame([], columns=columns)
 
     if current_region is not None:
       mask = bed_counts['icu_region_id'] == current_region.region_id
@@ -177,7 +184,7 @@ class OperationalDashHandler(base.AdminHandler):
 
     df, metrics_layout = _prepare_data(bed_counts)
 
-    p = _make_bar_plot(df)
+    p = _make_bar_plot(df, locale)
 
     script, div = components(p)
     figures.append(dict(script=script, div=div))

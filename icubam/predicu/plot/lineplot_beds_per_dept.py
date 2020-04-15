@@ -1,32 +1,28 @@
-import itertools
-
 import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
-from ..data import ICU_NAMES_GRAND_EST, BEDCOUNT_COLUMNS
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, RANDOM_MARKERS, plot_int
+from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.predicu.plot import DEPARTMENT_COLOR, RANDOM_MARKERS, plot_int
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
   data = data.groupby(["date", "department"]).agg(agg)
   data = data.reset_index()
 
   fig, ax = plt.subplots(1, figsize=(7, 4))
-  date_idx_range = np.arange(len(data.date.unique()))
   for department, dg in data.groupby("department"):
     dg = dg.sort_values(by="date")
-    y = dg.n_covid_occ  # + dg.n_covid_transfered.diff(1).fillna(0)
+    x = np.arange(len(dg))
+    y = dg.n_covid_occ.values  # + dg.n_covid_transfered.diff(1).fillna(0)
     plot_int(
-      date_idx_range,
+      x,
       y,
       ax=ax,
-      color=DEPARTMENT_GRAND_EST_COLOR[department],
+      color=DEPARTMENT_COLOR[department],
       label=department,
       lw=2,
       marker=next(RANDOM_MARKERS),
@@ -41,7 +37,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=DEPARTMENT_GRAND_EST_COLOR[dpt],
+        facecolor=DEPARTMENT_COLOR[dpt],
         label=dpt,
         linewidth=3,
       ) for dpt in sorted(data.department.unique())

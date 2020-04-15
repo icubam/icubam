@@ -1,17 +1,13 @@
-import datetime
-import json
-
 import matplotlib.gridspec
 import matplotlib.lines
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
-import pandas as pd
 import scipy.stats
 
-from ..plot import RANDOM_COLORS
+from icubam.predicu.plot import RANDOM_COLORS
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):

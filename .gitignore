@@ -1,3 +1,7 @@
+# Ignore virtualenv
+pip-wheel-metadata
+venv
+
 __pycache__/
 # Compiled python modules.
 *.pyc
@@ -9,7 +13,7 @@ __pycache__/
 /*.egg-info
 
 # Configs
-.env
+*.env
 .ini
 
 # Database
@@ -20,4 +24,13 @@ __pycache__/
 .DS_Store
 settings.json
 
+# local vim configuration
 *.lvimrc
+
+# data files
+*.csv
+*.h5
+*.pickle
+*.pkl
+*.npy
+*.npz

@@ -1,11 +1,11 @@
+from absl import logging  # noqa: F401
 import os.path
-from absl import logging
 import tornado.locale
 from tornado import queues
 import tornado.web
 from icubam import base_server
 from icubam.db import queue_writer
-from icubam.www import updater
+from icubam.www.handlers import consent
 from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import static
@@ -26,6 +26,11 @@ class WWWServer(base_server.BaseServer):
     self.path = home.HomeHandler.PATH
 
   def make_routes(self):
+    self.routes.append((
+      r'/(favicon.ico)', tornado.web.StaticFileHandler, {
+        'path': os.path.join(self.path, 'static')
+      }
+    ))
     self.add_handler(
       update.UpdateHandler,
       config=self.config,
@@ -37,6 +42,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(home.MapByAPIHandler, **kwargs)
     self.add_handler(db.DBHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
+    self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(
       upload_csv.UploadHandler, **{
         **kwargs,

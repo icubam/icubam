@@ -142,7 +142,7 @@ class SchedulerTestCase(tornado.testing.AsyncTestCase):
     names = ['armand', 'patrick', 'bernard', 'mathilde']
     for name in names:
       curr = store.User(name=name, telephone=name, is_active=True)
-      userid = self.db.add_user_to_icu(self.admin, self.icu_id, curr)
+      self.db.add_user_to_icu(self.admin, self.icu_id, curr)
 
     self.scheduler.schedule_all()
     # We are not sure about what is the db. But at least it should send to the

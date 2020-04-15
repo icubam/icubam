@@ -3,11 +3,11 @@
 # check that all required parameters are provided
 if [ $# -ne 2 ]
 then
-	  echo "usage: $0 IMAGE_NAME ENV"
+	  echo "usage: ${0} IMAGE_NAME ENV"
 	  echo "   where IMAGE_NAME is the image name and tage to use"
 	  echo "   where ENV can be dev, prod"
       echo ""
-      echo "   example: $0 icubam:1.0 dev"
+      echo "   example: ${0} icubam:1.0 dev"
 	  exit
 fi
 
@@ -29,11 +29,11 @@ docker run -dt \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
-    --env ENV_MODE=$2
-    --env SECRET_COOKIE=$SECRET_COOKIE \
-    --env JWT_SECRET=$JWT_SECRET \
-    --env GOOGLE_API_KEY=$GOOGLE_API_KEY \
-    --env TW_KEY=$TW_KEY \
-    --env TW_API=$TW_API \
-    $1  \
-    ./docker/start_server_sms.sh
+    --env ENV_MODE="${2}" \
+    --env SECRET_COOKIE="${SECRET_COOKIE}" \
+    --env JWT_SECRET="${JWT_SECRET}" \
+    --env GOOGLE_API_KEY="${GOOGLE_API_KEY}" \
+    --env TW_KEY="${TW_KEY}" \
+    --env TW_API="${TW_API}" \
+    "${1}" \
+    ./start_server_sms.sh

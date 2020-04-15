@@ -1,17 +1,13 @@
-import datetime
-import json
-
 import matplotlib.gridspec
 import matplotlib.lines
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
-import pandas as pd
 import scipy.stats
 
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from icubam.predicu.plot import DEPARTMENT_COLOR
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):
@@ -44,7 +40,7 @@ def plot(data):
     width = 0.02 * scale * ax.get_xlim()[1]
     height = 0.02 * scale * ax.get_ylim()[1]
     xy = (row.department_pop, row.n_hospitalised_patients)
-    color = DEPARTMENT_GRAND_EST_COLOR[row.department]
+    color = DEPARTMENT_COLOR[row.department]
     ax.add_artist(
       matplotlib.patches.Ellipse(
         xy=xy,
