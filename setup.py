@@ -1,4 +1,12 @@
+import sqlite3
+from distutils.version import LooseVersion
+
 from setuptools import setup
+
+if LooseVersion(sqlite3.sqlite_version) < LooseVersion("3.24.0"):
+  raise ValueError(
+    f"sqlite.sqlite_version={sqlite3.sqlite_version}, >=3.24.0 required"
+  )
 
 setup(
   name='icubam',
