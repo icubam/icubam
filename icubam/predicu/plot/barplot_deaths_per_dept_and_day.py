@@ -1,6 +1,3 @@
-import itertools
-import sys
-
 import matplotlib.cm
 import matplotlib.gridspec
 import matplotlib.patches
@@ -9,14 +6,13 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-from ..data import BEDCOUNT_COLUMNS, ICU_NAMES_GRAND_EST
-from ..plot import DEPARTMENT_GRAND_EST_COLOR
+from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.predicu.plot import DEPARTMENT_COLOR
 
-data_source = "all_data"
+data_source = "bedcounts"
 
 
 def plot(data):
-  data = data.loc[data.icu_name.isin(ICU_NAMES_GRAND_EST)]
   data = (
     data.groupby(["date", "department"]
                  ).agg({col: "sum"
@@ -44,7 +40,7 @@ def plot(data):
         fill=True,
         linewidth=0.7,
         edgecolor="black",
-        facecolor=DEPARTMENT_GRAND_EST_COLOR[department],
+        facecolor=DEPARTMENT_COLOR[department],
         label=department,
       )
       ax.add_patch(rect_patch)
@@ -64,7 +60,7 @@ def plot(data):
     ncol=2,
     handles=[
       matplotlib.patches.Patch(
-        facecolor=DEPARTMENT_GRAND_EST_COLOR[dept],
+        facecolor=DEPARTMENT_COLOR[dept],
         label=dept,
       ) for dept in reversed(sorted_depts)
     ],

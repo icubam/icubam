@@ -7,7 +7,6 @@ from absl import app
 from absl import flags
 import click
 import sqlite3
-import sys
 
 from icubam.db.wipe import wipe_db
 

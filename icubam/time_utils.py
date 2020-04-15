@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple
 import functools
 import time
 import datetime
@@ -61,7 +61,7 @@ def parse_hour(hour, sep=':') -> Tuple:
     return hour
   try:
     return tuple([int(x) for x in hour.split(sep)])
-  except Exception as e:
+  except Exception:
     return "", ""
 
 

@@ -2,7 +2,6 @@
 
 from absl import app
 from absl import flags
-import tornado.ioloop
 from icubam import config
 from icubam.messaging import server
 

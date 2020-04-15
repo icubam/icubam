@@ -1,8 +1,8 @@
-from absl import logging
+from absl import logging  # noqa: F401
 import functools
 import os.path
 import json
-from typing import Dict, List, Optional
+from typing import List, Optional
 import tornado.template
 
 from icubam import icu_tree

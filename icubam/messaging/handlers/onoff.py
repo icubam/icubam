@@ -2,7 +2,6 @@ from typing import Optional
 
 from absl import logging
 import dataclasses
-import json
 import tornado.web
 from typing import List
 
@@ -42,7 +41,7 @@ class OnOffHandler(tornado.web.RequestHandler):
 
     if request.user_id is None or request.icu_ids is None:
       self.set_status(400)
-      return logging.error(f"Incomplete request: {body_str}")
+      return logging.error(f"Incomplete request: {request}")
 
     if not request.on:
       for icu_id in request.icu_ids:

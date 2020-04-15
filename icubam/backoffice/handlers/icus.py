@@ -35,7 +35,7 @@ class ListICUsHandler(base.BaseHandler):
 
     data = [self.prepare_for_table(icu) for icu in icus]
     return self.render_list(
-      data=data, objtype='ICUs', create_handler=ICUHandler
+      data=data, objtype='ICUs', create_handler=ICUHandler, upload=True
     )
 
 

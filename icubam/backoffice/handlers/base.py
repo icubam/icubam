@@ -26,8 +26,11 @@ class BaseHandler(tornado.web.RequestHandler):
     status = self.application.server_status
     super().render(path, root=self.root_path, server_status=status, **kwargs)
 
-  def render_list(self, data, objtype, create_handler=None, **kwargs):
+  def render_list(
+    self, data, objtype, create_handler=None, upload=False, **kwargs
+  ):
     route = None if create_handler is None else create_handler.ROUTE
+    upload_type = route if upload else None
     item = data[0] if data else []
     columns = json.dumps([x['key'] for x in item])
     return self.render(
@@ -36,6 +39,7 @@ class BaseHandler(tornado.web.RequestHandler):
       columns=columns,
       objtype=objtype,
       create_route=route,
+      upload_type=upload_type,
       **kwargs
     )
 
@@ -52,9 +56,12 @@ class BaseHandler(tornado.web.RequestHandler):
     return self.db.get_user(int(tornado.escape.json_decode(userid)))
 
   def get_user_locale(self):
-    locale = self.get_query_argument('hl', default=self.config.default_locale)
     # We fallback to Accept-Language header.
-    return tornado.locale.get(locale) if locale else None
+    locale_code = self.get_query_argument('hl', default=None)
+    if locale_code is None:
+      return self.get_browser_locale()
+    else:
+      return tornado.locale.get(locale_code)
 
   def set_default_headers(self):
     self.set_header("Access-Control-Allow-Credentials", True)

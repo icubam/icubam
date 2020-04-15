@@ -60,9 +60,7 @@ class StoreSynchronizer:
       if region is not None:
         regions = {x.name: x.region_id for x in self.db.get_regions()}
         if region not in regions:
-          region_id = self.db.add_region(
-            self._default_admin, store.Region(name=region)
-          )
+          self.db.add_region(self._default_admin, store.Region(name=region))
           logging.info("Adding Region {}".format(region))
         icu_dict['region_id'] = self.db.get_region_by_name(region).region_id
 
@@ -156,6 +154,7 @@ class CSVSynchcronizer(StoreSynchronizer):
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     self.sync_icus(icus_df, force_update)
+    return icus_df.shape[0]
 
   def sync_users_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and synchronize."""
@@ -164,6 +163,7 @@ class CSVSynchcronizer(StoreSynchronizer):
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     self.sync_users(users_df, force_update)
+    return users_df.shape[0]
 
   def export_icus(self) -> TextIO:
     db_cols = copy.copy(ICU_COLUMNS)

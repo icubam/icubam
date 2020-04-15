@@ -1,0 +1,6 @@
+[flake8]
+select=F
+exclude = 
+    icubam/predicu,
+    .git,
+    __pycache__,

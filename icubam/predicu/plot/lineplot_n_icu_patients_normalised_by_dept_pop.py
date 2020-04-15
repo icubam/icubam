@@ -1,21 +1,17 @@
-import datetime
-import json
-
 import matplotlib.gridspec
 import matplotlib.lines
 import matplotlib.patches
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
-import pandas as pd
 
-from ..plot import DEPARTMENT_GRAND_EST_COLOR, plot_int
+from icubam.predicu.plot import DEPARTMENT_COLOR, plot_int
 
-data_source = "combined_icubam_public"
+data_source = "combined_bedcounts_public"
 
 
 def plot(data):
-  fig, (ax1, ax2) = plt.subplots(2, figsize=(20, 10), sharex=True)
+  fig, (ax1, ax2) = plt.subplots(2, figsize=(10, 10), sharex=True)
   date_range_idx = np.arange(len(data.date.unique()))
   for dept, dg in data.groupby("department"):
     dg = dg.sort_values(by="date")
@@ -24,7 +20,7 @@ def plot(data):
       y=dg.n_hospitalised_patients / dg.department_pop * 100e3,
       ax=ax1,
       marker=None,
-      color=DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_COLOR[dept],
       label=dept,
       lw=2,
     )
@@ -34,7 +30,7 @@ def plot(data):
       y=y1,
       ax=ax2,
       marker=None,
-      color=DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_COLOR[dept],
       ls="dashed",
       lw=2,
     )
@@ -44,7 +40,7 @@ def plot(data):
       y=y2,
       ax=ax2,
       marker=None,
-      color=DEPARTMENT_GRAND_EST_COLOR[dept],
+      color=DEPARTMENT_COLOR[dept],
       ls="solid",
       label=dept,
       lw=2,
@@ -53,7 +49,7 @@ def plot(data):
       x=date_range_idx,
       y1=y1,
       y2=y2,
-      facecolor=DEPARTMENT_GRAND_EST_COLOR[dept],
+      facecolor=DEPARTMENT_COLOR[dept],
       alpha=0.3,
     )
 

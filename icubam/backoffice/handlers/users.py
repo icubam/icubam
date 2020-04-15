@@ -8,7 +8,6 @@ from typing import List, Optional, Dict
 from icubam.messaging import client
 from icubam.backoffice.handlers import base
 from icubam.db import store
-from icubam.db.store import User
 
 
 class ListUsersHandler(base.BaseHandler):
@@ -39,7 +38,7 @@ class ListUsersHandler(base.BaseHandler):
 
     data = [self._cleanUser(user) for user in users]
     return self.render_list(
-      data=data, objtype='Users', create_handler=UserHandler
+      data=data, objtype='Users', create_handler=UserHandler, upload=True
     )
 
 

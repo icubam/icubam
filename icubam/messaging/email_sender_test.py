@@ -45,7 +45,7 @@ class EmailSenderTest(unittest.TestCase):
   @patch('smtplib.SMTP_SSL')
   def test_smtp_use_ssl(self, mock_smtp_ssl):
     self.config.email.use_ssl = True
-    sender = email_sender.SMTPEmailSender(self.config)
+    email_sender.SMTPEmailSender(self.config)
     mock_smtp_ssl.assert_called_once_with(SMTP_HOST)
 
   @patch('smtplib.SMTP')

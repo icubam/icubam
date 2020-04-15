@@ -1,5 +1,4 @@
 from icubam.backoffice.handlers.base import BaseHandler
-from icubam.backoffice.handlers.home import HomeHandler
 
 
 class LogoutHandler(BaseHandler):
