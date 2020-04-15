@@ -26,7 +26,7 @@ class UploadHandler(base.BaseHandler):
     if content is None:
       return self.answer(f'No CSV content', error=True)
 
-    sync = synchronizer.CSVSynchcronizer(self.db)
+    sync = synchronizer.CSVSynchronizer(self.db)
     sync_fns = {
       'user': sync.sync_users_from_csv,
       'icu': sync.sync_icus_from_csv,

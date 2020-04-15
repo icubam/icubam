@@ -71,7 +71,7 @@ class StoreSynchronizerTest(absltest.TestCase):
     bed_counts = []
     start_time = datetime.now(tz.tzutc())
 
-    # Inject a first set of bed_countss
+    # Inject a first set of bed_counts:
     bed_counts_dict = self.gen_bed_counts(
       start_time, region_names, icu_base_names, num_icus
     )
@@ -85,7 +85,7 @@ class StoreSynchronizerTest(absltest.TestCase):
       len(region_names) * len(icu_base_names) * num_icus
     )
 
-    # Make sure latests returns just the subset and their times are correct
+    # Make sure latests returns just the subset and their times are correct:
     bed_counts = self.db.get_latest_bed_counts()
     self.assertLen(bed_counts, len(region_names) * len(icu_base_names))
     self.assertEqual(

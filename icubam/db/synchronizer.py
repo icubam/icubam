@@ -9,6 +9,10 @@ from dateutil import tz
 
 from icubam.db import store
 
+# These columns need to be provided, most can be set to None if there is no 
+# value, however columns that are used to create joins such as icu_name or 
+# ICU_COLUMNS['name'] will throw an error if they are None or not aligned with 
+# existing elements in the store.
 ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
 BC_COLUMNS = [
@@ -213,9 +217,7 @@ class CSVPreprocessor(CSVSynchronizer):
     # Remap columns and delete or default certain ones:
     bc = bedcounts_df
     bc.replace(self.ROR_COLUMNS_MAP)
-    del bc['ror_code']
     bc['n_covid_occ'] = bc['n_covid_tot'] - bc['n_covid_free']
-    del bc['n_covid_tot']
     bc[[
       'n_covid_deaths', 'n_covid_healed', 'n_covid_refused',
       'n_covid_transfered'
