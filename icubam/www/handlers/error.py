@@ -1,4 +1,3 @@
-import icubam
 from icubam.www.handlers import base
 
 
