@@ -18,8 +18,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Cache Primes
-      id: cache-primes
+    - name: Cache wheels for dependencies
+      id: cache-wheels
       uses: actions/cache@v1
       with:
         path: /dev/shm/.cache/
