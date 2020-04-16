@@ -1,3 +1,5 @@
+
+import datetime
 import functools
 import io
 import os
@@ -7,6 +9,7 @@ from datetime import datetime
 import tornado.web
 from absl import logging  # noqa: F401
 
+import icubam.predicu.data
 from icubam.db import store, synchronizer
 from icubam.www.handlers import base, home
 
@@ -51,6 +54,17 @@ class DBHandler(base.APIKeyProtectedHandler):
   def get(self, collection):
     file_format = self.get_query_argument('format', default=None)
     max_ts = self.get_query_argument('max_ts', default=None)
+    # should_preprocess: whether preprocessing should be applied to the data
+    # the raw data of ICUBAM contains inputs errors and this preprocessing will
+    # attempt to fix them
+    # it should be used cautiously because it alters the data in ways that are
+    # useful for analysis purposes but not necessarily reflect the exact/real
+    # bed count values
+    # whenever a query argument named 'preprocess' is present, we enable this
+    # preprocessing (it can be 'preprocess=<anything>' or simply 'preprocess')
+    should_preprocess = (
+      self.get_query_argument('preprocess', default=None) is not None
+    )
     data = None
 
     get_fn = self.get_fns.get(collection, None)
@@ -64,6 +78,14 @@ class DBHandler(base.APIKeyProtectedHandler):
         max_ts = datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
+      if collection == 'all_bedcounts' and should_preprocess:
+        # this cached_data dict is just a way to tell predicu not to load the
+        # data from ICUBAM and use this already loaded data instead
+        cached_data = {'raw_icubam': data}
+        data = icubam.predicu.data.load_bedcounts(
+          cached_data=cached_data,
+          clean=True,
+        )
     else:
       data = store.to_pandas(get_fn(), max_depth=0)
 
