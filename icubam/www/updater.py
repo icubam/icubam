@@ -16,6 +16,7 @@ class Updater:
   """Helper class for dealing with updating the counts."""
 
   ROUTE = '/update'
+  POST_ROUTE = '/update_counts'
 
   def __init__(self, config, db):
     self.config = config
@@ -54,5 +55,5 @@ class Updater:
       last_update, locale
     )
     result['home_route'] = home.HomeHandler.ROUTE
-    result['update_route'] = self.ROUTE
+    result['update_route'] = self.POST_ROUTE
     return result

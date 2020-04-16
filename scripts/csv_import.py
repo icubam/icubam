@@ -27,7 +27,7 @@ def main(args=None):
   )
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   store = store_factory.create()
-  csv = synchronizer.CSVSynchcronizer(store)
+  csv = synchronizer.CSVSynchronizer(store)
 
   if FLAGS.icus_csv:
     print(f"Loading ICU CSV from: {FLAGS.icus_csv}")

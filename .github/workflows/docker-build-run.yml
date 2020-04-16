@@ -1,4 +1,4 @@
-name: Build Docker image and test container
+name: docker build & test
 
 on:
   # Trigger the workflow on push or pull request,
