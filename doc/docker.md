@@ -23,21 +23,21 @@ of the project (note: while both must be present to be mounted, only one will be
 
 #### Initalize DBs with docker-compose:
 ```
-docker-compose -f docker/docker-compose-init-db.yml build
-docker-compose -f docker/docker-compose-init-db.yml up
-docker-compose -f docker/docker-compose-init-db.yml down
+docker-compose -f docker/docker-compose-init-db.yml --project-directory . build
+docker-compose -f docker/docker-compose-init-db.yml --project-directory . up
+docker-compose -f docker/docker-compose-init-db.yml --project-directory . down
 ```
 
 #### Develop with docker-compose
 ```
-docker-compose -f docker/docker-compose-dev.yml build
-docker-compose -f docker/docker-compose-dev.yml up -d
+docker-compose -f docker/docker-compose-dev.yml --project-directory . build
+docker-compose -f docker/docker-compose-dev.yml --project-directory . up -d
 ```
 
 #### Restart a container after making a change
 For example, if we make a change in the source code of the server (e.g. a template), we can see it simply restarting `app-server:`
 ```
-docker-compose docker/docker-compose-dev.yml restart app-server
+docker-compose docker/docker-compose-dev.yml --project-directory . restart app-server
 ```
 
 
@@ -232,3 +232,4 @@ scripts),
 - If configuration files are updated, it is recommended to delete the existing containers et restart them to properly reload the configuration files.
 - Check the files being mounted do exists (if they do not exist, a folder with this name is automatically created by compose).
 - If changes done to configuration files are not visible/performed, check that the proper yml file is used in compose
+- If you find the error `ERROR: Cannot locate specified Dockerfile: ./docker/Dockerfile` you need to either: set the compose context to the root folder `ICUBAM_COMPOSE_CONTEXT=..`, or add the `--project-directory .` flag to the docker-compose commands

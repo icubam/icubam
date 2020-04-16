@@ -4,7 +4,7 @@ services:
   # ICUBAM service
   db-builder:
     build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      context: "${ICUBAM_COMPOSE_CONTEXT:-..}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: db-builder

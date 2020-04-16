@@ -4,7 +4,7 @@ services:
   # ICUBAM service
   app-server:
     build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      context: "${ICUBAM_COMPOSE_CONTEXT:-..}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-server
@@ -43,7 +43,7 @@ services:
   # ICUBAM sms service
   app-sms:
     build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      context: "${ICUBAM_COMPOSE_CONTEXT:-..}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-sms-server
@@ -80,7 +80,7 @@ services:
   # ICUBAM back-office service
   app-backoffice:
     build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+      context: "${ICUBAM_COMPOSE_CONTEXT:-..}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-bo-server
