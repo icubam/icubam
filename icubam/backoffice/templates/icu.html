@@ -78,11 +78,9 @@
                 <label for="dept">{{ _('Department / State') }}</label><br/>
                 <input
                   name="dept" list="dept_options"
-                  value="{% if icu.dept %}{{icu.dept}}{% end %}"></input>
+                  value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
+                </input>
                 <datalist id="dept_options"></datalist>
-                <!-- <input type="text" id="dept" name="dept" class="form-control basicAutoComplete"
-                  placeholder="{{ _('Department') }}"
-                  value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus> -->
               </div>
             </div>
 
