@@ -74,10 +74,15 @@
                   value="{% if icu.city %}{{icu.city}}{% end %}" required autofocus>
               </div>
 
-              <div class="col-25">
-                <label for="dept">{{ _('Department / State') }}</label>
-                <input type="text" id="dept" name="dept" class="form-control" placeholder="{{ _('Department') }}"
-                  value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
+              <div class="col-25 autocomplete">
+                <label for="dept">{{ _('Department / State') }}</label><br/>
+                <input
+                  name="dept" list="dept_options"
+                  value="{% if icu.dept %}{{icu.dept}}{% end %}"></input>
+                <datalist id="dept_options"></datalist>
+                <!-- <input type="text" id="dept" name="dept" class="form-control basicAutoComplete"
+                  placeholder="{{ _('Department') }}"
+                  value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus> -->
               </div>
             </div>
 
@@ -120,8 +125,20 @@
 {% block scripts %}
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script>
-  $("input[data-bootstrap-switch]").each(function () {
-    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  $(function () {
+    $("input[data-bootstrap-switch]").each(function () {
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    })
+
+    const depts = {% raw depts %}
+    var datalist = document.getElementById('dept_options');
+    depts.forEach(function(item) {
+    var option = document.createElement('option');
+      option.value = item;
+      datalist.appendChild(option);
+      console.log(option);
+      
+    })
   })
 </script>
 {% end %}
