@@ -1,8 +1,7 @@
 import collections
 
-import icubam.predicu.__main__
-import icubam.predicu.data
-import icubam.predicu.test_utils
+import icubam.predicu.data as icubam_data
+from icubam.predicu.test_utils import load_test_data
 
 
 def make_monkeypatch_load_bedcounts(data):
@@ -13,11 +12,12 @@ def make_monkeypatch_load_bedcounts(data):
 
 
 def test_export_data(tmpdir, monkeypatch):
-  cached_data = icubam.predicu.test_utils.load_test_data()
+  cached_data = load_test_data()
   monkeypatch.setattr(
-    icubam.predicu.data, 'load_bedcounts',
+    icubam_data, 'load_bedcounts',
     make_monkeypatch_load_bedcounts(cached_data['bedcounts'])
   )
+  import icubam.predicu.__main__
   TestArgs = collections.namedtuple(
     'TestArgs', [
       'output_dir', 'api_key', 'max_date', 'icubam_host',
