@@ -7,6 +7,7 @@ from datetime import datetime
 import tornado.web
 from absl import logging  # noqa: F401
 
+from icubam import predicu
 from icubam.db import store, synchronizer
 from icubam.www.handlers import base, home
 
@@ -79,7 +80,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         # this cached_data dict is just a way to tell predicu not to load the
         # data from ICUBAM and use this already loaded data instead
         cached_data = {'raw_icubam': data}
-        data = icubam.predicu.data.load_bedcounts(
+        data = predicu.data.load_bedcounts(
           cached_data=cached_data,
           clean=True,
         )
