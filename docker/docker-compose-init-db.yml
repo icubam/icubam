@@ -26,9 +26,6 @@ services:
       - type: bind
         source: "${ICUBAM_COMPOSE_CONTEXT:-.}"
         target: /home/icubam/db
-      - type: bind
-        source: "./build_fake_dbs.sh"
-        target: /home/icubam/build_fake_dbs.sh
     networks:
       - icubam-network
 
