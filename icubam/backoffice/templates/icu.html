@@ -78,6 +78,7 @@
                 <label for="dept">{{ _('Department / State') }}</label><br/>
                 <input
                   name="dept" list="dept_options"
+                  class="form-control"
                   value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
                 </input>
                 <datalist id="dept_options"></datalist>
