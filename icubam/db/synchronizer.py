@@ -14,7 +14,7 @@ from icubam.db import store
 # ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
 # existing elements in the store.
 ICU_COLUMNS = [
-  'name', 'region', 'dept', 'city', 'lat', 'long', 'telephone', 'legal_id'
+  'name', 'legal_id', 'dept', 'city', 'region', 'country', 'lat', 'long', 'telephone'
 ]
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
 BC_COLUMNS = [
