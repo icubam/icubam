@@ -12,7 +12,7 @@ import scipy
 import seaborn
 
 from icubam.predicu.data import (
-  BEDCOUNT_COLUMNS, DATA_PATHS, DEPARTMENTS, load_if_not_cached
+  BEDCOUNT_COLUMNS, DEPARTMENTS, load_if_not_cached
 )
 
 COLUMN_TO_HUMAN_READABLE = {
@@ -141,7 +141,10 @@ def generate_plots(
   icubam_host: Optional[str] = None,
   output_type: str = "png",
   output_dir: str = "/tmp",
+  cached_data: Dict = None,
 ):
+  if cached_data is None:
+    cached_data = dict()
   if plots is None:
     plots = PLOTS
   plots = sorted(plots)
@@ -151,7 +154,6 @@ def generate_plots(
   plots_unknown = set(plots).difference(PLOTS)
   if plots_unknown:
     raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
-  cached_data = dict()
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(
