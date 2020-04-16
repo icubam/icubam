@@ -58,14 +58,17 @@ COPY scripts scripts
 # create resource folder
 RUN  mkdir resources
 # copy specific files on root folder
-COPY doc/install.md LICENSE pyproject.toml README.md requirements.txt setup.py ./
+COPY doc/install.md LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py ./
 # pip/setup tools requires version inside .git
 COPY .git ./.git
 
 # prepare for the conda environment
 RUN echo ".  /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
 RUN conda create -n icubam python=3.8
-RUN conda activate icubam && pip install -r requirements.txt && pip install -e .
+RUN conda activate icubam &&\
+    pip install -r requirements.txt &&\
+    pip install -r requirements-test.txt &&\
+    pip install -e .
 
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
