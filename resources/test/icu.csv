@@ -1,4 +1,4 @@
 name,region,dept,city,lat,long,telephone,legal_id,country
 hopital1,nord,limousin,san diego,49.7783,4.7198,11,123,FR
-hopital2,sud,poitou,pekin,54.7783,5.7198,22,FR
+hopital2,sud,poitou,pekin,54.7783,5.7198,22,,FR
 hopital3,est,ardennes,rio,62.7783,6.7198,33,56498787,US
