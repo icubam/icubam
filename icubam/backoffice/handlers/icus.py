@@ -50,7 +50,8 @@ class ICUHandler(base.BaseHandler):
       regions = [e.region for e in self.current_user.managed_icus]
     regions.sort(key=lambda r: r.name)
 
-    depts = sorted(set([i.dept for i in self.db.get_managed_icus()]))
+    icus = self.db.get_managed_icus(self.current_user.user_id)
+    depts = sorted(set([i.dept for i in icus]))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
