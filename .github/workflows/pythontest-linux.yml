@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: python:3.8.2-slim-buster
+    env:
+      XDG_CACHE_HOME: /tmp/.cache/
 
     steps:
     - uses: actions/checkout@v2
@@ -22,18 +24,14 @@ jobs:
       id: cache-wheels
       uses: actions/cache@v1
       with:
-        path: /dev/shm/.cache/
+        path: /tmp/.cache/pip
         key: ${{ runner.os }}-requirements-${{ hashFiles('requirements*.txt') }}
     
     - name: Install dependencies
-      env:
-          # use a tempfs for faster I/O
-          XDG_CACHE_HOME: /dev/shm/.cache/
       run: |
         which python
         python --version
         pip --version
-        python -c "import sqlite3; print(sqlite3.sqlite_version)"
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-cov
