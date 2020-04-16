@@ -13,7 +13,7 @@ from icubam.db import store
 # value, however columns that are used to create joins such as icu_name or
 # ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
 # existing elements in the store.
-ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
+ICU_COLUMNS = ['name', 'legal_id', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
 BC_COLUMNS = [
   'icu_name', 'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free',
@@ -70,8 +70,12 @@ class StoreSynchronizer:
 
       # If an ICU exists with the same name, update:
       if db_icu is not None:
-        manager = self._managers.get(db_icu.icu_id, self._default_admin)[0]
+        try:
+          manager = self._managers.get(db_icu.icu_id, self._default_admin)[0]
+        except TypeError:
+          manager = self._managers.get(db_icu.icu_id, self._default_admin)
         logging.info(manager)
+        print(manager)
         self.db.update_icu(manager, db_icu.icu_id, icu_dict)
         logging.info("Updating ICU {}".format(icu_name))
       # Or insert new ICU:
@@ -153,7 +157,7 @@ class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
   def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and sychronize."""
-    icus_df = pd.read_csv(csv_contents)
+    icus_df = pd.read_csv(csv_contents, converters={'legal_id', int})
     col_diff = set(ICU_COLUMNS) - set(icus_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
