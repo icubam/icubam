@@ -13,7 +13,8 @@ on:
 jobs:
   linters:
     runs-on: ubuntu-latest
-    image: python:3.8.2-slim-buster
+    container:
+      image: python:3.8.2-slim-buster
     steps:
     # https://github.com/marketplace/actions/setup-miniconda
     - uses: actions/checkout@v2
