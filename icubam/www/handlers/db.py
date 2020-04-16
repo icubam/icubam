@@ -52,7 +52,7 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def get(self, collection):
-    if self.current_user.acces_type not in self.GET_ACCESS:
+    if self.current_user.access_type not in self.GET_ACCESS:
       logging.error(
         f"API called with incorrect access_type: {self.current_user.access_type}."
       )
@@ -121,7 +121,7 @@ class DBHandler(base.APIKeyProtectedHandler):
   @tornado.web.authenticated
   def post(self, collection):
 
-    if self.current_user.acces_type not in self.POST_ACCESS:
+    if self.current_user.access_type not in self.POST_ACCESS:
       logging.error(
         f"API called with incorrect access_type: {self.current_user.access_type}."
       )
