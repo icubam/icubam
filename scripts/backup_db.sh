@@ -12,5 +12,5 @@ if [ ! -f "$1" ]; then
   exit 1
 fi
 
-sqlite3 $1 ".backup $2"
+sqlite3 "$1" ".backup $2"
 exit 0
