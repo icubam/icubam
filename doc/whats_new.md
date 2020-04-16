@@ -1,5 +1,9 @@
 # Release notes
 
+## Unreleased
+
+ - A required `finess` parameter was added to `config.toml`.
+
 ## v0.2.5
 
  - A required `extra_plots_dir` parameter was added to `config.toml`.

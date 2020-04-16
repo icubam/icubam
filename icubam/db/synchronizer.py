@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import TextIO
 
 import pandas as pd
+import json
 from absl import logging
 from dateutil import tz
 
@@ -13,6 +14,9 @@ from icubam.db import store
 # value, however columns that are used to create joins such as icu_name or
 # ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
 # existing elements in the store.
+# The types here are not the real ones (see store.py for the schema), they are
+# just here to prevent pandas from messing with values, and delegate the actual
+# parsing to the SQL layer.
 ICU_DTYPE = {
   'name': 'string',
   'legal_id': 'string',
@@ -60,7 +64,7 @@ class StoreSynchronizer:
     else:
       logging.info("Admin Found!")
 
-  def sync_icus(self, icus_df, force_update=False):
+  def sync_icus(self, icus_df, finess_df, force_update=False):
     self.prepare()
 
     # pandas sometimes maps missing values (for example in CSV files) to NA
@@ -70,10 +74,22 @@ class StoreSynchronizer:
     for _, icu in icus_df.iterrows():
       icu_dict = icu.to_dict()
       icu_name = icu_dict["name"]
+      country = icu_dict["country"]
+      legal_id = icu_dict["legal_id"]
       region = icu_dict.pop('region', None)
       db_icu = self.db.get_icu_by_name(icu_name)
       if db_icu is not None and not force_update:
         continue
+
+      if legal_id is not None and finess_df is not None and (country == "FR"):
+        # We complete missing data using FINESS
+        print(f"Looking up {legal_id}")
+        row_df = finess_df.loc[finess_df["properties.nofinesset"] == legal_id]
+        coords = row_df["geometry.coordinates"].values[0]
+        if icu_dict["lat"] is None:
+          icu_dict["lat"] = coords[1]
+        if icu_dict["long"] is None:
+          icu_dict["long"] = coords[0]
 
       # Maybe create region first.
       if region is not None:
@@ -168,13 +184,24 @@ class StoreSynchronizer:
 
 class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
+  def __init__(self, store_db, finess=None):
+    super().__init__(store_db)
+    self.finess = finess
+
   def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and sychronize."""
+    try:
+      finess_contents = open(self.finess, "r", encoding="utf-8")
+      finess_df = pd.json_normalize(json.load(finess_contents))
+      assert finess_df.shape[1] > 1
+    except Exception as e:
+      logging.error("Cannot parse FINESS file: {}. Skipping".format(e))
+      finess_df = None
     icus_df = pd.read_csv(csv_contents, dtype=ICU_DTYPE)
     col_diff = set(ICU_COLUMNS) - set(icus_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
-    self.sync_icus(icus_df, force_update)
+    self.sync_icus(icus_df, finess_df, force_update)
     return icus_df.shape[0]
 
   def sync_users_from_csv(self, csv_contents: TextIO, force_update=False):
