@@ -10,7 +10,6 @@ from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import static
 from icubam.www.handlers import update
-from icubam.www.handlers import upload_csv
 from icubam.www.handlers.version import VersionHandler
 from icubam.www.handlers import error
 
@@ -42,17 +41,16 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(update.UpdateHandler, **kwargs)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
-    self.add_handler(db.DBHandler, **kwargs)
-    self.add_handler(VersionHandler, **kwargs)
-    self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(
-      upload_csv.UploadHandler, **{
+      db.DBHandler, **{
         **kwargs,
         **{
           'upload_path': self.config.server.upload_dir
         }
       }
     )
+    self.add_handler(VersionHandler, **kwargs)
+    self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
     self.add_handler(error.ErrorHandler, **kwargs)
 

@@ -1,13 +1,15 @@
-from absl import logging  # noqa: F401
-import datetime
-import io
 import functools
+import io
 import os
-import tornado.web
 import tempfile
-from icubam.www.handlers import base
-from icubam.www.handlers import home
-from icubam.db import store
+from datetime import datetime
+
+import tornado.web
+from absl import logging  # noqa: F401
+
+from icubam import predicu
+from icubam.db import store, synchronizer
+from icubam.www.handlers import base, home
 
 
 def _get_headers(collection, asked_file_type):
@@ -15,7 +17,7 @@ def _get_headers(collection, asked_file_type):
     return dict()
 
   extension = 'csv' if asked_file_type == 'csv' else 'h5'
-  datestr = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%M')
+  datestr = datetime.now().strftime('%Y-%m-%d_%Hh%M')
   filename = f'{collection}_{datestr}.{extension}'
   content_type = (
     'text/csv' if asked_file_type == 'csv' else 'application/octetstream'
@@ -31,10 +33,14 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/db/(.*)'
   API_COOKIE = 'api'
-  ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
+  ACCESS = [
+    store.AccessTypes.STATS, store.AccessTypes.ALL, store.AccessTypes.UPLOAD
+  ]
 
-  def initialize(self, config, db_factory):
+  def initialize(self, upload_path, config, db_factory):
     super().initialize(config, db_factory)
+    self.upload_path = upload_path
+
     keys = ['icus', 'regions']
     self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
     self.get_fns['all_bedcounts'] = self.db.get_bed_counts
@@ -46,6 +52,17 @@ class DBHandler(base.APIKeyProtectedHandler):
   def get(self, collection):
     file_format = self.get_query_argument('format', default=None)
     max_ts = self.get_query_argument('max_ts', default=None)
+    # should_preprocess: whether preprocessing should be applied to the data
+    # the raw data of ICUBAM contains inputs errors and this preprocessing will
+    # attempt to fix them
+    # it should be used cautiously because it alters the data in ways that are
+    # useful for analysis purposes but not necessarily reflect the exact/real
+    # bed count values
+    # whenever a query argument named 'preprocess' is present, we enable this
+    # preprocessing (it can be 'preprocess=<anything>' or simply 'preprocess')
+    should_preprocess = (
+      self.get_query_argument('preprocess', default=None) is not None
+    )
     data = None
 
     get_fn = self.get_fns.get(collection, None)
@@ -56,9 +73,17 @@ class DBHandler(base.APIKeyProtectedHandler):
 
     if collection in ['bedcounts', 'all_bedcounts']:
       if isinstance(max_ts, str) and max_ts.isnumeric():
-        max_ts = datetime.datetime.fromtimestamp(int(max_ts))
+        max_ts = datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
+      if collection == 'all_bedcounts' and should_preprocess:
+        # this cached_data dict is just a way to tell predicu not to load the
+        # data from ICUBAM and use this already loaded data instead
+        cached_data = {'raw_icubam': data}
+        data = predicu.data.load_bedcounts(
+          cached_data=cached_data,
+          clean=True,
+        )
     else:
       data = store.to_pandas(get_fn(), max_depth=0)
 
@@ -83,3 +108,43 @@ class DBHandler(base.APIKeyProtectedHandler):
       os.remove(tmp_path)
     else:
       self.write(data.to_html())
+
+  @tornado.web.authenticated
+  def post(self, collection):
+
+    # Send to the correct endpoint:
+    if collection == 'bedcounts':
+      csvp = synchronizer.CSVPreprocessor(self.db)
+
+      # Get the file object and format request:
+      file = self.request.files["file"][0]
+      file_format = self.get_query_argument('format', default=None)
+      file_name = None
+      # Pre-process with the correct method:
+      if file_format == 'ror_idf':
+        input_buf = io.StringIO(file["body"].decode('utf-8'))
+        try:
+          csvp.sync_bedcounts_ror_idf(input_buf)
+        except Exception as e:
+          logging.error(f"Couldn't sync: {e}")
+        file_name = 'ror_idf'
+      else:
+        logging.debug("API called with incorrect file_format: {file_format}.")
+        self.set_status(400)
+        return
+
+      # Save the file locally just in case:
+      time_str = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+      file_path = os.path.join(self.upload_path, f"{time_str}-{file_name}")
+      try:
+        with open(file_path, "wb") as f:
+          f.write(file["body"])
+        logging.info(f"Received {file_path} from {self.request.remote_ip}.")
+      except IOError as e:
+        logging.error(f"Failed to write file due to IOError: {e}")
+
+    # Or 404 if bad endpoint:
+    else:
+      logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
+      self.set_status(404)
+      return

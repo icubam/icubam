@@ -86,7 +86,7 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
 
 
 def load_bedcounts(
-  clean=True,
+  preprocess=True,
   spread_cum_jump_correction=False,
   api_key=None,
   icubam_host=None,
@@ -96,8 +96,8 @@ def load_bedcounts(
   d = load_if_not_cached(
     "icubam", cached_data, api_key=api_key, icubam_host=icubam_host
   )
-  if clean:
-    d = clean_data(d, spread_cum_jump_correction)
+  if preprocess:
+    d = preprocess_bedcounts(d, spread_cum_jump_correction)
   d = d.sort_values(by=["date", "icu_name"])
   if max_date is not None:
     logging.info("data loaded's max date will be %s (excluded)" % max_date)
@@ -105,18 +105,23 @@ def load_bedcounts(
   return d
 
 
-def load_icubam(cached_data=None, api_key=None, icubam_host=None, clean=True):
-  if api_key is None or icubam_host is None:
-    raise RuntimeError("Provide API key and host to download ICUBAM data")
+def load_icubam(
+  cached_data=None, api_key=None, icubam_host=None, preprocess=True
+):
+  if cached_data is not None and 'raw_icubam' in cached_data:
+    d = cached_data['raw_icubam']
   else:
-    protocol = "http" if icubam_host.startswith("localhost") else "https"
-    url = (
-      f"{protocol}://{icubam_host}/"
-      f"db/all_bedcounts?format=csv&API_KEY={api_key}"
-    )
-    logging.info("downloading data from %s" % url)
-    d = pd.read_csv(url.format(api_key))
-  if clean:
+    if api_key is None or icubam_host is None:
+      raise RuntimeError("Provide API key and host to download ICUBAM data")
+    else:
+      protocol = "http" if icubam_host.startswith("localhost") else "https"
+      url = (
+        f"{protocol}://{icubam_host}/"
+        f"db/all_bedcounts?format=csv&API_KEY={api_key}"
+      )
+      logging.info("downloading data from %s" % url)
+      d = pd.read_csv(url.format(api_key))
+  if preprocess:
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
     with open(DATA_PATHS["department_typo_fixes"]) as f:
       department_typo_fixes = json.load(f)
@@ -171,7 +176,7 @@ def format_data(d):
   return d
 
 
-def clean_data(d, spread_cum_jump_correction=False):
+def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
     (
       d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] -
@@ -185,7 +190,7 @@ def clean_data(d, spread_cum_jump_correction=False):
   )
   d = aggregate_multiple_inputs(d)
   # d = fix_noncum_inputs(d)
-  d = get_clean_daily_values(d)
+  d = enforce_daily_values_for_all_icus(d)
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
   d = d[ALL_COLUMNS]
@@ -228,10 +233,10 @@ def aggregate_multiple_inputs(d):
   return pd.concat(res_dfs)
 
 
-def get_clean_daily_values(d):
+def enforce_daily_values_for_all_icus(d):
   dates = sorted(list(d.date.unique()))
   icu_names = sorted(list(d.icu_name.unique()))
-  clean_data_points = list()
+  new_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
     d.groupby(['icu_name', 'department']
@@ -260,8 +265,8 @@ def get_clean_daily_values(d):
         for col in BEDCOUNT_COLUMNS
       })
     per_icu_prev_data_point[icu_name] = new_data_point
-    clean_data_points.append(new_data_point)
-  return pd.DataFrame(clean_data_points)
+    new_data_points.append(new_data_point)
+  return pd.DataFrame(new_data_points)
 
 
 def spread_cum_jumps(d, icu_to_first_input_date):
