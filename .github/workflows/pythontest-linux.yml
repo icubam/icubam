@@ -16,9 +16,16 @@ jobs:
     container:
       image: python:3.8.2-slim-buster
     env:
+      # change the default cache directory for pip wheel
+      # as $HOME is not writable.
       XDG_CACHE_HOME: /tmp/.cache/
 
     steps:
+    - name: Install git
+      run: |
+        set -ex
+        apt-get update
+        apt-get install -y git
     - uses: actions/checkout@v2
     - name: Cache wheels for dependencies
       id: cache-wheels
@@ -26,11 +33,6 @@ jobs:
       with:
         path: /tmp/.cache/pip
         key: ${{ runner.os }}-requirements-${{ hashFiles('requirements*.txt') }}
-    - name: Install system dependencies
-      run: |
-        set -ex
-        apt-get update
-        apt-get install -y git
     - name: Install dependencies
       run: |
         set -ex
