@@ -15,8 +15,10 @@ class AnalyticsCallback:
     db = self.db_factory.create()
     data = to_pandas(db.get_bed_counts())
     logging.info('[periodic callback] Starting plots generation with predicu')
+    cached_data = {'bedcounts': data}
     generate_plots(
-      bedcounts_data=data, output_dir=self.config.backoffice.extra_plots_dir
+      cached_data=cached_data,
+      output_dir=self.config.backoffice.extra_plots_dir
     )
 
 

@@ -8,6 +8,7 @@ data_source = "bedcounts"
 
 def plot(data):
   d = data
+  print(data)
   d = d.groupby(["date", "department"]).sum().reset_index()
   d = d.sort_values(by="date")
   fig, ax = plt.subplots(1, figsize=(20, 10))
