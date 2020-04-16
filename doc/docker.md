@@ -23,9 +23,9 @@ of the project (note: while both must be present to be mounted, only one will be
 
 #### Initalize DBs with docker-compose:
 ```
-docker-compose docker/docker-compose-init-db.yml build
-docker-compose docker/docker-compose-init-db.yml up
-docker-compose docker/docker-compose-init-db.yml down
+docker-compose -f docker/docker-compose-init-db.yml build
+docker-compose -f docker/docker-compose-init-db.yml up
+docker-compose -f docker/docker-compose-init-db.yml down
 ```
 
 #### Develop with docker-compose
