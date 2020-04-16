@@ -12,6 +12,7 @@ from icubam.www.handlers import static
 from icubam.www.handlers import update
 from icubam.www.handlers import upload_csv
 from icubam.www.handlers.version import VersionHandler
+from icubam.www.handlers import error
 
 
 class WWWServer(base_server.BaseServer):
@@ -53,6 +54,7 @@ class WWWServer(base_server.BaseServer):
       }
     )
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
+    self.add_handler(error.ErrorHandler, **kwargs)
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
