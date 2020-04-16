@@ -26,9 +26,14 @@ jobs:
       with:
         path: /tmp/.cache/pip
         key: ${{ runner.os }}-requirements-${{ hashFiles('requirements*.txt') }}
-    
+    - name: Install system dependencies
+      run: |
+        set -ex
+        apt-get update
+        apt-get install -y git
     - name: Install dependencies
       run: |
+        set -ex
         which python
         python --version
         pip --version
