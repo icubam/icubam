@@ -21,11 +21,11 @@ jobs:
       XDG_CACHE_HOME: /tmp/.cache/
 
     steps:
-    - name: Install git
+    - name: Install system dependencies
       run: |
         set -ex
         apt-get update
-        apt-get install -y git
+        apt-get install -y git curl
     - uses: actions/checkout@v2
     - name: Cache wheels for dependencies
       id: cache-wheels
@@ -47,8 +47,6 @@ jobs:
         JWT_SECRET: faketest
       run: |
         set -x
-        git status
-        git tag
         pip install -e .
         pytest --cov=icubam --cov-report=xml --cov-report=html
     - name: "Upload coverage to Codecov"
