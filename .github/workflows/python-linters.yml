@@ -1,0 +1,36 @@
+name: Lint python
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  linters:
+    runs-on: ubuntu-latest
+    steps:
+    # https://github.com/marketplace/actions/setup-miniconda
+    - uses: actions/checkout@v2
+    - uses: goanpeca/setup-miniconda@v1
+      with:
+         auto-update-conda: true
+         activate-environment: anaconda-client-env
+         python-version: 3.8
+         auto-activate-base: false
+    - name: Install linters
+      shell: bash -l {0}
+      run: |
+        pip install yapf flake8
+    - name: Run yapf
+      shell: bash -l {0}
+      run: |
+        yapf -r --diff .
+    - name: Run flake8
+      shell: bash -l {0}
+      run: |
+        flake8

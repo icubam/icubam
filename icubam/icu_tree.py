@@ -33,6 +33,7 @@ class ICUTree:
     self.lat = 0.0
     self.long = 0.0
     self.color = get_color(self.ratio)
+    self.timestamp = None
     self.children = dict()
 
   def as_dict(self):
@@ -41,7 +42,7 @@ class ICUTree:
       result[key] = getattr(self, key, None)
     return result
 
-  def get_level_name(self, icu, level = None):
+  def get_level_name(self, icu, level=None):
     level = self.level if level is None else level
     region = getattr(icu, level) if hasattr(icu, level) else None
     name = getattr(region, 'name') if hasattr(region, 'name') else region
@@ -65,6 +66,9 @@ class ICUTree:
       self.death += bedcount.n_covid_deaths
     if bedcount.n_covid_healed:
       self.healed += bedcount.n_covid_healed
+    if bedcount.create_date is not None:
+      self.timestamp = 0 if self.timestamp is None else self.timestamp
+      self.timestamp = max(self.timestamp, bedcount.create_date.timestamp())
 
   def set_basic_information(self, icu):
     if self.label is None:
@@ -95,8 +99,8 @@ class ICUTree:
       self.children[next_level_name] = child
       n = len(self.children)
       if child.lat and child.long:
-        self.lat = (child.lat + (n - 1)*self.lat) / n
-        self.long = (child.long + (n - 1)*self.long) / n
+        self.lat = (child.lat + (n - 1) * self.lat) / n
+        self.long = (child.long + (n - 1) * self.long) / n
 
   def add(self, icu, bedcount):
     if not self.should_add(icu, bedcount):

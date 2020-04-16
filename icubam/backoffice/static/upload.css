@@ -1,0 +1,7 @@
+input[type="file"] {
+    display: none;
+}
+
+.upload-button {
+    cursor: pointer;
+}

@@ -1,7 +1,7 @@
 """Data store for ICUBAM."""
-from typing import Dict, Any
 
 from absl import logging
+import enum
 import pandas as pd
 from contextlib import contextmanager
 import dataclasses
@@ -10,7 +10,7 @@ import hashlib
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy import Column, Table
 from sqlalchemy import ForeignKey
-from sqlalchemy import Boolean, Float, DateTime, Integer, String
+from sqlalchemy import Boolean, Enum, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
@@ -20,7 +20,6 @@ import uuid
 
 class Base(object):
   """Base with helper methods."""
-
   @classmethod
   def get_column_names(cls, include_relationships=True):
     """Returns the columns of the table."""
@@ -35,7 +34,9 @@ class Base(object):
     Args:
      max_depth: the maximum recursion depth.
     """
-    columns = self.get_column_names(include_relationships=include_relationships)
+    columns = self.get_column_names(
+      include_relationships=include_relationships
+    )
 
     result = {}
     for col in columns:
@@ -61,24 +62,27 @@ Base = declarative_base(cls=Base)
 
 # Users that are assigned to an ICU.
 icu_users = Table(
-    "icu_users", Base.metadata,
-    Column("icu_id", ForeignKey("icus.icu_id"), primary_key=True),
-    Column("user_id", ForeignKey("users.user_id"), primary_key=True))
+  "icu_users", Base.metadata,
+  Column("icu_id", ForeignKey("icus.icu_id"), primary_key=True),
+  Column("user_id", ForeignKey("users.user_id"), primary_key=True)
+)
 
 # Users that can manage an ICU.
 icu_managers = Table(
-    "icu_managers", Base.metadata,
-    Column("icu_id", ForeignKey("icus.icu_id"), primary_key=True),
-    Column("user_id", ForeignKey("users.user_id"), primary_key=True))
+  "icu_managers", Base.metadata,
+  Column("icu_id", ForeignKey("icus.icu_id"), primary_key=True),
+  Column("user_id", ForeignKey("users.user_id"), primary_key=True)
+)
 
 # Regions that external clients can access.
 external_client_regions = Table(
-    "external_client_regions", Base.metadata,
-    Column(
-        "external_client_id",
-        ForeignKey("external_clients.external_client_id"),
-        primary_key=True),
-    Column("region_id", ForeignKey("regions.region_id"), primary_key=True))
+  "external_client_regions", Base.metadata,
+  Column(
+    "external_client_id",
+    ForeignKey("external_clients.external_client_id"),
+    primary_key=True
+  ), Column("region_id", ForeignKey("regions.region_id"), primary_key=True)
+)
 
 
 class User(Base):
@@ -102,6 +106,8 @@ class User(Base):
   locale = Column(String)
   # One of {email, sms}.
   message_type = Column(String, default="email")
+  # Consent to use icubam
+  consent = Column(Boolean)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -110,7 +116,8 @@ class User(Base):
   icus = relationship("ICU", secondary=icu_users, back_populates="users")
   # ICUs that the user manages.
   managed_icus = relationship(
-      "ICU", secondary=icu_managers, back_populates="users")
+    "ICU", secondary=icu_managers, back_populates="users"
+  )
 
 
 class Region(Base):
@@ -118,7 +125,7 @@ class Region(Base):
   __tablename__ = "regions"
 
   region_id = Column(Integer, primary_key=True)
-  name = Column(String)
+  name = Column(String, unique=True)
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -159,7 +166,9 @@ class ICU(Base):
   icu_id = Column(Integer, primary_key=True)
   # Region that the ICU belongs to.
   region_id = Column(Integer, ForeignKey("regions.region_id"))
-  name = Column(String)
+  name = Column(String, unique=True)
+  # This would be a legal identifier of the hospital (finess in France.)
+  legal_id = Column(String)
   # Geographical location of the ICU. These are orthogonal to the region, which
   # is a more abstract grouping.
   dept = Column(String)
@@ -177,11 +186,21 @@ class ICU(Base):
   region = relationship("Region", back_populates="icus")
   # History of bed counts.
   bed_counts = relationship(
-      "BedCount", back_populates="icu", order_by=BedCount.last_modified)
+    "BedCount", back_populates="icu", order_by=BedCount.last_modified
+  )
   # Users that are assigned to the ICU.
   users = relationship("User", secondary=icu_users, back_populates="icus")
   # Users that can manage the ICU.
-  managers = relationship("User", secondary=icu_managers, back_populates="icus")
+  managers = relationship(
+    "User", secondary=icu_managers, back_populates="icus"
+  )
+
+
+class AccessTypes(enum.Enum):
+  MAP = 1
+  STATS = 2
+  UPLOAD = 3
+  ALL = 4
 
 
 class ExternalClient(Base):
@@ -199,6 +218,8 @@ class ExternalClient(Base):
   # If set, denotes the date that the access key expires.
   expiration_date = Column(DateTime)
   is_active = Column(Boolean, default=True, server_default=text("1"))
+  # Type of access: it is stored as the key string in the db.
+  access_type = Column(Enum(AccessTypes))
 
   create_date = Column(DateTime, default=func.now())
   last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
@@ -210,8 +231,10 @@ class ExternalClient(Base):
   def access_key_valid(self):
     """Returns true if the access key is valid."""
     return (
-      (self.expiration_date is None or self.expiration_date > datetime.now())
-      and self.is_active)
+      (self.expiration_date is None or
+       self.expiration_date > datetime.now()) and self.is_active
+    )
+
 
 @dataclasses.dataclass
 class AccessKey(object):
@@ -222,7 +245,6 @@ class AccessKey(object):
 
 class StoreFactory:
   """Factory for creating stores."""
-
   def __init__(self, engine, salt=""):
     if salt is None:
       logging.warning("DB_SALT is not defined. Falling back to default")
@@ -238,7 +260,6 @@ class StoreFactory:
 
 class Store(object):
   """Provides high level access to the data store."""
-
   def __init__(self, session, salt):
     """Creates a store.
 
@@ -286,6 +307,9 @@ class Store(object):
       self._session.commit()
       return icu.icu_id
 
+    if self.get_icu_by_name(icu.name):
+      raise KeyError("ICU Name already present in DB.")
+
     rids = set([i.region_id for i in self.get_managed_icus(admin_user_id)])
     if icu.region_id not in rids:
       raise ValueError("New ICUs can only be created in the manger's region.")
@@ -295,7 +319,8 @@ class Store(object):
 
     # Make sure this manager manages this ICU.
     self.assign_user_as_icu_manager(
-      admin_user_id, admin_user_id, icu.icu_id, force=True)
+      admin_user_id, admin_user_id, icu.icu_id, force=True
+    )
 
     return icu.icu_id
 
@@ -303,8 +328,12 @@ class Store(object):
     """Returns the ICU with the specified ID."""
     return self._session.query(ICU).filter(ICU.icu_id == icu_id).one_or_none()
 
+  def get_icu_by_name(self, icu_name: int):
+    """Returns the ICU with the specified name."""
+    return self._session.query(ICU).filter(ICU.name == icu_name).first()
+
   def get_icus(self) -> Iterable[ICU]:
-    """Returns all users, e.g. sync. Do not use in user facing code."""
+    """Returns all ICUs. Do not use in user facing code."""
     return self._session.query(ICU).all()
 
   def update_icu(self, manager_user_id: int, icu_id: int, values):
@@ -325,8 +354,8 @@ class Store(object):
     if self.is_admin(user_id):
       return True
     return self._session.query(icu_managers).filter(
-        icu_managers.c.user_id == user_id).filter(
-            icu_managers.c.icu_id == icu_id).count() == 1
+      icu_managers.c.user_id == user_id
+    ).filter(icu_managers.c.icu_id == icu_id).count() == 1
 
   def enable_icu(self, manager_user_id: int, icu_id: int, is_active=True):
     """Enables the ICU with the specified ID."""
@@ -336,8 +365,13 @@ class Store(object):
     """Disables the ICU with the specified ID."""
     self.enable_icu(manager_user_id, icu_id, False)
 
-  def assign_user_as_icu_manager(self, admin_user_id: int, manager_user_id: int,
-                                 icu_id: int, force: bool = False):
+  def assign_user_as_icu_manager(
+    self,
+    admin_user_id: int,
+    manager_user_id: int,
+    icu_id: int,
+    force: bool = False
+  ):
     """Assigns the specified user as a manager of an ICU.
 
     The force parameter is used to bypass the admin condition in specific
@@ -346,18 +380,21 @@ class Store(object):
     if not force and not self.is_admin(admin_user_id):
       raise ValueError("Only admin users can assign managers to ICUs.")
     with self._commit_or_rollback():
-      self._session.execute(icu_managers.insert().values(
-          user_id=manager_user_id, icu_id=icu_id))
+      self._session.execute(
+        icu_managers.insert().values(user_id=manager_user_id, icu_id=icu_id)
+      )
 
-  def remove_manager_user_from_icu(self, admin_user_id: int,
-                                   manager_user_id: int, icu_id: int):
+  def remove_manager_user_from_icu(
+    self, admin_user_id: int, manager_user_id: int, icu_id: int
+  ):
     """Removed the manager user from an ICU."""
     if not self.is_admin(admin_user_id):
       raise ValueError("Only admin users can remove managers from ICUs.")
     with self._commit_or_rollback():
-      self._session.execute(icu_managers.delete().where(
-          icu_managers.c.user_id == manager_user_id).where(
-              icu_managers.c.icu_id == icu_id))
+      self._session.execute(
+        icu_managers.delete().where(icu_managers.c.user_id == manager_user_id
+                                    ).where(icu_managers.c.icu_id == icu_id)
+      )
 
   def get_managed_icus(self, manager_user_id: int) -> Iterable[ICU]:
     """Returns the list of ICUs managed by the user."""
@@ -374,7 +411,8 @@ class Store(object):
     name = "admin"
     hash = self.get_password_hash(name)
     return self.add_user(
-        User(name=name, email=name, password_hash=hash, is_admin=True))
+      User(name=name, email=name, password_hash=hash, is_admin=True)
+    )
 
   def add_user(self, user: User) -> int:
     """Adds a new user and returns its ID.
@@ -389,8 +427,9 @@ class Store(object):
     self._session.commit()
     return user.user_id
 
-  def add_user_to_icu(self, manager_user_id: int, icu_id: int,
-                      user: User) -> int:
+  def add_user_to_icu(
+    self, manager_user_id: int, icu_id: int, user: User
+  ) -> int:
     """Adds a new user and assigns it with the specified ICU.
 
     Args:
@@ -409,8 +448,13 @@ class Store(object):
 
   def get_user(self, user_id: int) -> Optional[User]:
     """Returns the user with the specified ID."""
-    return self._session.query(User).filter(
-        User.user_id == user_id).one_or_none()
+    return self._session.query(User).filter(User.user_id == user_id
+                                            ).one_or_none()
+
+  def get_user_by_phone(self, phone: int):
+    """Returns the user with the specified phone number."""
+    return self._session.query(User).filter(User.telephone == phone
+                                            ).one_or_none()
 
   def get_users(self) -> Iterable[User]:
     """Returns all users, e.g. sync. Do not use in user facing code."""
@@ -431,26 +475,33 @@ class Store(object):
     """
     if not self.manages_user(manager_user_id, user_id):
       raise ValueError(
-          "Only users associated with managed ICUs can be updated.")
+        "Only users associated with managed ICUs can be updated."
+      )
     with self._commit_or_rollback():
       self._session.query(User).filter(User.user_id == user_id).update(values)
 
-  def assign_user_to_icu(self, manager_user_id: int, user_id: int, icu_id: int):
+  def assign_user_to_icu(
+    self, manager_user_id: int, user_id: int, icu_id: int
+  ):
     """Assigns the specified user to an ICU."""
     if not self.manages_icu(manager_user_id, icu_id):
       raise ValueError("Only managers can assign users to a ICU.")
     with self._commit_or_rollback():
-      self._session.execute(icu_users.insert().values(
-          user_id=user_id, icu_id=icu_id))
+      self._session.execute(
+        icu_users.insert().values(user_id=user_id, icu_id=icu_id)
+      )
 
-  def remove_user_from_icu(self, manager_user_id: int, user_id: int,
-                           icu_id: int):
+  def remove_user_from_icu(
+    self, manager_user_id: int, user_id: int, icu_id: int
+  ):
     """Removes an existing assignment of user to an ICU."""
     if not self.manages_icu(manager_user_id, icu_id):
       raise ValueError("Only managers can remove users from an ICU.")
     with self._commit_or_rollback():
-      self._session.execute(icu_users.delete().where(
-          icu_users.c.user_id == user_id).where(icu_users.c.icu_id == icu_id))
+      self._session.execute(
+        icu_users.delete().where(icu_users.c.user_id == user_id
+                                 ).where(icu_users.c.icu_id == icu_id)
+      )
 
   def enable_user(self, manager_user_id: int, user_id: int, is_active=True):
     """Enables the user with the specified ID."""
@@ -470,8 +521,9 @@ class Store(object):
     if user is None:
       return False
 
-    managed_icu_ids = set(
-      [i.icu_id for i in self.get_managed_icus(manager_user_id)])
+    managed_icu_ids = set([
+      i.icu_id for i in self.get_managed_icus(manager_user_id)
+    ])
     user_icu_ids = set([i.icu_id for i in user.icus])
     return len(managed_icu_ids.intersection(user_icu_ids)) > 0
 
@@ -482,13 +534,15 @@ class Store(object):
       return []
     icu_ids = [icu.icu_id for icu in icus]
     return self._session.query(User).join(icu_users).filter(
-        icu_users.c.icu_id.in_(icu_ids)).all()
+      icu_users.c.icu_id.in_(icu_ids)
+    ).all()
 
   # Authentication related methods.
 
   def get_password_hash(self, password: str) -> str:
-    return hashlib.pbkdf2_hmac("sha256", password.encode("utf8"), self._salt,
-                               100000).hex()
+    return hashlib.pbkdf2_hmac(
+      "sha256", password.encode("utf8"), self._salt, 100000
+    ).hex()
 
   def auth_user(self, email: str, password: str) -> int:
     """Authenticates a user using email and password.
@@ -500,12 +554,13 @@ class Store(object):
     Returns:
       ID of the user if the email and (hash of the) password matches.
     """
-    return self._session.query(User.user_id).filter(User.email == email).filter(
-        User.password_hash == self.get_password_hash(password)).scalar()
+    return self._session.query(User.user_id).filter(
+      User.email == email
+    ).filter(User.password_hash == self.get_password_hash(password)).scalar()
 
   def get_user_by_email(self, email: str) -> int:
-    return self._session.query(User.user_id).filter(
-        User.email == email).scalar()
+    return self._session.query(User.user_id).filter(User.email == email
+                                                    ).scalar()
 
   def auth_user_by_token(self, token: str) -> int:
     """Authenticates a user using a token.
@@ -535,10 +590,15 @@ class Store(object):
     self._session.commit()
     return region.region_id
 
+  def get_region_by_name(self, region_name: str):
+    """Returns the region ID/ return -1 if region dos not exist"""
+    return self._session.query(Region).filter(Region.name == region_name
+                                              ).one_or_none()
+
   def get_region(self, region_id: int) -> Optional[Region]:
     """Returns the region with the specified ID."""
-    return self._session.query(Region).filter(
-        Region.region_id == region_id).one_or_none()
+    return self._session.query(Region).filter(Region.region_id == region_id
+                                              ).one_or_none()
 
   def get_regions(self) -> Iterable[Region]:
     """Returns the list of regions."""
@@ -555,24 +615,25 @@ class Store(object):
     if not self.is_admin(admin_user_id):
       raise ValueError("Only admins can update a region.")
     with self._commit_or_rollback():
-      self._session.query(Region).filter(
-          Region.region_id == region_id).update(values)
+      self._session.query(Region).filter(Region.region_id == region_id
+                                         ).update(values)
 
   def get_icus_in_region(self, region_id: int) -> Iterable[ICU]:
     """Returns the ICUs in the region with the specified ID."""
-    return self._session.query(Region).filter(
-        Region.region_id == region_id).one().icus
+    return self._session.query(Region).filter(Region.region_id == region_id
+                                              ).one().icus
 
   # Bed count related methods.
 
   def get_bed_count_for_icu(self, icu_id: int) -> Optional[BedCount]:
-    return self._session.query(BedCount).filter(
-        BedCount.icu_id == icu_id).order_by(desc(BedCount.create_date)).first()
+    return self._session.query(BedCount).filter(BedCount.icu_id == icu_id
+                                                ).order_by(
+                                                  desc(BedCount.create_date)
+                                                ).first()
 
-  def update_bed_count_for_icu(self,
-                               user_id: int,
-                               bed_count: BedCount,
-                               force=False):
+  def update_bed_count_for_icu(
+    self, user_id: int, bed_count: BedCount, force=False
+  ):
     """Updates the latest bed count for the specified ICU."""
     if not self.can_edit_bed_count(user_id, bed_count.icu_id) and not force:
       raise ValueError("User cannot edit bed count for the ICU.")
@@ -584,13 +645,14 @@ class Store(object):
     if self.is_admin(user_id):
       return True
     return self._session.query(icu_users).filter(
-        icu_users.c.user_id == user_id).filter(
-            icu_users.c.icu_id == icu_id).count() == 1
+      icu_users.c.user_id == user_id
+    ).filter(icu_users.c.icu_id == icu_id).count() == 1
 
-  def _get_latest_bed_counts_for_icus(self,
-                                      icu_ids,
-                                      max_date: datetime = None,
-                                     ) -> Iterable[BedCount]:
+  def _get_latest_bed_counts_for_icus(
+    self,
+    icu_ids,
+    max_date: datetime = None,
+  ) -> Iterable[BedCount]:
     """Returns the latest bed counts of the ICUs.
 
     Args:
@@ -603,12 +665,12 @@ class Store(object):
     session = self._session
     # Bed counts in reverse chronological order.
     sub = session.query(BedCount.rowid, BedCount.icu_id,
-                    BedCount.create_date).order_by(
-                      desc(BedCount.create_date)
-                    ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
-                      ICU.is_active == True
-                    )
-                            
+                        BedCount.create_date).order_by(
+                          desc(BedCount.create_date)
+                        ).join(ICU, BedCount.icu_id == ICU.icu_id).filter(
+                          ICU.is_active == True
+                        )
+
     if icu_ids is not None:
       sub = sub.filter(BedCount.icu_id.in_(icu_ids))
 
@@ -620,13 +682,15 @@ class Store(object):
     # the date constraint above..
     latest = session.query(sub.c.rowid).group_by(sub.c.icu_id).subquery()
     # We want BedCount objects and hence to a final join.
-    return session.query(BedCount).join(latest,
-                                        latest.c.rowid == BedCount.rowid).all()
+    return session.query(BedCount
+                         ).join(latest, latest.c.rowid == BedCount.rowid).all()
 
-  def _get_bed_counts_for_icus(self,
-                               icu_ids,
-                               latest=False,
-                               max_date: datetime = None) -> Iterable[BedCount]:
+  def _get_bed_counts_for_icus(
+    self,
+    icu_ids,
+    latest=False,
+    max_date: datetime = None
+  ) -> Iterable[BedCount]:
     """Returns the (latest) bed counts of the ICUs.
 
     Args:
@@ -667,13 +731,13 @@ class Store(object):
                      icu_ids=None,
                      latest=False,
                      **kargs) -> Iterable[BedCount]:
-    """Returns the (latest) bed counts.
+    """Returns all or latest bed counts.
 
     kargs are used for additional filtering, e.g. max_date.
 
     Args:
       icu_ids: a list or subquery of ICU IDs or None for all ICUs.
-      latest: if true, then only the latest bed counts satisfying the conditions
+      latest: if True, then only the latest bed counts satisfying the conditions
         will be returned.
 
     Returns:
@@ -681,10 +745,9 @@ class Store(object):
     """
     return self._get_bed_counts_for_icus(icu_ids, latest=latest, **kargs)
 
-  def get_visible_bed_counts_for_user(self,
-                                      user_id: int,
-                                      force=False,
-                                      **kargs) -> Iterable[BedCount]:
+  def get_visible_bed_counts_for_user(
+    self, user_id: int, force=False, **kargs
+  ) -> Iterable[BedCount]:
     """Returns the latest bed counts of ICS that are visible to the user.
 
     Admin users can view all ICUs. For other users, only ICUs that are in the
@@ -703,8 +766,9 @@ class Store(object):
       icu_ids.update([icu.icu_id for icu in user.managed_icus])
     return self.get_visible_bed_counts_in_same_region(icu_ids, **kargs)
 
-  def get_visible_bed_counts_in_same_region(self, icu_ids: Iterable[int],
-                                            **kargs) -> Iterable[BedCount]:
+  def get_visible_bed_counts_in_same_region(
+    self, icu_ids: Iterable[int], **kargs
+  ) -> Iterable[BedCount]:
     """Returns the latest bed counts in the regions of the specified ICUs.
 
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
@@ -725,12 +789,15 @@ class Store(object):
       ICU.region_id.in_(region_ids.subquery())
     ).filter(ICU.is_active == True)
     return self._get_bed_counts_for_icus(
-        region_icu_ids.subquery(), latest=True, **kargs)
+      region_icu_ids.subquery(), latest=True, **kargs
+    )
 
-  def get_bed_counts_for_external_client(self,
-                                         external_client_id: int,
-                                         latest=False,
-                                         **kargs) -> Iterable[BedCount]:
+  def get_bed_counts_for_external_client(
+    self,
+    external_client_id: int,
+    latest=False,
+    **kargs
+  ) -> Iterable[BedCount]:
     """Returns the latest bed counts for the external client.
 
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
@@ -747,11 +814,14 @@ class Store(object):
     # Find the regions of the external client.
     session = self._session
     region_ids = session.query(external_client_regions.c.region_id).filter(
-        external_client_regions.c.external_client_id == external_client_id)
+      external_client_regions.c.external_client_id == external_client_id
+    )
     region_icu_ids = session.query(ICU.icu_id).filter(
-        ICU.region_id.in_(region_ids.subquery()))
+      ICU.region_id.in_(region_ids.subquery())
+    )
     return self._get_bed_counts_for_icus(
-        region_icu_ids.subquery(), latest=latest, **kargs)
+      region_icu_ids.subquery(), latest=latest, **kargs
+    )
 
   # External client related methods.
 
@@ -763,11 +833,12 @@ class Store(object):
     """Returns a new access key."""
     access_key = uuid.uuid1().hex
     return AccessKey(
-        key=access_key, key_hash=self.get_access_key_hash(access_key))
+      key=access_key, key_hash=self.get_access_key_hash(access_key)
+    )
 
   def add_external_client(
-      self, admin_user_id: int,
-      external_client: ExternalClient) -> Tuple[int, AccessKey]:
+    self, admin_user_id: int, external_client: ExternalClient
+  ) -> Tuple[int, AccessKey]:
     """Adds a new external client and returns its access key.
 
     Args:
@@ -788,8 +859,9 @@ class Store(object):
     self._session.commit()
     return external_client.external_client_id, access_key
 
-  def update_external_client(self, admin_user_id: int, external_client_id: int,
-                             values):
+  def update_external_client(
+    self, admin_user_id: int, external_client_id: int, values
+  ):
     """Updates an existing external client.
 
     Use reset_external_client_access_key() to change the access key.
@@ -803,18 +875,20 @@ class Store(object):
       raise ValueError("Only admins can update an external client.")
     with self._commit_or_rollback():
       self._session.query(ExternalClient).filter(
-          ExternalClient.external_client_id == external_client_id).update(
-              values)
+        ExternalClient.external_client_id == external_client_id
+      ).update(values)
 
   def get_external_client_by_email(self, email: str) -> ExternalClient:
     """Returns the external client with the specified ID."""
     return self._session.query(ExternalClient).filter(
-        ExternalClient.email == email).one_or_none()
+      ExternalClient.email == email
+    ).one_or_none()
 
   def get_external_client(self, external_client_id: int) -> ExternalClient:
     """Returns the external client with the specified ID."""
     return self._session.query(ExternalClient).filter(
-        ExternalClient.external_client_id == external_client_id).one_or_none()
+      ExternalClient.external_client_id == external_client_id
+    ).one_or_none()
 
   def get_external_clients(self) -> Iterable[ExternalClient]:
     """Returns a list of external clients."""
@@ -831,49 +905,60 @@ class Store(object):
     """
     access_key_hash = self.get_access_key_hash(access_key)
     external_client = self._session.query(ExternalClient).filter(
-        ExternalClient.access_key_hash == access_key_hash).one_or_none()
+      ExternalClient.access_key_hash == access_key_hash
+    ).one_or_none()
     if not external_client or not external_client.access_key_valid:
       return None
-    return external_client.external_client_id
+    return external_client
 
   def reset_external_client_access_key(
-      self,
-      admin_user_id: int,
-      external_client_id: int,
-      expiration_date: datetime = None) -> AccessKey:
+    self,
+    admin_user_id: int,
+    external_client_id: int,
+    expiration_date: datetime = None
+  ) -> AccessKey:
     """Resets the access key of the external client and returns it."""
     if not self.is_admin(admin_user_id):
       raise ValueError("Only admins can reset access keys.")
     with self._commit_or_rollback():
       external_client = self._session.query(ExternalClient).filter(
-          ExternalClient.external_client_id == external_client_id).one()
+        ExternalClient.external_client_id == external_client_id
+      ).one()
       access_key = self.create_access_key()
       external_client.access_key_hash = access_key.key_hash
       external_client.expiration_date = expiration_date
       self._session.add(external_client)
       return access_key
 
-  def assign_external_client_to_region(self, admin_user_id: int,
-                                       external_client_id: int, region_id: int):
+  def assign_external_client_to_region(
+    self, admin_user_id: int, external_client_id: int, region_id: int
+  ):
     """Assigns the external client to a region."""
     if not self.is_admin(admin_user_id):
       raise ValueError(
-          "Only admin users can assign external clients to regions.")
+        "Only admin users can assign external clients to regions."
+      )
     with self._commit_or_rollback():
-      self._session.execute(external_client_regions.insert().values(
-          external_client_id=external_client_id, region_id=region_id))
+      self._session.execute(
+        external_client_regions.insert().values(
+          external_client_id=external_client_id, region_id=region_id
+        )
+      )
 
-  def remove_external_client_from_region(self, admin_user_id: int,
-                                         external_client_id: int,
-                                         region_id: int):
+  def remove_external_client_from_region(
+    self, admin_user_id: int, external_client_id: int, region_id: int
+  ):
     """Removes the external client from a region."""
     if not self.is_admin(admin_user_id):
       raise ValueError(
-          "Only admin users can assign external clients to regions.")
+        "Only admin users can assign external clients to regions."
+      )
     with self._commit_or_rollback():
-      self._session.execute(external_client_regions.delete().where(
+      self._session.execute(
+        external_client_regions.delete().where(
           external_client_regions.c.external_client_id == external_client_id
-      ).where(external_client_regions.c.region_id == region_id))
+        ).where(external_client_regions.c.region_id == region_id)
+      )
 
 
 def create_store_factory_for_sqlite_db(cfg) -> Store:
@@ -890,4 +975,5 @@ def create_store_factory_for_sqlite_db(cfg) -> Store:
 
 
 def to_pandas(objs, max_depth=1):
-  return pd.json_normalize([obj.to_dict(max_depth=max_depth) for obj in objs], sep="_")
+  return pd.json_normalize([obj.to_dict(max_depth=max_depth) for obj in objs],
+                           sep="_")

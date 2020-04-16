@@ -15,13 +15,11 @@ Steps:
 
 ### Configuration
 
-Create a `resources/.env` file containing the following keys:
+Create a `resources/icubam.env` file containing the following keys:
 ```
-SHEET_ID=
-TOKEN_LOC=
 SECRET_COOKIE=random_secret
 JWT_SECRET=another_secret
-GOOGLE_API_KEY=
+GOOGLE_API_KEY=a google maps api key
 TW_KEY=
 TW_API=
 DB_SALT=
@@ -43,7 +41,7 @@ The database will be named `test.db`, cf. `resources/config.toml`.
 
 ## Running unit tests
 
-A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
+A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/icubam.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
 
 To start the tests, install `pytest` and run `pytest`
 
@@ -81,3 +79,14 @@ login with user credentials created by the `populate_db_fake.py` script,
 
 To build and run the application using Docker (docker or docker-compose) check the [documentation](./docker/README.md)
 in the docker folder.
+
+## Source code formatting
+
+The codebase is formatted using `yapf`. 
+
+Running `yapf -i <filename>` will reformat a file in-place. Running `yapf -i -r .` at the root of the working copy will reformat the whole project in-place.
+
+For convenience, there is a pre-commit hook available that will reject non-yapfing code. This requires an initial setup step:
+
+- Install the development requirements using `pip install -r requirements-dev.txt` (this will pull yapf and pre-commit)
+- Run `pre-commit install` to set up the git hook. (this only needs to be done once)

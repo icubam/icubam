@@ -128,3 +128,9 @@ html {
   font-weight: bold;
   color: red;
 }
+
+.explanation {
+  font-size: 12px;
+  margin-left: 5px;
+  color: #888;
+}

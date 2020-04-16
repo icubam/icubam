@@ -25,9 +25,11 @@ sqlite_path = ":memory:"
   [server.dev]
   PORT = 8888  # will be lower cased when reading.
   base_url = "https://localhost"
+  num_days_for_stale = 1
   [server.prod]
   port = 443
   base_url = "https://test.icubam.net/"
+  num_days_for_stale = 1
 
 
 [messaging]

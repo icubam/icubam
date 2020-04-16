@@ -6,9 +6,11 @@ from absl import logging
 from icubam import config
 from icubam.db import store
 
-
-flags.DEFINE_string('config', 'resources/config.toml', 'Config file.')
-flags.DEFINE_string('dotenv_path', None, 'Optionally specifies the .env path.')
+flags.DEFINE_string('config', config.DEFAULT_CONFIG_PATH, 'Config file.')
+flags.DEFINE_string(
+  'dotenv_path', config.DEFAULT_DOTENV_PATH,
+  'Optionally specifies the .env path.'
+)
 flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_string('email', None, 'File for the db.')
 flags.DEFINE_string('password', None, 'File for the db.')
@@ -16,7 +18,9 @@ FLAGS = flags.FLAGS
 
 
 def main(argv):
-  cfg = config.Config(FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path)
+  cfg = config.Config(
+    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
+  )
   factory = store.create_store_factory_for_sqlite_db(cfg)
   db = factory.create()
   user_id = db.get_user_by_email(FLAGS.email)
@@ -32,6 +36,7 @@ def main(argv):
 
   hash = db.get_password_hash(FLAGS.password)
   db.update_user(admin_id, user_id, dict(password_hash=hash))
+
 
 if __name__ == '__main__':
   app.run(main)

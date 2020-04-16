@@ -6,11 +6,10 @@ import os.path
 import tornado.ioloop
 import tornado.locale
 import tornado.web
-from typing import Dict
 import tornado.ioloop
 from icubam.backoffice.handlers import (
-  home, login, logout, users, tokens, icus, dashboard, operational_dashboard,
-  messages, regions, maps
+  home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
+  messages, regions, maps, upload, consent
 )
 from icubam.db.store import to_pandas
 from icubam import base_server
@@ -109,10 +108,12 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(icus.ICUHandler)
     self.add_handler(regions.ListRegionsHandler)
     self.add_handler(regions.RegionHandler)
-    self.add_handler(dashboard.ListBedCountsHandler)
+    self.add_handler(bedcounts.ListBedCountsHandler)
     self.add_handler(operational_dashboard.OperationalDashHandler)
     self.add_handler(messages.ListMessagesHandler)
     self.add_handler(maps.MapsHandler)
+    self.add_handler(upload.UploadHandler)
+    self.add_handler(consent.ConsentResetHandler)
 
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
@@ -122,7 +123,7 @@ class BackOfficeServer(base_server.BaseServer):
         }
       ))
 
-    for folder in ['dist', 'pages', 'plugins', 'static']:
+    for folder in ['dist', 'plugins', 'static']:
       route = os.path.join("/", self.root, folder, r'(.*)')
       folder = '' if folder == 'static' else folder
       self.routes.append((
@@ -130,13 +131,14 @@ class BackOfficeServer(base_server.BaseServer):
           'path': os.path.join(path, 'static', folder)
         }
       ))
-    # Those are to get the js of the map page.
-    route = os.path.join("/", self.root, r'www/static/(.*)')
-    self.routes.append((
-      route, tornado.web.StaticFileHandler, {
-        'path': os.path.join(path, '../www/static')
-      }
-    ))
+    # Those are to get the js of the map page and the favicons
+    route_pattern = os.path.join("/", self.root, r'www/static/(.*)')
+    for route in [r'/(favicon.icon)', route_pattern]:
+      self.routes.append((
+        route, tornado.web.StaticFileHandler, {
+          'path': os.path.join(path, '../www/static')
+        }
+      ))
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:
