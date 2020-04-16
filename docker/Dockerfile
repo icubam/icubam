@@ -45,8 +45,6 @@ RUN pip install -r requirements.txt &&\
     pip install -r requirements-test.txt &&\
     pip install -e .
 
-RUN pip install -r requirements.txt && pip install -e .
-
 # clear pip cache
 RUN rm -rf ~/.cache/pip
 
