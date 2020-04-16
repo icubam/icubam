@@ -129,7 +129,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         file_name = 'ror_idf'
       else:
         logging.debug("API called with incorrect file_format: {file_format}.")
-        self.redirect(home.HomeHandler.ROUTE)
+        self.set_status(400)
         return
 
       # Save the file locally just in case:
@@ -141,7 +141,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         logging.info(f"Received {file_path} from {self.request.remote_ip}.")
       except IOError as e:
         logging.error(f"Failed to write file due to IOError: {e}")
-    
+
     # Or 404 if bad endpoint:
     else:
       logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
