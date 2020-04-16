@@ -13,7 +13,9 @@ from icubam.db import store
 # value, however columns that are used to create joins such as icu_name or
 # ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
 # existing elements in the store.
-ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
+ICU_COLUMNS = [
+  'name', 'region', 'dept', 'city', 'lat', 'long', 'telephone', 'legal_id'
+]
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
 BC_COLUMNS = [
   'icu_name', 'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free',
