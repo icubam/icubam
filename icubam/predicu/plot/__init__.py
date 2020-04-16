@@ -141,8 +141,10 @@ def generate_plots(
   icubam_host: Optional[str] = None,
   output_type: str = "png",
   output_dir: str = "/tmp",
-  bedcounts_data: Optional[pd.DataFrame] = None
+  cached_data: Dict = None,
 ):
+  if cached_data is None:
+    cached_data = dict()
   if plots is None:
     plots = PLOTS
   plots = sorted(plots)
@@ -152,9 +154,6 @@ def generate_plots(
   plots_unknown = set(plots).difference(PLOTS)
   if plots_unknown:
     raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
-  cached_data = dict()
-  if bedcounts_data is not None:
-    cached_data['bedcounts'] = bedcounts_data
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(
