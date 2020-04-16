@@ -36,12 +36,14 @@ COPY scripts scripts
 RUN  mkdir resources
 
 # copy specific files on root folder
-COPY LICENSE pyproject.toml README.md requirements.txt setup.py ./
+COPY LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py ./
 
 # pip/setup tools requires version inside .git
 COPY .git ./.git
 
-RUN pip install -r requirements.txt && pip install -e .
+RUN pip install -r requirements.txt &&\
+    pip install -r requirements-test.txt &&\
+    pip install -e .
 
 # clear pip cache
 RUN rm -rf ~/.cache/pip
