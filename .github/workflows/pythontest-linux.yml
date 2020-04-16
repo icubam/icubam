@@ -18,7 +18,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Cache Primes
+      id: cache-primes
+      uses: actions/cache@v1
+      with:
+        path: /dev/shm/.cache/
+        key: ${{ runner.os }}-requirements-${{ hashFiles('requirements*.txt') }}
+    
     - name: Install dependencies
+      env:
+          # use a tempfs for faster I/O
+          XDG_CACHE_HOME: /dev/shm/.cache/
       run: |
         which python
         python --version
