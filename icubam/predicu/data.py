@@ -1,13 +1,9 @@
 import itertools
 import json
 import logging
-
-# import os
 import pickle
 import urllib.request
 from pathlib import Path
-
-# from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -202,13 +198,14 @@ def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   return d
 
 
-def aggregate_multiple_inputs(d, TimeDeltaChosen="15Min"):
+def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
     dg = dg.sort_index()
-    mask = ((dg.index.to_series().diff(1) > pd.Timedelta(TimeDeltaChosen)
-             ).shift(-1).fillna(True).astype(bool))
+    td_diff = dg.index.to_series().diff(1)
+    mask = td_diff > pd.Timedelta(agg_time_delta)
+    mask = mask.shift(-1).fillna(True).astype(bool)
     dg = dg.loc[mask]
     for col in CUM_COLUMNS:
       dg[col] = (
