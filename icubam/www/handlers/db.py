@@ -36,6 +36,8 @@ class DBHandler(base.APIKeyProtectedHandler):
   ACCESS = [
     store.AccessTypes.STATS, store.AccessTypes.ALL, store.AccessTypes.UPLOAD
   ]
+  GET_ACCESS = [store.AccessTypes.ALL, store.AccessTypes.STATS]
+  POST_ACCESS = [store.AccessTypes.UPLOAD, store.AccessTypes.STATS]
 
   def initialize(self, upload_path, config, db_factory):
     super().initialize(config, db_factory)
@@ -50,6 +52,13 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def get(self, collection):
+    if self.current_user.acces_type not in self.GET_ACCESS:
+      logging.debug(
+        f"API called with incorrect access_type: {self.current_user.access_type}."
+      )
+      self.set_status(403)
+      return
+
     file_format = self.get_query_argument('format', default=None)
     max_ts = self.get_query_argument('max_ts', default=None)
     # should_preprocess: whether preprocessing should be applied to the data
@@ -111,6 +120,13 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def post(self, collection):
+
+    if self.current_user.acces_type not in self.POST_ACCESS:
+      logging.debug(
+        f"API called with incorrect access_type: {self.current_user.access_type}."
+      )
+      self.set_status(403)
+      return
 
     # Send to the correct endpoint:
     if collection == 'bedcounts':
