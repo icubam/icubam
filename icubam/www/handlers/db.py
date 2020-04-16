@@ -1,8 +1,8 @@
-from datetime import datetime
 import functools
 import io
 import os
 import tempfile
+from datetime import datetime
 
 import tornado.web
 from absl import logging  # noqa: F401
@@ -91,6 +91,12 @@ class DBHandler(base.APIKeyProtectedHandler):
 
   @tornado.web.authenticated
   def post(self, collection):
+    if collection not in ['bedcounts']:
+      logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
+      self.set_status(404)
+      return
+
+    # Send to the correct endpoint:
     if collection == 'bedcounts':
       csvp = synchronizer.CSVPreprocessor(self.db)
 
@@ -102,7 +108,10 @@ class DBHandler(base.APIKeyProtectedHandler):
       # Pre-process with the correct method:
       if file_format == 'ror_idf':
         input_buf = io.StringIO(file["body"].decode('utf-8'))
-        csvp.sync_bedcounts_ror_idf(input_buf)
+        try:
+          csvp.sync_bedcounts_ror_idf(input_buf)
+        except Exception as e:
+          logging.error(f"Couldn't sync: {e}")
         file_name = 'ror_idf'
       else:
         logging.debug("API called with incorrect file_format: {file_format}.")

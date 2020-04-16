@@ -9,9 +9,9 @@ from dateutil import tz
 
 from icubam.db import store
 
-# These columns need to be provided, most can be set to None if there is no 
-# value, however columns that are used to create joins such as icu_name or 
-# ICU_COLUMNS['name'] will throw an error if they are None or not aligned with 
+# These columns need to be provided, most can be set to None if there is no
+# value, however columns that are used to create joins such as icu_name or
+# ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
 # existing elements in the store.
 ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
