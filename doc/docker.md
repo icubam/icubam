@@ -30,8 +30,8 @@ docker-compose -f docker/docker-compose-init-db.yml down
 
 #### Develop with docker-compose
 ```
-docker-compose docker/docker-compose-dev.yml build
-docker-compose docker/docker-compose-dev.yml up -d
+docker-compose -f docker/docker-compose-dev.yml build
+docker-compose -f docker/docker-compose-dev.yml up -d
 ```
 
 #### Restart a container after making a change
