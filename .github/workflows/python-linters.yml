@@ -16,7 +16,6 @@ jobs:
     container:
       image: python:3.8.2-slim-buster
     steps:
-    # https://github.com/marketplace/actions/setup-miniconda
     - uses: actions/checkout@v2
     - name: Install linters
       run: |
