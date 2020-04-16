@@ -436,34 +436,3 @@ def load_combined_bedcounts_public(api_key=None, cached_data=None, icubam_host=N
   return combined
 
 
-def dep2region(str_dep_code):
-  france_dep2region = load_france_departments()
-  # regioncode = int(france_dep2region[france_dep2region["departmentCode"]==str(dep_code)]["regionCode"].iloc[0])
-  # str_dep_code = str(dep_code)
-  # if dep_code<10 :
-  #   str_dep_code = '0'+str_dep_code
-  if str_dep_code not in france_dep2region.departmentCode.unique() :
-    print("ce numero, ", str_dep_code, " n'est pas un numero de departement")
-  regioncode = france_dep2region[france_dep2region["departmentCode"]==str_dep_code]["regionCode"]
-  return regioncode
-# ## test:
-# france_dep2region = predicu.data.load_france_departments()
-# for dep_code in france_dep2region.departmentCode.unique():
-#   # dep_code = int(dep_code)
-#   print(dep_code,  predicu.data.dep2region(dep_code))
-
-
-def region2dep(str_reg_code):
-  france_dep2region = load_france_departments()
-  # str_reg_code = str(reg_code)
-  # if reg_code<10 :
-  #   str_reg_code = '0'+str_reg_code
-  if str_reg_code not in france_dep2region.regionCode.unique() :
-    print("ce numero, ", str_reg_code, " n'est pas un numero de region")
-  dep_codes = france_dep2region[france_dep2region["regionCode"]==str_reg_code]["departmentCode"]
-  return dep_codes
-# ## test:
-# france_dep2region = predicu.data.load_france_departments()
-# for reg_code in france_dep2region.regionCode.unique():
-#   reg_code = int(reg_code)
-#   print("region numéro ", reg_code, ", liste des depts: ", predicu.data.region2dep(reg_code))

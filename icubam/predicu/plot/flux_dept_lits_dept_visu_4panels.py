@@ -9,183 +9,387 @@ import matplotlib.style
 import numpy as np
 import pandas as pd
 
-import predicu.data
-import predicu.plot
+import icubam
+import icubam.predicu.data
+import icubam.predicu.plot
 
 import sys
 
+data_source = "bedcounts" ## We ALSO need that one, ... but only to count how many ICUs there are per department !
 data_source = "combined_icubam_public"
 
+d_dep2reg = icubam.predicu.data.load_france_departments()
+
+
+'''
+Logic of this code:
+the computation of quantities, even when seemingly simple, is performed separately from the plotting.
+The computing is done once, at the dept level, and the function returns simple arrays, to be plotted.
+These arrays are meant to be added, to the regional leel (hence, no eprcentage at this level)
+The computing at the regional level comes from that of the departmental level. Percentages have to be recomputed (not averaged, but averaged with ponderation, so, recomputed)
+'''
+
+## a simple window-averaging function, centerd on the current point #
 def slid_window_avg(a, wi):
-  a_smoothed=np.zeros(a.shape)
-  # for shift in range(1,wi):
-  for i in range(len(a)):
-    a_smoothed[i] += np.sum(a[i:i+wi])/ (a[i:i+wi]).shape[0]
+  acopy = np.array(a).copy()
+  a_smoothed=np.zeros(acopy.shape)
+  wi_half = wi//2
+  wi_other_half = wi - wi_half
+  for i in range(acopy.shape[0]):
+    aslice = acopy[max(0,i-wi_half):min(i+wi_other_half, acopy.shape[0])]
+    a_smoothed[i] = np.mean(aslice,axis=0)
+    # a_smoothed[i] += np.sum(aslice,axis=0)/ (aslice).shape[0]
+    # print(aslice,a_smoothed[i] , acopy[i])
   return a_smoothed
 
 
-def compute_all_for_plots_by_dept(d, dep):
+def compute_all_for_plots_by_dept(d, bc, dep):
+  '''
+  where all computation takes place.
+  is supposed to return stuff that make sense to add
+  i.e. no percentages, only numbers (to aggregate from dept to region, we jsut sum numbers of dept)
+
+  some quantities are defined, then set to zero, because at present the dat ais not loaded
+  + we haven't thought about it too much
+  but these are the kind of quantitites that we COULD think of plotting (are interestig for Antoine)
+  '''
   dep_data = d[d["department"] == dep]
   dep_data = dep_data.sort_values(by="date")
   zeros = dep_data['n_covid_deaths']*0.0
 
-  wi = 2 # sliding window time average
+  nicu_dep = bc[bc.department == dep].icu_name.unique().size ## number of ICUs in the dept.
+
+  wi = 3 # sliding window time average
 
   ## flux covid (hopital, rea)
   flow_hopital_covid = slid_window_avg((dep_data[ set(["n_hospitalised_patients", "n_hospital_death", "n_hospital_healed"])     ].sum(axis=1)).diff(1).fillna(0),wi)
   flow_reanima_covid = slid_window_avg((dep_data[ set(['n_covid_deaths', 'n_covid_healed', 'n_covid_transfered','n_covid_occ']) ].sum(axis=1)).diff(1).fillna(0),wi)
-  # flow_hopital_covid_region += np.array(flow_hopital_covid)
-  # flow_reanima_covid_region += np.array(flow_reanima_covid)
+  ## des donnees sont aussi disponible depuis une autre source, SPF :
+  #   Nombre de nouveaux cas : (i.e, le FLUX)
+  #     Nombre quotidien de personnes nouvellement hospitalisées pour COVID-19
+  #     Nombre quotidien de nouvelles admissions en réanimation pour COVID-19
+
 
   ## flux non-covid (hopital, rea)
-  flow_hopital_n_cov = zeros # calculable a partir des data SOS medecin ?
+  flow_hopital_n_cov = zeros # est-ce estimable a partir des data SOS medecin ?
   ## donnees SOS medecin:
-  # nbre_pass_corona    -> passage aux urgences liés au corona (par age)
-  # nbre_pass_tot       -> passage aux urgences (total)        (par age)
-  # nbre_hospit_corona  -> envoi à l'hopital, lié au corona    (par age)
+  # nbre_pass_corona    -> passage aux urgences liés au corona (par age)  (attention ! tout passage ne debouche pas sur une hospitalisation !)
+  # nbre_pass_tot       -> passage aux urgences (total)        (par age)  (idem, attention !)
+  # nbre_hospit_corona  -> envoi à l'hopital, lié au corona    (par age)  (interpretatin a verifier !!)
   flow_reanima_n_cov = zeros # il nous manque les flux sortants (morts, rad) de la rea non-covid
-
+  ##-> ca c'est introuvable, je pense
 
   wi = 3 # sliding window time average
 
   ## lits covid (hopital, rea)
   numberBed_hopital_covid_occup = slid_window_avg(dep_data.n_hospitalised_patients, wi)
-  percenBed_hopital_covid_occup = 100*zeros # dep_data.n_hospitalised_patients / unknown
-  percenBed_reanima_covid_occup = 100*slid_window_avg(dep_data.n_covid_occ / (dep_data.n_covid_occ + dep_data.n_covid_free), wi)
+  numberBed_reanima_covid_occup = slid_window_avg(dep_data.n_covid_occ , wi )
+  numberBed_reanima_covid_total = slid_window_avg((dep_data.n_covid_occ + dep_data.n_covid_free) , wi )
 
   ## lits non-covid (hopital, rea)
   numberBed_hopital_n_cov_occup = zeros # unknown
-  percenBed_hopital_n_cov_occup = 100*zeros # unknown / unknown
-  percenBed_reanima_n_cov_occup = 100*slid_window_avg(dep_data.n_ncovid_occ / (dep_data.n_ncovid_occ + dep_data.n_ncovid_free), wi)
+  numberBed_reanima_n_cov_occup = slid_window_avg(dep_data.n_ncovid_occ , wi )
+  numberBed_reanima_n_cov_total = slid_window_avg((dep_data.n_ncovid_occ + dep_data.n_ncovid_free) , wi )
 
-  return flow_hopital_covid, flow_reanima_covid, \
-      numberBed_hopital_covid_occup, percenBed_hopital_covid_occup, percenBed_reanima_covid_occup, \
-      flow_hopital_n_cov, flow_reanima_n_cov, \
-      numberBed_hopital_n_cov_occup, percenBed_hopital_n_cov_occup, percenBed_reanima_n_cov_occup
-
-
-
-def plot_one_dep(d, dep):
-  if dep in d["department"].unique():
-    flow_hopital_covid, flow_reanima_covid, \
-    numberBed_hopital_covid_occup, percenBed_hopital_covid_occup, percenBed_reanima_covid_occup, \
-    flow_hopital_n_cov, flow_reanima_n_cov, \
-    numberBed_hopital_n_cov_occup, percenBed_hopital_n_cov_occup, percenBed_reanima_n_cov_occup = compute_all_for_plots_by_dept(d, dep)
-
-    dep_data = d[d["department"] == dep]
-    dep_data = dep_data.sort_values(by="date")
-
-    # plt.figure()
-    # predicu.plot.DEPARTMENT_GRAND_EST_COLOR[dep]
-    hospcolor = 'blue'
-    hospmarker = "+"
-
-    reacolor = 'red'
-    reamarker  = "*"
-    x_days = [date.strftime("%d-%m") for date in sorted(dep_data.date.unique())]
-
-    fig, axs = plt.subplots(2, 1)
-    # fig.set_figwidth(13)
-    # fig.set_figheight(8)
-    fig.set_figwidth(7)
-    fig.set_figheight(8)
-    # fig.suptitle(dep)
-    axs[0].set_title(dep+": dynamique des flux entrants (covid)")
-    axs[0].set_ylabel("nombre d'admission")
-    axs[0].plot(x_days, flow_hopital_covid, label= "nombre d'admission à l'hopital pour covid+ (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
-    axs[0].plot(x_days, flow_reanima_covid, label= "nombre d'admission en réanimation pour covid+"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
-    axs[0].legend(handlelength=4,  loc='best') # bbox_to_anchor=(0, 0.1 ),
-    axs[0].set_xticks(x_days[::3])
-
-    axs[1].set_title(dep+": niveau de saturation des lits d'hospitalisation") # (covid)")
-    axs[1].set_ylabel('nombre de lits', color="indigo")
-    axs[1].tick_params(axis='y' , labelcolor="indigo")
-    axs[1].plot(x_days, numberBed_hopital_covid_occup, label= 'nombre lits occupés hopital covid+  (secteur+réa)',  color="indigo", marker=hospmarker, lw=3, ls='-')
-    ax2 = axs[1].twinx()  # instantiate a second axes that shares the same x-axis
-    ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1]
-    ax2.tick_params(axis='y', labelcolor=reacolor)
-    # ax2.plot(x_days, percenBed_hopital_covid_occup, label= '% lits occupés hopital covid+  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
-    ax2.plot(x_days, percenBed_reanima_covid_occup, label= '% lits occupés réanimation covid+', color=reacolor, marker=reamarker, lw=2, ls="--")
-    ax2.plot(x_days, percenBed_reanima_n_cov_occup, label= '% lits occupés réanimation covid- (NON COV)', color=reacolor, lw=2, ls=":")
-    h1, l1 = axs[1].get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    axs[1].legend(h1+h2, l1+l2, handlelength=4, loc='best')
-    axs[1].set_xticks(x_days[::3])
-    # legend(handlelength=4,  loc='center left') # bbox_to_anchor=(0, 0.1 ),
-
-
-    # axs[0,1].set_title("dynamique des flux entrants (non covid)")
-    # axs[0,1].set_ylabel("nombre d'admission")
-    # axs[0,1].plot(x_days, flow_hopital_n_cov, label= "nombre d'admission à l'hopital pour covid- (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
-    # axs[0,1].plot(x_days, flow_reanima_n_cov, label= "nombre d'admission en réanimation pour covid-"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
-    # axs[0,1].legend(handlelength=4,  loc='upper left') # bbox_to_anchor=(0, 0.1 ),
-
-
-    # axs[1,1].set_title("niveau de saturation des lits d'hospitalisation (non covid)")
-    # axs[1,1].set_ylabel('nombre de lits', color="indigo")
-    # axs[1,1].tick_params(axis='y' , labelcolor="indigo")
-    # axs[1,1].plot(x_days, numberBed_hopital_n_cov_occup, label= 'nombre occupés hopital covid-  (secteur+réa)',  color="indigo", marker=hospmarker, lw=3, ls='-')
-    # ax2 = axs[1,1].twinx()  # instantiate a second axes that shares the same x-axis
-    # ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1,1]
-    # ax2.tick_params(axis='y', labelcolor=reacolor)
-    # # ax2.plot(x_days, percenBed_hopital_n_cov_occup, label= '% lits occupés hopital covid-  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
-    # ax2.plot(x_days, percenBed_reanima_n_cov_occup, label= '% lits occupés réanimation covid-', color=reacolor, marker=reamarker, lw=2, ls="--")
-    # h1, l1 = axs[1,1].get_legend_handles_labels()
-    # h2, l2 = ax2.get_legend_handles_labels()
-    # axs[1,1].legend(h1+h2, l1+l2, handlelength=4, loc='best')
-
-
-    fig.set_tight_layout(tight=True)
-    fig.savefig(dep+".pdf")
-    fig.savefig(dep+".png")
-    return fig
-  else:
-    print(dep, ' is not a valid departement name')
-    return None
+  cdep = pd.DataFrame({\
+    "date": dep_data.date, \
+    "flow_hopital_covid": flow_hopital_covid, \
+    "flow_reanima_covid": flow_reanima_covid, \
+    "numberBed_hopital_covid_occup": numberBed_hopital_covid_occup, \
+    "numberBed_reanima_covid_occup": numberBed_reanima_covid_occup, \
+    "numberBed_reanima_covid_total": numberBed_reanima_covid_total, \
+    "flow_hopital_n_cov": flow_hopital_n_cov, \
+    "flow_reanima_n_cov": flow_reanima_n_cov, \
+    "numberBed_hopital_n_cov_occup": numberBed_hopital_n_cov_occup, \
+    "numberBed_reanima_n_cov_occup": numberBed_reanima_n_cov_occup, \
+    "numberBed_reanima_n_cov_total": numberBed_reanima_n_cov_total, \
+    "nicu_dep": nicu_dep,\
+    })
+  return cdep
 
 
 
-## TODO: mettre le departement number en argument de cettte fonction
-  # flow_hopital_covid_region = np.zeros(d["date"].unique().size) ## en esperant que les dates sont toutes alignees
-  # flow_reanima_covid_region = np.zeros(d["date"].unique().size) ## en esperant que les dates sont toutes alignees
-  # # flow_hopital_covid_region = pd.DataFrame(d["date"].unique() )
-  # # flow_hopital_covid_region["date"] = d["date"].unique()
-  # # flow_hopital_covid_region["totalDep"] = np.zeros(d["date"].unique().size)
-  # # plt.figure(figsize=[10,5])
+def plot_one_dep(cdep, dep_name):
+  ## for plotting one department... OR one region
+  ## the code works exactly the same to plot a region.
+  #3 so in this function, think of "dep" as a departement or a region
 
-  # assert(d["department_pop"].unique().size == d["department"].unique().size )
-  # pop_region = d["department_pop"].unique().sum() # populationde la region
+  flow_hopital_covid = cdep.flow_hopital_covid
+  flow_reanima_covid = cdep.flow_reanima_covid
+  numberBed_hopital_covid_occup = cdep.numberBed_hopital_covid_occup
+  numberBed_reanima_covid_occup = cdep.numberBed_reanima_covid_occup
+  numberBed_reanima_covid_total = cdep.numberBed_reanima_covid_total
+  flow_hopital_n_cov = cdep.flow_hopital_n_cov
+  flow_reanima_n_cov = cdep.flow_reanima_n_cov
+  numberBed_hopital_n_cov_occup = cdep.numberBed_hopital_n_cov_occup
+  numberBed_reanima_n_cov_occup = cdep.numberBed_reanima_n_cov_occup
+  numberBed_reanima_n_cov_total = cdep.numberBed_reanima_n_cov_total
 
-  # ## explication : ##
-  # assert( (d.n_covid_occ + d.n_ncovid_occ - d.n_icu_patients_icubam).sum() == 0 )
-  # d.n_icu_patients_icubam == d.n_covid_occ + d.n_ncovid_occ
+  zeros = cdep.flow_hopital_covid*0.0
+  percenBed_reanima_covid_occup = 100*(numberBed_reanima_covid_occup / numberBed_reanima_covid_total)
+  percenBed_reanima_n_cov_occup = 100*(numberBed_reanima_n_cov_occup / numberBed_reanima_n_cov_total)
+  # percenBed_hopital_covid_occup = 100*zeros # dep_data.n_hospitalised_patients / unknown
+  # percenBed_hopital_n_cov_occup = 100*zeros # unknown / unknown
+  nicu_dep = cdep.nicu_dep.iloc[0]
+  x_days = [date.strftime("%d-%m") for date in sorted(cdep.date.unique())]
 
-  # first we get the total for the region
-  # for dep in d["department"].unique():
+  ## filter the data that is unavailable (before march 30, approximately)
+  ## instead of plotting 0s  (for numberBed_reanima_n_cov_total)
+  ## however, for barplots, this is not needed
+  # filtre_data_disponib = np.where(cdep.date >= datetime.date(2020, 3, 30))[0] ## data available only from this date , march 30
+  # filtre_data_non_dispo = np.where(cdep.date < datetime.date(2020, 3, 30))[0] ## data available only from this date , march 30
+
+  suptitle = dep_name+"\nDonnées pour "+str(int(nicu_dep))+" réanimation(s)"
+  subplot_title1 = "Dynamique des flux entrants covid+"
+  subplot_title2 = "Niveau de saturation des lits covid+\n"+str(int(nicu_dep))+" réanimation(s), représentant "\
+  +str(int(numberBed_reanima_covid_total.median()))+ " lits de réa covid+ (médiane, min="\
+  +str(int(numberBed_reanima_covid_total.min()))\
+  +", max="+str(int(numberBed_reanima_covid_total.max()))+")"
+  subplot_title3 = "Évolution des lits covid-"
+
+  hospcolor = 'blue'
+  hospmarker = "+"
+  reacolor = 'red'
+  reamarker  = "*"
+  nbLitsReaColor = "brown"
+  nbLitsHopitalColor = "indigo"
+  x_ticks_c = x_days[::3]
+
+  fig, axs = plt.subplots(3, 1)
+  fig.suptitle(suptitle)
+  fig.set_figwidth(8)
+  fig.set_figheight(10.5)
+  axs[0].set_title(subplot_title1)
+  axs[0].set_ylabel("nombre d'admission")
+  axs[0].plot(x_days, flow_hopital_covid, label= "nombre d'admission à l'hopital pour covid+ (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
+  axs[0].plot(x_days, flow_reanima_covid, label= "nombre d'admission en réanimation pour covid+"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
+  axs[0].legend(handlelength=4,  loc='best') # bbox_to_anchor=(0, 0.1 ),
+  axs[0].set_xticks(x_ticks_c)
+  axs[0].set_ylim(bottom=0)
+
+  axs[1].set_title(subplot_title2)
+  axs[1].set_ylabel('nombre de lits', color=nbLitsHopitalColor)
+  axs[1].tick_params(axis='y' , labelcolor=nbLitsHopitalColor)
+  axs[1].bar(x_days, numberBed_hopital_covid_occup, label= 'nombre lits occupés hopital covid+  (secteur+réa)',  color=nbLitsHopitalColor, edgecolor=nbLitsHopitalColor, lw=2, ls='-', alpha=0.5)
+  ## same, in line plot:
+  # axs[1].plot(x_days, numberBed_hopital_covid_occup, label= 'nombre lits occupés hopital covid+  (secteur+réa)',  color=nbLitsHopitalColor, marker=hospmarker, lw=3, ls='-')
+  ## creating a second y-axis
+  ax2 = axs[1].twinx()  # instantiate a second axes that shares the same x-axis
+  ax2.set_ylabel('pourcentage occupation', color=reacolor)  # we already handled the x-label with axs[1]
+  ax2.tick_params(axis='y', labelcolor=reacolor)
+  # ax2.plot(x_days, percenBed_hopital_covid_occup, label= '% lits occupés hopital covid+  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
+  ax2.plot(x_days, percenBed_reanima_covid_occup, label= '% lits occupés réanimation covid+', color=reacolor, marker=reamarker, lw=2, ls="--")
+  h1, l1 = axs[1].get_legend_handles_labels()
+  h2, l2 = ax2.get_legend_handles_labels()
+  ax2.set_ylim([0,100])
+  axs[1].legend(h1+h2, l1+l2, handlelength=4, loc='lower left') ## summing the two legends, to have a single legend-box in the subplot
+  axs[1].set_xticks(x_ticks_c)
+  axs[1].set_ylim(bottom=0)
 
 
-def plot(d):
-  for dep in d["department"].unique():
-    plot_one_dep(d, dep)
+  axs[2].set_title(subplot_title3)
+  axs[2].set_ylabel('nombre de lits', color=nbLitsReaColor)
+  axs[2].tick_params(axis='y' , labelcolor=nbLitsReaColor)
+  # numberBed_reanima_n_cov_total[filtre_data_non_dispo] *= 0.0
+  axs[2].bar(x_days, numberBed_reanima_n_cov_total, label= 'nombre lits de réanimation (total) covid-',  color=nbLitsReaColor, edgecolor=nbLitsReaColor, lw=2, ls='-', alpha=0.2)
+  axs[2].bar(x_days, numberBed_reanima_n_cov_occup, label= 'nombre lits de réanimation occupés covid-',  color=nbLitsReaColor, edgecolor=None, lw=3, ls='-', alpha=0.8)
+  axs[2].legend(handlelength=4, loc='best')
+  axs[2].set_xticks(x_ticks_c)
+  axs[2].set_ylim(bottom=0)
+  ## posssibility: plot the % of occupation .. pbbly useless though !
+  # ax22 = axs[1].twinx()
+  # ax22.plot([x_days[i] for i in filtre_data_disponib], \
+  #          [percenBed_reanima_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
+  #          label= '% lits occupés réanimation covid-', color=reacolor, lw=2, ls=":")
+
+  fig.subplots_adjust(hspace=0.4) ## to allow for large subplot titles, add some height-space
+  # fig.set_tight_layout(tight=True) ### screws upo the titles, so, desactivated :(
+
+  ## TODO: choose appropriate path, not the current one !
+  fig.savefig(dep_name+".pdf")
+  fig.savefig(dep_name+".svg")
+  plt.close() # closes the current figure
+  return fig
+
+
+def plot_all_departments(d, bc, d_dep2reg):
+  ## this plots one figure per department
+  ## for which we have data, of course.
+  depCodesList = list(d_dep2reg.departmentCode.unique())
+  for dep_code in depCodesList:
+    dep_name = d_dep2reg[d_dep2reg.departmentCode==dep_code].departmentName.iloc[0]
+    if dep_name in d["department"].unique():
+      print("Tracé ok pour le département: ", dep_name)
+      cdep = compute_all_for_plots_by_dept(d, bc, dep_name)
+      fig = plot_one_dep(cdep, dep_name)
+    else:
+      print("Désolé, mais le département : ", dep_name, "  n'est pas présent dans nos données.")
+
+
+def plot_all_regions(d, bc, d_dep2reg):
+  ## plots the regional total
+  ## one plot pre region
+  ## sometimes there are few departements for which we have dat ain that region
+  ## this will be reflected in the number of ICUs, displayed in the title
+  for reg_code in d_dep2reg.regionCode.dropna().unique():
+    reg_name = d_dep2reg[d_dep2reg.regionCode==reg_code].regionName.iloc[0]
+    dep_codes = list(d_dep2reg[d_dep2reg.regionCode==reg_code].departmentCode) ## getting the dep_code of the dpartments of this region
+    dep_counter = 0
+    print("\nAggrégation des données pour la région", reg_name, " , incluant les départements:")
+    for dep_code in dep_codes: ## going through this region's departments
+      dep_name = d_dep2reg[d_dep2reg.departmentCode==dep_code].departmentName.iloc[0]
+      if dep_code in d.department_code_icubam.unique(): ## check if we have the data in the database(s)
+        print(dep_name)
+        cdep = compute_all_for_plots_by_dept(d, bc, dep_name)
+        cdep = cdep.set_index("date") ## to be able to add stuff (add all but date)
+        if dep_counter == 0 :
+          cregion = cdep.copy() ## initialize with the first dept.
+        else:
+          cregion += cdep
+        dep_counter +=1
+      # else: ## this makes too much printing
+      #   print("Désolé, mais le département : ", dep_name, "  n'est pas présent dans nos données (icubam/bedcounts).")
+    if dep_counter == 0:
+      print("Désolé, mais la REGION : ", reg_name, "  n'est pas présente (du tout) dans nos données (icubam/bedcounts).")
+    else:
+      cregion = cregion.reset_index()
+      fig = plot_one_dep(cregion, reg_name)
+      # cregion = cregion.rename( columns={"nicu_dep": "nicu_reg"})
     # plt.show()
+  return fig
 
-def plot_one_region(d, reg):
-  pass
-  # fig = plt.figure(figsize=[10,5])
-  # plt.title("region")
-  # plt.plot(dep_data["date"], slid_window_avg(flow_hopital_covid_region,wi), label= 'flux entrant hopital (régional, TOTAL)',          lw=2, color="blue", marker=hospmarker)
-  # plt.plot(dep_data["date"], slid_window_avg(flow_reanima_covid_region,wi),   label= 'flux entrant réanim. (régional, TOTAL) (icubam)', lw=2, color="red", marker=reamarker)
-  # plt.legend(loc='best')
-  # plt.savefig("region-total.pdf")
-  # plt.savefig("region-total.png")
+def plot(d, bc, d_dep2reg):
+  print("\n\nplot for all regions:\n")
+  plot_all_regions(d, bc, d_dep2reg)
+
+  print("\n\nplot for all departments:\n")
+  plot_all_departments(d, bc, d_dep2reg)
+  plt.show()
 
 
-# api_key = sys.argv[1]
+api_key = sys.argv[1]
+d  = icubam.predicu.data.load_combined_bedcounts_public(data_source="combined_bedcounts_public" , cached_data=None,api_key=api_key, icubam_host="prod.icubam.net" )
+bc  = icubam.predicu.data.load_if_not_cached(data_source="bedcounts" ,cached_data=None ,api_key=api_key, icubam_host="prod.icubam.net")
 
-# d = predicu.data.load_combined_icubam_public(api_key=api_key)
-# print('data chargee')
+## record  bc to a file for Francois Husson
+datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
+filename = "predicu_data_clean_{}.csv".format(datetimestr)
+bc.to_csv(filename)
 
-plot(d)
-plt.show()
+## load the dep/region correspondance table
+d_dep2reg = icubam.predicu.data.load_france_departments()
+## these are the useful commends:
+# regionCodesList = list(np.array(d_dep2reg.regionCode.dropna().unique() ,dtype=int) )
+# regionCodesList = [str(regionCodesList[i]) for i in range(len(regionCodesList))]
+# regionNamesList = list(d_dep2reg.regionName.unique())[:-1] # it ends with a None, that we drop
+# depCodesList = list(d_dep2reg.departmentCode.unique())
+# depNamesList = list(d_dep2reg.departmentName.unique())[:-1] # it ends with a None, that we drop
 
-# plot_one_dep(d, dep)
+## plot everything:
+plot(d, bc, d_dep2reg)
+
+
+# TODO:
+# - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a bien expliquer exactement ce qui est affiché (source des data, mode de calcul des flux, lissages choisis, et pour les fleches, idem, mode de calcul de la tendance récente, mode de calcul de la tendance future prédite)
+
+# TODO: Dans un cadre séparé, par département,
+# - une flêche indiquant la tendance des derniers jours haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1 hopital, 1 réa)
+# - une flêche indiquant la tendance des prochains jours (modele predictif) -- Ce graphe étant accompagné d'un lien vers une explication bien détaillée des méthodes de calcul de ces fleches haut/bas/stable.
+# - en line plot comme fond derrière les flèches, un indicateur de fiabilité des données (encore par département), du genre nombre de saisies par ICU dans les 3 derniers jours glissants (une baisse signifie moins de data donc moins de fiabilité)
+
+
+
+
+
+
+
+
+
+
+
+
+## abandonned code:
+
+
+def dep2region_fun(str_dep_code):
+  d_dep2reg = icubam.predicu.data.load_france_departments()
+  if str_dep_code not in d_dep2reg.departmentCode.unique() :
+    print("ce numero, ", str_dep_code, " n'est pas un numero de departement")
+  regioncode = d_dep2reg[d_dep2reg["departmentCode"]==str_dep_code]["regionCode"]
+  return regioncode
+# ## test:
+# d_dep2reg = predicu.data.load_france_departments()
+# for dep_code in d_dep2reg.departmentCode.unique():
+#   # dep_code = int(dep_code)
+#   print(dep_code,  predicu.data.dep2region_fun(dep_code))
+
+
+def region2dep_fun(str_reg_code):
+  d_dep2reg = icubam.predicu.data.load_france_departments()
+  if str_reg_code not in d_dep2reg.regionCode.unique() :
+    print("ce numero, ", str_reg_code, " n'est pas un numero de region")
+  dep_codes = d_dep2reg[d_dep2reg["regionCode"]==str_reg_code]["departmentCode"]
+  return dep_codes
+# ## test:
+# d_dep2reg = predicu.data.load_france_departments()
+# for reg_code in d_dep2reg.regionCode.unique():
+#   reg_code = int(reg_code)
+#   print("region numéro ", reg_code, ", liste des depts: ", predicu.data.region2dep_fun(reg_code))
+
+
+
+  # elif fourPanels:
+  #   fig, axs = plt.subplots(2, 2)
+  #   fig.suptitle(suptitle)
+  #   fig.set_figwidth(13)
+  #   fig.set_figheight(8)
+  #   axs[0,0].set_title(dep_name+": dynamique des flux entrants (covid)")
+  #   axs[0,0].set_ylabel("nombre d'admission")
+  #   axs[0,0].plot(x_days, flow_hopital_covid, label= "nombre d'admission à l'hopital pour covid+ (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
+  #   axs[0,0].plot(x_days, flow_reanima_covid, label= "nombre d'admission en réanimation pour covid+"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
+  #   axs[0,0].legend(handlelength=4,  loc='best') # bbox_to_anchor=(0, 0.1 ),
+  #   axs[0,0].set_xticks(x_ticks_c)
+
+  #   axs[1,0].set_title(dep_name+": niveau de saturation des lits d'hospitalisation") # (covid)")
+  #   axs[1,0].set_ylabel('nombre de lits', color=nbLitsHopitalColor)
+  #   axs[1,0].tick_params(axis='y' , labelcolor=nbLitsHopitalColor)
+  #   axs[1,0].plot(x_days, numberBed_hopital_covid_occup, label= 'nombre lits occupés hopital covid+  (secteur+réa)',  color=nbLitsHopitalColor, marker=hospmarker, lw=3, ls='-')
+  #   ax2 = axs[1,0].twinx()  # instantiate a second axes that shares the same x-axis
+  #   ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1,0]
+  #   ax2.tick_params(axis='y', labelcolor=reacolor)
+  #   # ax2.plot(x_days, percenBed_hopital_covid_occup, label= '% lits occupés hopital covid+  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
+  #   ax2.plot(x_days, percenBed_reanima_covid_occup, label= '% lits occupés réanimation covid+', color=reacolor, marker=reamarker, lw=2, ls="--")
+  #   # ax2.plot(x_days, percenBed_reanima_n_cov_occup, label= '% lits occupés réanimation covid- (NON COV)', color=reacolor, lw=2, ls=":")
+  #   h1, l1 = axs[1,0].get_legend_handles_labels()
+  #   h2, l2 = ax2.get_legend_handles_labels()
+  #   axs[1,0].legend(h1+h2, l1+l2, handlelength=4, loc='best')
+  #   axs[1,0].set_xticks(x_ticks_c)
+  #   # legend(handlelength=4,  loc='center left') # bbox_to_anchor=(0, 0.1 ),
+
+
+  #   axs[0,1].set_title("dynamique des flux entrants (non covid)")
+  #   axs[0,1].set_ylabel("nombre d'admission")
+  #   axs[0,1].plot(x_days, flow_hopital_n_cov, label= "nombre d'admission à l'hopital pour covid- (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
+  #   axs[0,1].plot(x_days, flow_reanima_n_cov, label= "nombre d'admission en réanimation pour covid-"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
+  #   axs[0,1].legend(handlelength=4,  loc='upper left') # bbox_to_anchor=(0, 0.1 ),
+
+
+  #   axs[1,1].set_title("niveau de saturation des lits d'hospitalisation (non covid)")
+  #   axs[1,1].set_ylabel('nombre de lits', color=nbLitsHopitalColor)
+  #   axs[1,1].tick_params(axis='y' , labelcolor=nbLitsHopitalColor)
+  #   # axs[1,1].plot(x_days, numberBed_hopital_n_cov_occup, \
+  #   axs[1,1].plot([x_days[i] for i in filtre_data_disponib], \
+  #            [numberBed_hopital_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
+  #            label= 'nombre occupés hopital covid-  (secteur+réa)',  color=nbLitsHopitalColor, marker=hospmarker, lw=3, ls='-')
+  #   ax2 = axs[1,1].twinx()  # instantiate a second axes that shares the same x-axis
+  #   ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1,1]
+  #   ax2.tick_params(axis='y', labelcolor=reacolor)
+  #   # ax2.plot(x_days, percenBed_hopital_n_cov_occup, label= '% lits occupés hopital covid-  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
+  #   ax2.plot([x_days[i] for i in filtre_data_disponib], \
+  #            [percenBed_reanima_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
+  #            label= '% lits occupés réanimation covid-', color=reacolor, lw=2, ls=":")
+
+
+  #   h1, l1 = axs[1,1].get_legend_handles_labels()
+  #   h2, l2 = ax2.get_legend_handles_labels()
+  #   axs[1,1].legend(h1+h2, l1+l2, handlelength=4, loc='best')

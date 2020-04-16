@@ -1,4 +1,4 @@
-name: run shellcheck on all shell scripts
+name: Lint .sh scripts
 
 on:
   # Trigger the workflow on push or pull request,
