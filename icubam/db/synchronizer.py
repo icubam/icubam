@@ -9,7 +9,22 @@ from dateutil import tz
 
 from icubam.db import store
 
-ICU_COLUMNS = ['name', 'region', 'dept', 'city', 'lat', 'long', 'telephone']
+# These columns need to be provided, most can be set to None if there is no
+# value, however columns that are used to create joins such as icu_name or
+# ICU_COLUMNS['name'] will throw an error if they are None or not aligned with
+# existing elements in the store.
+ICU_DTYPE = {
+  'name': 'string',
+  'legal_id': 'string',
+  'country': 'string',
+  'region': 'string',
+  'dept': 'string',
+  'city': 'string',
+  'lat': 'string',
+  'long': 'string',
+  'telephone': 'string'
+}
+ICU_COLUMNS = list(ICU_DTYPE.keys())
 USER_COLUMNS = ['icu_name', 'name', 'telephone', 'description']
 BC_COLUMNS = [
   'icu_name', 'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free',
@@ -48,6 +63,10 @@ class StoreSynchronizer:
   def sync_icus(self, icus_df, force_update=False):
     self.prepare()
 
+    # pandas sometimes maps missing values (for example in CSV files) to NA
+    # but NA values are rejected by our SQL layer, so we replace them with None
+    icus_df = icus_df.replace({pd.NA: None})
+
     for _, icu in icus_df.iterrows():
       icu_dict = icu.to_dict()
       icu_name = icu_dict["name"]
@@ -66,7 +85,9 @@ class StoreSynchronizer:
 
       # If an ICU exists with the same name, update:
       if db_icu is not None:
-        manager = self._managers.get(db_icu.icu_id, self._default_admin)[0]
+        manager = self._managers.get(db_icu.icu_id, [
+          self._default_admin,
+        ])[0]
         logging.info(manager)
         self.db.update_icu(manager, db_icu.icu_id, icu_dict)
         logging.info("Updating ICU {}".format(icu_name))
@@ -145,11 +166,11 @@ class StoreSynchronizer:
       )
 
 
-class CSVSynchcronizer(StoreSynchronizer):
+class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
   def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and sychronize."""
-    icus_df = pd.read_csv(csv_contents)
+    icus_df = pd.read_csv(csv_contents, dtype=ICU_DTYPE)
     col_diff = set(ICU_COLUMNS) - set(icus_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
@@ -165,6 +186,15 @@ class CSVSynchcronizer(StoreSynchronizer):
     self.sync_users(users_df, force_update)
     return users_df.shape[0]
 
+  def sync_bedcounts_from_csv(self, csv_contents: TextIO, force_update=False):
+    """Check that columns correspond, insert into a DF and synchronize."""
+    bedcounts_df = pd.read_csv(csv_contents)
+    col_diff = set(BC_COLUMNS) - set(bedcounts_df.columns)
+    if len(col_diff) > 0:
+      raise ValueError(f"Missing columns in input data: {col_diff}.")
+    self.sync_users(bedcounts_df, force_update)
+    return bedcounts_df.shape[0]
+
   def export_icus(self) -> TextIO:
     db_cols = copy.copy(ICU_COLUMNS)
     db_cols.remove('region')
@@ -179,3 +209,39 @@ class CSVSynchcronizer(StoreSynchronizer):
 
   def export_users(self, csv_file_path: str):
     raise NotImplementedError("Cannot export users to CSV.")
+
+
+class CSVPreprocessor(CSVSynchronizer):
+  """Set of helper functions to preprocess non-standard CSVs."""
+
+  ROR_COLUMNS_MAP = {
+    'COD_ROR_EG': 'ror_code',
+    'NOM': 'icu_name',
+    'DHM_SAI': 'create_date',
+    'NBR_LIT_DSP': 'n_covid_free',
+    'NBR_LIT_INS': 'n_covid_tot'
+  }
+
+  def sync_bedcounts_ror_idf(
+    self, csv_contents: TextIO, user=None, force_update=False
+  ):
+    """Sync bedcount CSVs from IdF RoR uplink."""
+    bedcounts_df = pd.read_csv(csv_contents)
+    col_diff = set(self.ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
+    if len(col_diff) > 0:
+      raise ValueError(f"Missing columns in input data: {col_diff}.")
+
+    # Remap columns and delete or default certain ones:
+    bc = bedcounts_df
+    bc.replace(self.ROR_COLUMNS_MAP)
+    bc['n_covid_occ'] = bc['n_covid_tot'] - bc['n_covid_free']
+    bc[[
+      'n_covid_deaths', 'n_covid_healed', 'n_covid_refused',
+      'n_covid_transfered'
+    ]] = None
+
+    # Parse datetime and convert to UTC:
+    bc['create_date'] = pd.to_datetime(
+      bc['create_date']
+    ).dt.tz_localize("Europe/Paris").dt.tz_convert(tz.tzutc())
+    self.sync_bed_counts(bc, user, force_update)

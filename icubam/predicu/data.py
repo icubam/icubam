@@ -1,11 +1,13 @@
 import itertools
 import json
 import logging
-#import os
+
+# import os
 import pickle
 import urllib.request
 from pathlib import Path
-#from typing import Dict
+
+# from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -88,7 +90,7 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
 
 
 def load_bedcounts(
-  clean=True,
+  preprocess=True,
   spread_cum_jump_correction=False,
   api_key=None,
   icubam_host=None,
@@ -98,8 +100,8 @@ def load_bedcounts(
   d = load_if_not_cached(
     "icubam", cached_data, api_key=api_key, icubam_host=icubam_host
   )
-  if clean:
-    d = clean_data(d, spread_cum_jump_correction)
+  if preprocess:
+    d = preprocess_bedcounts(d, spread_cum_jump_correction)
   d = d.sort_values(by=["date", "icu_name"])
   if max_date is not None:
     logging.info("data loaded's max date will be %s (excluded)" % max_date)
@@ -107,19 +109,25 @@ def load_bedcounts(
   return d
 
 
-def load_icubam(cached_data=None, api_key=None, icubam_host=None, clean=True):
-  if api_key is None or icubam_host is None:
-    raise RuntimeError("Provide API key and host to download ICUBAM data")
+def load_icubam(
+  cached_data=None, api_key=None, icubam_host=None, preprocess=True
+):
+  if cached_data is not None and "raw_icubam" in cached_data:
+    d = cached_data["raw_icubam"]
   else:
-    protocol = "http" if icubam_host.startswith("localhost") else "https"
-    url = (
-      f"{protocol}://{icubam_host}/"
-      f"db/all_bedcounts?format=csv&API_KEY={api_key}"
-    )
-    logging.info("downloading data from %s" % url)
-    d = pd.read_csv(url.format(api_key))
-  if clean:
+    if api_key is None or icubam_host is None:
+      raise RuntimeError("Provide API key and host to download ICUBAM data")
+    else:
+      protocol = ("http" if icubam_host.startswith("localhost") else "https")
+      url = (
+        f"{protocol}://{icubam_host}/"
+        f"db/all_bedcounts?format=csv&API_KEY={api_key}"
+      )
+      logging.info("downloading data from %s" % url)
+      d = pd.read_csv(url.format(api_key))
+  if preprocess:
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
+    d.loc[d.department == "St-Dizier", "department"] = "Haute-Marne"
     with open(DATA_PATHS["department_typo_fixes"]) as f:
       department_typo_fixes = json.load(f)
     for wrong_name, right_name in department_typo_fixes.items():
@@ -173,7 +181,7 @@ def format_data(d):
   return d
 
 
-def clean_data(d, spread_cum_jump_correction=False):
+def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
     (
       d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] -
@@ -185,10 +193,10 @@ def clean_data(d, spread_cum_jump_correction=False):
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
-  d = aggregate_multiple_inputs(d, "15Min") ## merge(15min) + rolling median smoothing + restore monotonic growth in cumu. inputs
-  d = fill_in_missing_days(d, "3D") ## if interval > 3D, then fill in by linear interpolation
-  d = get_clean_daily_values(d) ## reduces data to 1/day max (and makes it be exactly 1/day)
-  if spread_cum_jump_correction: ## pas verifiee ?
+  d = aggregate_multiple_inputs(d, "15Min")
+  d = fill_in_missing_days(d, "3D")
+  d = enforce_daily_values_for_all_icus(d)
+  if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
   d = d[ALL_COLUMNS]
   return d
@@ -199,26 +207,18 @@ def aggregate_multiple_inputs(d, TimeDeltaChosen="15Min"):
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
     dg = dg.sort_index()
-
-    ## this groups inputs when they are separated bu less than 15 Min in time (in the same ICU)
-    mask = ((dg.index.to_series().diff(1) >
-             pd.Timedelta(TimeDeltaChosen)).shift(-1).fillna(True).astype(bool))
+    mask = ((dg.index.to_series().diff(1) > pd.Timedelta(TimeDeltaChosen)
+             ).shift(-1).fillna(True).astype(bool))
     dg = dg.loc[mask]
-
-    ## rolling median average, 5 points (for cumulative qtities)
     for col in CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
-
-    ## rolling median average, 3 points (for non-cumulative qtities)
     for col in NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
       )
-
-    ## si la valeur decroit dans une colonne cumulative, alors on redresse ne appliquant la valeur precedente
     for col in CUM_COLUMNS:
       new_col = []
       last_val = -100000
@@ -235,54 +235,99 @@ def aggregate_multiple_inputs(d, TimeDeltaChosen="15Min"):
   return pd.concat(res_dfs)
 
 
-def fill_in_missing_days(d, TimeDeltaChosen="3D"):
+def fill_in_missing_days(d, time_delta_threshold="3D"):
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
-    dg = dg.sort_values(by=['datetime'])
-
-    ## looking for time intervals larger than 3 Days (or whatever)
-    timeDelta = dg['datetime'].diff(1)
-    for i, td in enumerate(timeDelta) :
-      if td > pd.Timedelta(TimeDeltaChosen): ## if no input in 3 complete days (72 hours)
-        Ndays = td//pd.Timedelta("1D")
-        slope = 1.0/Ndays
-        val_init = dg.iloc[i-1] # because of the diff, the indexing goes like this
+    dg = dg.sort_values(by=["datetime"])
+    time_delta = dg["datetime"].diff(1)
+    for i, td in enumerate(time_delta):
+      if td > pd.Timedelta(time_delta_threshold):
+        n_days = td // pd.Timedelta("1D")
+        val_init = dg.iloc[i - 1]
         val_final = dg.iloc[i]
-
-        ## adding intermediate days
-        for added_day in range(Ndays):
-          added_datetime = val_init.datetime + pd.Timedelta("1D")*added_day
-          added_date     = val_init.date     + pd.Timedelta("1D")*added_day
-          new_row={'datetime': added_datetime,
-          'icu_name': val_init.icu_name,
-          'date': added_date,
-          'department': val_init.department,
-          'n_covid_deaths':     np.round(val_init.n_covid_deaths+     (val_final.n_covid_deaths-     val_init.n_covid_deaths)*     added_day*1.0/Ndays,4),
-          'n_covid_healed':     np.round(val_init.n_covid_healed+     (val_final.n_covid_healed-     val_init.n_covid_healed)*     added_day*1.0/Ndays,4),
-          'n_covid_transfered': np.round(val_init.n_covid_transfered+ (val_final.n_covid_transfered- val_init.n_covid_transfered)* added_day*1.0/Ndays,4),
-          'n_covid_refused':    np.round(val_init.n_covid_refused+    (val_final.n_covid_refused-    val_init.n_covid_refused)*    added_day*1.0/Ndays,4),
-          'n_covid_free':       np.round(val_init.n_covid_free+       (val_final.n_covid_free-       val_init.n_covid_free)*       added_day*1.0/Ndays,4),
-          'n_ncovid_free':      np.round(val_init.n_ncovid_free+      (val_final.n_ncovid_free-      val_init.n_ncovid_free)*      added_day*1.0/Ndays,4),
-          'n_covid_occ':        np.round(val_init.n_covid_occ+        (val_final.n_covid_occ-        val_init.n_covid_occ)*        added_day*1.0/Ndays,4),
-          'n_ncovid_occ':       np.round(val_init.n_ncovid_occ+       (val_final.n_ncovid_occ-       val_init.n_ncovid_occ)*       added_day*1.0/Ndays,4)}
-          dg = dg.append(pd.Series(new_row), ignore_index=True) ## this is an insert, we will sort by date later.
-      # else: time delay short enough, nothing to insert
-    dg = dg.sort_values(by=['datetime'])
+        for added_day in range(n_days):
+          added_datetime = (val_init.datetime + pd.Timedelta("1D") * added_day)
+          added_date = val_init.date + pd.Timedelta("1D") * added_day
+          new_row = {
+            "datetime":
+            added_datetime,
+            "icu_name":
+            val_init.icu_name,
+            "date":
+            added_date,
+            "department":
+            val_init.department,
+            "n_covid_deaths":
+            np.round(
+              val_init.n_covid_deaths +
+              (val_final.n_covid_deaths - val_init.n_covid_deaths) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_healed":
+            np.round(
+              val_init.n_covid_healed +
+              (val_final.n_covid_healed - val_init.n_covid_healed) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_transfered":
+            np.round(
+              val_init.n_covid_transfered +
+              (val_final.n_covid_transfered - val_init.n_covid_transfered) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_refused":
+            np.round(
+              val_init.n_covid_refused +
+              (val_final.n_covid_refused - val_init.n_covid_refused) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_free":
+            np.round(
+              val_init.n_covid_free +
+              (val_final.n_covid_free - val_init.n_covid_free) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_ncovid_free":
+            np.round(
+              val_init.n_ncovid_free +
+              (val_final.n_ncovid_free - val_init.n_ncovid_free) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_covid_occ":
+            np.round(
+              val_init.n_covid_occ +
+              (val_final.n_covid_occ - val_init.n_covid_occ) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_ncovid_occ":
+            np.round(
+              val_init.n_ncovid_occ +
+              (val_final.n_ncovid_occ - val_init.n_ncovid_occ) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+          }
+          dg = dg.append(pd.Series(new_row), ignore_index=True)
+    dg = dg.sort_values(by=["datetime"])
     res_dfs.append(dg)
   return pd.concat(res_dfs)
 
 
-
-## make the data set have exactly 1 data point per day (no more, no less)
-## It creates the data point if there is none in that day (by taking the last value that was recorded)
-def get_clean_daily_values(d):
+def enforce_daily_values_for_all_icus(d):
   dates = sorted(list(d.date.unique()))
   icu_names = sorted(list(d.icu_name.unique()))
-  clean_data_points = list()
+  new_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
-    d.groupby(['icu_name', 'department']
-              ).first().reset_index()[['icu_name', 'department'
+    d.groupby(["icu_name", "department"]
+              ).first().reset_index()[["icu_name", "department"
                                        ]].itertuples(name=None, index=False)
   )
   for date, icu_name in itertools.product(dates, icu_names):
@@ -307,8 +352,8 @@ def get_clean_daily_values(d):
         for col in BEDCOUNT_COLUMNS
       })
     per_icu_prev_data_point[icu_name] = new_data_point
-    clean_data_points.append(new_data_point)
-  return pd.DataFrame(clean_data_points)
+    new_data_points.append(new_data_point)
+  return pd.DataFrame(new_data_points)
 
 
 def spread_cum_jumps(d, icu_to_first_input_date):
@@ -399,7 +444,7 @@ def load_public(cached_data=None):
     download_url,
     sep=";",
   )
-  d = d.loc[d.sexe == 0]  ## load only the data for women+men (all summed)
+  d = d.loc[d.sexe == 0]
   d = d.rename(
     columns={
       "dep": "department_code",
@@ -421,11 +466,15 @@ def load_public(cached_data=None):
   ]]
 
 
-def load_combined_bedcounts_public(api_key=None, cached_data=None, icubam_host=None, **kwargs):
+def load_combined_bedcounts_public(
+  api_key=None, cached_data=None, icubam_host=None, **kwargs
+):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
-  di = load_if_not_cached("bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host)
+  di = load_if_not_cached(
+    "bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host
+  )
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
   di["n_icu_patients"] = di.n_covid_occ + di.n_ncovid_occ.fillna(0)
@@ -434,5 +483,3 @@ def load_combined_bedcounts_public(api_key=None, cached_data=None, icubam_host=N
   )
   combined["department_pop"] = combined.department.apply(get_dpt_pop)
   return combined
-
-

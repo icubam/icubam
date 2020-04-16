@@ -8,7 +8,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-server
-    command: ./start_server.sh
+    command: ./docker/start_server.sh
     restart: unless-stopped
     tty: true
     ports:
@@ -41,7 +41,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-sms-server
-    command: ./start_server_sms.sh
+    command: ./docker/start_server_sms.sh
     restart: unless-stopped
     tty: true
     environment:
@@ -72,7 +72,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam-bo-server
-    command: ./start_server_bo.sh
+    command: ./docker/start_server_bo.sh
     restart: unless-stopped
     tty: true
     ports:
