@@ -63,6 +63,10 @@ class StoreSynchronizer:
   def sync_icus(self, icus_df, force_update=False):
     self.prepare()
 
+    # pandas sometimes maps missing values (for example in CSV files) to NA
+    # but NA values are rejected by our SQL layer, so we replace them with None
+    icus_df = icus_df.replace({pd.NA: None})
+
     for _, icu in icus_df.iterrows():
       icu_dict = icu.to_dict()
       icu_name = icu_dict["name"]
@@ -81,7 +85,9 @@ class StoreSynchronizer:
 
       # If an ICU exists with the same name, update:
       if db_icu is not None:
-        manager = self._managers.get(db_icu.icu_id, self._default_admin)[0]
+        manager = self._managers.get(db_icu.icu_id, [
+          self._default_admin,
+        ])[0]
         logging.info(manager)
         self.db.update_icu(manager, db_icu.icu_id, icu_dict)
         logging.info("Updating ICU {}".format(icu_name))
@@ -164,7 +170,7 @@ class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
   def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
     """Check that columns correspond, insert into a DF and sychronize."""
-    icus_df = pd.read_csv(csv_contents)
+    icus_df = pd.read_csv(csv_contents, dtype=ICU_DTYPE)
     col_diff = set(ICU_COLUMNS) - set(icus_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
