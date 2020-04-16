@@ -11,7 +11,7 @@ from icubam.backoffice.handlers import (
   home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
   messages, regions, maps, upload, consent
 )
-from icubam.db.store import to_pandas
+from icubam.predicu.analytics_server import register_analytics_callback
 from icubam import base_server
 
 
@@ -36,40 +36,8 @@ class BackofficeApplication(tornado.web.Application):
 
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
-    try:
-      from predicu.plot import generate_plots
-    except ImportError:
-      generate_plots = None
 
-    if generate_plots is not None:
-      extra_plots_dir = self.config.backoffice.extra_plots_dir
-
-      if (
-        not os.path.isdir(extra_plots_dir) and
-        not os.path.isdir(os.path.dirname(extra_plots_dir))
-      ):
-        logging.warn(
-          f'predicu plots not generated, as extra_plots_dir '
-          f'is not valid directory: {extra_plots_dir}'
-        )
-      else:
-        repeat_every = self.config.backoffice.extra_plots_make_every * 1000
-        logging.info(
-          f"Registering periodic callback: generate_predicu_plots "
-          f"/{repeat_every/1000}s"
-        )
-        tornado.ioloop.PeriodicCallback(
-          self.generate_predicu_plots, repeat_every
-        ).start()
-
-  async def generate_predicu_plots(self):
-    from predicu.plot import generate_plots
-    db = self.db_factory.create()
-    data = to_pandas(db.get_bed_counts())
-    logging.info('[periodic callback] Starting plots generation with predicu')
-    generate_plots(
-      icubam_data=data, output_dir=self.config.backoffice.extra_plots_dir
-    )
+    register_analytics_callback(self.config, db_factory, tornado.ioloop)
 
   async def ping(self):
     servers = {'server': 'www', 'messaging': 'sms'}
