@@ -106,6 +106,7 @@ def plot(
   api_key: str,
   icubam_host: str,
   matplotlib_style: str,
+  restrict_to_grand_est_region: Optional[str],
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot
@@ -115,6 +116,7 @@ def plot(
     cached_data,
     api_key=api_key,
     icubam_host=icubam_host,
+    restrict_to_grand_est_region=restrict_to_grand_est_region,
   )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
@@ -142,6 +144,7 @@ def generate_plots(
   output_type: str = "png",
   output_dir: str = "/tmp",
   cached_data: Dict = None,
+  restrict_to_grand_est_region: Optional[str] = False,
 ):
   if cached_data is None:
     cached_data = dict()
@@ -164,4 +167,5 @@ def generate_plots(
       output_type=output_type,
       api_key=api_key,
       icubam_host=icubam_host,
+      restrict_to_grand_est_region=restrict_to_grand_est_region,
     )

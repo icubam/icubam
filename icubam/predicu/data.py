@@ -1,3 +1,4 @@
+import inspect
 import itertools
 import json
 import logging
@@ -81,7 +82,15 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
       f"No loading function associated to data source {data_source}"
     )
   if cached_data is None or data_source not in cached_data:
-    return load_data_fun(cached_data=cached_data, **kwargs)
+    load_data_fun_signature = inspect.signature(load_data_fun)
+    matching_kwargs = {
+      k: v
+      for k, v in kwargs.items()
+      if k in load_data_fun_signature.parameters
+    }
+    if 'cached_data' in load_data_fun_signature.parameters:
+      matching_kwargs['cached_data'] = cached_data
+    return load_data_fun(**matching_kwargs)
   return cached_data[data_source]
 
 
@@ -92,9 +101,14 @@ def load_bedcounts(
   icubam_host=None,
   max_date=None,
   cached_data=None,
+  restrict_to_grand_est_region=False,
 ):
   d = load_if_not_cached(
-    "icubam", cached_data, api_key=api_key, icubam_host=icubam_host
+    "icubam",
+    cached_data,
+    api_key=api_key,
+    icubam_host=icubam_host,
+    restrict_to_grand_est_region=restrict_to_grand_est_region,
   )
   if preprocess:
     d = preprocess_bedcounts(d, spread_cum_jump_correction)
@@ -106,7 +120,11 @@ def load_bedcounts(
 
 
 def load_icubam(
-  cached_data=None, api_key=None, icubam_host=None, preprocess=True
+  cached_data=None,
+  api_key=None,
+  icubam_host=None,
+  preprocess=True,
+  restrict_to_grand_est_region=False,
 ):
   if cached_data is not None and "raw_icubam" in cached_data:
     d = cached_data["raw_icubam"]
@@ -122,8 +140,11 @@ def load_icubam(
       logging.info("downloading data from %s" % url)
       d = pd.read_csv(url.format(api_key))
   if preprocess:
+    if restrict_to_grand_est_region:
+      grand_est_region_id = 1
+      d = d.loc[d.icu_region_id == grand_est_region_id]
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
-    d.loc[d.department == "St-Dizier", "department"] = "Haute-Marne"
+    d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
     with open(DATA_PATHS["department_typo_fixes"]) as f:
       department_typo_fixes = json.load(f)
     for wrong_name, right_name in department_typo_fixes.items():
@@ -132,7 +153,7 @@ def load_icubam(
   return d
 
 
-def load_pre_icubam(data_path, cached_data=None):
+def load_pre_icubam(data_path):
   d = load_data_file(data_path)
   d = d.rename(
     columns={
@@ -417,7 +438,7 @@ def load_data_file(data_path):
   return d
 
 
-def load_public(cached_data=None):
+def load_public():
   filename_prefix = "donnees-hospitalieres-covid19-2020"
   logging.info("scrapping public data")
   url = (

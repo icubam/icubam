@@ -41,5 +41,10 @@ if __name__ == "__main__":
     choices=["tex", "png", "pdf"],
     default="png",
   )
+  parser.add_argument(
+    "--restrict-to-grand-est-region",
+    action="store_true",
+    help="Whether to restrict the data to the Grand-Est region data."
+  )
   args = parser.parse_args()
   generate_plots(**args.__dict__)
