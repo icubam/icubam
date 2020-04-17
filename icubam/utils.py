@@ -5,8 +5,8 @@ from absl import logging
 def maybe_init_sentry(cfg, server_name=None):
   """Enable Sentry SDK if module available and SENTRY_URL set."""
   if not cfg.SENTRY_URL:
-      logging.info(f"Not loading Sentry as cfg.SENTRY_URL not loaded.")
-      return
+    logging.info(f"Not loading Sentry as cfg.SENTRY_URL not loaded.")
+    return
   try:
     import sentry_sdk
     from sentry_sdk.integrations.tornado import TornadoIntegration
