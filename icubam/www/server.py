@@ -5,7 +5,6 @@ import tornado.web
 from absl import logging  # noqa: F401
 from tornado import queues
 
-import icubam
 from icubam import base_server
 from icubam import utils
 from icubam.db import queue_writer
