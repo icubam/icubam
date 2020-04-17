@@ -1,5 +1,7 @@
 # ICU Bed Activity Monitor (ICUBAM) :bed: :hospital:
 
+![docker build & test](https://github.com/icubam/icubam/workflows/docker%20build%20&%20test/badge.svg)
+
 ## Short description
 
 ### English
