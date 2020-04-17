@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from absl import logging  # noqa: F401
 
@@ -28,6 +28,9 @@ class AnalyticsCallback:
 def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
   """Register a callback to generate plots"""
   extra_plots_dir = config.backoffice.extra_plots_dir
+  if extra_plots_dir is not None:
+    extra_plots_dir = Path(extra_plots_dir)
+
   repeat_every = config.backoffice.extra_plots_make_every * 1000
   if repeat_every <= 0:
     logging.warn(
@@ -35,8 +38,8 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     )
 
   if (
-    not os.path.isdir(extra_plots_dir) and
-    not os.path.isdir(os.path.dirname(extra_plots_dir))
+    extra_plots_dir is None or
+    not (extra_plots_dir.exists() or extra_plots_dir.parent.exists())
   ):
     logging.warn(
       f'predicu plots not generated, as extra_plots_dir '

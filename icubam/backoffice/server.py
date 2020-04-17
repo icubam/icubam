@@ -33,7 +33,6 @@ class BackofficeApplication(tornado.web.Application):
     super().__init__(routes, **settings)
 
     repeat_every = self.config.backoffice.ping_every * 1000
-
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
 
