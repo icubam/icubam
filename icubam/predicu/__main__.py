@@ -15,10 +15,10 @@ def export_data(args):
   if not os.path.isdir(output_dir):
     raise IOError(f"Output dir `{output_dir}' does not exist.")
   datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
-  filename = "predicu_data_clean_{}.csv".format(datetimestr)
+  filename = "predicu_data_preprocessed_{}.csv".format(datetimestr)
   path = os.path.join(output_dir, filename)
   d = load_bedcounts(
-    clean=True,
+    preprocess=True,
     api_key=args.api_key,
     max_date=args.max_date,
     icubam_host=args.icubam_host,
