@@ -13,7 +13,7 @@ def test_generate_plots_wrong_name():
 
 
 @pytest.mark.parametrize("name", PLOTS)
-def test_generate_plots(name, tmpdir, monkeypatch):
+def test_generate_plots(name, tmpdir):
   output_dir = str(tmpdir.mkdir("sub"))
   generate_plots(
     plots=[name],
