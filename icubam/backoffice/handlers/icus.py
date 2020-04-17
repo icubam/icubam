@@ -52,6 +52,7 @@ class ICUHandler(base.BaseHandler):
 
     icus = self.db.get_managed_icus(self.current_user.user_id)
     depts = sorted(set([i.dept for i in icus]))
+    cities = sorted(set([i.city for i in icus]))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
@@ -59,6 +60,7 @@ class ICUHandler(base.BaseHandler):
       "icu.html",
       icu=icu,
       depts=json.dumps(depts),
+      cities=json.dumps(cities),
       regions=regions,
       error=error,
       list_route=ListICUsHandler.ROUTE
