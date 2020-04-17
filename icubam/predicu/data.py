@@ -400,8 +400,7 @@ def normalize_colum_names(df: pd.DataFrame, table_name="bedcounts"):
     Args:
     df: a dataframe with data obtained from the DB.
     """
-  # TODO: Do we actually need this? IMO plots should use columns names from
-  # DB. @rth
+  # TODO: plots should use columns names from DB. @rth
   # This is related to fields in the exported CSV
   if table_name == 'bedcounts':
     df = df.rename(columns={"icu_dept": "department"})
