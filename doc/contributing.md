@@ -23,7 +23,7 @@ Integrations tests can be run with,
 pytest -m integration --icubam-config=<config.toml path>
 ```
 This will detect the database in the dev section of the config file,
-make copy it to a temporary location and provide a new config object
+make a copy of it to a temporary location and provide a new config object
 with the `integration_config` pytest fixture. It can be used as follows,
 
 ```py
