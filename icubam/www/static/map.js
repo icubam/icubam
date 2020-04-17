@@ -27,15 +27,17 @@ function togglePopup (cluster_id, color) {
 
 function toggleAll () {
   all_showed = !all_showed
-  for (i = 0; i < data.length; i++) {
-    if ((!showed.has(data[i].label) && all_showed) ||
-        (!all_showed && (showed.has(data[i].label)))) {
-      togglePopup(data[i].label, data[i].color)
+  let dc = data[covid]
+  for (i = 0; i < dc.length; i++) {
+    if ((!showed.has(dc[i].label) && all_showed) ||
+        (!all_showed && (showed.has(dc[i].label)))) {
+      togglePopup(dc[i].label, dc[i].color)
     }
   }
 }
 
-function CenterControl(controlDiv, map, displayAllText, displayAllAltText) {
+function CenterControl(
+    controlDiv, map, displayAllText, displayAllAltText, toggleFn) {
   // Set CSS for the control border.
   var controlUI = document.createElement('div');
   controlUI.style.backgroundColor = '#fff';
@@ -58,9 +60,7 @@ function CenterControl(controlDiv, map, displayAllText, displayAllAltText) {
   controlText.style.paddingRight = '5px';
   controlText.innerHTML = displayAllText;
   controlUI.appendChild(controlText);
-  controlUI.addEventListener('click', function() {
-    toggleAll();
-  });
+  controlUI.addEventListener('click', toggleFn);
 }
 
 
@@ -104,7 +104,13 @@ function addPopup (obj, map, Popup) {
   popup.setMap(map);
 }
 
-function plotMap(data, center, displayAllText, displayAllAltText) {
+function toggleCovid () {
+  covid = !covid
+  plotMap(data[covid], center)
+}
+
+
+function plotMap(data, center) {
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
@@ -208,7 +214,17 @@ function plotMap(data, center, displayAllText, displayAllAltText) {
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var centerControlDiv = document.createElement('div');
-  var centerControl = new CenterControl(centerControlDiv, map, displayAllText, displayAllAltText);
+  var centerControl = new CenterControl(
+    centerControlDiv, map, displayAllText, displayAllAltText, toggleAll);
   centerControlDiv.index = 1;
   map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+
+  // Create the DIV to hold the control and call the CenterControl()
+  // constructor passing in this DIV.
+  var covidControlDiv = document.createElement('div');
+  const covidText = covid ? 'COVID+' : 'COVID-'
+  var covidControl = new CenterControl(
+    covidControlDiv, map,  covidText, covidAltText, toggleCovid);
+  covidControlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(covidControlDiv);
 }

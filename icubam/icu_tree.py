@@ -19,8 +19,9 @@ class ICUTree:
 
   LEVELS = ['country', 'region', 'dept', 'city', 'icu']
 
-  def __init__(self, level='country'):
+  def __init__(self, level='country', covid=True):
     self.id = None
+    self.covid = covid
     self.label = None
     self.level = level
     self.phone = None
@@ -55,10 +56,10 @@ class ICUTree:
     return None
 
   def account_for_beds(self, bedcount):
-    if bedcount.n_covid_occ:
-      self.occ += bedcount.n_covid_occ
-    if bedcount.n_covid_free:
-      self.free += bedcount.n_covid_free
+    occ = bedcount.n_covid_occ if self.covid else bedcount.n_ncovid_occ
+    free = bedcount.n_covid_free if self.covid else bedcount.n_ncovid_free
+    self.occ += occ if occ is not None else 0
+    self.free += free if free is not None else 0
     self.total = self.occ + self.free
     self.ratio = self.occ / self.total if (self.total > 0) else 0
     self.color = get_color(self.ratio)
@@ -91,7 +92,9 @@ class ICUTree:
 
     # Recurse
     next_level_name = self.get_level_name(icu, next_level)
-    child = self.children.get(next_level_name, ICUTree(next_level))
+    child = self.children.get(
+      next_level_name, ICUTree(next_level, covid=self.covid)
+    )
     child.add(icu, bedcount)
 
     # May update position information
