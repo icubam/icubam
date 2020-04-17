@@ -1,7 +1,9 @@
 import os
 
 from absl import logging  # noqa: F401
-from icubam.predicu.plot import generate_plots
+
+from .plot import generate_plots
+from .data import normalize_colum_names
 from icubam.config import Config
 from icubam.db.store import to_pandas
 
@@ -13,9 +15,10 @@ class AnalyticsCallback:
 
   async def generate_plots(self):
     db = self.db_factory.create()
-    data = to_pandas(db.get_bed_counts())
+    df_bedcounts = to_pandas(db.get_bed_counts())
+    df_bedcounts = normalize_colum_names(df_bedcounts)
     logging.info('[periodic callback] Starting plots generation with predicu')
-    cached_data = {'bedcounts': data}
+    cached_data = {'bedcounts': df_bedcounts}
     generate_plots(
       cached_data=cached_data,
       output_dir=self.config.backoffice.extra_plots_dir

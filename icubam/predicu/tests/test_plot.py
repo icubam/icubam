@@ -1,9 +1,33 @@
 from pathlib import Path
 
 import pytest
+from sqlalchemy import create_engine
 
+from icubam.db.store import StoreFactory, to_pandas
+from icubam.db.fake import populate_store_fake
+from icubam.predicu.data import normalize_colum_names
 from icubam.predicu.plot import PLOTS, generate_plots
 from icubam.predicu.test_utils import load_test_data
+
+
+def test_load_test_data():
+  """Ensure consitency between test data used in plots and BD schema
+  
+  e.g. between load_test_data and db.get_bed_counts
+  """
+  # TODO: cache generation of in memory DB with fake data into a pytest fixture
+  df = load_test_data()['bedcounts']
+
+  # duplicate columns with "date"
+  del df['datetime']
+
+  store = StoreFactory(create_engine("sqlite:///:memory:")).create()
+  populate_store_fake(store)
+  df_db = to_pandas(store.get_bed_counts())
+  df_db = normalize_colum_names(df_db, 'bedcounts')
+  # All bedcount columns in tests data used for plots must belong to the DB schema
+  missing_columns = set(df.columns).difference(df_db.columns)
+  assert not missing_columns
 
 
 def test_generate_plots_wrong_name():
