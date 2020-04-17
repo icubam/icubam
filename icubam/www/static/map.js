@@ -222,7 +222,7 @@ function plotMap(data, center) {
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var covidControlDiv = document.createElement('div');
-  const covidText = covid ? 'COVID+' : 'COVID-'
+  const covidText = covid ? showingCovidText : showingNCovidText;
   var covidControl = new CenterControl(
     covidControlDiv, map,  covidText, covidAltText, toggleCovid);
   covidControlDiv.index = 1;
