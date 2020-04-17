@@ -19,10 +19,11 @@ def test_analytics_server(tmpdir):
   config = Config('resources/test.toml')
 
   # Non existing path, callback not registred
-  config.backoffice.extra_plots_dir = '/invalid/path/2'
-  ioloop = MockIOLoop()
-  register_analytics_callback(config, db_factory=None, ioloop=MockIOLoop())
-  assert ioloop.n_calls == 0
+  for val in ['/invalid/path/2', None]:
+    config.backoffice.extra_plots_dir = '/invalid/path/2'
+    ioloop = MockIOLoop()
+    register_analytics_callback(config, db_factory=None, ioloop=MockIOLoop())
+    assert ioloop.n_calls == 0
 
   # Callback registered
   config.backoffice.extra_plots_dir = str(tmpdir.mkdir("tmp"))
