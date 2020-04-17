@@ -1,8 +1,8 @@
 [build-system]
 requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
 
+[tool.isort]
+force_single_line = true
+
 # enable versionning with setuptools_scm
 [tool.setuptools_scm]
-
-[tool.isort]
-force_single_line=True
