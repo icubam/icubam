@@ -17,6 +17,12 @@ flags.DEFINE_string("icus_csv", None, "Path to csv file containing ICU data.")
 flags.DEFINE_string(
   "users_csv", None, "Path to csv file containing user data."
 )
+flags.DEFINE_string(
+  "bedcounts_csv", None, "Path to csv file containing bedcounts data."
+)
+flags.DEFINE_string(
+  "timezone", "UTC", "Timezone in which dates should be interpreted."
+)
 
 FLAGS = flags.FLAGS
 
@@ -38,6 +44,13 @@ def main(args=None):
     print(f"Loading user CSV from: {FLAGS.users_csv}")
     with open(FLAGS.users_csv) as users_f:
       csv.sync_users_from_csv(users_f, FLAGS.force_update)
+
+  if FLAGS.bedcounts_csv:
+    print(f"Loading bedcounts CSV from: {FLAGS.bedcounts_csv}")
+    with open(FLAGS.bedcounts_csv) as bedcounts_f:
+      csv.sync_bedcounts_from_csv(
+        bedcounts_f, FLAGS.force_update, timezone=FLAGS.timezone
+      )
 
 
 if __name__ == "__main__":
