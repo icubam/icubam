@@ -25,8 +25,9 @@ class Updater:
 
   def get_user_url(self, user, icu_id: str) -> str:
     icu = {i.icu_id: i for i in user.icus}.get(icu_id, None)
-    if icu is not None:
-      return self.get_url(user, icu)
+    if icu is None:
+      raise ValueError(f"Cannot find ICU {icu_id} for user")
+    return self.get_url(user, icu)
 
   def get_url(self, user, icu) -> str:
     return "{}{}?id={}".format(

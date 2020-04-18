@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Tuple
 
 import os
 from pathlib import Path
@@ -17,7 +17,7 @@ from icubam.db.store import to_pandas, BedCount
 from icubam.backoffice.handlers import base
 
 
-def _prepare_data(bed_counts: List) -> Dict:
+def _prepare_data(bed_counts: pd.DataFrame) -> Tuple[pd.DataFrame, List]:
   """Make plot data"""
   agg_args = {
     key: 'sum'
@@ -27,7 +27,7 @@ def _prepare_data(bed_counts: List) -> Dict:
       'n_covid_transfered'
     ]
   }
-  df = bed_counts.groupby('icu_dept').agg(agg_args)
+  df: pd.DataFrame = bed_counts.groupby('icu_dept').agg(agg_args)
 
   df['total_capacity'] = df[[
     'n_covid_occ', 'n_covid_free', 'n_ncovid_occ', 'n_ncovid_free'
@@ -135,8 +135,8 @@ def _list_extra_plots(input_dir: Path) -> List[str]:
   if not input_dir.exists():
     return []
   out = []
-  for fpath in os.listdir(input_dir):
-    fpath = Path(fpath)
+  for s in os.listdir(input_dir):
+    fpath = Path(s)
     if fpath.suffix != '.png':
       continue
     out.append(fpath.stem)

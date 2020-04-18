@@ -14,11 +14,11 @@ from sqlalchemy import Boolean, Enum, Float, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, Optional, Tuple, Dict, Any
 import uuid
 
 
-class Base(object):
+class RawBase(object):
   """Base with helper methods."""
   @classmethod
   def get_column_names(cls, include_relationships=True):
@@ -38,7 +38,7 @@ class Base(object):
       include_relationships=include_relationships
     )
 
-    result = {}
+    result: Dict[str, Any] = {}
     for col in columns:
       value = getattr(self, col)
       if isinstance(value, Base):
@@ -58,7 +58,7 @@ class Base(object):
     return result
 
 
-Base = declarative_base(cls=Base)
+Base: Any = declarative_base(cls=RawBase)
 
 # Users that are assigned to an ICU.
 icu_users = Table(
@@ -756,8 +756,9 @@ class Store(object):
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
     """
-    # TODO: handle user=None here (#180)
     user = self.get_user(user_id)
+    if not user:
+      raise ValueError(f"Cannot find user with id {user_id}")
     if force or user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     else:
@@ -961,7 +962,7 @@ class Store(object):
       )
 
 
-def create_store_factory_for_sqlite_db(cfg) -> Store:
+def create_store_factory_for_sqlite_db(cfg) -> StoreFactory:
   """Creates a store for the SQLite database with the specified path.
 
   Args:

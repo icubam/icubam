@@ -103,8 +103,8 @@ def plot(
   cached_data: Dict[str, pd.DataFrame],
   output_dir: str,
   output_type: str,
-  api_key: str,
-  icubam_host: str,
+  api_key: Optional[str],
+  icubam_host: Optional[str],
   matplotlib_style: str,
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
