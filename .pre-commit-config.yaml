@@ -6,6 +6,13 @@
     rev: 3.7.9
     hooks:
     - id: flake8 
+-   repo: https://github.com/timothycrosley/isort
+    rev: 4.3.21-2
+    hooks: 
+    - id: isort
+      args: [-c]
+      types: [file,python]
+      additional_dependencies: [toml]
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.730
     hooks:
