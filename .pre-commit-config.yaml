@@ -13,3 +13,11 @@
       args: [-c]
       types: [file,python]
       additional_dependencies: [toml]
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.730
+    hooks:
+     -  id: mypy
+        args:
+          - --ignore-missing-imports
+        files: icubam/
+        types: [file, python]
