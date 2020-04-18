@@ -2,7 +2,7 @@ from absl import logging
 import os.path
 import tornado.locale
 import tornado.web
-from typing import Tuple
+from typing import Tuple, Optional
 
 from icubam.db import store
 from icubam.www import token
@@ -20,7 +20,9 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user = None
     self.token_encoder = token.TokenEncoder(self.config)
 
-  def decode_token(self, user_token: str) -> Tuple[store.User, store.ICU]:
+  def decode_token(
+    self, user_token: str
+  ) -> Tuple[Optional[store.User], Optional[store.ICU]]:
     """Returns the user object and the icu object encoded in the token."""
     input_data = self.token_encoder.decode(user_token)
     if input_data is None:
