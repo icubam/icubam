@@ -236,3 +236,11 @@ class CSVTest(absltest.TestCase):
       str_buf.splitlines(),
       len(icus) + 1, "Number of rows should be the same."
     )
+
+  def test_import_bedcounts(self):
+    with open("resources/test/icu2.csv") as csv_f:
+      self.csv.sync_icus_from_csv(csv_f, False)
+    with open("resources/test/bedcounts.csv") as csv_f:
+      self.csv.sync_bedcounts_from_csv(csv_f, False, timezone="Europe/Paris")
+    bed_counts = self.db.get_latest_bed_counts()
+    self.assertEqual(bed_counts[0].n_covid_free, 12)

@@ -6,6 +6,7 @@ import tornado.web
 
 from icubam.backoffice.handlers import base
 from icubam.db import synchronizer
+from typing import Dict, Callable
 
 
 class UploadHandler(base.BaseHandler):
@@ -27,7 +28,7 @@ class UploadHandler(base.BaseHandler):
       return self.answer(f'No CSV content', error=True)
 
     sync = synchronizer.CSVSynchronizer(self.db)
-    sync_fns = {
+    sync_fns: Dict[str, Callable[..., int]] = {
       'user': sync.sync_users_from_csv,
       'icu': sync.sync_icus_from_csv,
       'bedcounts': sync.sync_bedcounts_from_csv

@@ -154,6 +154,7 @@ class StoreSynchronizer:
         raise ValueError(
           "Timestamps must be in UTC, got {}".format(bc['create_date'].tzinfo)
         )
+
       item = bc.to_dict()
       # Replace icu_name with corresponding ID:
       item['icu_id'] = db_icus[item['icu_name']].icu_id
@@ -168,7 +169,9 @@ class StoreSynchronizer:
 
 class CSVSynchronizer(StoreSynchronizer):
   """Ingests CSV TextIO objects into datastore."""
-  def sync_icus_from_csv(self, csv_contents: TextIO, force_update=False):
+  def sync_icus_from_csv(
+    self, csv_contents: TextIO, force_update=False
+  ) -> int:
     """Check that columns correspond, insert into a DF and sychronize."""
     icus_df = pd.read_csv(csv_contents, dtype=ICU_DTYPE)
     col_diff = set(ICU_COLUMNS) - set(icus_df.columns)
@@ -177,7 +180,9 @@ class CSVSynchronizer(StoreSynchronizer):
     self.sync_icus(icus_df, force_update)
     return icus_df.shape[0]
 
-  def sync_users_from_csv(self, csv_contents: TextIO, force_update=False):
+  def sync_users_from_csv(
+    self, csv_contents: TextIO, force_update=False
+  ) -> int:
     """Check that columns correspond, insert into a DF and synchronize."""
     users_df = pd.read_csv(csv_contents)
     col_diff = set(USER_COLUMNS) - set(users_df.columns)
@@ -186,13 +191,19 @@ class CSVSynchronizer(StoreSynchronizer):
     self.sync_users(users_df, force_update)
     return users_df.shape[0]
 
-  def sync_bedcounts_from_csv(self, csv_contents: TextIO, force_update=False):
+  def sync_bedcounts_from_csv(
+    self, csv_contents: TextIO, force_update=False, timezone="UTC"
+  ) -> int:
     """Check that columns correspond, insert into a DF and synchronize."""
     bedcounts_df = pd.read_csv(csv_contents)
     col_diff = set(BC_COLUMNS) - set(bedcounts_df.columns)
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
-    self.sync_users(bedcounts_df, force_update)
+    # Parse datetime and convert to UTC:
+    bedcounts_df['create_date'] = pd.to_datetime(
+      bedcounts_df['create_date']
+    ).dt.tz_localize(timezone).dt.tz_convert(tz.tzutc())
+    self.sync_bed_counts(bedcounts_df, force_update)
     return bedcounts_df.shape[0]
 
   def export_icus(self) -> TextIO:
