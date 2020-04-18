@@ -1,5 +1,14 @@
-import icubam
 from absl import logging
+
+import icubam
+from icubam import config
+
+
+def run_server(cls, config_path, mode, env_path):
+  """A helper utility to run Tornado servers from multiprocessing."""
+  cfg = config.Config(config_path, mode=mode, env_path=env_path)
+  logging.set_verbosity(logging.INFO)
+  cls(cfg, None).run()
 
 
 def maybe_init_sentry(cfg, server_name=None):
