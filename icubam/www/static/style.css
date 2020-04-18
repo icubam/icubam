@@ -75,8 +75,8 @@ html {
 }
 
 .bed_map {
-  height: 90%;
-  margin: 10px;
+  height: 100%;
+  margin: 0px;
   padding: 0;
 }
 
@@ -97,11 +97,40 @@ html {
   display: none;
 }
 
-#subtitle-cluster {
+.title-box {
+  background-color: whitesmoke;
+  padding: 5px;
+  margin: 10px;
+}
+
+.subtitle-covid-status {
+  color: red;
+  font-size: 18;
+}
+
+.subtitle-covid-pos {
   display: block;
 }
 
-#subtitle-full {
+.subtitle-covid-neg {
+  display: none;
+}
+
+.subtitle-display-format {
+  color: black;
+  font-size: 18;
+}
+
+.subtitle-cluster {
+  display: block;
+}
+
+.subtitle-full {
+  display: none;
+}
+
+
+#title-box-orig {
   display: none;
 }
 

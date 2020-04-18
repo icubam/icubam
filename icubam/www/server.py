@@ -5,15 +5,9 @@ import tornado.web
 from absl import logging  # noqa: F401
 from tornado import queues
 
-from icubam import base_server
-from icubam import utils
+from icubam import base_server, utils
 from icubam.db import queue_writer
-from icubam.www.handlers import consent
-from icubam.www.handlers import db
-from icubam.www.handlers import error
-from icubam.www.handlers import home
-from icubam.www.handlers import static
-from icubam.www.handlers import update
+from icubam.www.handlers import consent, db, error, home, static, update
 from icubam.www.handlers.version import VersionHandler
 
 
@@ -65,6 +59,7 @@ class WWWServer(base_server.BaseServer):
     settings = {
       "cookie_secret": cookie_secret,
       "login_url": "/error",
+      "debug": True
     }
     tornado.locale.load_translations(os.path.join(self.path, "translations"))
     return tornado.web.Application(self.routes, **settings)
