@@ -2,7 +2,7 @@ from absl import logging
 import dataclasses
 import json
 import tornado.web
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from icubam.messaging import message
 from icubam.messaging import serializable
@@ -10,20 +10,20 @@ from icubam.messaging import serializable
 
 @dataclasses.dataclass
 class ScheduleRequest(serializable.Serizalizable):
-  user_id: int = None
+  user_id: Optional[int] = None
 
 
 @dataclasses.dataclass
 class ScheduledMessage:
-  icu_id: int = None
-  user_id: int = None
-  user_name: str = None
-  icu_name: str = None
-  phone: str = None
-  attempts: int = 0
-  first_sent: int = None
-  when: int = None
-  url: str = None
+  icu_id: Optional[int] = None
+  user_id: Optional[int] = None
+  user_name: Optional[str] = None
+  icu_name: Optional[str] = None
+  phone: Optional[str] = None
+  attempts: Optional[int] = 0
+  first_sent: Optional[int] = None
+  when: Optional[int] = None
+  url: Optional[str] = None
 
 
 class ScheduleHandler(tornado.web.RequestHandler):

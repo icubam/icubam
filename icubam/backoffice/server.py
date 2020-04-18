@@ -2,6 +2,7 @@ import collections
 import dataclasses
 import datetime
 import os.path
+from typing import Optional
 
 import tornado.ioloop
 import tornado.locale
@@ -27,10 +28,10 @@ from icubam.backoffice.handlers import users
 
 @dataclasses.dataclass
 class ServerStatus:
-  name: int = None
-  up: bool = None
-  started: str = None
-  last_ping: datetime.datetime = None
+  name: Optional[int] = None
+  up: Optional[bool] = None
+  started: Optional[str] = None
+  last_ping: Optional[datetime.datetime] = None
 
 
 class BackofficeApplication(tornado.web.Application):
