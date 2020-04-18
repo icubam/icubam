@@ -56,10 +56,6 @@ class WWWServer(base_server.BaseServer):
     if cookie_secret is None:
       cookie_secret = self.config.SECRET_COOKIE
     self.make_routes()
-    settings = {
-      "cookie_secret": cookie_secret,
-      "login_url": "/error",
-      "debug": True
-    }
+    settings = {"cookie_secret": cookie_secret, "login_url": "/error"}
     tornado.locale.load_translations(os.path.join(self.path, "translations"))
     return tornado.web.Application(self.routes, **settings)
