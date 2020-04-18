@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import create_engine
 
+import icubam.db.store as db_store
 from icubam.db.store import StoreFactory, to_pandas
 from icubam.db.fake import populate_store_fake
 from icubam.predicu.data import normalize_colum_names
@@ -44,4 +45,18 @@ def test_generate_plots(name, tmpdir):
     output_dir=output_dir,
     cached_data=load_test_data(),
   )
+  assert (Path(output_dir) / (name + ".png")).exists()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("name", PLOTS)
+def test_integration_generate_plots(name, integration_config, tmpdir):
+  store = db_store.create_store_factory_for_sqlite_db(integration_config
+                                                      ).create()
+
+  cached_data = load_test_data()
+  cached_data['bedcounts'] = to_pandas(store.get_bed_counts())
+
+  output_dir = str(tmpdir.mkdir("sub"))
+  generate_plots(plots=[name], output_dir=output_dir, cached_data=cached_data)
   assert (Path(output_dir) / (name + ".png")).exists()
