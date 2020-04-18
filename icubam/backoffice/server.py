@@ -9,21 +9,12 @@ import tornado.locale
 import tornado.web
 from absl import logging  # noqa: F401
 
-from icubam import base_server
-from icubam import utils
-from icubam.backoffice.handlers import bedcounts
-from icubam.backoffice.handlers import consent
-from icubam.backoffice.handlers import home
-from icubam.backoffice.handlers import icus
-from icubam.backoffice.handlers import login
-from icubam.backoffice.handlers import logout
-from icubam.backoffice.handlers import maps
-from icubam.backoffice.handlers import messages
-from icubam.backoffice.handlers import operational_dashboard
-from icubam.backoffice.handlers import regions
-from icubam.backoffice.handlers import tokens
-from icubam.backoffice.handlers import upload
-from icubam.backoffice.handlers import users
+from icubam import base_server, utils
+from icubam.backoffice.handlers import (
+  bedcounts, consent, home, icus, login, logout, maps, messages,
+  operational_dashboard, regions, tokens, upload, users
+)
+from icubam.predicu.analytics_server import register_analytics_callback
 
 
 @dataclasses.dataclass
@@ -47,6 +38,8 @@ class BackofficeApplication(tornado.web.Application):
     repeat_every = self.config.backoffice.ping_every * 1000
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
+
+    register_analytics_callback(self.config, db_factory, tornado.ioloop)
 
   async def ping(self):
     servers = {'server': 'www', 'messaging': 'sms'}
