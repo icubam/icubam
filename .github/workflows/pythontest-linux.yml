@@ -41,7 +41,7 @@ jobs:
         pip --version
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov
+        pip install pytest pytest-cov mypy
     - name: Test with pytest
       env:
         JWT_SECRET: faketest
@@ -49,6 +49,10 @@ jobs:
         set -x
         pip install -e .
         pytest --cov=icubam --cov-report=xml --cov-report=html
+    - name: Typecheck with mypy
+      run: |
+        set -ex
+        mypy -p icubam --ignore-missing-imports
     - name: "Upload coverage to Codecov"
       uses: "codecov/codecov-action@v1"
       with:
