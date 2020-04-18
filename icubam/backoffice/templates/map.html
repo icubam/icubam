@@ -21,8 +21,12 @@
   let center = {% raw center %}
   let showed = new Set()
   let all_showed = false
+  let covid = true
+  const displayAllText = "{{ _('Display all') }}"
+  const displayAllAltText = "{{ _('Click here to display all') }}"
+  const covidAltText = "{{ _('Click here to chage bed types') }}"
   function initMap () {
-    plotMap(data, center, "{{ _('Display all') }}", "{{ _('Click here to display all') }}")
+    plotMap(data[covid], center)
   }
 </script>
 <script async defer
