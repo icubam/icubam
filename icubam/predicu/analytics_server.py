@@ -2,10 +2,10 @@ from pathlib import Path
 
 from absl import logging  # noqa: F401
 
-from icubam.predicu.plot import generate_plots
-from icubam.predicu.data import normalize_colum_names
 from icubam.config import Config
 from icubam.db.store import to_pandas
+from icubam.predicu.data import normalize_colum_names
+from icubam.predicu.plot import generate_plots
 
 
 class AnalyticsCallback:
@@ -36,6 +36,7 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     logging.warn(
       f"analytics callback not started, as extra_plots_make_every={repeat_every}"
     )
+    return
 
   if (
     extra_plots_dir is None or
