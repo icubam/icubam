@@ -1,4 +1,7 @@
-# ICU Bed Activity Monitor (ICUBAM) :bed: :hospital:
+# ICU Bed Availability Monitor (ICUBAM) :bed: :hospital:
+
+![docker build & test](https://github.com/icubam/icubam/workflows/docker%20build%20&%20test/badge.svg)
+[![codecov](https://codecov.io/gh/icubam/icubam/branch/master/graph/badge.svg)](https://codecov.io/gh/icubam/icubam)
 
 ## Short description
 
