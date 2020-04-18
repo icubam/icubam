@@ -2,8 +2,8 @@ from pathlib import Path
 
 from absl import logging  # noqa: F401
 
-from .plot import generate_plots
-from .data import normalize_colum_names
+from icubam.predicu.plot import generate_plots
+from icubam.predicu.data import normalize_colum_names
 from icubam.config import Config
 from icubam.db.store import to_pandas
 

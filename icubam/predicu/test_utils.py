@@ -14,7 +14,7 @@ def load_test_data():
   test_bc['date'] = pd.to_datetime(test_bc['date']).dt.date
   test_bc['datetime'] = pd.to_datetime(test_bc['datetime'])
   # these should be string not int
-  test_bc['icu_name'] = test_bc['icu_name'].astype(object)
+  test_bc['icu_name'] = test_bc['icu_name'].astype(str)
   cached_data = {
     "public": test_public,
     "bedcounts": test_bc,
