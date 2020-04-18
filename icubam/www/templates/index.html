@@ -11,12 +11,17 @@
 
 {% block content %}
 <div class='bed_map'>
-  <h2>ICUBAM</h2>
-  <div class='subtitles'>
-    <p id="subtitle-cluster" />{{ _('Available beds') }}</p>
-    <p id="subtitle-full" />{{ _('Occupied / Total COVID beds') }}</p>
-  </div>
-
+  <div class="title-box" id="title-box-orig">
+    <h2><a href="https://icubam.net">ICUBAM 🛏️</a></h2>
+    <span class="subtitle-covid-status">
+      <span class="subtitle-covid-pos" />COVID+</span>
+      <span class="subtitle-covid-neg" />COVID-</span>
+    </span>
+    <span class="subtitle-display-format">
+      <span class="subtitle-cluster" />{{ _('Available beds') }}</span>
+      <span class="subtitle-full" />{{ _('Occupied / Total COVID beds') }}</span>
+    </span>
+    </div>
   <div id="map"></div>
 </div>
 {% end %}
@@ -29,8 +34,8 @@
   let all_showed = false
   let covid = true
   const displayAllText = "{{ _('Display All') }}"
-  const showingCovidText = "{{ _('Showing') }}: COVID+"
-  const showingNCovidText = "{{ _('Showing') }}: COVID-"
+  const showingCovidText = "{{ _('Display') }} COVID-"
+  const showingNCovidText = "{{ _('Display') }} COVID+"
   const displayAllAltText = "{{ _('Click here to display all') }}"
   const covidAltText = "{{ _('Click here to chage bed types') }}"
   function initMap () {
