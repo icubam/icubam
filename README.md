@@ -47,6 +47,4 @@ It will soon be released as a one-click deployable docker container.
 You can contact the team for deployment information or general experience
 sharing at contact@icubam.net.
 
-This project is a collaboration between INRIA, Polytechnique, CHRU Nancy & Université de Lorraine
-
-Last updated: Mar. 30 2020.
+This project is a collaboration between INRIA, Polytechnique, CHRU Nancy, Université de Lorraine & individual contributors.
