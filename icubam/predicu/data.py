@@ -20,7 +20,7 @@ DATA_PATHS = {
 }
 
 for key, path in DATA_PATHS.items():
-  DATA_PATHS[key] = Path(BASE_PATH) / path
+  DATA_PATHS[key] = str(Path(BASE_PATH) / path)
 
 
 def load_department_population():

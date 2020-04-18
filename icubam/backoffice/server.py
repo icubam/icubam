@@ -1,26 +1,28 @@
-from absl import logging  # noqa: F401
 import collections
 import dataclasses
 import datetime
 import os.path
+from typing import Optional
+
 import tornado.ioloop
 import tornado.locale
 import tornado.web
-import tornado.ioloop
+from absl import logging  # noqa: F401
+
+from icubam import base_server, utils
 from icubam.backoffice.handlers import (
-  home, login, logout, users, tokens, icus, bedcounts, operational_dashboard,
-  messages, regions, maps, upload, consent
+  bedcounts, consent, home, icus, login, logout, maps, messages,
+  operational_dashboard, regions, tokens, upload, users
 )
 from icubam.predicu.analytics_server import register_analytics_callback
-from icubam import base_server
 
 
 @dataclasses.dataclass
 class ServerStatus:
-  name: int = None
-  up: bool = None
-  started: str = None
-  last_ping: datetime.datetime = None
+  name: Optional[int] = None
+  up: Optional[bool] = None
+  started: Optional[str] = None
+  last_ping: Optional[datetime.datetime] = None
 
 
 class BackofficeApplication(tornado.web.Application):
@@ -30,6 +32,7 @@ class BackofficeApplication(tornado.web.Application):
     self.db_factory = db_factory
     self.server_status = collections.defaultdict(ServerStatus)
     self.client = tornado.httpclient.AsyncHTTPClient()
+    utils.maybe_init_sentry(config, server_name='backoffice')
     super().__init__(routes, **settings)
 
     repeat_every = self.config.backoffice.ping_every * 1000

@@ -21,7 +21,7 @@ class Config:
   ENV_KEYS = [
     'SMS_KEY', 'SECRET_COOKIE', 'JWT_SECRET', 'GOOGLE_API_KEY', 'MB_KEY',
     'NX_KEY', 'NX_API', 'TW_KEY', 'TW_API', 'DB_SALT', 'SMTP_HOST',
-    'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM'
+    'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM', 'SENTRY_URL', 'SENTRY_ENV'
   ]
 
   def __init__(self, toml_config, mode='dev', env_path=None):

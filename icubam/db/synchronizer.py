@@ -222,9 +222,7 @@ class CSVPreprocessor(CSVSynchronizer):
     'NBR_LIT_INS': 'n_covid_tot'
   }
 
-  def sync_bedcounts_ror_idf(
-    self, csv_contents: TextIO, user=None, force_update=False
-  ):
+  def sync_bedcounts_ror_idf(self, csv_contents: TextIO, user=None):
     """Sync bedcount CSVs from IdF RoR uplink."""
     bedcounts_df = pd.read_csv(csv_contents)
     col_diff = set(self.ROR_COLUMNS_MAP.keys()) - set(bedcounts_df.columns)
@@ -244,4 +242,4 @@ class CSVPreprocessor(CSVSynchronizer):
     bc['create_date'] = pd.to_datetime(
       bc['create_date']
     ).dt.tz_localize("Europe/Paris").dt.tz_convert(tz.tzutc())
-    self.sync_bed_counts(bc, user, force_update)
+    self.sync_bed_counts(bc, user)

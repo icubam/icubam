@@ -61,14 +61,21 @@ class MapBuilder:
     user_id: Optional[int] = None,
     center_icu: Optional[store.ICU] = None,
     regions: Optional[List[int]] = None,
-    level: str = 'dept'
+    level: str = 'dept',
   ):
-    tree = icu_tree.ICUTree()
-    icus = self.db.get_icus()
-    if regions:
-      icus = [icu for icu in icus if icu.region_id in regions]
-    tree.add_many(icus, self.db.get_latest_bed_counts())
-    data = self.to_map_data(tree, level)
-    anchor = center_icu if center_icu is not None else tree
-    center = {'lat': anchor.lat, 'lng': anchor.long}
+    data = {}
+    center = {
+      'lat': center_icu.lat,
+      'lng': center_icu.long
+    } if center_icu else None
+    for covid in [True, False]:
+      tree = icu_tree.ICUTree(covid=covid)
+      icus = self.db.get_icus()
+      if regions:
+        icus = [icu for icu in icus if icu.region_id in regions]
+      tree.add_many(icus, self.db.get_latest_bed_counts())
+      data[covid] = self.to_map_data(tree, level)
+      if center is None:
+        center = {'lat': tree.lat, 'lng': tree.long}
+
     return json.dumps(data), json.dumps(center)

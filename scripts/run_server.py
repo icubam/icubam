@@ -1,9 +1,12 @@
 """Runs the webserver."""
-from absl import app
-from absl import flags
+import functools
 import multiprocessing as mp
 
+from absl import app
+from absl import flags
+
 from icubam import config
+from icubam import utils
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
 from icubam.www import server as www_server
@@ -32,8 +35,18 @@ def main(argv):
   if service is not None:
     service(cfg, FLAGS.port).run()
   elif FLAGS.server == 'all':
+    # For some reason the cfg object won't pickle, so we pass in the
+    # necessary values to rebuild it in the child process:
     processes = [
-      mp.Process(target=cls(cfg, None).run) for cls in servers.values()
+      mp.Process(
+        target=functools.partial(
+          utils.run_server,
+          cls,
+          config_path=FLAGS.config,
+          mode=FLAGS.mode,
+          env_path=FLAGS.dotenv_path
+        )
+      ) for cls in servers.values()
     ]
     for p in processes:
       p.start()
