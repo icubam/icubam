@@ -64,7 +64,10 @@ class MapBuilder:
     level: str = 'dept',
   ):
     data = {}
-    anchor = center_icu
+    center = {
+      'lat': center_icu.lat,
+      'lng': center_icu.long
+    } if center_icu else None
     for covid in [True, False]:
       tree = icu_tree.ICUTree(covid=covid)
       icus = self.db.get_icus()
@@ -72,8 +75,7 @@ class MapBuilder:
         icus = [icu for icu in icus if icu.region_id in regions]
       tree.add_many(icus, self.db.get_latest_bed_counts())
       data[covid] = self.to_map_data(tree, level)
+      if center is None:
+        center = {'lat': tree.lat, 'lng': tree.long}
 
-      if anchor is None:
-        anchor = tree
-    center = {'lat': anchor.lat, 'lng': anchor.long}
     return json.dumps(data), json.dumps(center)

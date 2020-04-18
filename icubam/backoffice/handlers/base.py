@@ -2,7 +2,7 @@ import json
 import os.path
 import tornado.locale
 import tornado.web
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -81,14 +81,16 @@ class BaseHandler(tornado.web.RequestHandler):
     """Given a store class, parse the body a dictionary."""
     result = dict()
     for col in cls.get_column_names():
-      value = self.get_body_arguments(col + '[]', None)
+      value: Union[
+        Optional[str],
+        List[str]] = self.get_body_arguments(col + '[]', strip=False)
       if not value:
         value = self.get_body_argument(col, None)
       if value is not None:
         result[col] = value
     return result
 
-  def format_list_item(self, item: Union[Dict, List]) -> list:
+  def format_list_item(self, item: Union[Dict, List]) -> Union[Dict, List]:
     """Prepare a dictionary representing a row of a table for display."""
     # TODO(olivier) improve this, too hard coded
     auto_links = {f'{k}_id': k for k in ['icu', 'user', 'region']}
