@@ -1,4 +1,5 @@
 from absl import logging
+import functools
 import os.path
 import tornado.locale
 import tornado.web
@@ -73,6 +74,21 @@ class BaseHandler(tornado.web.RequestHandler):
       return self.get_browser_locale()
     else:
       return tornado.locale.get(locale_code)
+
+
+def authenticated(func=None, *, code=503):
+  """Return a given HTTP code instead of redirecting in case the user is not
+  authenticated (unlike tornado.web.authenticated)"""
+  if func is None:
+    return functools.partial(authenticated, code=code)
+
+  @functools.wraps(func)
+  def wrapper(self, *args, **kwargs):
+    if not self.current_user:
+      return self.set_status(code)
+    return func(*args, **kwargs)
+
+  return wrapper
 
 
 class APIKeyProtectedHandler(BaseHandler):

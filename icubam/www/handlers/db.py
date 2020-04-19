@@ -50,7 +50,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       self.db.get_visible_bed_counts_for_user, user_id=None, force=True
     )
 
-  @tornado.web.authenticated
+  @base.authenticated(code=503)
   def get(self, collection):
     if self.current_user.access_type not in self.GET_ACCESS:
       logging.error(
