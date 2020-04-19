@@ -36,7 +36,7 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   ROUTE = '/map'
   ACCESS = [store.AccessTypes.MAP, store.AccessTypes.ALL]
 
-  @tornado.web.authenticated
+  @base.authenticated(code=503)
   def get(self):
     locale = self.get_user_locale()
     builder = map_builder.MapBuilder(self.config, self.db, locale)
