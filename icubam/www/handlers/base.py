@@ -1,4 +1,5 @@
 from absl import logging
+import functools
 import os.path
 import tornado.locale
 import tornado.web
@@ -75,6 +76,21 @@ class BaseHandler(tornado.web.RequestHandler):
       return tornado.locale.get(locale_code)
 
 
+def authenticated(func=None, *, code=503):
+  """Return a given HTTP code instead of redirecting in case the user is not
+  authenticated (unlike tornado.web.authenticated)"""
+  if func is None:
+    return functools.partial(authenticated, code=code)
+
+  @functools.wraps(func)
+  def wrapper(self, *args, **kwargs):
+    if not self.current_user:
+      return self.set_status(code)
+    return func(*args, **kwargs)
+
+  return wrapper
+
+
 class APIKeyProtectedHandler(BaseHandler):
   """A base handler for API KEY accessible routes."""
 
@@ -84,14 +100,17 @@ class APIKeyProtectedHandler(BaseHandler):
   def get_current_user(self):
     key = self.get_query_argument('API_KEY', None)
     if key is None:
+      self.set_status(503)
       return
 
     client = self.db.auth_external_client(key)
     if client is None:
+      self.set_status(503)
       return None
 
     if client.access_type in self.ACCESS:
       self.regions = client.regions
       return client
     else:
+      self.set_status(503)
       return None
