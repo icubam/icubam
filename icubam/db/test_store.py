@@ -508,6 +508,12 @@ class StoreTest(absltest.TestCase):
         ("icu3", now): 5,
       }
     )
+    # when force=True, user_id can be None.
+    get_values(user_id=None, force=True)
+
+    # When force=False, user_id=None is invalid
+    with self.assertRaisesRegex(ValueError, "Cannot find user with id None"):
+      get_values(user_id=None, force=False)
 
   def test_get_visible_bed_counts_in_same_region(self):
     store = self.store

@@ -755,11 +755,17 @@ class Store(object):
 
     kargs are passed to get_latest_bed_counts_for_icus() method for additional
     filtering, e.g. max_date.
+
+    Args:
+      user_id: run query for a given user
+      force: run query as admin irrespective of the user_id
     """
     user = self.get_user(user_id)
-    if not user:
-      raise ValueError(f"Cannot find user with id {user_id}")
-    if force or user.is_admin:
+    if force:
+      return self._get_bed_counts_for_icus(None, latest=True, **kargs)
+    elif user is None:
+      raise ValueError(f"Cannot find user with id {user_id}.")
+    elif user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     else:
       icu_ids = set()
