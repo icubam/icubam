@@ -757,8 +757,6 @@ class Store(object):
     filtering, e.g. max_date.
     """
     user = self.get_user(user_id)
-    if not user:
-      raise ValueError(f"Cannot find user with id {user_id}")
     if force or user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     else:
