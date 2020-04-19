@@ -513,7 +513,7 @@ class StoreTest(absltest.TestCase):
 
     # When force=False, user_id=None is invalid
     with self.assertRaisesRegex(
-      ValueError, 'non null user_id must be provided'
+      ValueError, "Cannot find user with id None"
     ):
       get_values(user_id=None, force=False)
 

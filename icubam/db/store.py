@@ -764,7 +764,7 @@ class Store(object):
     if force:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     elif user is None:
-      raise ValueError("a non null user_id must be provided")
+      raise ValueError(f"Cannot find user with id {user_id}.")
     elif user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     else:
