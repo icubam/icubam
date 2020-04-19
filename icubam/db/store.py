@@ -761,9 +761,11 @@ class Store(object):
       force: run query as admin irrespective of the user_id
     """
     user = self.get_user(user_id)
-    if not force and user is None:
-      raise ValueError("A non null user_id must be provided")
-    if force or user.is_admin:
+    if force:
+      return self._get_bed_counts_for_icus(None, latest=True, **kargs)
+    elif user is None:
+      raise ValueError("a non null user_id must be provided")
+    elif user.is_admin:
       return self._get_bed_counts_for_icus(None, latest=True, **kargs)
     else:
       icu_ids = set()
