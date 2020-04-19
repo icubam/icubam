@@ -100,17 +100,14 @@ class APIKeyProtectedHandler(BaseHandler):
   def get_current_user(self):
     key = self.get_query_argument('API_KEY', None)
     if key is None:
-      self.set_status(503)
       return
 
     client = self.db.auth_external_client(key)
     if client is None:
-      self.set_status(503)
       return None
 
     if client.access_type in self.ACCESS:
       self.regions = client.regions
       return client
     else:
-      self.set_status(503)
       return None
