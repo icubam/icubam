@@ -20,6 +20,7 @@ class AnalyticsCallback:
     logging.info('[periodic callback] Starting plots generation with predicu')
     cached_data = {'bedcounts': df_bedcounts}
     generate_plots(
+      plots=["flux_dept_lits_dept_visu_4panels"],
       cached_data=cached_data,
       output_dir=self.config.backoffice.extra_plots_dir
     )
