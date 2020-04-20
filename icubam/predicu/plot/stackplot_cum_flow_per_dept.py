@@ -9,7 +9,7 @@ from icubam.predicu.data import BEDCOUNT_COLUMNS
 from icubam.predicu.plot import DEPARTMENT_COLOR, plot_int
 from icubam.predicu.flow import compute_flow_per_dpt
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):

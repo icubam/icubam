@@ -7,21 +7,12 @@ import scipy.stats
 
 from icubam.predicu.plot import DEPARTMENT_COLOR
 
-data_source = "combined_bedcounts_public"
+data_source = ["combined_bedcounts_public"]
 
 
 def plot(data):
-  icubam_public_n_icu_patients_corr = (
-    data.groupby("date")[[
-      "n_icu_patients_icubam", "n_icu_patients_public"
-    ]].corr().iloc[0::2, -1].reset_index().set_index("date").rename(
-      columns={"n_icu_patients_public": "corr_icubam_public_n_icu_patients"}
-    )
-  )
   data = data.loc[data.date == data.date.max()]
-
   fig, ax = plt.subplots(1, figsize=(20, 10))
-
   x = data.loc[data.department != "Haut-Rhin"].department_pop
   y = data.loc[data.department != "Haut-Rhin"].n_hospitalised_patients
   slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(x, y)
@@ -31,10 +22,8 @@ def plot(data):
   x = x[y >= 0]
   y = y[y >= 0]
   ax.plot(x, y, lw=3, ls="dashed", color="black", alpha=0.4)
-
   ax.set_xlim(0, data.department_pop.max() * 1.1)
   ax.set_ylim(0, 1200)
-
   for _, row in data.iterrows():
     scale = 3 * row.department_pop / data.department_pop.max()
     width = 0.02 * scale * ax.get_xlim()[1]
@@ -61,21 +50,19 @@ def plot(data):
         zorder=2,
       )
     )
-
   dept_name_pos = {
     "Bas-Rhin": "below",
     "Haut-Rhin": "above",
-    "Ardennes": "below",
-    "Meuse": "above",
+    "Meuse": "left",
     "Haute-Marne": "below",
-    "Aube": "below",
+    "Aube": "above",
     "Moselle": "above",
+    "Vosges": "below",
   }
-
   for _, row in data.iterrows():
     x = row.department_pop + 10000
     y = row.n_hospitalised_patients
-    ha = "left"
+    ha = "right"
     if row.department in dept_name_pos:
       if dept_name_pos[row.department] == "above":
         x = row.department_pop
