@@ -1,4 +1,3 @@
-import datetime
 import sys
 
 import matplotlib.pyplot as plt
@@ -349,25 +348,30 @@ def plot_all(d, bc, d_dep2reg):
   plt.show()
 
 
-def plot(api_key=None):
-  d_dep2reg = icubam.predicu.data.load_france_departments()
-  d = icubam.predicu.data.load_combined_bedcounts_public(
-    data_source="combined_bedcounts_public",
-    cached_data=None,
-    api_key=api_key,
-    icubam_host="prod.icubam.net"
-  )
-  bc = icubam.predicu.data.load_if_not_cached(
-    data_source="bedcounts",
-    cached_data=None,
-    api_key=api_key,
-    icubam_host="prod.icubam.net"
-  )
+def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
+  if "combined_bedcounts_public" in data:
+    d = data["combined_bedcounts_public"]
+  else:
+    d = icubam.predicu.data.load_combined_bedcounts_public(
+      data_source="combined_bedcounts_public",
+      cached_data=None,
+      api_key=api_key,
+      icubam_host=icubam_host
+    )
+  if "bedcounts" in data:
+    bc = data["bedcounts"]
+  else:
+    bc = icubam.predicu.data.load_if_not_cached(
+      data_source="bedcounts",
+      cached_data=None,
+      api_key=api_key,
+      icubam_host=icubam_host,
+    )
 
   ## record  bc to a file for Francois Husson
-  datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
-  filename = "predicu_data_clean_{}.csv".format(datetimestr)
-  bc.to_csv(filename)
+  #  datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
+  #  filename = "predicu_data_clean_{}.csv".format(datetimestr)
+  #  bc.to_csv(filename)
 
   ## load the dep/region correspondance table
   d_dep2reg = icubam.predicu.data.load_france_departments()
@@ -382,7 +386,11 @@ def plot(api_key=None):
   plot_all(d, bc, d_dep2reg)
 
   # TODO:
-  # - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a bien expliquer exactement ce qui est affiché (source des data, mode de calcul des flux, lissages choisis, et pour les fleches, idem, mode de calcul de la tendance récente, mode de calcul de la tendance future prédite)
+  # - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a
+  # bien expliquer exactement ce qui est affiché (source des data, mode de
+  # calcul des flux, lissages choisis, et pour les fleches, idem, mode de
+  # calcul de la tendance récente, mode de calcul de la tendance future
+  # prédite)
 
   # TODO: Dans un cadre séparé, par département,
   # - une flêche indiquant la tendance des derniers jours haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1 hopital, 1 réa)

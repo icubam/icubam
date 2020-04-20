@@ -9,7 +9,7 @@ import pandas as pd
 from icubam.predicu.data import BEDCOUNT_COLUMNS
 from icubam.predicu.plot import DEPARTMENT_COLOR
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):

@@ -111,16 +111,20 @@ def plot(
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot  # type: ignore
   data_source = plot_module.data_source  # type: ignore
-  cached_data[data_source] = load_if_not_cached(
-    data_source,
-    cached_data,
-    api_key=api_key,
-    icubam_host=icubam_host,
-    restrict_to_grand_est_region=restrict_to_grand_est_region,
-  )
+  for name in data_source:
+    cached_data[name] = load_if_not_cached(
+      name,
+      cached_data,
+      api_key=api_key,
+      icubam_host=icubam_host,
+      restrict_to_grand_est_region=restrict_to_grand_est_region,
+    )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
-  fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source].copy())
+  if len(data_source) == 1:  # ty
+    fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source[0]].copy())
+  else:
+    fig, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
   if output_type == "tex":
     output_path = os.path.join(output_dir, f"{plot_name}.tex")
     __import__("tikzplotlib").save(  # type: ignore

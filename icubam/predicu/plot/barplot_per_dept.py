@@ -8,7 +8,7 @@ import numpy as np
 from icubam.predicu.data import BEDCOUNT_COLUMNS
 from icubam.predicu.plot import COL_COLOR, COLUMN_TO_HUMAN_READABLE
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):

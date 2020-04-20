@@ -7,17 +7,10 @@ import scipy.stats
 
 from icubam.predicu.plot import RANDOM_COLORS
 
-data_source = "combined_bedcounts_public"
+data_source = ["combined_bedcounts_public"]
 
 
 def plot(data):
-  icubam_public_n_icu_patients_corr = (
-    data.groupby("date")[[
-      "n_icu_patients_icubam", "n_icu_patients_public"
-    ]].corr().iloc[0::2, -1].reset_index().set_index("date").rename(
-      columns={"n_icu_patients_public": "corr_icubam_public_n_icu_patients"}
-    )
-  )
   data = data.loc[data.date == data.date.max()]
 
   c_public = next(RANDOM_COLORS)

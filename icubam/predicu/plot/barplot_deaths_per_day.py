@@ -3,7 +3,7 @@ import seaborn as sns
 
 from icubam.predicu.data import DEPARTMENT_POPULATION
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):
