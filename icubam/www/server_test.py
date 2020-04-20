@@ -110,3 +110,27 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     url = f'{route}?API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 200)
+
+  def test_db_all_bedcounts(self):
+    route = "/db/all_bedcounts?format=csv"
+    # No key
+    response = self.fetch(route, method="GET")
+    self.assertEqual(response.code, 503)
+
+    # Good access type
+    access_maps = store.ExternalClient(
+      name='maps-key', access_type=store.AccessTypes.ALL
+    )
+    _, access_key = self.db.add_external_client(self.admin_id, access_maps)
+
+    # CSV with no preprocessing
+    url = f'{route}&API_KEY={access_key.key}'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 200)
+    self.assertEqual(response.headers["Content-Type"], "text/csv")
+
+    # CSV with preprocessing
+    url = f'{route}&API_KEY={access_key.key}&preprocess=true'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 200)
+    self.assertEqual(response.headers["Content-Type"], "text/csv")

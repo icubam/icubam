@@ -91,7 +91,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         cached_data = {'raw_icubam': data}
         data = predicu.data.load_bedcounts(
           cached_data=cached_data,
-          clean=True,
+          preprocess=True,
         )
     else:
       data = store.to_pandas(get_fn(), max_depth=0)
