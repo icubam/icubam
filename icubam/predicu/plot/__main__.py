@@ -42,9 +42,10 @@ if __name__ == "__main__":
     default="png",
   )
   parser.add_argument(
-    "--restrict-to-grand-est-region",
-    action="store_true",
-    help="Whether to restrict the data to the Grand-Est region data."
+    "--restrict-to-region",
+    action="store",
+    default=None,
+    help="Whether to restrict the data a region. Valid values are: Grand-Est."
   )
   args = parser.parse_args()
   generate_plots(**args.__dict__)

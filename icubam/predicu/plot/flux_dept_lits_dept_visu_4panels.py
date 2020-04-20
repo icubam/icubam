@@ -8,18 +8,20 @@ import icubam
 import icubam.predicu.data
 import icubam.predicu.plot
 
-data_source = ["bedcounts", "combined_icubam_public"]
-'''
-Logic of this code:
-the computation of quantities, even when seemingly simple, is performed separately from the plotting.
-The computing is done once, at the dept level, and the function returns simple arrays, to be plotted.
-These arrays are meant to be added, to the regional leel (hence, no eprcentage at this level)
-The computing at the regional level comes from that of the departmental level. Percentages have to be recomputed (not averaged, but averaged with ponderation, so, recomputed)
-'''
+data_source = ["bedcounts", "combined_bedcounts_public"]
+
+# Logic of this code: the computation of quantities, even when seemingly simple,
+# is performed separately from the plotting.  The computing is done once, at the
+# dept level, and the function returns simple arrays, to be plotted.  These
+# arrays are meant to be added, to the regional leel (hence, no eprcentage at
+# this level) The computing at the regional level comes from that of the
+# departmental level. Percentages have to be recomputed (not averaged, but
+# averaged with ponderation, so, recomputed)
 
 
-## a simple window-averaging function, centerd on the current point #
 def slid_window_avg(a, wi):
+  """ a simple window-averaging function, centerd on the current point """
+  # TODO: replace with pandas rolling average. - rth
   acopy = np.array(a).copy()
   a_smoothed = np.zeros(acopy.shape)
   wi_half = wi // 2
@@ -36,11 +38,12 @@ def compute_all_for_plots_by_dept(d, bc, dep):
   '''
   where all computation takes place.
   is supposed to return stuff that make sense to add
-  i.e. no percentages, only numbers (to aggregate from dept to region, we jsut sum numbers of dept)
+  i.e. no percentages, only numbers (to aggregate from dept to region, we jsut
+  sum numbers of dept)
 
-  some quantities are defined, then set to zero, because at present the dat ais not loaded
-  + we haven't thought about it too much
-  but these are the kind of quantitites that we COULD think of plotting (are interestig for Antoine)
+  some quantities are defined, then set to zero, because at present the dat ais
+  not loaded + we haven't thought about it too much but these are the kind of
+  quantitites that we COULD think of plotting (are interestig for Antoine)
   '''
   dep_data = d[d["department"] == dep]
   dep_data = dep_data.sort_values(by="date")
@@ -258,16 +261,10 @@ def plot_one_dep(cdep, dep_name):
   axs[2].legend(handlelength=4, loc='best')
   axs[2].set_xticks(x_ticks_c)
   axs[2].set_ylim(bottom=0)
-  ## posssibility: plot the % of occupation .. pbbly useless though !
-  # ax22 = axs[1].twinx()
-  # ax22.plot([x_days[i] for i in filtre_data_disponib], \
-  #          [percenBed_reanima_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
-  #          label= '% lits occupés réanimation covid-', color=reacolor, lw=2, ls=":")
 
   fig.subplots_adjust(
     hspace=0.4
   )  ## to allow for large subplot titles, add some height-space
-  # fig.set_tight_layout(tight=True) ### screws upo the titles, so, desactivated :(
 
   ## TODO: choose appropriate path, not the current one !
   fig.savefig(dep_name + ".pdf")
@@ -277,8 +274,7 @@ def plot_one_dep(cdep, dep_name):
 
 
 def plot_all_departments(d, bc, d_dep2reg):
-  ## this plots one figure per department
-  ## for which we have data, of course.
+  """this plots one figure per department for which we have data, of course."""
   depCodesList = list(d_dep2reg.departmentCode.unique())
   for dep_code in depCodesList:
     dep_name = d_dep2reg[d_dep2reg.departmentCode == dep_code
@@ -295,15 +291,16 @@ def plot_all_departments(d, bc, d_dep2reg):
 
 
 def plot_all_regions(d, bc, d_dep2reg):
-  ## plots the regional total
-  ## one plot pre region
-  ## sometimes there are few departements for which we have dat ain that region
-  ## this will be reflected in the number of ICUs, displayed in the title
+  """plots the regional total
+  one plot pre region
+  sometimes there are few departements for which we have dat ain that region
+  this will be reflected in the number of ICUs, displayed in the title
+  """
   for reg_code in d_dep2reg.regionCode.dropna().unique():
     reg_name = d_dep2reg[d_dep2reg.regionCode == reg_code].regionName.iloc[0]
     dep_codes = list(
       d_dep2reg[d_dep2reg.regionCode == reg_code].departmentCode
-    )  ## getting the dep_code of the dpartments of this region
+    )  ## getting the dep_code of the departments of this region
     dep_counter = 0
     print(
       "\nAggrégation des données pour la région", reg_name,
@@ -387,15 +384,23 @@ def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
 
   # TODO:
   # - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a
-  # bien expliquer exactement ce qui est affiché (source des data, mode de
-  # calcul des flux, lissages choisis, et pour les fleches, idem, mode de
-  # calcul de la tendance récente, mode de calcul de la tendance future
-  # prédite)
+  #   bien expliquer exactement ce qui est affiché (source des data, mode de
+  #   calcul des flux, lissages choisis, et pour les fleches, idem, mode de
+  #   calcul de la tendance récente, mode de calcul de la tendance future
+  #   prédite)
 
   # TODO: Dans un cadre séparé, par département,
-  # - une flêche indiquant la tendance des derniers jours haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1 hopital, 1 réa)
-  # - une flêche indiquant la tendance des prochains jours (modele predictif) -- Ce graphe étant accompagné d'un lien vers une explication bien détaillée des méthodes de calcul de ces fleches haut/bas/stable.
-  # - en line plot comme fond derrière les flèches, un indicateur de fiabilité des données (encore par département), du genre nombre de saisies par ICU dans les 3 derniers jours glissants (une baisse signifie moins de data donc moins de fiabilité)
+  # - une flêche indiquant la tendance des derniers jours
+  #   haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je
+  #   pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1
+  #   hopital, 1 réa)
+  # - une flêche indiquant la tendance des prochains jours (modele predictif)
+  #   -- Ce graphe étant accompagné d'un lien vers une explication bien détaillée
+  #   des méthodes de calcul de ces fleches haut/bas/stable.
+  # - en line plot comme fond derrière les flèches, un indicateur de fiabilité
+  #   des données (encore par département), du genre nombre de saisies par ICU
+  #   dans les 3 derniers jours glissants (une baisse signifie moins de data donc
+  #   moins de fiabilité)
 
 
 if __name__ == "__main__":
