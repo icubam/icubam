@@ -18,7 +18,10 @@ flags.DEFINE_boolean(
 )
 flags.DEFINE_boolean("reset_admin", False, "Reset admin information")
 flags.DEFINE_string("admin_email", None, "Admin email (if resetting admins)")
-flags.DEFINE_string("admin_pass", None, "Admin password (if resetting admins)")
+flags.DEFINE_string(
+  "admin_pass", None,
+  "Admin password (if resetting admins). Set the env variable ICUBAM_ADMIN_PASS to override"
+)
 flags.DEFINE_string("filename", None, 'DB file name.')
 flags.mark_flag_as_required('filename')
 FLAGS = flags.FLAGS
