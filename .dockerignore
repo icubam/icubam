@@ -2,9 +2,9 @@
 .github
 .gitignore
 data
-deploy_configs
-deploy_configs.tgz
 icubam.egg-info
 docker/configs/certbot
 docker/scripts
 docker/resources
+test.db
+icubam.db
