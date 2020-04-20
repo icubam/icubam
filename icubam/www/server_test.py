@@ -80,27 +80,33 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
 
     # Wrong access type
     access_stats = store.ExternalClient(
-      name='stats-key', access_type=store.AccessTypes.STATS)
+      name='stats-key', access_type=store.AccessTypes.STATS
+    )
     access_token_id, access_key = self.db.add_external_client(
-      self.admin_id, access_stats)
+      self.admin_id, access_stats
+    )
     url = f'{route}?API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 503)
 
     # Good access type
     access_maps = store.ExternalClient(
-      name='maps-key', access_type=store.AccessTypes.MAP)
+      name='maps-key', access_type=store.AccessTypes.MAP
+    )
     access_token_id, access_key = self.db.add_external_client(
-      self.admin_id, access_maps)
+      self.admin_id, access_maps
+    )
     url = f'{route}?API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 200)
 
     # All access type
     access_all = store.ExternalClient(
-      name='all-access', access_type=store.AccessTypes.ALL)
+      name='all-access', access_type=store.AccessTypes.ALL
+    )
     access_token_id, access_key = self.db.add_external_client(
-      self.admin_id, access_all)
+      self.admin_id, access_all
+    )
     url = f'{route}?API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 200)
