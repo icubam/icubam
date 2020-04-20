@@ -6,6 +6,7 @@ from icubam.db import store
 from icubam.www import server
 from icubam.www import token
 from icubam.www.handlers import base
+from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import update
 from icubam.www.handlers.version import VersionHandler
@@ -66,3 +67,42 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
       set(body['data'].keys()),
       {'version', 'git-hash', 'bed_counts.last_modified'}
     )
+
+  def test_map(self):
+    # No key
+    route = home.MapByAPIHandler.ROUTE
+    response = self.fetch(route, method="GET")
+    self.assertEqual(response.code, 503)
+
+    # Wrong key
+    url = f'{route}?API_KEY=aaaaa'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 503)
+
+    # Wrong access type
+    access_stats = store.ExternalClient(
+      name='stats-key', access_type=store.AccessTypes.STATS)
+    access_token_id, access_key = self.db.add_external_client(
+      self.admin_id, access_stats)
+    url = f'{route}?API_KEY={access_key.key}'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 503)
+
+    # Good access type
+    access_maps = store.ExternalClient(
+      name='maps-key', access_type=store.AccessTypes.MAP)
+    access_token_id, access_key = self.db.add_external_client(
+      self.admin_id, access_maps)
+    url = f'{route}?API_KEY={access_key.key}'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 200)
+
+    # All access type
+    access_all = store.ExternalClient(
+      name='all-access', access_type=store.AccessTypes.ALL)
+    access_token_id, access_key = self.db.add_external_client(
+      self.admin_id, access_all)
+    url = f'{route}?API_KEY={access_key.key}'
+    response = self.fetch(url, method="GET")
+    self.assertEqual(response.code, 200)
+    
