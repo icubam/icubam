@@ -266,28 +266,26 @@ def plot_one_dep(cdep, dep_name):
     hspace=0.4
   )  ## to allow for large subplot titles, add some height-space
 
-  ## TODO: choose appropriate path, not the current one !
-  fig.savefig(dep_name + ".pdf")
-  fig.savefig(dep_name + ".svg")
-  plt.close()  # closes the current figure
   return fig
 
 
 def plot_all_departments(d, bc, d_dep2reg):
   """this plots one figure per department for which we have data, of course."""
   depCodesList = list(d_dep2reg.departmentCode.unique())
+  figs = {}
   for dep_code in depCodesList:
     dep_name = d_dep2reg[d_dep2reg.departmentCode == dep_code
                          ].departmentName.iloc[0]
     if dep_name in d["department"].unique():
       print("Tracé ok pour le département: ", dep_name)
       cdep = compute_all_for_plots_by_dept(d, bc, dep_name)
-      plot_one_dep(cdep, dep_name)
+      figs[f'flux-lits-dept-{dep_name}'] = plot_one_dep(cdep, dep_name)
     else:
       print(
         "Désolé, mais le département : ", dep_name,
         "  n'est pas présent dans nos données."
       )
+  return figs
 
 
 def plot_all_regions(d, bc, d_dep2reg):
@@ -296,6 +294,7 @@ def plot_all_regions(d, bc, d_dep2reg):
   sometimes there are few departements for which we have dat ain that region
   this will be reflected in the number of ICUs, displayed in the title
   """
+  figs = {}
   for reg_code in d_dep2reg.regionCode.dropna().unique():
     reg_name = d_dep2reg[d_dep2reg.regionCode == reg_code].regionName.iloc[0]
     dep_codes = list(
@@ -330,19 +329,22 @@ def plot_all_regions(d, bc, d_dep2reg):
       )
     else:
       cregion = cregion.reset_index()
-      fig = plot_one_dep(cregion, reg_name)
+      figs[f'flux-lits-region-{reg_name}'] = plot_one_dep(cregion, reg_name)
       # cregion = cregion.rename( columns={"nicu_dep": "nicu_reg"})
     # plt.show()
-  return fig
+  return figs
 
 
 def plot_all(d, bc, d_dep2reg):
+  figs_all = {}
   print("\n\nplot for all regions:\n")
-  plot_all_regions(d, bc, d_dep2reg)
+  figs = plot_all_regions(d, bc, d_dep2reg)
+  figs_all.update(figs)
 
   print("\n\nplot for all departments:\n")
-  plot_all_departments(d, bc, d_dep2reg)
-  plt.show()
+  figs = plot_all_departments(d, bc, d_dep2reg)
+  figs_all.update(figs)
+  return figs_all
 
 
 def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
@@ -380,7 +382,7 @@ def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
   # depNamesList = list(d_dep2reg.departmentName.unique())[:-1] # it ends with a None, that we drop
 
   ## plot everything:
-  plot_all(d, bc, d_dep2reg)
+  figs = plot_all(d, bc, d_dep2reg)
 
   # TODO:
   # - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a
@@ -401,7 +403,7 @@ def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
   #   des données (encore par département), du genre nombre de saisies par ICU
   #   dans les 3 derniers jours glissants (une baisse signifie moins de data donc
   #   moins de fiabilité)
-  return None, None
+  return figs, None
 
 
 if __name__ == "__main__":

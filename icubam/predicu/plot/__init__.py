@@ -122,29 +122,28 @@ def plot(
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
   if len(data_source) == 1:
-    fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source[0]].copy())
-  else:
-    fig, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
-
-  if fig is None:
-    logging.warn(
-      f'figure object not returned by {plot_name}, and was likely not saved'
+    figs, tikzplotlib_kwargs = plot_fun(
+      data=cached_data[data_source[0]].copy()
     )
-    return
-
-  if output_type == "tex":
-    output_path = os.path.join(output_dir, f"{plot_name}.tex")
-    __import__("tikzplotlib").save(  # type: ignore
-      filepath=output_path,
-      figure=fig,
-      **tikzplotlib_kwargs,
-      standalone=True,
-    )
-  elif output_type in ["png", "pdf"]:
-    fig.savefig(os.path.join(output_dir, f"{plot_name}.{output_type}"))
   else:
-    raise ValueError(f"Unknown output type: {output_type}")
-  plt.close(fig)
+    figs, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
+
+  if not isinstance(figs, dict):
+    figs = {f"{plot_name}.{output_type}": figs}
+  for fname_out, fig in figs.items():
+    if output_type == "tex":
+      output_path = os.path.join(output_dir, fname_out)
+      __import__("tikzplotlib").save(  # type: ignore
+        filepath=output_path,
+        figure=fig,
+        **tikzplotlib_kwargs,
+        standalone=True,
+      )
+    elif output_type in ["png", "pdf"]:
+      fig.savefig(os.path.join(output_dir, fname_out))
+    else:
+      raise ValueError(f"Unknown output type: {output_type}")
+    plt.close(fig)
 
 
 def generate_plots(

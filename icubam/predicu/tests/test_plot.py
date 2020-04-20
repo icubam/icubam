@@ -46,8 +46,8 @@ def test_generate_plots(name, tmpdir):
     cached_data=load_test_data(),
   )
   if name == "flux_dept_lits_dept_visu_4panels":
-    # TODO: currently figures are not saved in the right folder
-    pass
+    assert (Path(output_dir) / "flux-lits-dept-Ardennes.png").exists()
+    assert (Path(output_dir) / "flux-lits-dept-Moselle.png").exists()
   else:
     assert (Path(output_dir) / (name + ".png")).exists()
 
