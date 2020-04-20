@@ -115,7 +115,7 @@ class UserHandler(base.BaseHandler):
     is_manager = len(user_dict.get('managed_icus', [])) > 0
     is_admin = user_dict.get('is_admin', False)
     if not is_admin and not is_manager:
-      for key in ["password_hash", "email", "managed_icus"]:
+      for key in ["password_hash", "managed_icus"]:
         user_dict.pop(key, None)
 
     icus = set(map(int, user_dict.pop('icus', [])))
