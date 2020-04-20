@@ -1,8 +1,12 @@
 import json
+from io import StringIO
 from unittest import mock
+
 import tornado.testing
+import pandas as pd
 from icubam import config
 from icubam.db import store
+from icubam.db.fake import populate_store_fake
 from icubam.www import server
 from icubam.www import token
 from icubam.www.handlers import base
@@ -117,20 +121,28 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     response = self.fetch(route, method="GET")
     self.assertEqual(response.code, 503)
 
+    populate_store_fake(self.db)
+
     # Good access type
     access_maps = store.ExternalClient(
       name='maps-key', access_type=store.AccessTypes.ALL
     )
     _, access_key = self.db.add_external_client(self.admin_id, access_maps)
 
+    def check_response_csv(self, response):
+      """Check the the response CSV is well formatted"""
+      self.assertEqual(response.code, 200)
+      self.assertEqual(response.headers["Content-Type"], "text/csv")
+      csv = StringIO(response.body.decode('utf-8'))
+      df = pd.read_csv(csv)
+      self.assertIn('icu_name', df.columns)
+
     # CSV with no preprocessing
     url = f'{route}&API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
-    self.assertEqual(response.code, 200)
-    self.assertEqual(response.headers["Content-Type"], "text/csv")
+    check_response_csv(self, response)
 
     # CSV with preprocessing
     url = f'{route}&API_KEY={access_key.key}&preprocess=true'
     response = self.fetch(url, method="GET")
-    self.assertEqual(response.code, 200)
-    self.assertEqual(response.headers["Content-Type"], "text/csv")
+    check_response_csv(self, response)
