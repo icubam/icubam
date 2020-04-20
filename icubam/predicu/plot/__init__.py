@@ -92,7 +92,7 @@ PLOTS = []
 for path in os.listdir(os.path.dirname(__file__)):
   if path.endswith(".py") and any(
     path.startswith(prefix)
-    for prefix in ["barplot", "lineplot", "scatterplot", "stackplot"]
+    for prefix in ["barplot", "lineplot", "scatterplot", "stackplot", 'flux']
   ):
     plot_name = path.rsplit(".", 1)[0]
     PLOTS.append(plot_name)
@@ -106,7 +106,7 @@ def plot(
   api_key: Optional[str],
   icubam_host: Optional[str],
   matplotlib_style: str,
-  restrict_to_grand_est_region: Optional[str],
+  restrict_to_grand_est_region: bool,
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot  # type: ignore
@@ -144,7 +144,7 @@ def generate_plots(
   output_type: str = "png",
   output_dir: str = "/tmp",
   cached_data: Dict = None,
-  restrict_to_grand_est_region: Optional[str] = False,
+  restrict_to_grand_est_region: bool = False,
 ):
   if cached_data is None:
     cached_data = dict()

@@ -9,10 +9,7 @@ import icubam
 import icubam.predicu.data
 import icubam.predicu.plot
 
-data_source = "bedcounts"  ## We ALSO need that one, ... but only to count how many ICUs there are per department !
-data_source = "combined_icubam_public"
-
-d_dep2reg = icubam.predicu.data.load_france_departments()
+data_source = ["bedcounts", "combined_icubam_public"]
 '''
 Logic of this code:
 the computation of quantities, even when seemingly simple, is performed separately from the plotting.
@@ -343,7 +340,7 @@ def plot_all_regions(d, bc, d_dep2reg):
   return fig
 
 
-def plot(d, bc, d_dep2reg):
+def plot_all(d, bc, d_dep2reg):
   print("\n\nplot for all regions:\n")
   plot_all_regions(d, bc, d_dep2reg)
 
@@ -352,128 +349,47 @@ def plot(d, bc, d_dep2reg):
   plt.show()
 
 
-api_key = sys.argv[1]
-d = icubam.predicu.data.load_combined_bedcounts_public(
-  data_source="combined_bedcounts_public",
-  cached_data=None,
-  api_key=api_key,
-  icubam_host="prod.icubam.net"
-)
-bc = icubam.predicu.data.load_if_not_cached(
-  data_source="bedcounts",
-  cached_data=None,
-  api_key=api_key,
-  icubam_host="prod.icubam.net"
-)
-
-## record  bc to a file for Francois Husson
-datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
-filename = "predicu_data_clean_{}.csv".format(datetimestr)
-bc.to_csv(filename)
-
-## load the dep/region correspondance table
-d_dep2reg = icubam.predicu.data.load_france_departments()
-## these are the useful commends:
-# regionCodesList = list(np.array(d_dep2reg.regionCode.dropna().unique() ,dtype=int) )
-# regionCodesList = [str(regionCodesList[i]) for i in range(len(regionCodesList))]
-# regionNamesList = list(d_dep2reg.regionName.unique())[:-1] # it ends with a None, that we drop
-# depCodesList = list(d_dep2reg.departmentCode.unique())
-# depNamesList = list(d_dep2reg.departmentName.unique())[:-1] # it ends with a None, that we drop
-
-## plot everything:
-plot(d, bc, d_dep2reg)
-
-# TODO:
-# - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a bien expliquer exactement ce qui est affiché (source des data, mode de calcul des flux, lissages choisis, et pour les fleches, idem, mode de calcul de la tendance récente, mode de calcul de la tendance future prédite)
-
-# TODO: Dans un cadre séparé, par département,
-# - une flêche indiquant la tendance des derniers jours haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1 hopital, 1 réa)
-# - une flêche indiquant la tendance des prochains jours (modele predictif) -- Ce graphe étant accompagné d'un lien vers une explication bien détaillée des méthodes de calcul de ces fleches haut/bas/stable.
-# - en line plot comme fond derrière les flèches, un indicateur de fiabilité des données (encore par département), du genre nombre de saisies par ICU dans les 3 derniers jours glissants (une baisse signifie moins de data donc moins de fiabilité)
-
-## abandonned code:
-
-
-def dep2region_fun(str_dep_code):
+def plot(api_key=None):
   d_dep2reg = icubam.predicu.data.load_france_departments()
-  if str_dep_code not in d_dep2reg.departmentCode.unique():
-    print("ce numero, ", str_dep_code, " n'est pas un numero de departement")
-  regioncode = d_dep2reg[d_dep2reg["departmentCode"] == str_dep_code
-                         ]["regionCode"]
-  return regioncode
+  d = icubam.predicu.data.load_combined_bedcounts_public(
+    data_source="combined_bedcounts_public",
+    cached_data=None,
+    api_key=api_key,
+    icubam_host="prod.icubam.net"
+  )
+  bc = icubam.predicu.data.load_if_not_cached(
+    data_source="bedcounts",
+    cached_data=None,
+    api_key=api_key,
+    icubam_host="prod.icubam.net"
+  )
 
+  ## record  bc to a file for Francois Husson
+  datetimestr = datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
+  filename = "predicu_data_clean_{}.csv".format(datetimestr)
+  bc.to_csv(filename)
 
-# ## test:
-# d_dep2reg = predicu.data.load_france_departments()
-# for dep_code in d_dep2reg.departmentCode.unique():
-#   # dep_code = int(dep_code)
-#   print(dep_code,  predicu.data.dep2region_fun(dep_code))
-
-
-def region2dep_fun(str_reg_code):
+  ## load the dep/region correspondance table
   d_dep2reg = icubam.predicu.data.load_france_departments()
-  if str_reg_code not in d_dep2reg.regionCode.unique():
-    print("ce numero, ", str_reg_code, " n'est pas un numero de region")
-  dep_codes = d_dep2reg[d_dep2reg["regionCode"] == str_reg_code
-                        ]["departmentCode"]
-  return dep_codes
+  ## these are the useful commands:
+  # regionCodesList = list(np.array(d_dep2reg.regionCode.dropna().unique() ,dtype=int) )
+  # regionCodesList = [str(regionCodesList[i]) for i in range(len(regionCodesList))]
+  # regionNamesList = list(d_dep2reg.regionName.unique())[:-1] # it ends with a None, that we drop
+  # depCodesList = list(d_dep2reg.departmentCode.unique())
+  # depNamesList = list(d_dep2reg.departmentName.unique())[:-1] # it ends with a None, that we drop
+
+  ## plot everything:
+  plot_all(d, bc, d_dep2reg)
+
+  # TODO:
+  # - écrire la doc de tout ça (dans le rapport technique, donc?), de sorte a bien expliquer exactement ce qui est affiché (source des data, mode de calcul des flux, lissages choisis, et pour les fleches, idem, mode de calcul de la tendance récente, mode de calcul de la tendance future prédite)
+
+  # TODO: Dans un cadre séparé, par département,
+  # - une flêche indiquant la tendance des derniers jours haussière/baisse/stable (des chiffres relatives à la réa, à chaque fois je pense - ça j'ai oublié de lui demander - ou alors une fleche de chaque : 1 hopital, 1 réa)
+  # - une flêche indiquant la tendance des prochains jours (modele predictif) -- Ce graphe étant accompagné d'un lien vers une explication bien détaillée des méthodes de calcul de ces fleches haut/bas/stable.
+  # - en line plot comme fond derrière les flèches, un indicateur de fiabilité des données (encore par département), du genre nombre de saisies par ICU dans les 3 derniers jours glissants (une baisse signifie moins de data donc moins de fiabilité)
 
 
-# ## test:
-# d_dep2reg = predicu.data.load_france_departments()
-# for reg_code in d_dep2reg.regionCode.unique():
-#   reg_code = int(reg_code)
-#   print("region numéro ", reg_code, ", liste des depts: ", predicu.data.region2dep_fun(reg_code))
-
-# elif fourPanels:
-#   fig, axs = plt.subplots(2, 2)
-#   fig.suptitle(suptitle)
-#   fig.set_figwidth(13)
-#   fig.set_figheight(8)
-#   axs[0,0].set_title(dep_name+": dynamique des flux entrants (covid)")
-#   axs[0,0].set_ylabel("nombre d'admission")
-#   axs[0,0].plot(x_days, flow_hopital_covid, label= "nombre d'admission à l'hopital pour covid+ (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
-#   axs[0,0].plot(x_days, flow_reanima_covid, label= "nombre d'admission en réanimation pour covid+"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
-#   axs[0,0].legend(handlelength=4,  loc='best') # bbox_to_anchor=(0, 0.1 ),
-#   axs[0,0].set_xticks(x_ticks_c)
-
-#   axs[1,0].set_title(dep_name+": niveau de saturation des lits d'hospitalisation") # (covid)")
-#   axs[1,0].set_ylabel('nombre de lits', color=nbLitsHopitalColor)
-#   axs[1,0].tick_params(axis='y' , labelcolor=nbLitsHopitalColor)
-#   axs[1,0].plot(x_days, numberBed_hopital_covid_occup, label= 'nombre lits occupés hopital covid+  (secteur+réa)',  color=nbLitsHopitalColor, marker=hospmarker, lw=3, ls='-')
-#   ax2 = axs[1,0].twinx()  # instantiate a second axes that shares the same x-axis
-#   ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1,0]
-#   ax2.tick_params(axis='y', labelcolor=reacolor)
-#   # ax2.plot(x_days, percenBed_hopital_covid_occup, label= '% lits occupés hopital covid+  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
-#   ax2.plot(x_days, percenBed_reanima_covid_occup, label= '% lits occupés réanimation covid+', color=reacolor, marker=reamarker, lw=2, ls="--")
-#   # ax2.plot(x_days, percenBed_reanima_n_cov_occup, label= '% lits occupés réanimation covid- (NON COV)', color=reacolor, lw=2, ls=":")
-#   h1, l1 = axs[1,0].get_legend_handles_labels()
-#   h2, l2 = ax2.get_legend_handles_labels()
-#   axs[1,0].legend(h1+h2, l1+l2, handlelength=4, loc='best')
-#   axs[1,0].set_xticks(x_ticks_c)
-#   # legend(handlelength=4,  loc='center left') # bbox_to_anchor=(0, 0.1 ),
-
-#   axs[0,1].set_title("dynamique des flux entrants (non covid)")
-#   axs[0,1].set_ylabel("nombre d'admission")
-#   axs[0,1].plot(x_days, flow_hopital_n_cov, label= "nombre d'admission à l'hopital pour covid- (secteur+réa)", color=hospcolor, marker=hospmarker, lw=3, ls="-")
-#   axs[0,1].plot(x_days, flow_reanima_n_cov, label= "nombre d'admission en réanimation pour covid-"           , color=reacolor,  marker=reamarker,  lw=3, ls="--")
-#   axs[0,1].legend(handlelength=4,  loc='upper left') # bbox_to_anchor=(0, 0.1 ),
-
-#   axs[1,1].set_title("niveau de saturation des lits d'hospitalisation (non covid)")
-#   axs[1,1].set_ylabel('nombre de lits', color=nbLitsHopitalColor)
-#   axs[1,1].tick_params(axis='y' , labelcolor=nbLitsHopitalColor)
-#   # axs[1,1].plot(x_days, numberBed_hopital_n_cov_occup, \
-#   axs[1,1].plot([x_days[i] for i in filtre_data_disponib], \
-#            [numberBed_hopital_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
-#            label= 'nombre occupés hopital covid-  (secteur+réa)',  color=nbLitsHopitalColor, marker=hospmarker, lw=3, ls='-')
-#   ax2 = axs[1,1].twinx()  # instantiate a second axes that shares the same x-axis
-#   ax2.set_ylabel('pourcentage occupation lits', color=reacolor)  # we already handled the x-label with axs[1,1]
-#   ax2.tick_params(axis='y', labelcolor=reacolor)
-#   # ax2.plot(x_days, percenBed_hopital_n_cov_occup, label= '% lits occupés hopital covid-  (secteur+réa)', color=reacolor, marker=reamarker, lw=2, ls="-")
-#   ax2.plot([x_days[i] for i in filtre_data_disponib], \
-#            [percenBed_reanima_n_cov_occup.iloc[i] for i in filtre_data_disponib], \
-#            label= '% lits occupés réanimation covid-', color=reacolor, lw=2, ls=":")
-
-#   h1, l1 = axs[1,1].get_legend_handles_labels()
-#   h2, l2 = ax2.get_legend_handles_labels()
-#   axs[1,1].legend(h1+h2, l1+l2, handlelength=4, loc='best')
+if __name__ == "__main__":
+  api_key = sys.argv[1]
+  plot(api_key=api_key)
