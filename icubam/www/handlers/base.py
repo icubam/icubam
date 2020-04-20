@@ -86,11 +86,7 @@ def authenticated(func=None, *, code=503):
   def wrapper(self, *args, **kwargs):
     if not self.current_user:
       return self.set_status(code)
-<<<<<<< HEAD
     return func(self, *args, **kwargs)
-=======
-    return func(*args, **kwargs)
->>>>>>> d1c85fc680a4c7caafded084b2cdcad09f23fb70
 
   return wrapper
 
@@ -99,10 +95,7 @@ class APIKeyProtectedHandler(BaseHandler):
   """A base handler for API KEY accessible routes."""
 
   # Must be redefined in subclass
-  ACCESS = [store.AccessTypes.ALL]
-
-  def get_current_user(self):
-    key = self.get_query_argument('API_KEY', None)
+  ACCESS = [store.AccessTypes.ALL]from icubam.www.handlers import db'API_KEY', None)
     if key is None:
       return
 
