@@ -148,14 +148,14 @@ def plot_one_dep(cdep, dep_name):
   # filtre_data_disponib = np.where(cdep.date >= datetime.date(2020, 3, 30))[0] ## data available only from this date , march 30
   # filtre_data_non_dispo = np.where(cdep.date < datetime.date(2020, 3, 30))[0] ## data available only from this date , march 30
 
-  suptitle = dep_name + "\nDonnées pour " + str(
-    int(nicu_dep)
-  ) + " réanimation(s)"
+  suptitle = f"{dep_name}\nDonnées pour {nicu_dep} réanimation(s)"
   subplot_title1 = "Dynamique des flux entrants covid+"
-  subplot_title2 = "Niveau de saturation des lits covid+\n"+str(int(nicu_dep))+" réanimation(s), représentant "\
-  +str(int(numberBed_reanima_covid_total.median()))+ " lits de réa covid+ (médiane, min="\
-  +str(int(numberBed_reanima_covid_total.min()))\
-  +", max="+str(int(numberBed_reanima_covid_total.max()))+")"
+  subplot_title2 = (
+    f"Niveau de saturation des lits covid+\n{nicu_dep} réanimation(s), "
+    f"représentant {numberBed_reanima_covid_total.median():.0f} lits de"
+    f"réa covid+ (médiane, min={numberBed_reanima_covid_total.min():.0f}+"
+    f"max={numberBed_reanima_covid_total.max():.0f}+)"
+  )
   subplot_title3 = "Évolution des lits covid-"
 
   hospcolor = 'blue'
