@@ -5,7 +5,7 @@ import numpy as np
 
 from icubam.predicu.plot import RANDOM_COLORS, RANDOM_MARKERS, plot_int
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):

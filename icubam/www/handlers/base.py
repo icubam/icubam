@@ -86,7 +86,7 @@ def authenticated(func=None, *, code=503):
   def wrapper(self, *args, **kwargs):
     if not self.current_user:
       return self.set_status(code)
-    return func(*args, **kwargs)
+    return func(self, *args, **kwargs)
 
   return wrapper
 
