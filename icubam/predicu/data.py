@@ -230,15 +230,22 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     mask = td_diff > pd.Timedelta(agg_time_delta)
     mask = mask.shift(-1).fillna(True).astype(bool)
     dg = dg.loc[mask]
+
+    # rolling median average, 5 points (for cumulative qtities)
     for col in CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
+
+    # rolling median average, 3 points (for non-cumulative qtities)
     for col in NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
       )
+
+    # si la valeur decroit dans une colonne cumulative, alors on redresse ne
+    # appliquant la valeur precedente
     for col in CUM_COLUMNS:
       new_col = []
       last_val = -100000
@@ -257,6 +264,7 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
 
 def fill_in_missing_days(d, time_delta_threshold="3D"):
   res_dfs = []
+
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.sort_values(by=["datetime"])
     time_delta = dg["datetime"].diff(1)

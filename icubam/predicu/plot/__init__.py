@@ -125,6 +125,13 @@ def plot(
     fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source[0]].copy())
   else:
     fig, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
+
+  if fig is None:
+    logging.warn(
+      f'figure object not returned by {plot_name}, and was likely not saved'
+    )
+    return
+
   if output_type == "tex":
     output_path = os.path.join(output_dir, f"{plot_name}.tex")
     __import__("tikzplotlib").save(  # type: ignore

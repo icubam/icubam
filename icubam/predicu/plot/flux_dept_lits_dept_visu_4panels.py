@@ -401,6 +401,7 @@ def plot(data=None, api_key=None, icubam_host="prod.icubam.net"):
   #   des données (encore par département), du genre nombre de saisies par ICU
   #   dans les 3 derniers jours glissants (une baisse signifie moins de data donc
   #   moins de fiabilité)
+  return None, None
 
 
 if __name__ == "__main__":
