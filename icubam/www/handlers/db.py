@@ -50,7 +50,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       self.db.get_visible_bed_counts_for_user, user_id=None, force=True
     )
 
-  @tornado.web.authenticated
+  @base.authenticated(code=503)
   def get(self, collection):
     if self.current_user.access_type not in self.GET_ACCESS:
       logging.info(
@@ -91,7 +91,7 @@ class DBHandler(base.APIKeyProtectedHandler):
         cached_data = {'raw_icubam': data}
         data = predicu.data.load_bedcounts(
           cached_data=cached_data,
-          clean=True,
+          preprocess=True,
         )
     else:
       data = store.to_pandas(get_fn(), max_depth=0)

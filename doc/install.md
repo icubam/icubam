@@ -47,6 +47,15 @@ To start the tests, install `pytest` and run `pytest`
 
 ## Running locally
 
+### User id
+
+Get one user identifier:
+`python scripts/get_id_url.py`
+
+This very long identifier will be required to access the main server.
+
+To get all identifiers:
+`python scripts/get_id_url.py --all`
 
 ### Main server
 
@@ -70,7 +79,8 @@ Start the backoffice server locally,
 python scripts/run_server.py --server=backoffice
 ```
 
-Then open backoffice at [http://localhost:8890](http://localhost:8890) and
+Then open backoffice at [http://localhost:8890/bo/](http://localhost:8890/bo/)
+(cf. `backoffice.dev` `root` value in `resources/config.toml`) and
 login with user credentials created by the `populate_db_fake.py` script,
  - user: `admin@test.org`
  - password: `password`

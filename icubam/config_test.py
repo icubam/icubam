@@ -6,9 +6,12 @@ from icubam import config
 class ConfigTestCase(unittest.TestCase):
   TEST_CONFIG_PATH = 'resources/test.toml'
 
-  def test_read(self):
+  def setUp(self):
+    super().setUp()
     mode = 'dev'
-    cfg = config.Config(self.TEST_CONFIG_PATH, mode=mode)
-    self.assertEqual(cfg.db.sqlite_path, ':memory:')
-    self.assertEqual(cfg.server.port, 8888)
-    self.assertEqual(cfg.scheduler.max_retries, 3)
+    self.config = config.Config(self.TEST_CONFIG_PATH, mode=mode)
+
+  def test_read(self):
+    self.assertEqual(self.config.db.sqlite_path, ':memory:')
+    self.assertEqual(self.config.server.port, 8888)
+    self.assertEqual(self.config.scheduler.max_retries, 3)

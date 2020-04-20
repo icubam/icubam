@@ -34,3 +34,6 @@ settings.json
 *.pkl
 *.npy
 *.npz
+
+# mypy
+.mypy_cache/
