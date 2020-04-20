@@ -37,6 +37,7 @@ def integration_config(request, tmpdir_factory):
     raise ValueError('Could not make a temporary copy of the DB.')
   config.db.sqlite_path = db_path_new
   assert config.db.sqlite_path == db_path_new
+  assert Path(config.db.sqlite_path).exists()
   return config
 
 
