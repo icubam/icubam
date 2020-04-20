@@ -52,7 +52,7 @@ To start the tests, install `pytest` and run `pytest`
 Get one user identifier:
 `python scripts/get_id_url.py`
 
-This very long identifier will be required to access the main server
+This very long identifier will be required to access the main server.
 
 To get all identifiers:
 `python scripts/get_id_url.py --all`
