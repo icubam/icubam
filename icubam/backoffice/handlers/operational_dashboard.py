@@ -207,5 +207,6 @@ class OperationalDashHandler(base.AdminHandler):
       regions=regions,
       current_region_name=current_region_name,
       metrics_layout=metrics_layout,
-      plots_extra=plots_extra
+      plots_extra=plots_extra,
+      backoffice_root=self.config.backoffice.root
     )

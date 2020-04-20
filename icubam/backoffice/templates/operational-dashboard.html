@@ -1,113 +1,95 @@
-{% extends "base.html" %}
+{% extends "operational-dashboard-base.html" %}
 
-{% block links %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-<link rel="stylesheet" type="text/css" href="static/dist/css/dashboard.css">
-
-{% end %}
-
-{% block content %}
-<div class="container operational-dash">
-    <div class="row text-center">
-    <h1 class='text-center'>{{ _("Operational dashboard") }}</h1>
-    </div>
+<!-- Dashboard filter navbar -->
+{% block dashboard_filter %}
     <div class="row dashboard-filter">
        <div class="dropdown">
          <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	   {% if current_region_name != 'All regions' %}
-	     {{ _("Region") }}:
+           {% if current_region_name != 'All regions' %}
+             {{ _("Region") }}:
            {% end %}
-	   {{ current_region_name }}
+           {{ current_region_name }}
          </a>
        
          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-	   <a class="dropdown-item" href="#">{{ _("All regions") }}</a>
-	   <div class="dropdown-divider"></div>
-	   {% for row in regions %}
-	   <a class="dropdown-item" href="?region={{ row['id'] }}">{{ row['name'] }}</a>
-	   {% end %}
+           <a class="dropdown-item" href="#">{{ _("All regions") }}</a>
+           <div class="dropdown-divider"></div>
+           {% for row in regions %}
+           <a class="dropdown-item" href="?region={{ row['id'] }}">{{ row['name'] }}</a>
+           {% end %}
          </div>
        </div>
 
        <script>
-	$(".dropdown-menu .dropdown-item").click(function(e) {
-	   // reloads page with new parameters
-	   // TODO: use the bokeh server instead of hacks.
+        $(".dropdown-menu .dropdown-item").click(function(e) {
+           // reloads page with new parameters
+           // TODO: use the bokeh server instead of hacks.
            window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ); 
         });
        </script>
-
     </div>
-    <div class="row">
-        <div class="col-sm-5 dash-metrics">
-	   {% for row in metrics_layout %}
-	   <div class="row"> 
-	      {% for metric in row %}
-              <div class="col-sm-4">
-                 <div class="card">
-                    <div class="card-body">
-		       <h3 class="card-title">{{ metric['value'] }}</h3>
-		       <p class="card-text">
-		       {% for token in  metric['label']  %}
-		          {{ _(token) }}
-		       {% end %}
-		       </p>
-                    </div>
-                 </div>
-              </div>
-	      {% end %}
-           </div>
-	   {% end %}
-           <div class="col-sm-5">
-           </div>
-	      </div>
-        <div class="col-sm-6 figure">
-        {% for figure in figures%}
-            {% raw figure['script'] %}
-
-            {% raw figure['div'] %}
-        {% end %}
-        </div>
-    </div>
-
-    {% if plots_extra %}
-    <div class="row">
-    <div class="col">
-    <h2>{{ _("Extra figures") }}</h1>
-    </div>
-    </div>
-    {% end %}
-
-    {% for row in plots_extra %}
-    <div class="row extra-plots">
-    {% for fig_name in row %}
-    {% if fig_name is not None %}
-        <div class="col-sm-5 figure">
-	   <img src="/bo/static/extra-plots/{{ fig_name }}.png" />
-    
-	</div>
-    {% end %}
-    {% end %}
-    </div>
-    {% end %}
-</div>
-
 {% end %}
 
 
-{% block scripts %}
+<!-- Dashboard metrics cards -->
+{% block dashboard_metrics %}
 
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+<div class="col-sm-5 dash-metrics">
+     {% for row in metrics_layout %}
+     <div class="row"> 
+        {% for metric in row %}
+        <div class="col-sm-4">
+           <div class="card">
+              <div class="card-body">
+                 <h3 class="card-title">{{ metric['value'] }}</h3>
+                 <p class="card-text">
+                 {% for token in  metric['label']  %}
+                    {{ _(token) }}
+                 {% end %}
+                 </p>
+              </div>
+           </div>
+        </div>
+        {% end %}
+     </div>
+     {% end %}
+     <div class="col-sm-5">
+     </div>
+</div>
+{% end %}
 
-<script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
-<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
-<script
-    src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"
-></script>
+
+<!-- Dashboard bokeh figure in the operational dashboard -->
+{% block dashboard_op_figure %}
+  <div class="col-sm-6 figure">
+  {% for figure in figures%}
+      {% raw figure['script'] %}
+  
+      {% raw figure['div'] %}
+  {% end %}
+  </div>
+{% end %}
+
+<!-- Dashboard Covid+ tab -->
+{% block dashboard_covid_p %}
+  {% if plots_extra %}
+  <div class="row">
+  <div class="col">
+  <h2>{{ _("Extra figures") }}</h1>
+  </div>
+  </div>
+  {% end %}
+  
+  {% for row in plots_extra %}
+  <div class="row extra-plots">
+  {% for fig_name in row %}
+  {% if fig_name is not None %}
+      <div class="col-sm-5 figure">
+        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
+  
+      </div>
+  {% end %}
+  {% end %}
+  </div>
+  {% end %}
 {% end %}
