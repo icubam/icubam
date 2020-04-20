@@ -85,7 +85,7 @@
   {% for fig_name in row %}
   {% if fig_name is not None %}
       <div class="col-sm-5 figure">
-         <img src="/bo/static/extra-plots/{{ fig_name }}.png" />
+        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
   
       </div>
   {% end %}

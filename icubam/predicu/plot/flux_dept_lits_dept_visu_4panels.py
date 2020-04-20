@@ -152,8 +152,8 @@ def plot_one_dep(cdep, dep_name):
   subplot_title1 = "Dynamique des flux entrants covid+"
   subplot_title2 = (
     f"Niveau de saturation des lits covid+\n{nicu_dep} réanimation(s), "
-    f"représentant {numberBed_reanima_covid_total.median():.0f} lits de"
-    f"réa covid+ (médiane, min={numberBed_reanima_covid_total.min():.0f}+"
+    f"représentant {numberBed_reanima_covid_total.median():.0f} lits de "
+    f"réa covid+ (médiane, min={numberBed_reanima_covid_total.min():.0f}+ "
     f"max={numberBed_reanima_covid_total.max():.0f}+)"
   )
   subplot_title3 = "Évolution des lits covid-"

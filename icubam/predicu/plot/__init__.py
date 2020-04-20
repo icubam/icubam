@@ -126,7 +126,10 @@ def plot(
       data=cached_data[data_source[0]].copy()
     )
   else:
-    figs, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
+    figs, tikzplotlib_kwargs = plot_fun(
+      data={key: cached_data[key].copy()
+            for key in data_source}
+    )
 
   if not isinstance(figs, dict):
     figs = {f"{plot_name}.{output_type}": figs}
