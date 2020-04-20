@@ -6,7 +6,6 @@ from icubam.db import store
 from icubam.www import server
 from icubam.www import token
 from icubam.www.handlers import base
-from icubam.www.handlers import db
 from icubam.www.handlers import home
 from icubam.www.handlers import update
 from icubam.www.handlers.version import VersionHandler

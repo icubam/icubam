@@ -36,10 +36,13 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   ROUTE = '/map'
   ACCESS = [store.AccessTypes.MAP, store.AccessTypes.ALL]
 
+<<<<<<< HEAD
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.regions = None
 
+=======
+>>>>>>> d1c85fc680a4c7caafded084b2cdcad09f23fb70
   @base.authenticated(code=503)
   def get(self):
     locale = self.get_user_locale()
