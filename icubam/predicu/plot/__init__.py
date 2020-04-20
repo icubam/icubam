@@ -106,7 +106,7 @@ def plot(
   api_key: Optional[str],
   icubam_host: Optional[str],
   matplotlib_style: str,
-  restrict_to_grand_est_region: bool,
+  restrict_to_region: Optional[str] = None,
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot  # type: ignore
@@ -117,11 +117,11 @@ def plot(
       cached_data,
       api_key=api_key,
       icubam_host=icubam_host,
-      restrict_to_grand_est_region=restrict_to_grand_est_region,
+      restrict_to_region=restrict_to_region,
     )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
-  if len(data_source) == 1:  # ty
+  if len(data_source) == 1:
     fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source[0]].copy())
   else:
     fig, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
@@ -148,7 +148,7 @@ def generate_plots(
   output_type: str = "png",
   output_dir: str = "/tmp",
   cached_data: Dict = None,
-  restrict_to_grand_est_region: bool = False,
+  restrict_to_region: Optional[str] = None,
 ):
   if cached_data is None:
     cached_data = dict()
@@ -171,5 +171,5 @@ def generate_plots(
       output_type=output_type,
       api_key=api_key,
       icubam_host=icubam_host,
-      restrict_to_grand_est_region=restrict_to_grand_est_region,
+      restrict_to_region=restrict_to_region,
     )

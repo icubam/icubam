@@ -1,3 +1,5 @@
+from typing import Optional
+
 import inspect
 import itertools
 import json
@@ -84,14 +86,10 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
     )
   if cached_data is None or data_source not in cached_data:
     load_data_fun_signature = inspect.signature(load_data_fun)
-    matching_kwargs = {
-      k: v
-      for k, v in kwargs.items()
-      if k in load_data_fun_signature.parameters
-    }
+    kwargs = {}
     if 'cached_data' in load_data_fun_signature.parameters:
-      matching_kwargs['cached_data'] = cached_data
-    return load_data_fun(**matching_kwargs)
+      kwargs['cached_data'] = cached_data
+    return load_data_fun(**kwargs)
   return cached_data[data_source]
 
 
@@ -102,14 +100,14 @@ def load_bedcounts(
   icubam_host=None,
   max_date=None,
   cached_data=None,
-  restrict_to_grand_est_region=False,
+  restrict_to_region: Optional[str] = None,
 ):
   d = load_if_not_cached(
     "icubam",
     cached_data,
     api_key=api_key,
     icubam_host=icubam_host,
-    restrict_to_grand_est_region=restrict_to_grand_est_region,
+    restrict_to_region=restrict_to_region,
   )
   if preprocess:
     d = preprocess_bedcounts(d, spread_cum_jump_correction)
@@ -125,7 +123,7 @@ def load_icubam(
   api_key=None,
   icubam_host=None,
   preprocess=True,
-  restrict_to_grand_est_region=False,
+  restrict_to_region: Optional[str] = None,
 ):
   if cached_data is not None and "raw_icubam" in cached_data:
     d = cached_data["raw_icubam"]
@@ -141,9 +139,12 @@ def load_icubam(
       logging.info("downloading data from %s" % url)
       d = pd.read_csv(url.format(api_key))
   if preprocess:
-    if restrict_to_grand_est_region:
-      grand_est_region_id = 1
-      d = d.loc[d.icu_region_id == grand_est_region_id]
+    if restrict_to_region is not None:
+      if restrict_to_region == 'Grand-Est':
+        region_id = 1
+        d = d.loc[d.icu_region_id == region_id]
+      else:
+        raise NotImplementedError
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
     d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
     with open(DATA_PATHS["department_typo_fixes"]) as f:
