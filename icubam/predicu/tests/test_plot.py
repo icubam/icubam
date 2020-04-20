@@ -59,8 +59,14 @@ def test_integration_generate_plots(name, integration_config, tmpdir):
                                                       ).create()
 
   cached_data = load_test_data()
-  cached_data['bedcounts'] = to_pandas(store.get_bed_counts())
+  bc = to_pandas(store.get_bed_counts())
+  assert bc.shape[0] > 0
+  cached_data['bedcounts'] = normalize_colum_names(bc)
 
   output_dir = str(tmpdir.mkdir("sub"))
   generate_plots(plots=[name], output_dir=output_dir, cached_data=cached_data)
-  assert (Path(output_dir) / (name + ".png")).exists()
+  if name == "flux_dept_lits_dept_visu_4panels":
+    assert (Path(output_dir) / "flux-lits-dept-Ardennes.png").exists()
+    assert (Path(output_dir) / "flux-lits-dept-Moselle.png").exists()
+  else:
+    assert (Path(output_dir) / (name + ".png")).exists()
