@@ -37,3 +37,16 @@ If ``-m integration`` option is not provided, both unit and integration tests
 are run (see [pytest
 documentation](https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests)
 for more details).
+
+## Code style
+
+Install [pre-commit](https://pre-commit.com/#install) to
+run code style checks before each commit:
+
+```
+$ pip install pre-commit
+$ pre-commit install
+```
+
+These include, in particular, yapf, flake8 and mypy. pre-commit checks can be
+disabled for a particular commit with `git commit -n`.
