@@ -5,7 +5,7 @@ import numpy as np
 from icubam.predicu.data import CUM_COLUMNS
 from icubam.predicu.plot import COLUMN_TO_HUMAN_READABLE
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):

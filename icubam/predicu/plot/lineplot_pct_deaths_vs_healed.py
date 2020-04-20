@@ -6,7 +6,7 @@ from icubam.predicu.plot import (
   COL_COLOR, COLUMN_TO_HUMAN_READABLE, RANDOM_MARKERS, plot_int
 )
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):
