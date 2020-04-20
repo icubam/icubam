@@ -95,7 +95,10 @@ class APIKeyProtectedHandler(BaseHandler):
   """A base handler for API KEY accessible routes."""
 
   # Must be redefined in subclass
-  ACCESS = [store.AccessTypes.ALL]from icubam.www.handlers import db'API_KEY', None)
+  ACCESS = [store.AccessTypes.ALL]
+
+  def get_current_user(self):
+    key = self.get_query_argument('API_KEY', None)
     if key is None:
       return
 
