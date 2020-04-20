@@ -32,7 +32,7 @@ def integration_config(request, tmpdir_factory):
 
   db_path_new = str(tmpdir_factory.mktemp('tmpdir_factory').join("icubam.db"))
 
-  exit_code = call(['sqlite3', str(db_path), '.backup {db_path_new}'])
+  exit_code = call(['sqlite3', str(db_path), f'.backup {db_path_new}'])
   if exit_code:
     raise ValueError('Could not make a temporary copy of the DB.')
   config.db.sqlite_path = db_path_new
