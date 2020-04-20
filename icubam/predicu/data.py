@@ -1,3 +1,6 @@
+from typing import Optional
+
+import inspect
 import itertools
 import json
 import logging
@@ -20,7 +23,7 @@ DATA_PATHS = {
 }
 
 for key, path in DATA_PATHS.items():
-  DATA_PATHS[key] = Path(BASE_PATH) / path
+  DATA_PATHS[key] = str(Path(BASE_PATH) / path)
 
 
 def load_department_population():
@@ -73,6 +76,7 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
 
 
 def load_if_not_cached(data_source, cached_data, **kwargs):
+  """Load a single data source if it is not in cached data"""
   if data_source not in DATA_SOURCES:
     raise ValueError(f"Unknown data source: {data_source}")
   load_data_fun = globals().get(f"load_{data_source}", None)
@@ -81,7 +85,11 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
       f"No loading function associated to data source {data_source}"
     )
   if cached_data is None or data_source not in cached_data:
-    return load_data_fun(cached_data=cached_data, **kwargs)
+    load_data_fun_signature = inspect.signature(load_data_fun)
+    kwargs = {}
+    if 'cached_data' in load_data_fun_signature.parameters:
+      kwargs['cached_data'] = cached_data
+    return load_data_fun(**kwargs)
   return cached_data[data_source]
 
 
@@ -92,9 +100,14 @@ def load_bedcounts(
   icubam_host=None,
   max_date=None,
   cached_data=None,
+  restrict_to_region: Optional[str] = None,
 ):
   d = load_if_not_cached(
-    "icubam", cached_data, api_key=api_key, icubam_host=icubam_host
+    "icubam",
+    cached_data,
+    api_key=api_key,
+    icubam_host=icubam_host,
+    restrict_to_region=restrict_to_region,
   )
   if preprocess:
     d = preprocess_bedcounts(d, spread_cum_jump_correction)
@@ -106,15 +119,19 @@ def load_bedcounts(
 
 
 def load_icubam(
-  cached_data=None, api_key=None, icubam_host=None, preprocess=True
+  cached_data=None,
+  api_key=None,
+  icubam_host=None,
+  preprocess=True,
+  restrict_to_region: Optional[str] = None,
 ):
-  if cached_data is not None and 'raw_icubam' in cached_data:
-    d = cached_data['raw_icubam']
+  if cached_data is not None and "raw_icubam" in cached_data:
+    d = cached_data["raw_icubam"]
   else:
     if api_key is None or icubam_host is None:
       raise RuntimeError("Provide API key and host to download ICUBAM data")
     else:
-      protocol = "http" if icubam_host.startswith("localhost") else "https"
+      protocol = ("http" if icubam_host.startswith("localhost") else "https")
       url = (
         f"{protocol}://{icubam_host}/"
         f"db/all_bedcounts?format=csv&API_KEY={api_key}"
@@ -122,7 +139,14 @@ def load_icubam(
       logging.info("downloading data from %s" % url)
       d = pd.read_csv(url.format(api_key))
   if preprocess:
+    if restrict_to_region is not None:
+      if restrict_to_region == 'Grand-Est':
+        region_id = 1
+        d = d.loc[d.icu_region_id == region_id]
+      else:
+        raise NotImplementedError
     d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
+    d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
     with open(DATA_PATHS["department_typo_fixes"]) as f:
       department_typo_fixes = json.load(f)
     for wrong_name, right_name in department_typo_fixes.items():
@@ -131,7 +155,7 @@ def load_icubam(
   return d
 
 
-def load_pre_icubam(data_path, cached_data=None):
+def load_pre_icubam(data_path):
   d = load_data_file(data_path)
   d = d.rename(
     columns={
@@ -188,8 +212,8 @@ def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
-  d = aggregate_multiple_inputs(d)
-  # d = fix_noncum_inputs(d)
+  d = aggregate_multiple_inputs(d, "15Min")
+  d = fill_in_missing_days(d, "3D")
   d = enforce_daily_values_for_all_icus(d)
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
@@ -197,26 +221,31 @@ def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   return d
 
 
-def aggregate_multiple_inputs(d):
+def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
     dg = dg.sort_index()
-    mask = ((dg.index.to_series().diff(1) >
-             pd.Timedelta("15Min")).shift(-1).fillna(True).astype(bool))
+    td_diff = dg.index.to_series().diff(1)
+    mask = td_diff > pd.Timedelta(agg_time_delta)
+    mask = mask.shift(-1).fillna(True).astype(bool)
     dg = dg.loc[mask]
 
+    # rolling median average, 5 points (for cumulative qtities)
     for col in CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
 
+    # rolling median average, 3 points (for non-cumulative qtities)
     for col in NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
       )
 
+    # si la valeur decroit dans une colonne cumulative, alors on redresse ne
+    # appliquant la valeur precedente
     for col in CUM_COLUMNS:
       new_col = []
       last_val = -100000
@@ -233,14 +262,100 @@ def aggregate_multiple_inputs(d):
   return pd.concat(res_dfs)
 
 
+def fill_in_missing_days(d, time_delta_threshold="3D"):
+  res_dfs = []
+
+  for icu_name, dg in d.groupby("icu_name"):
+    dg = dg.sort_values(by=["datetime"])
+    time_delta = dg["datetime"].diff(1)
+    for i, td in enumerate(time_delta):
+      if td > pd.Timedelta(time_delta_threshold):
+        n_days = td // pd.Timedelta("1D")
+        val_init = dg.iloc[i - 1]
+        val_final = dg.iloc[i]
+        for added_day in range(n_days):
+          added_datetime = (val_init.datetime + pd.Timedelta("1D") * added_day)
+          added_date = val_init.date + pd.Timedelta("1D") * added_day
+          new_row = {
+            "datetime":
+            added_datetime,
+            "icu_name":
+            val_init.icu_name,
+            "date":
+            added_date,
+            "department":
+            val_init.department,
+            "n_covid_deaths":
+            np.round(
+              val_init.n_covid_deaths +
+              (val_final.n_covid_deaths - val_init.n_covid_deaths) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_healed":
+            np.round(
+              val_init.n_covid_healed +
+              (val_final.n_covid_healed - val_init.n_covid_healed) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_transfered":
+            np.round(
+              val_init.n_covid_transfered +
+              (val_final.n_covid_transfered - val_init.n_covid_transfered) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_refused":
+            np.round(
+              val_init.n_covid_refused +
+              (val_final.n_covid_refused - val_init.n_covid_refused) *
+              added_day * 1.0 / n_days,
+              4,
+            ),
+            "n_covid_free":
+            np.round(
+              val_init.n_covid_free +
+              (val_final.n_covid_free - val_init.n_covid_free) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_ncovid_free":
+            np.round(
+              val_init.n_ncovid_free +
+              (val_final.n_ncovid_free - val_init.n_ncovid_free) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_covid_occ":
+            np.round(
+              val_init.n_covid_occ +
+              (val_final.n_covid_occ - val_init.n_covid_occ) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+            "n_ncovid_occ":
+            np.round(
+              val_init.n_ncovid_occ +
+              (val_final.n_ncovid_occ - val_init.n_ncovid_occ) * added_day *
+              1.0 / n_days,
+              4,
+            ),
+          }
+          dg = dg.append(pd.Series(new_row), ignore_index=True)
+    dg = dg.sort_values(by=["datetime"])
+    res_dfs.append(dg)
+  return pd.concat(res_dfs)
+
+
 def enforce_daily_values_for_all_icus(d):
   dates = sorted(list(d.date.unique()))
   icu_names = sorted(list(d.icu_name.unique()))
   new_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
-    d.groupby(['icu_name', 'department']
-              ).first().reset_index()[['icu_name', 'department'
+    d.groupby(["icu_name", "department"]
+              ).first().reset_index()[["icu_name", "department"
                                        ]].itertuples(name=None, index=False)
   )
   for date, icu_name in itertools.product(dates, icu_names):
@@ -333,7 +448,7 @@ def load_data_file(data_path):
   return d
 
 
-def load_public(cached_data=None):
+def load_public():
   filename_prefix = "donnees-hospitalieres-covid19-2020"
   logging.info("scrapping public data")
   url = (
@@ -364,6 +479,8 @@ def load_public(cached_data=None):
       "jour": "date",
       "hosp": "n_hospitalised_patients",
       "rea": "n_icu_patients",
+      "rad": "n_hospital_healed",
+      "dc": "n_hospital_death",
     }
   )
   d["date"] = pd.to_datetime(d["date"]).dt.date
@@ -372,6 +489,8 @@ def load_public(cached_data=None):
     "department_code",
     "n_hospitalised_patients",
     "n_icu_patients",
+    "n_hospital_healed",
+    "n_hospital_death",
   ]]
 
 
@@ -392,3 +511,19 @@ def load_combined_bedcounts_public(
   )
   combined["department_pop"] = combined.department.apply(get_dpt_pop)
   return combined
+
+
+def normalize_colum_names(df: pd.DataFrame, table_name="bedcounts"):
+  """Normalize column names between DB schema and plots
+    
+    Args:
+    df: a dataframe with data obtained from the DB.
+    """
+  # TODO: plots should use columns names from DB. @rth
+  # This is related to fields in the exported CSV
+  if table_name == 'bedcounts':
+    df = df.rename(columns={"icu_dept": "department"})
+    df['date'] = df['create_date'].dt.date
+    return df
+  else:
+    raise NotImplementedError

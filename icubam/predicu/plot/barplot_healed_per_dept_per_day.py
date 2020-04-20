@@ -9,7 +9,7 @@ import pandas as pd
 from icubam.predicu.data import BEDCOUNT_COLUMNS
 from icubam.predicu.plot import DEPARTMENT_COLOR
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):
@@ -31,7 +31,6 @@ def plot(data):
   for i, (date,
           d_date) in enumerate(data.sort_values(by="date").groupby("date")):
     for j, department in enumerate(sorted_depts):
-      d_dept = d_date.loc[d_date.department == department]
       height = d_date[d_date.department.isin(sorted_depts[j:])][col].sum()
       rect_patch = matplotlib.patches.Rectangle(
         xy=(i, 0),

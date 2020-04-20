@@ -3,7 +3,7 @@ import seaborn as sns
 
 from icubam.predicu.data import DEPARTMENT_POPULATION
 
-data_source = "bedcounts"
+data_source = ["bedcounts"]
 
 
 def plot(data):
@@ -25,11 +25,9 @@ def plot(data):
   )
   ax.set_ylabel("Décès par 100,000 habitants")
   ax.set_xlabel(None)
-  txt = ax.text(
-    6.5, 3.5, "Début acquisition", fontsize="xx-large", color="red"
-  )
-  txt.set_horizontalalignment("right")
-  txt = ax.text(6.5, 3.2, r"ICUBAM", fontsize="xx-large", color="red")
-  txt.set_horizontalalignment("right")
+  txt = ax.text(7, 5, "Début acquisition", fontsize="xx-large", color="red")
+  txt.set_horizontalalignment("left")
+  txt = ax.text(7, 4.8, r"\texttt{ICUBAM}", fontsize="xx-large", color="red")
+  txt.set_horizontalalignment("left")
   tikzplotlib_args = {"axis_width": "10cm"}
   return fig, tikzplotlib_args

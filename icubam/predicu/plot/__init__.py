@@ -92,7 +92,7 @@ PLOTS = []
 for path in os.listdir(os.path.dirname(__file__)):
   if path.endswith(".py") and any(
     path.startswith(prefix)
-    for prefix in ["barplot", "lineplot", "scatterplot", "stackplot"]
+    for prefix in ["barplot", "lineplot", "scatterplot", "stackplot", 'flux']
   ):
     plot_name = path.rsplit(".", 1)[0]
     PLOTS.append(plot_name)
@@ -103,25 +103,38 @@ def plot(
   cached_data: Dict[str, pd.DataFrame],
   output_dir: str,
   output_type: str,
-  api_key: str,
-  icubam_host: str,
+  api_key: Optional[str],
+  icubam_host: Optional[str],
   matplotlib_style: str,
+  restrict_to_region: Optional[str] = None,
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
-  plot_fun = plot_module.plot
-  data_source = plot_module.data_source
-  cached_data[data_source] = load_if_not_cached(
-    data_source,
-    cached_data,
-    api_key=api_key,
-    icubam_host=icubam_host,
-  )
+  plot_fun = plot_module.plot  # type: ignore
+  data_source = plot_module.data_source  # type: ignore
+  for name in data_source:
+    cached_data[name] = load_if_not_cached(
+      name,
+      cached_data,
+      api_key=api_key,
+      icubam_host=icubam_host,
+      restrict_to_region=restrict_to_region,
+    )
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
-  fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source].copy())
+  if len(data_source) == 1:
+    fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source[0]].copy())
+  else:
+    fig, tikzplotlib_kwargs = plot_fun(data=cached_data.copy())
+
+  if fig is None:
+    logging.warn(
+      f'figure object not returned by {plot_name}, and was likely not saved'
+    )
+    return
+
   if output_type == "tex":
     output_path = os.path.join(output_dir, f"{plot_name}.tex")
-    __import__("tikzplotlib").save(
+    __import__("tikzplotlib").save(  # type: ignore
       filepath=output_path,
       figure=fig,
       **tikzplotlib_kwargs,
@@ -142,6 +155,7 @@ def generate_plots(
   output_type: str = "png",
   output_dir: str = "/tmp",
   cached_data: Dict = None,
+  restrict_to_region: Optional[str] = None,
 ):
   if cached_data is None:
     cached_data = dict()
@@ -164,4 +178,5 @@ def generate_plots(
       output_type=output_type,
       api_key=api_key,
       icubam_host=icubam_host,
+      restrict_to_region=restrict_to_region,
     )

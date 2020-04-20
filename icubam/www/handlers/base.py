@@ -1,8 +1,9 @@
 from absl import logging
+import functools
 import os.path
 import tornado.locale
 import tornado.web
-from typing import Tuple
+from typing import Tuple, Optional
 
 from icubam.db import store
 from icubam.www import token
@@ -20,7 +21,9 @@ class BaseHandler(tornado.web.RequestHandler):
     self.user = None
     self.token_encoder = token.TokenEncoder(self.config)
 
-  def decode_token(self, user_token: str) -> Tuple[store.User, store.ICU]:
+  def decode_token(
+    self, user_token: str
+  ) -> Tuple[Optional[store.User], Optional[store.ICU]]:
     """Returns the user object and the icu object encoded in the token."""
     input_data = self.token_encoder.decode(user_token)
     if input_data is None:
@@ -73,6 +76,21 @@ class BaseHandler(tornado.web.RequestHandler):
       return tornado.locale.get(locale_code)
 
 
+def authenticated(func=None, *, code=503):
+  """Return a given HTTP code instead of redirecting in case the user is not
+  authenticated (unlike tornado.web.authenticated)"""
+  if func is None:
+    return functools.partial(authenticated, code=code)
+
+  @functools.wraps(func)
+  def wrapper(self, *args, **kwargs):
+    if not self.current_user:
+      return self.set_status(code)
+    return func(self, *args, **kwargs)
+
+  return wrapper
+
+
 class APIKeyProtectedHandler(BaseHandler):
   """A base handler for API KEY accessible routes."""
 
@@ -90,6 +108,6 @@ class APIKeyProtectedHandler(BaseHandler):
 
     if client.access_type in self.ACCESS:
       self.regions = client.regions
-      return client.external_client_id
+      return client
     else:
       return None

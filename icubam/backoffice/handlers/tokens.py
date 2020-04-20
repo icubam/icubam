@@ -3,7 +3,7 @@ import datetime
 import os.path
 import tornado.escape
 import tornado.web
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Set
 
 from icubam.backoffice.handlers import base
 from icubam.www.handlers import home as www_home
@@ -65,7 +65,7 @@ class TokenHandler(base.AdminHandler):
 
   def do_render(
     self,
-    user: Optional[store.User],
+    user: Optional[store.ExternalClient],
     regions: Optional[List[int]],
     error=False
   ):
@@ -114,7 +114,7 @@ class TokenHandler(base.AdminHandler):
         self.current_user.user_id, token_id, rid
       )
 
-  def prepare_for_save(self, token_dict) -> Tuple[int, List[int]]:
+  def prepare_for_save(self, token_dict) -> Tuple[int, Set[int]]:
     token_dict["is_active"] = token_dict.get("is_active", "off") == 'on'
     date = token_dict.get('expiration_date', '')
     if date == '':

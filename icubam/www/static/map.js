@@ -1,12 +1,13 @@
-function togglePopup (cluster_id, color) {
-  var cluster = document.getElementById('cluster-' + cluster_id +'-cluster' )
-  var full = document.getElementById('cluster-' + cluster_id +'-full' )
+function togglePopup(cluster_id, color) {
+  var cluster = document.getElementById('cluster-' + cluster_id + '-cluster')
+  var full = document.getElementById('cluster-' + cluster_id + '-full')
   var box = document.getElementById('infowindow-' + cluster_id)
 
-  var subtitleFull = document.getElementById('subtitle-full')
-  var subtitleCluster = document.getElementById('subtitle-cluster')
+  var titleBox = document.getElementById('title-box')
+  var subtitleFull = titleBox.getElementsByClassName('subtitle-full')[0]
+  var subtitleCluster = titleBox.getElementsByClassName('subtitle-cluster')[0]
 
-  if (cluster.style.display === "block" || cluster.style.display === "" ) {
+  if (cluster.style.display === "block" || cluster.style.display === "") {
     cluster.style.display = "none"
     full.style.display = "block"
     box.style.borderStyle = 'solid'
@@ -25,17 +26,19 @@ function togglePopup (cluster_id, color) {
   }
 }
 
-function toggleAll () {
+function toggleAll() {
   all_showed = !all_showed
-  for (i = 0; i < data.length; i++) {
-    if ((!showed.has(data[i].label) && all_showed) ||
-        (!all_showed && (showed.has(data[i].label)))) {
-      togglePopup(data[i].label, data[i].color)
+  let dc = data[covid]
+  for (i = 0; i < dc.length; i++) {
+    if ((!showed.has(dc[i].label) && all_showed) ||
+      (!all_showed && (showed.has(dc[i].label)))) {
+      togglePopup(dc[i].label, dc[i].color)
     }
   }
 }
 
-function CenterControl(controlDiv, map, displayAllText, displayAllAltText) {
+function CenterControl(
+  controlDiv, map, displayAllText, displayAllAltText, toggleFn) {
   // Set CSS for the control border.
   var controlUI = document.createElement('div');
   controlUI.style.backgroundColor = '#fff';
@@ -58,14 +61,12 @@ function CenterControl(controlDiv, map, displayAllText, displayAllAltText) {
   controlText.style.paddingRight = '5px';
   controlText.innerHTML = displayAllText;
   controlUI.appendChild(controlText);
-  controlUI.addEventListener('click', function() {
-    toggleAll();
-  });
+  controlUI.addEventListener('click', toggleFn);
 }
 
 
-function addMarker (obj, map) {
-  const position = {lat: obj.lat, lng: obj.long};
+function addMarker(obj, map) {
+  const position = { lat: obj.lat, lng: obj.long };
 
   var infowindow = new google.maps.InfoWindow({
     content: obj.popup,
@@ -79,11 +80,11 @@ function addMarker (obj, map) {
     position: position,
     map: map,
     title: obj.label,
-    icon: {url: icon_url},
+    icon: { url: icon_url },
   });
 
   let show = false
-  function toggle () {
+  function toggle() {
     show = !show
     if (show) {
       infowindow.open(map, marker);
@@ -96,7 +97,7 @@ function addMarker (obj, map) {
   marker.addListener('click', toggle)
 }
 
-function addPopup (obj, map, Popup) {
+function addPopup(obj, map, Popup) {
   var div = document.getElementById('map')
   div.insertAdjacentHTML('beforeend', obj.popup);
   var content = div.lastElementChild
@@ -104,99 +105,105 @@ function addPopup (obj, map, Popup) {
   popup.setMap(map);
 }
 
-function plotMap(data, center, displayAllText, displayAllAltText) {
+function toggleCovid() {
+  covid = !covid
+  plotMap(data[covid], center, covid)
+}
+
+
+function plotMap(data, center, covid_status=true) {
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 9,
     center: center,
     mapTypeControl: false,
     styles: [
-          {
-            elementType: 'geometry',
-            stylers: [{color: '#f5f5f5'}]
-          },
-          {
-            elementType: 'labels.icon',
-            stylers: [{visibility: 'off'}]
-          },
-          {
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#616161'}]
-          },
-          {
-            elementType: 'labels.text.stroke',
-            stylers: [{color: '#f5f5f5'}]
-          },
-          {
-            featureType: 'administrative.land_parcel',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#bdbdbd'}]
-          },
-          {
-            featureType: 'poi',
-            elementType: 'geometry',
-            stylers: [{color: '#eeeeee'}]
-          },
-          {
-            featureType: 'poi',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#757575'}]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'geometry',
-            stylers: [{color: '#e5e5e5'}]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#9e9e9e'}]
-          },
-          {
-            featureType: 'road',
-            elementType: 'geometry',
-            stylers: [{color: '#ffffff'}]
-          },
-          {
-            featureType: 'road.arterial',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#757575'}]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'geometry',
-            stylers: [{color: '#dadada'}]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#616161'}]
-          },
-          {
-            featureType: 'road.local',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#9e9e9e'}]
-          },
-          {
-            featureType: 'transit.line',
-            elementType: 'geometry',
-            stylers: [{color: '#e5e5e5'}]
-          },
-          {
-            featureType: 'transit.station',
-            elementType: 'geometry',
-            stylers: [{color: '#eeeeee'}]
-          },
-          {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [{color: '#c9c9c9'}]
-          },
-          {
-            featureType: 'water',
-            elementType: 'labels.text.fill',
-            stylers: [{color: '#9e9e9e'}]
-          }
-        ],
+      {
+        elementType: 'geometry',
+        stylers: [{ color: '#f5f5f5' }]
+      },
+      {
+        elementType: 'labels.icon',
+        stylers: [{ visibility: 'off' }]
+      },
+      {
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#616161' }]
+      },
+      {
+        elementType: 'labels.text.stroke',
+        stylers: [{ color: '#f5f5f5' }]
+      },
+      {
+        featureType: 'administrative.land_parcel',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#bdbdbd' }]
+      },
+      {
+        featureType: 'poi',
+        elementType: 'geometry',
+        stylers: [{ color: '#eeeeee' }]
+      },
+      {
+        featureType: 'poi',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#757575' }]
+      },
+      {
+        featureType: 'poi.park',
+        elementType: 'geometry',
+        stylers: [{ color: '#e5e5e5' }]
+      },
+      {
+        featureType: 'poi.park',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#9e9e9e' }]
+      },
+      {
+        featureType: 'road',
+        elementType: 'geometry',
+        stylers: [{ color: '#ffffff' }]
+      },
+      {
+        featureType: 'road.arterial',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#757575' }]
+      },
+      {
+        featureType: 'road.highway',
+        elementType: 'geometry',
+        stylers: [{ color: '#dadada' }]
+      },
+      {
+        featureType: 'road.highway',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#616161' }]
+      },
+      {
+        featureType: 'road.local',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#9e9e9e' }]
+      },
+      {
+        featureType: 'transit.line',
+        elementType: 'geometry',
+        stylers: [{ color: '#e5e5e5' }]
+      },
+      {
+        featureType: 'transit.station',
+        elementType: 'geometry',
+        stylers: [{ color: '#eeeeee' }]
+      },
+      {
+        featureType: 'water',
+        elementType: 'geometry',
+        stylers: [{ color: '#c9c9c9' }]
+      },
+      {
+        featureType: 'water',
+        elementType: 'labels.text.fill',
+        stylers: [{ color: '#9e9e9e' }]
+      }
+    ],
   });
 
   var all_popups = []
@@ -208,7 +215,24 @@ function plotMap(data, center, displayAllText, displayAllAltText) {
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var centerControlDiv = document.createElement('div');
-  var centerControl = new CenterControl(centerControlDiv, map, displayAllText, displayAllAltText);
+  var centerControl = new CenterControl(
+    centerControlDiv, map, displayAllText, displayAllAltText, toggleAll);
   centerControlDiv.index = 1;
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(centerControlDiv);
+  var titleDiv = document.getElementById('title-box-orig')
+  var titleClone = titleDiv.cloneNode(true); // true means clone all childNodes and all event handlers
+  titleClone.id = "title-box";
+  var dispEl = covid_status ? 'pos' : 'neg'
+  var hideEl = !covid_status ? 'pos' : 'neg'
+  titleClone.getElementsByClassName('subtitle-covid-'.concat(dispEl))[0].style.display = 'block'
+  titleClone.getElementsByClassName('subtitle-covid-'.concat(hideEl))[0].style.display = 'none'
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(titleClone);
+  // Create the DIV to hold the control and call the CenterControl()
+  // constructor passing in this DIV.
+  var covidControlDiv = document.createElement('div');
+  const covidText = covid ? showingCovidText : showingNCovidText;
+  var covidControl = new CenterControl(
+    covidControlDiv, map, covidText, covidAltText, toggleCovid);
+  covidControlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(covidControlDiv);
 }

@@ -1,5 +1,6 @@
 """Creating/edition of ICUs."""
 from absl import logging
+import json
 import tornado.escape
 import tornado.web
 
@@ -49,12 +50,17 @@ class ICUHandler(base.BaseHandler):
       regions = [e.region for e in self.current_user.managed_icus]
     regions.sort(key=lambda r: r.name)
 
+    icus = self.db.get_managed_icus(self.current_user.user_id)
+    depts = sorted(set([i.dept for i in icus]))
+    cities = sorted(set([i.city for i in icus]))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True
     return self.render(
       "icu.html",
       icu=icu,
+      depts=json.dumps(depts),
+      cities=json.dumps(cities),
       regions=regions,
       error=error,
       list_route=ListICUsHandler.ROUTE

@@ -66,8 +66,10 @@ default_locale='fr-fr'
     ping_every = 60  # in seconds
     root = 'admin'
     extra_plots_dir = "/tmp/dasboard_plots_dir"
+    extra_plots_make_every = -1  # in seconds
   [backoffice.dev]
     port = 8890
     ping_every = 60  # in seconds
     root = 'bo'
     extra_plots_dir = "/tmp/dasboard_plots_dir"
+    extra_plots_make_every = -1  # in seconds

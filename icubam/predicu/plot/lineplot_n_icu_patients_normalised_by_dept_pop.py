@@ -7,7 +7,7 @@ import numpy as np
 
 from icubam.predicu.plot import DEPARTMENT_COLOR, plot_int
 
-data_source = "combined_bedcounts_public"
+data_source = ["combined_bedcounts_public"]
 
 
 def plot(data):
