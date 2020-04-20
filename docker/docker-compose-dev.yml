@@ -31,6 +31,12 @@ services:
       - type: bind
         source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
     networks:
       - icubam-network
 
@@ -62,6 +68,12 @@ services:
       - type: bind
         source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
     networks:
       - icubam-network
 
@@ -96,6 +108,12 @@ services:
       - type: bind
         source: "${ICUBAM_TEST_DB_PATH:-./test.db}"
         target: /home/icubam/test.db
+      - type: bind
+        source: ../icubam
+        target: /home/icubam/icubam
+      - type: bind
+        source: ../scripts
+        target: /home/icubam/scripts
     networks:
       - icubam-network
 

@@ -70,14 +70,24 @@
               </div>
               <div class="col-25">
                 <label for="city">{{ _('City') }}</label>
-                <input type="text" id="city" name="city" class="form-control" placeholder="{{ _('City') }}"
+                <input
+                  name="city" list="city_options"
+                  class="form-control"
+                  placeholder="{{ _('City') }}"
                   value="{% if icu.city %}{{icu.city}}{% end %}" required autofocus>
+                </input>
+                <datalist id="city_options"></datalist>
               </div>
 
               <div class="col-25">
-                <label for="dept">{{ _('Department / State') }}</label>
-                <input type="text" id="dept" name="dept" class="form-control" placeholder="{{ _('Department') }}"
+                <label for="dept">{{ _('Department / State') }}</label><br/>
+                <input
+                  name="dept" list="dept_options"
+                  class="form-control"
+                  placeholder="{{ _('Department') }}"
                   value="{% if icu.dept %}{{icu.dept}}{% end %}" required autofocus>
+                </input>
+                <datalist id="dept_options"></datalist>
               </div>
             </div>
 
@@ -120,8 +130,23 @@
 {% block scripts %}
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script>
-  $("input[data-bootstrap-switch]").each(function () {
-    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  $(function () {
+    $("input[data-bootstrap-switch]").each(function () {
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    })
+
+    function filInDataList (values, dataListId) {
+      var datalist = document.getElementById(dataListId);
+      values.forEach(function(item) {
+      var option = document.createElement('option');
+        option.value = item
+        datalist.appendChild(option)      
+      })
+    }
+    const depts = {% raw depts %}
+    filInDataList (depts, 'dept_options')
+    const cities = {% raw cities %}
+    filInDataList (cities, 'city_options')
   })
 </script>
 {% end %}

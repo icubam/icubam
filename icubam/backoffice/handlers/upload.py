@@ -6,17 +6,18 @@ import tornado.web
 
 from icubam.backoffice.handlers import base
 from icubam.db import synchronizer
+from typing import Dict, Callable
 
 
 class UploadHandler(base.BaseHandler):
   ROUTE = "upload"
 
-  def answer(self, msg, error=False):
+  def answer(self, msg, error=False) -> None:
     logging.error(msg)
     self.write(json.dumps({'msg': msg, 'error': error}))
 
   @tornado.web.authenticated
-  def post(self):
+  def post(self) -> None:
     try:
       data = json.loads(self.request.body.decode())
     except Exception as e:
@@ -27,10 +28,10 @@ class UploadHandler(base.BaseHandler):
       return self.answer(f'No CSV content', error=True)
 
     sync = synchronizer.CSVSynchronizer(self.db)
-    sync_fns = {
+    sync_fns: Dict[str, Callable[..., int]] = {
       'user': sync.sync_users_from_csv,
       'icu': sync.sync_icus_from_csv,
-      'bedcounts': sync.sync_bedcount_from_csv
+      'bedcounts': sync.sync_bedcounts_from_csv
     }
     objtype = data.get('objtype', None)
     sync_fn = sync_fns.get(objtype, None)

@@ -103,14 +103,14 @@ def plot(
   cached_data: Dict[str, pd.DataFrame],
   output_dir: str,
   output_type: str,
-  api_key: str,
-  icubam_host: str,
+  api_key: Optional[str],
+  icubam_host: Optional[str],
   matplotlib_style: str,
   restrict_to_grand_est_region: Optional[str],
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
-  plot_fun = plot_module.plot
-  data_source = plot_module.data_source
+  plot_fun = plot_module.plot  # type: ignore
+  data_source = plot_module.data_source  # type: ignore
   cached_data[data_source] = load_if_not_cached(
     data_source,
     cached_data,
@@ -123,7 +123,7 @@ def plot(
   fig, tikzplotlib_kwargs = plot_fun(data=cached_data[data_source].copy())
   if output_type == "tex":
     output_path = os.path.join(output_dir, f"{plot_name}.tex")
-    __import__("tikzplotlib").save(
+    __import__("tikzplotlib").save(  # type: ignore
       filepath=output_path,
       figure=fig,
       **tikzplotlib_kwargs,
