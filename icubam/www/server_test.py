@@ -110,4 +110,3 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     url = f'{route}?API_KEY={access_key.key}'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 200)
-    
