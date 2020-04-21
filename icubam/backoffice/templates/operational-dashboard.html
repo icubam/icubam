@@ -21,12 +21,21 @@
             {% end %}
             {{ current_region_name }}
             </a>
+
+            {% if api_key %}
+                {% set api_key_params_all = "?API_KEY=" + api_key%}
+                {% set api_key_params_regions = "&API_KEY=" + api_key%}
+            {% else %}
+                {% set api_key_params_all = "" %}
+                {% set api_key_params_regions = "" %}
+            {% end %}
         
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item" href="#">{{ _("All regions") }}</a>
+            <a class="dropdown-item" href="{{api_key_params_all}}#">{{ _("All regions") }}</a>
             <div class="dropdown-divider"></div>
             {% for row in regions %}
-            <a class="dropdown-item" href="?region={{ row['id'] }}">{{ row['name'] }}</a>
+            <a class="dropdown-item" href="?region={{ row['id'] }}{{api_key_params_regions}}">
+                {{ row['name'] }}</a>
             {% end %}
             </div>
         </div>
@@ -35,8 +44,7 @@
          $(".dropdown-menu .dropdown-item").click(function(e) {
             // reloads page with new parameters
             // TODO: use the bokeh server instead of hacks.
-            let api_key = {% if api_key %} '?API_KEY={{api_key}}' {% else %} '' {% end %}
-            window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ) + api_key; 
+            window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ); 
          });
         </script>
     </div>
