@@ -14,6 +14,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get -y update \
     && apt-get install -y git \
        wget \
+       sqlite3 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean -y
 
