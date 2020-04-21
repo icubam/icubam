@@ -55,9 +55,17 @@ COL_COLOR.update({
     0.45098039215686275,
   ),
 })
+# DEPARTMENTS_GRAND_EST = [
+# "Ardennes", "Aube", "Marne", "Haute-Marne", "Meurthe-et-Moselle", "Meuse",
+# "Moselle", "Bas-Rhin", "Haut-Rhin", "Vosges"
+# ]
+# DEPARTMENT_COLOR = {
+# dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS_GRAND_EST))[i]
+# for i, dpt in enumerate(sorted(DEPARTMENTS_GRAND_EST))
+# }
 DEPARTMENT_COLOR = {
   dpt: seaborn.color_palette("colorblind", len(DEPARTMENTS))[i]
-  for i, dpt in enumerate(DEPARTMENTS)
+  for i, dpt in enumerate(sorted(DEPARTMENTS))
 }
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
@@ -136,11 +144,13 @@ def plot(
   for fname_out, fig in figs.items():
     if output_type == "tex":
       output_path = os.path.join(output_dir, fname_out)
+      if tikzplotlib_kwargs is None:
+        tikzplotlib_kwargs = dict()
       __import__("tikzplotlib").save(  # type: ignore
         filepath=output_path,
         figure=fig,
-        **tikzplotlib_kwargs,
         standalone=True,
+        **tikzplotlib_kwargs,
       )
     elif output_type in ["png", "pdf"]:
       fig.savefig(os.path.join(output_dir, fname_out))

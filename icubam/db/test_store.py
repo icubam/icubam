@@ -734,9 +734,6 @@ class StoreTest(absltest.TestCase):
         )
       )
 
-    # Client is not assigned to any region.
-    self.assertFalse(get_values())
-
     store.assign_external_client_to_region(
       admin_user_id, external_client_id, region_id1
     )
