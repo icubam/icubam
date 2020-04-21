@@ -15,7 +15,7 @@ france_departments = set(
   list(icubam.predicu.data.load_france_departments().departmentName.unique())
 )
 bedcounts = icubam.predicu.data.load_icubam(
-  api_key=api_key, icubam_host=icubam_host, clean=False
+  api_key=api_key, icubam_host=icubam_host, preprocess=False
 )
 icubam_departments = set(list(bedcounts.icu_dept.unique()))
 

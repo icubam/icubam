@@ -1,5 +1,3 @@
-from typing import Optional
-
 import inspect
 import itertools
 import json
@@ -7,6 +5,7 @@ import logging
 import pickle
 import urllib.request
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -65,8 +64,8 @@ NCUM_COLUMNS = [
   "n_ncovid_occ",
 ]
 BEDCOUNT_COLUMNS = CUM_COLUMNS + NCUM_COLUMNS
-ALL_COLUMNS = (["icu_name", "date", "datetime", "department"] + CUM_COLUMNS +
-               NCUM_COLUMNS)
+ALL_COLUMNS = (["icu_name", "date", "datetime", "department", "region"] +
+               CUM_COLUMNS + NCUM_COLUMNS)
 SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_deaths": 10,
   "n_covid_transfered": 10,
@@ -86,7 +85,11 @@ def load_if_not_cached(data_source, cached_data, **kwargs):
     )
   if cached_data is None or data_source not in cached_data:
     load_data_fun_signature = inspect.signature(load_data_fun)
-    kwargs = {}
+    kwargs = {
+      k: v
+      for k, v in kwargs.items()
+      if k in load_data_fun_signature.parameters
+    }
     if 'cached_data' in load_data_fun_signature.parameters:
       kwargs['cached_data'] = cached_data
     return load_data_fun(**kwargs)
@@ -151,6 +154,7 @@ def load_icubam(
       department_typo_fixes = json.load(f)
     for wrong_name, right_name in department_typo_fixes.items():
       d.loc[d.department == wrong_name, "department"] = right_name
+    d["region"] = d.icu_region_id
     d = format_data(d)
   return d
 
@@ -358,6 +362,11 @@ def enforce_daily_values_for_all_icus(d):
               ).first().reset_index()[["icu_name", "department"
                                        ]].itertuples(name=None, index=False)
   )
+  icu_name_to_region = dict(
+    d.groupby(["icu_name", "region"]
+              ).first().reset_index()[["icu_name", "region"
+                                       ]].itertuples(name=None, index=False)
+  )
   for date, icu_name in itertools.product(dates, icu_names):
     sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
     sd = sd.sort_values(by="datetime")
@@ -365,6 +374,7 @@ def enforce_daily_values_for_all_icus(d):
       "date": date,
       "icu_name": icu_name,
       "department": icu_name_to_dept[icu_name],
+      "region": icu_name_to_region[icu_name],
       "datetime": date,
     }
     new_data_point.update({col: 0 for col in CUM_COLUMNS})
@@ -495,7 +505,10 @@ def load_public():
 
 
 def load_combined_bedcounts_public(
-  api_key=None, cached_data=None, icubam_host=None, **kwargs
+  api_key=None,
+  cached_data=None,
+  icubam_host=None,
+  restrict_to_region: Optional[str] = None,
 ):
   get_dpt_pop = load_department_population().get
   dp = load_if_not_cached("public", cached_data)
@@ -503,26 +516,41 @@ def load_combined_bedcounts_public(
   di = load_if_not_cached(
     "bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host
   )
+  dpt_to_region = dict(
+    di.groupby(["department", "region"]
+               ).first().reset_index()[["department", "region"
+                                        ]].itertuples(name=None, index=False)
+  )
   di = di.groupby(["date", "department"]).sum().reset_index()
   di["department_code"] = di.department.apply(DEPARTMENT_TO_CODE.get)
   di["n_icu_patients"] = di.n_covid_occ + di.n_ncovid_occ.fillna(0)
-  combined = di.merge(
-    dp, on=["department", "date"], suffixes=["_icubam", "_public"]
-  )
-  combined["department_pop"] = combined.department.apply(get_dpt_pop)
-  return combined
+  d = di.merge(dp, on=["department", "date"], suffixes=["_icubam", "_public"])
+  d["department_pop"] = d.department.apply(get_dpt_pop)
+  d["region"] = d.department.apply(dpt_to_region.get)
+  if restrict_to_region is not None:
+    if restrict_to_region == 'Grand-Est':
+      region_id = 1
+      d = d.loc[d.region == region_id]
+    else:
+      raise NotImplementedError
+  return d
 
 
 def normalize_colum_names(df: pd.DataFrame, table_name="bedcounts"):
   """Normalize column names between DB schema and plots
-    
+
     Args:
     df: a dataframe with data obtained from the DB.
     """
   # TODO: plots should use columns names from DB. @rth
   # This is related to fields in the exported CSV
   if table_name == 'bedcounts':
-    df = df.rename(columns={"icu_dept": "department"})
+    df = df.rename(
+      columns={
+        "icu_dept": "department",
+        "icu_region_id": "region"
+      }
+    )
     df['date'] = df['create_date'].dt.date
     return df
   else:
