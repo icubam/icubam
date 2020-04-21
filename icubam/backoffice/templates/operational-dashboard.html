@@ -72,6 +72,7 @@
 
 <!-- Dashboard Covid+ tab -->
 {% block dashboard_covid_p %}
+ {% if current_region_name != 'All regions' %}
   <div class="row extra-plots">
       <div class="col-sm-6 offset-4 figure">
 	<img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
@@ -79,16 +80,18 @@
       </div>
   </div>
   
-  {% for row in plots_extra %}
+  {% else %}  {# current_region_name == 'All regions' #}
+  {% for row in _grouper([name for name in plots_extra if name.startswith('flux-lits-region')], 2) %}
   <div class="row extra-plots">
   {% for fig_name in row %}
   {% if fig_name is not None %}
       <div class="col-sm-5 figure">
-	      <!--<img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" /> -->
+	  <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
   
       </div>
   {% end %}
   {% end %}
   </div>
+  {% end %}
   {% end %}
 {% end %}

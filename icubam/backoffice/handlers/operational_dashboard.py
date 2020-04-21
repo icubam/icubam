@@ -192,8 +192,6 @@ class OperationalDashHandler(base.AdminHandler):
     plots_extra = _list_extra_plots(
       Path(self.config.backoffice.extra_plots_dir)
     )
-    # stack two columns per row
-    plots_extra = _grouper(plots_extra, 2)
 
     regions = [{
       'name': el.name,
@@ -220,5 +218,6 @@ class OperationalDashHandler(base.AdminHandler):
       metrics_layout=metrics_layout,
       plots_extra=plots_extra,
       region2region=region2region,
-      backoffice_root=self.config.backoffice.root
+      backoffice_root=self.config.backoffice.root,
+      _grouper=_grouper
     )
