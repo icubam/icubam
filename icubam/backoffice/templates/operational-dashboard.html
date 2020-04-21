@@ -74,7 +74,7 @@
 {% block dashboard_covid_p %}
   <div class="row extra-plots">
       <div class="col-sm-6 offset-4 figure">
-	<img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ current_region_name }}.png" />
+	<img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
 
       </div>
   </div>

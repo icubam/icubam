@@ -201,6 +201,17 @@ class OperationalDashHandler(base.AdminHandler):
     } for el in self.db.get_regions()]
     regions = list(sorted(regions, key=lambda x: x['name']))
 
+    # TODO: remove this in favor of plotting refactoring
+
+    region2region = {
+      "Grand-Est": "Alsace-Champagne-Ardenne-Lorraine",
+      "Nouvelle-Aquitaine": "Aquitaine-Limousin-Poitou-Charentes",
+      "AURA": "Auvergne-Rhône-Alpes",
+      "Centre-Val-de-Loire": "Centre-Val de Loire",
+      "Hauts-de-France": "Nord-Pas-de-Calais-Picardie",
+      "Pays-de-la-Loire": "Pays de la Loire"
+    }
+
     return self.render(
       "operational-dashboard.html",
       figures=figures,
@@ -208,5 +219,6 @@ class OperationalDashHandler(base.AdminHandler):
       current_region_name=current_region_name,
       metrics_layout=metrics_layout,
       plots_extra=plots_extra,
+      region2region=region2region,
       backoffice_root=self.config.backoffice.root
     )
