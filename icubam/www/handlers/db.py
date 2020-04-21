@@ -9,6 +9,7 @@ from absl import logging  # noqa: F401
 
 from icubam import predicu
 from icubam.db import store, synchronizer
+from icubam.predicu.plot import operational_dashboard
 from icubam.www.handlers import base, home
 
 
@@ -164,3 +165,26 @@ class DBHandler(base.APIKeyProtectedHandler):
       logging.error(f"DB POST accessed with incorrect endpoint: {collection}.")
       self.set_status(404)
       return
+
+
+class OperationalDashboardHandler(base.APIKeyProtectedHandler):
+
+  ROUTE = '/dashboard'
+  API_COOKIE = 'api'
+  ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
+
+  @base.authenticated(code=503)
+  def get(self):
+    """Serves a page with a table gathering current bedcount data with some extra information."""
+    arg_region = self.get_query_argument('region', default=None)
+    locale = self.get_user_locale()
+    kwargs = operational_dashboard.make(
+      self.current_user.external_client_id, self.db, arg_region, locale,
+      self.config.backoffice.extra_plots_dir
+    )
+    return self.render(
+      "../../backoffice/templates/operational-dashboard-base.html",
+      backoffice_root='',
+      api_key=self.get_query_argument('API_KEY', None),
+      **kwargs
+    )

@@ -47,6 +47,7 @@ class WWWServer(base_server.BaseServer):
         }
       }
     )
+    self.add_handler(db.OperationalDashboardHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
