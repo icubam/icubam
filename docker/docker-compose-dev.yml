@@ -7,7 +7,7 @@ services:
       context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
-    container_name: icubam-server
+    container_name: icubam_server
     command: ./docker/start_server.sh
     restart: unless-stopped
     tty: true
@@ -40,7 +40,7 @@ services:
       context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
-    container_name: icubam-sms-server
+    container_name: icubam_sms_server
     command: ./docker/start_server_sms.sh
     restart: unless-stopped
     tty: true
@@ -71,7 +71,7 @@ services:
       context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
-    container_name: icubam-bo-server
+    container_name: icubam_bo_server
     command: ./docker/start_server_bo.sh
     restart: unless-stopped
     tty: true

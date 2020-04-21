@@ -46,5 +46,5 @@ jobs:
         ./docker/scripts/docker_build.sh latest
         ./docker/scripts/docker_run.sh icubam:latest 8888 dev
         sleep 5
-        docker logs icubam-server
+        docker logs icubam_server
 

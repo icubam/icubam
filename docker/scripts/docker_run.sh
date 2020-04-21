@@ -32,7 +32,7 @@ fi
 
 
 docker run -d -p "${2}":8888 \
-    --name icubam-server \
+    --name icubam_server \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
