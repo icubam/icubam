@@ -9,7 +9,7 @@ from absl import logging  # noqa: F401
 
 from icubam import predicu
 from icubam.db import store, synchronizer
-from icubam.predicu.plot import operational_dashboard
+from icubam.predicu import operational_dashboard
 from icubam.www.handlers import base, home
 
 
