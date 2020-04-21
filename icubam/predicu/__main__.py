@@ -1,13 +1,37 @@
-import argparse
+from pathlib import Path
 import datetime
 import logging
 import os
+import sys
 
+import asyncio
+import click
+
+from icubam.config import Config
+from icubam.db.store import create_store_factory_for_sqlite_db
 from icubam.predicu.data import load_bedcounts
+from icubam.predicu.analytics_server import AnalyticsCallback
 
 
-def export_data(args):
-  output_dir = args.output_dir
+@click.group()
+def cli():
+  pass
+
+
+@cli.command(name="export")
+@click.option("--output-dir", "-o", default="/tmp", type=str)
+@click.option("--api-key", default=None)
+@click.option("--spread-cum-jump-correction", default=False, type=bool)
+@click.option("--icubam-host", default="localhost", type=str)
+@click.option(
+  "--max-date",
+  default=None,
+  help="max date of the exported data (e.g. 2020-04-05)",
+  type=str
+)
+def export_data(
+  output_dir, api_key, spread_cum_jump_correction, icubam_host, max_date
+):
   if not os.path.isdir(output_dir):
     logging.info("creating directory %s" % output_dir)
     os.makedirs(output_dir)
@@ -19,31 +43,41 @@ def export_data(args):
   path = os.path.join(output_dir, filename)
   d = load_bedcounts(
     preprocess=True,
-    api_key=args.api_key,
-    max_date=args.max_date,
-    icubam_host=args.icubam_host,
-    spread_cum_jump_correction=args.spread_cum_jump_correction,
+    api_key=api_key,
+    max_date=max_date,
+    icubam_host=icubam_host,
+    spread_cum_jump_correction=spread_cum_jump_correction,
   )
   d.to_csv(path)
   logging.info("export DONE.")
 
 
+@cli.command(name="make_dashboard_plots")
+@click.option(
+  "--config", "-o", type=str, required=True, help="ICUBAM config file."
+)
+@click.option("--output-dir", "-o", default="/tmp", type=str)
+def make_dasboard_plots(config, output_dir):
+  config = Config(config)
+  # Make sure DB path exists, to avoid creating an empty one
+  if not Path(config.db.sqlite_path).exists():
+    click.echo(f"Could not find DB at {config.db.sqlite_path}!", err=True)
+    sys.exit(1)
+
+  output_dir = Path(output_dir)
+  if not output_dir.exists():
+    if not output_dir.parent.exists():
+      click.echo(f"Output directory {output_dir}!", err=True)
+      sys.exit(1)
+    # otherwise necessary folder will be created by generate_plots
+
+  store_factory = create_store_factory_for_sqlite_db(config)
+  callback = AnalyticsCallback(output_dir, store_factory)
+  eventloop = asyncio.new_event_loop()
+  eventloop.run_until_complete(callback.generate_plots())
+  click.echo(f'Generated dashboard plots in {output_dir}')
+
+
 if __name__ == "__main__":
   logging.getLogger().setLevel(logging.INFO)
-  parser = argparse.ArgumentParser()
-  subparsers = parser.add_subparsers()
-  parser_export = subparsers.add_parser("export", help="export data")
-  parser_export.set_defaults(func=export_data)
-  parser_export.add_argument("--output-dir", "-o", default="/tmp/")
-  parser_export.add_argument("--api-key", default=None)
-  parser_export.add_argument(
-    "--spread-cum-jump-correction", default=False, action="store_true"
-  )
-  parser_export.add_argument("--icubam-host", default="localhost")
-  parser_export.add_argument(
-    "--max-date",
-    default=None,
-    help="max date of the exported data (e.g. 2020-04-05)",
-  )
-  args = parser.parse_args()
-  args.func(args)
+  cli()
