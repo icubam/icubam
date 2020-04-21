@@ -1,6 +1,3 @@
-# ARG required due to build option in docker-compose
-ARG ENV_MODE
-
 FROM python:3.8.2-slim-buster as builder
 
 # silence error messages

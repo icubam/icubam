@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 # check that all required parameters are provided
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
-	  echo "usage: ${0} IMAGE_NAME ENV"
+	  echo "usage: ${0} IMAGE_NAME"
 	  echo "   where IMAGE_NAME is the image name and tage to use"
-	  echo "   where ENV can be dev, prod"
       echo ""
       echo "   example: ${0} icubam:1.0 dev"
 	  exit
@@ -29,7 +28,7 @@ docker run -dt \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
-    --env ENV_MODE="${2}" \
+    --env ENV_MODE="${ENV_MODE:-prod}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
     --env JWT_SECRET="${JWT_SECRET}" \
     --env GOOGLE_API_KEY="${GOOGLE_API_KEY}" \

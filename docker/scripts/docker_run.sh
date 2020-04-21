@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 # check that all required parameters are provided
-if [ $# -ne 3 ]
+if [ $# -ne 2 ]
 then
-	  echo "usage: ${0} IMAGE_NAME PORT ENV"
+	  echo "usage: ${0} IMAGE_NAME PORT"
 	  echo "   where IMAGE_NAME is the image name and tage to use"
 	  echo "   where PORT is the local port number where to map the port of the server on the container"
-	  echo "   where ENV can be dev, prod"
       echo ""
       echo "   example: ${0} icubam:1.0 9000 dev"
 	  exit
@@ -37,7 +36,7 @@ docker run -d -p "${2}":8888 \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
-    --env ENV_MODE="${3}" \
+    --env ENV_MODE="${ENV_MODE:-prod}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
     --env JWT_SECRET="${JWT_SECRET}" \
     --env GOOGLE_API_KEY="${GOOGLE_API_KEY}" \

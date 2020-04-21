@@ -121,8 +121,6 @@ These environment variables are not set in the Docker image, but must be set whe
 docker/docker-compose command.  Also check the [install.md](./install.md) documentation for more details.
 
 Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) .
-The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment
-variable (check the files `start_server.sh` and `start_server_sms.sh`).
 
 **Setting up environement variables**
 
