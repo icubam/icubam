@@ -16,7 +16,7 @@ class OperationalDashHandler(base.AdminHandler):
       self.config.backoffice.extra_plots_dir
     )
     return self.render(
-      "operational-dashboard-base.html",
+      "operational-dashboard.html",
       backoffice_root=self.config.backoffice.root,
       api_key=None,
       **kwargs

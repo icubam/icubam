@@ -179,12 +179,16 @@ class OperationalDashboardHandler(base.APIKeyProtectedHandler):
     arg_region = self.get_query_argument('region', default=None)
     locale = self.get_user_locale()
     kwargs = operational_dashboard.make(
-      self.current_user.external_client_id, self.db, arg_region, locale,
-      self.config.backoffice.extra_plots_dir
+      self.current_user.external_client_id,
+      self.db,
+      arg_region,
+      locale,
+      self.config.backoffice.extra_plots_dir,
+      external=True
     )
     return self.render(
-      "../../backoffice/templates/operational-dashboard-base.html",
-      backoffice_root='',
+      "../../backoffice/templates/operational-dashboard.html",
+      backoffice_root='backoffice',
       api_key=self.get_query_argument('API_KEY', None),
       **kwargs
     )

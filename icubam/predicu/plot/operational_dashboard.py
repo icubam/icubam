@@ -1,16 +1,17 @@
-from typing import List, Tuple
-
-import os
-from pathlib import Path
-from itertools import zip_longest
-import pandas as pd
-import math
 
 from absl import logging
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.transform import dodge
 from bokeh.models import ColumnDataSource
+import functools
+from itertools import zip_longest
+import math
+import os
+import pandas as pd
+from pathlib import Path
+from typing import List, Tuple
+
 
 from icubam.db.store import to_pandas, BedCount
 
@@ -141,7 +142,9 @@ def _list_extra_plots(input_dir: Path) -> List[str]:
   return list(sorted(out))
 
 
-def make(user_id, db, region=None, locale=None, extra_plots_dir=""):
+def make(
+  user_id, db, region=None, locale=None, extra_plots_dir="", external=False
+):
   current_region = None
   if locale is not None:
     current_region_name = locale.translate("All regions")
@@ -158,20 +161,25 @@ def make(user_id, db, region=None, locale=None, extra_plots_dir=""):
         f"Falling back to all regions."
       )
 
+  if not external:
+    get_counts_fn = db.get_visible_bed_counts_for_user
+  else:
+    get_counts_fn = functools.partial(
+      db.get_bed_counts_for_external_client, latest=True)
+
   figures = []
-  bed_counts = db.get_visible_bed_counts_for_user(user_id)
+  bed_counts = get_counts_fn(user_id)
   if bed_counts:
     bed_counts = to_pandas(bed_counts)
+    if current_region is not None:
+      mask = bed_counts['icu_region_id'] == current_region.region_id
+      bed_counts = bed_counts[mask]
   else:
     # when no data, make sure the resulting dataframe has
     # correct column names.
     columns = [key for key in dir(BedCount) if not key.startswith('_')]
     columns += ['icu_dept']
     bed_counts = pd.DataFrame([], columns=columns)
-
-  if current_region is not None:
-    mask = bed_counts['icu_region_id'] == current_region.region_id
-    bed_counts = bed_counts[mask]
 
   df, metrics_layout = _prepare_data(bed_counts)
 

@@ -50,8 +50,23 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(db.OperationalDashboardHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)
-    self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
     self.add_handler(error.ErrorHandler, **kwargs)
+
+    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+      self.routes.append((
+        '/backoffice/static/extra-plots/(.*)', tornado.web.StaticFileHandler, {
+          'path': self.config.backoffice.extra_plots_dir
+        }
+      ))
+      parent = os.path.join('/', '/'.join(os.path.split(self.path)[:-1]))
+      bo_path = os.path.join(parent, 'backoffice/static/dist')
+      self.routes.append((
+        '/static/dist/(.*)', tornado.web.StaticFileHandler, {
+          'path': bo_path
+        }
+      ))
+
+    self.add_handler(static.NoCacheStaticFileHandler, root=self.path)
 
   def make_app(self, cookie_secret=None):
     if cookie_secret is None:

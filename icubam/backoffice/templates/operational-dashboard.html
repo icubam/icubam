@@ -50,57 +50,79 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-5 dash-metrics">
-        {% for row in metrics_layout %}
-        <div class="row"> 
-            {% for metric in row %}
-            <div class="col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">{{ metric['value'] }}</h3>
-                    <p class="card-text">
-                    {% for token in  metric['label']  %}
-                        {{ _(token) }}
+        <div class="col col-sm-12">
+            <ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="operational-tab" data-toggle="tab" href="#operational" role="tab" aria-controls="operational" aria-selected="true">
+                        {{ _("Dashboard") }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="covid_p_tab" data-toggle="tab" href="#covid_p" role="tab" aria-controls="covid_p" aria-selected="false">
+                        Covid+
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="covid_n-tab" data-toggle="tab" href="#covid_n" role="tab" aria-controls="covid_n" aria-selected="false">
+                        Covid-
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="dashboard-tabs-content">
+                <div class="tab-pane fade show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
+    
+                    <div class="row">
+                        <div class="col-sm-5 dash-metrics">
+                            {% for row in metrics_layout %}
+                                <div class="row"> 
+                                    {% for metric in row %}
+                                    <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h3 class="card-title">{{ metric['value'] }}</h3>
+                                            <p class="card-text">
+                                            {% for token in  metric['label']  %}
+                                                {{ _(token) }}
+                                            {% end %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    {% end %}
+                                </div>
+                                {% end %}
+                                <div class="col-sm-5"></div>
+                        </div>
+                    
+                        <div class="col-sm-6 figure">   
+                        {% for figure in figures%}
+                            {% raw figure['script'] %}
+                        
+                            {% raw figure['div'] %}
+                        {% end %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
+                    {% for row in plots_extra %}
+                    <div class="row extra-plots">
+                    {% for fig_name in row %}
+                    {% if fig_name is not None %}
+                        <div class="col-sm-5 figure">
+                        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
+                        </div>
                     {% end %}
-                    </p>
+                    {% end %}
+                    </div>
+                    {% end %}
+                </div>
+                <div class="tab-pane fade" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
                 </div>
             </div>
-            </div>
-            {% end %}
-        </div>
-        {% end %}
-        <div class="col-sm-5"></div>
-    </div>
-
-    <div class="col-sm-6 figure">
-        {% for figure in figures%}
-            {% raw figure['script'] %}
-        
-            {% raw figure['div'] %}
-        {% end %}
         </div>
     </div>
-
-    {% if plots_extra %}
-        <div class="row">
-            <div class="col">
-                <h2>{{ _("Extra figures") }}</h2>
-            </div>
-        </div>
-    {% end %}
-    
-    {% for row in plots_extra %}
-    <div class="row extra-plots">
-    {% for fig_name in row %}
-    {% if fig_name is not None %}
-        <div class="col-sm-5 figure">
-          <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
-        </div>
-    {% end %}
-    {% end %}
-    </div>
-    {% end %}
-
 </div>
 
 {% end %}
