@@ -192,11 +192,22 @@ def make(
   regions = [{'name': el.name, 'id': el.region_id} for el in db.get_regions()]
   regions = list(sorted(regions, key=lambda x: x['name']))
 
+  # TODO: remove this in favor of fixing plot names
+  region2region = {
+    "Grand-Est": "Alsace-Champagne-Ardenne-Lorraine",
+    "Nouvelle-Aquitaine": "Aquitaine-Limousin-Poitou-Charentes",
+    "AURA": "Auvergne-Rhône-Alpes",
+    "Centre-Val-de-Loire": "Centre-Val de Loire",
+    "Hauts-de-France": "Nord-Pas-de-Calais-Picardie",
+    "Pays-de-la-Loire": "Pays de la Loire"
+  }
+
   return {
     'figures': figures,
     'regions': regions,
     'current_region_name': current_region_name,
     'metrics_layout': metrics_layout,
     'plots_extra': plots_extra,
-    '_grouper': _grouper
+    '_grouper': _grouper,
+    "region2region": region2region,
   }
