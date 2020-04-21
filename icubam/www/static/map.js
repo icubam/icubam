@@ -70,7 +70,7 @@ function addMarker(obj, map) {
 
   var infowindow = new google.maps.InfoWindow({
     content: obj.popup,
-    maxWidth: 500,
+    maxWidth: 600,
   });
 
   let icon_url = "http://maps.google.com/mapfiles/ms/icons/"
