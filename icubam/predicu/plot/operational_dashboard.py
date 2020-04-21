@@ -12,7 +12,6 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Tuple
 
-
 from icubam.db.store import to_pandas, BedCount
 
 
@@ -165,7 +164,8 @@ def make(
     get_counts_fn = db.get_visible_bed_counts_for_user
   else:
     get_counts_fn = functools.partial(
-      db.get_bed_counts_for_external_client, latest=True)
+      db.get_bed_counts_for_external_client, latest=True
+    )
 
   figures = []
   bed_counts = get_counts_fn(user_id)
