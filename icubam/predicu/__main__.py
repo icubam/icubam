@@ -29,6 +29,14 @@ def cli():
   help="max date of the exported data (e.g. 2020-04-05)",
   type=str
 )
+def export_data_cli(
+  output_dir, api_key, spread_cum_jump_correction, icubam_host, max_date
+):
+  export_data(
+    output_dir, api_key, spread_cum_jump_correction, icubam_host, max_date
+  )
+
+
 def export_data(
   output_dir, api_key, spread_cum_jump_correction, icubam_host, max_date
 ):
