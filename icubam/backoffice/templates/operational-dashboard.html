@@ -72,13 +72,6 @@
 
 <!-- Dashboard Covid+ tab -->
 {% block dashboard_covid_p %}
-  {% if plots_extra %}
-  <div class="row">
-  <div class="col">
-  <h2>{{ _("Extra figures") }}</h1>
-  </div>
-  </div>
-  {% end %}
   
   {% for row in plots_extra %}
   <div class="row extra-plots">

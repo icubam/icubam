@@ -10,19 +10,45 @@
 {% block content %}
 <div class="container operational-dash">
     <div class="row text-center">
-    <h1 class='text-center'>{{ _("Operational dashboard") }}</h1>
+    <h1 class='text-center'>{{ _("Dashboard") }}</h1>
     </div>
     {% block dashboard_filter %}
     {% end %}
-    <div class="row">
-        {% block dashboard_metrics %}
-        {% end %}
-        {% block dashboard_op_figure %}
-        {% end %}
-    </div>
 
-   {% block dashboard_covid_p %}
-   {% end %}
+   <div class="row">
+     <div class="col col-sm-12">
+     <ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+       <li class="nav-item">
+	<a class="nav-link active" id="operational-tab" data-toggle="tab" href="#operational" role="tab" aria-controls="operational" aria-selected="true">{{ _("Operational dasboard") }}</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" id="covid_p_tab" data-toggle="tab" href="#covid_p" role="tab" aria-controls="covid_p" aria-selected="false">Covid+</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" id="covid_n-tab" data-toggle="tab" href="#covid_n" role="tab" aria-controls="covid_n" aria-selected="false">Covid-</a>
+       </li>
+     </ul>
+     <div class="tab-content" id="dashboard-tabs-content">
+       <div class="tab-pane fade show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
+       
+       <div class="row">
+           {% block dashboard_metrics %}
+           {% end %}
+           {% block dashboard_op_figure %}
+           {% end %}
+       </div>
+       
+       
+       </div>
+       <div class="tab-pane fade" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">
+       {% block dashboard_covid_p %}
+       {% end %}
+       </div>
+       <div class="tab-pane fade" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab"></div>
+     </div>
+   </div>
+
+   </div>
 
 </div>
 

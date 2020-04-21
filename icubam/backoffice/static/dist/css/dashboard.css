@@ -23,3 +23,6 @@ div.operational-dash .figure img {
     width: 100%;
 }
 
+div.operational-dash #dashboard-tabs-content > div {
+    margin-top: 3em;
+}
