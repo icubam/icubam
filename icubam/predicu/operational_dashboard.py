@@ -169,16 +169,18 @@ def make(
   figures = []
   bed_counts = get_counts_fn(user_id)
   if bed_counts:
-    bed_counts = to_pandas(bed_counts)
+    bed_counts_raw = to_pandas(bed_counts)
+    region_id_seen = bed_counts_raw.icu_region_id.unique().tolist()
     if current_region is not None:
-      mask = bed_counts['icu_region_id'] == current_region.region_id
-      bed_counts = bed_counts[mask]
+      mask = bed_counts_raw['icu_region_id'] == current_region.region_id
+      bed_counts = bed_counts_raw[mask]
   else:
     # when no data, make sure the resulting dataframe has
     # correct column names.
     columns = [key for key in dir(BedCount) if not key.startswith('_')]
     columns += ['icu_dept']
     bed_counts = pd.DataFrame([], columns=columns)
+    region_id_seen = []
 
   df, metrics_layout = _prepare_data(bed_counts)
 
@@ -189,7 +191,10 @@ def make(
 
   plots_extra = _list_extra_plots(Path(extra_plots_dir))
 
-  regions = [{'name': el.name, 'id': el.region_id} for el in db.get_regions()]
+  regions = [{
+    'name': el.name,
+    'id': el.region_id
+  } for el in db.get_regions() if el.region_id in region_id_seen]
   regions = list(sorted(regions, key=lambda x: x['name']))
 
   # TODO: remove this in favor of fixing plot names
