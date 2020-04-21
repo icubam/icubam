@@ -188,8 +188,6 @@ def make(
   figures.append(dict(script=script, div=div))
 
   plots_extra = _list_extra_plots(Path(extra_plots_dir))
-  # stack two columns per row
-  plots_extra = _grouper(plots_extra, 2)
 
   regions = [{'name': el.name, 'id': el.region_id} for el in db.get_regions()]
   regions = list(sorted(regions, key=lambda x: x['name']))
@@ -199,5 +197,6 @@ def make(
     'regions': regions,
     'current_region_name': current_region_name,
     'metrics_layout': metrics_layout,
-    'plots_extra': plots_extra
+    'plots_extra': plots_extra,
+    '_grouper': _grouper
   }
