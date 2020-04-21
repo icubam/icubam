@@ -1,88 +1,145 @@
-{% extends "operational-dashboard-base.html" %}
+{% extends "base.html" %}
 
-<!-- Dashboard filter navbar -->
-{% block dashboard_filter %}
-    <div class="row dashboard-filter">
-       <div class="dropdown">
-         <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-           {% if current_region_name != 'All regions' %}
-             {{ _("Region") }}:
-           {% end %}
-           {{ current_region_name }}
-         </a>
-       
-         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-           <a class="dropdown-item" href="#">{{ _("All regions") }}</a>
-           <div class="dropdown-divider"></div>
-           {% for row in regions %}
-           <a class="dropdown-item" href="?region={{ row['id'] }}">{{ row['name'] }}</a>
-           {% end %}
-         </div>
-       </div>
+{% block links %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="static/dist/css/dashboard.css">
 
-       <script>
-        $(".dropdown-menu .dropdown-item").click(function(e) {
-           // reloads page with new parameters
-           // TODO: use the bokeh server instead of hacks.
-           window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ); 
-        });
-       </script>
+{% end %}
+
+{% block content %}
+<div class="container operational-dash">
+    <div class="row text-center">
+    <h1 class='text-center'>{{ _("Dashboard") }}</h1>
     </div>
-{% end %}
 
+    <div class="row dashboard-filter">
+        <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% if current_region_name != 'All regions' %}
+                {{ _("Region") }}:
+            {% end %}
+            {{ current_region_name }}
+            </a>
 
-<!-- Dashboard metrics cards -->
-{% block dashboard_metrics %}
-
-<div class="col-sm-5 dash-metrics">
-     {% for row in metrics_layout %}
-     <div class="row"> 
-        {% for metric in row %}
-        <div class="col-sm-4">
-           <div class="card">
-              <div class="card-body">
-                 <h3 class="card-title">{{ metric['value'] }}</h3>
-                 <p class="card-text">
-                 {% for token in  metric['label']  %}
-                    {{ _(token) }}
-                 {% end %}
-                 </p>
-              </div>
-           </div>
+            {% if api_key %}
+                {% set api_key_params_all = "?API_KEY=" + api_key%}
+                {% set api_key_params_regions = "&API_KEY=" + api_key%}
+            {% else %}
+                {% set api_key_params_all = "" %}
+                {% set api_key_params_regions = "" %}
+            {% end %}
+        
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="{{api_key_params_all}}#">{{ _("All regions") }}</a>
+            <div class="dropdown-divider"></div>
+            {% for row in regions %}
+            <a class="dropdown-item" href="?region={{ row['id'] }}{{api_key_params_regions}}">
+                {{ row['name'] }}</a>
+            {% end %}
+            </div>
         </div>
-        {% end %}
-     </div>
-     {% end %}
-     <div class="col-sm-5">
-     </div>
+ 
+        <script>
+         $(".dropdown-menu .dropdown-item").click(function(e) {
+            // reloads page with new parameters
+            // TODO: use the bokeh server instead of hacks.
+            window.location.href = window.location.href.replace( /[\?#].*|$/, $(this).attr("href") ); 
+         });
+        </script>
+    </div>
+
+    <div class="row">
+        <div class="col col-sm-12">
+            <ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="operational-tab" data-toggle="tab" href="#operational" role="tab" aria-controls="operational" aria-selected="true">
+                        {{ _("Dashboard") }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="covid_p_tab" data-toggle="tab" href="#covid_p" role="tab" aria-controls="covid_p" aria-selected="false">
+                        Covid+
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="covid_n-tab" data-toggle="tab" href="#covid_n" role="tab" aria-controls="covid_n" aria-selected="false">
+                        Covid-
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="dashboard-tabs-content">
+                <div class="tab-pane fade show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
+    
+                    <div class="row">
+                        <div class="col-sm-5 dash-metrics">
+                            {% for row in metrics_layout %}
+                                <div class="row"> 
+                                    {% for metric in row %}
+                                    <div class="col-sm-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h3 class="card-title">{{ metric['value'] }}</h3>
+                                            <p class="card-text">
+                                            {% for token in  metric['label']  %}
+                                                {{ _(token) }}
+                                            {% end %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    {% end %}
+                                </div>
+                                {% end %}
+                                <div class="col-sm-5"></div>
+                        </div>
+                    
+                        <div class="col-sm-6 figure">   
+                        {% for figure in figures%}
+                            {% raw figure['script'] %}
+                        
+                            {% raw figure['div'] %}
+                        {% end %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
+                    {% for row in plots_extra %}
+                    <div class="row extra-plots">
+                    {% for fig_name in row %}
+                    {% if fig_name is not None %}
+                        <div class="col-sm-5 figure">
+                        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
+                        </div>
+                    {% end %}
+                    {% end %}
+                    </div>
+                    {% end %}
+                </div>
+                <div class="tab-pane fade" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 {% end %}
 
 
-<!-- Dashboard bokeh figure in the operational dashboard -->
-{% block dashboard_op_figure %}
-  <div class="col-sm-6 figure">
-  {% for figure in figures%}
-      {% raw figure['script'] %}
-  
-      {% raw figure['div'] %}
-  {% end %}
-  </div>
-{% end %}
+{% block scripts %}
 
-<!-- Dashboard Covid+ tab -->
-{% block dashboard_covid_p %}
-  
-  {% for row in plots_extra %}
-  <div class="row extra-plots">
-  {% for fig_name in row %}
-  {% if fig_name is not None %}
-      <div class="col-sm-5 figure">
-        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
-  
-      </div>
-  {% end %}
-  {% end %}
-  </div>
-  {% end %}
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+<script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
+<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+<script
+    src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"
+></script>
 {% end %}
