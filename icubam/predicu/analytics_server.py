@@ -24,6 +24,7 @@ class AnalyticsCallback:
       cached_data=cached_data,
       output_dir=self.output_dir
     )
+    logging.info('[periodic callback] Finished plots generation with predicu')
 
 
 def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
