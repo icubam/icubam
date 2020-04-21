@@ -110,7 +110,6 @@
                     <div class="row extra-plots">
                         <div class="col-sm-6 offset-4 figure">
                           <img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
-
                         </div>
                     </div>
                     {% else %}  {# current_region_name == 'All regions' #}
@@ -135,7 +134,6 @@
 </div>
 
 <script>
-
 $(document).ready(function(){
     $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
         localStorage.setItem('activeTab', $(e.target).attr('href'));
@@ -144,9 +142,7 @@ $(document).ready(function(){
     if (activeTab) {
         $('#dashboard-tabs a[href="' + activeTab + '"]').tab('show');
     }
-
 });
-
 </script>
 
 {% end %}
