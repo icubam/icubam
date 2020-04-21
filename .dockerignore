@@ -6,5 +6,5 @@ icubam.egg-info
 docker/configs/certbot
 docker/scripts
 docker/resources
-test.db
-icubam.db
+**/*.db
+
