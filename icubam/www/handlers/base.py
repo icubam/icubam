@@ -100,17 +100,17 @@ class APIKeyProtectedHandler(BaseHandler):
   def get_current_user(self):
     key = self.get_query_argument('API_KEY', None)
     if key is None:
-      logging.error('no API_KEY')
+      logging.info('no API_KEY')
       return
 
     client = self.db.auth_external_client(key)
     if client is None:
-      logging.error(f'Unknown API key {key}')
+      logging.info(f'Unknown API key {key}')
       return None
 
     if client.access_type in self.ACCESS:
       self.regions = client.regions
       return client
     else:
-      logging.error(f'Unauthorized route.')
+      logging.info(f'Unauthorized route.')
       return None
