@@ -1,0 +1,39 @@
+# Keys
+default_locale='fr-fr'
+
+# Tables
+[sms]
+  origin = "ICUBAM"
+  carrier = "FAKE"
+
+[email]
+  service = "FAKE"
+  use_ssl = false
+
+[db]
+  sqlite_path = "test.db"
+
+[server]
+  PORT = 8888  # will be lower cased when reading.
+  base_url = "http://localhost:8888/"
+  upload_dir = "uploads/"
+  consent = 'resources/consent.html'
+  num_days_for_stale = 1.0
+
+[messaging]
+  PORT = 8889  # will be lower cased when reading.
+  base_url = "http://localhost:8889/"
+  timeout = 2
+
+[scheduler]
+  max_retries = 3
+  reminder_delay = 45
+  new_user_delay = 60
+  ping = ['12:30', '17:30', '14:12']
+
+[backoffice]
+  port = 8890
+  ping_every = 60  # in seconds
+  root = 'bo'
+  extra_plots_dir = "/tmp/dasboard_plots_dir"
+  extra_plots_make_every = -1  # in seconds

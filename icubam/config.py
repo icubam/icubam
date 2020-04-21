@@ -8,7 +8,7 @@ import dotmap
 import toml
 
 DEFAULT_DOTENV_PATH = "resources/icubam.env"
-DEFAULT_CONFIG_PATH = "resources/config.toml"
+DEFAULT_CONFIG_PATH = "resources/config_dev.toml"
 
 
 class Config:
@@ -24,10 +24,9 @@ class Config:
     'SMTP_USER', 'SMTP_PASSWORD', 'EMAIL_FROM', 'SENTRY_URL', 'SENTRY_ENV'
   ]
 
-  def __init__(self, toml_config, mode='dev', env_path=None):
+  def __init__(self, toml_config, env_path=None):
     """If env_path is None, it will try to find it by itself."""
     self.toml_config = toml_config
-    self.mode = mode
     if not os.path.exists(toml_config):
       raise Exception(f"Couldn't find INI file: {toml_config}")
     sub_conf = self._preprocess(toml.load(self.toml_config))
@@ -41,14 +40,14 @@ class Config:
     logging.info(f"Loaded: {self.env}.")
 
   def _preprocess(self, conf):
-    """Recursively selects the proper mode and enforces lower keys."""
+    """Recursively enforce lower keys."""
     result = {}
     for k, v in conf.items():
       if not isinstance(v, dict):
         result[k.lower()] = v
       else:
-        sub = v.get(self.mode, v)
-        result[k.lower()] = self._preprocess(sub)
+        result[k.lower()] = self._preprocess(v)
+
     return result
 
   def __getitem__(self, key: str):

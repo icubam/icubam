@@ -13,7 +13,6 @@ flags.DEFINE_string("dotenv_path", "resources/.env", "Config file.")
 flags.DEFINE_string(
   "pre_icubam_data_path", "pre_icubam_data.csv", "Path to pre-icubam CSV file"
 )
-flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 
 FLAGS = flags.FLAGS
 
@@ -33,9 +32,7 @@ def add_pre_icubam_bed_counts(pre_icubam_data_path, csv_synchronizer):
 
 
 def main(args=None):
-  cfg = config.Config(
-    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
-  )
+  cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   store = store_factory.create()
   csv_synchronizer = synchronizer.CSVSynchronizer(store)

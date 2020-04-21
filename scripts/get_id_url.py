@@ -12,16 +12,13 @@ flags.DEFINE_string(
   'dotenv_path', config.DEFAULT_DOTENV_PATH,
   'Optionally specifies the .env path.'
 )
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_boolean('all', False, 'Get all ids')
 
 FLAGS = flags.FLAGS
 
 
 def main(argv):
-  cfg = config.Config(
-    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
-  )
+  cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   sqldb_factory = store.create_store_factory_for_sqlite_db(cfg)
   sqldb = sqldb_factory.create()
   encoder = token.TokenEncoder(cfg)
