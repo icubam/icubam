@@ -826,9 +826,10 @@ class Store(object):
     region_icu_ids = session.query(ICU.icu_id).filter(
       ICU.region_id.in_(region_ids.subquery())
     )
-    return self._get_bed_counts_for_icus(
-      region_icu_ids.subquery(), latest=latest, **kargs
-    )
+    # TODO(olivier): do it better.
+    client = self.get_external_client(external_client_id)
+    icus = region_icu_ids.subquery() if client.regions else None
+    return self._get_bed_counts_for_icus(icus, latest=latest, **kargs)
 
   # External client related methods.
 
