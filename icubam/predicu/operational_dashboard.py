@@ -169,11 +169,11 @@ def make(
   figures = []
   bed_counts = get_counts_fn(user_id)
   if bed_counts:
-    bed_counts_raw = to_pandas(bed_counts)
-    region_id_seen = bed_counts_raw.icu_region_id.unique().tolist()
+    bed_counts = to_pandas(bed_counts)
+    region_id_seen = bed_counts.icu_region_id.unique().tolist()
     if current_region is not None:
-      mask = bed_counts_raw['icu_region_id'] == current_region.region_id
-      bed_counts = bed_counts_raw[mask]
+      mask = bed_counts['icu_region_id'] == current_region.region_id
+      bed_counts = bed_counts[mask]
   else:
     # when no data, make sure the resulting dataframe has
     # correct column names.
