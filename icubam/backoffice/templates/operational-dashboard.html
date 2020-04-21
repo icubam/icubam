@@ -62,15 +62,17 @@
                         Covid+
                     </a>
                 </li>
+		<!--
                 <li class="nav-item">
                     <a class="nav-link" id="covid_n-tab" data-toggle="tab" href="#covid_n" role="tab" aria-controls="covid_n" aria-selected="false">
                         Covid-
                     </a>
                 </li>
+		-->
             </ul>
 
             <div class="tab-content" id="dashboard-tabs-content">
-                <div class="tab-pane fade show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
+                <div class="tab-pane show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
     
                     <div class="row">
                         <div class="col-sm-5 dash-metrics">
@@ -105,8 +107,15 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
-                    {% for row in plots_extra %}
+                <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
+                   {% if current_region_name != 'All regions' %}
+                    <div class="row extra-plots">
+                        <div class="col-sm-6 offset-4 figure">
+                          <img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
+                        </div>
+                    </div>
+                    {% else %}  {# current_region_name == 'All regions' #}
+                    {% for row in _grouper([name for name in plots_extra if name.startswith('flux-lits-region')], 2) %}
                     <div class="row extra-plots">
                     {% for fig_name in row %}
                     {% if fig_name is not None %}
@@ -117,13 +126,29 @@
                     {% end %}
                     </div>
                     {% end %}
+                    {% end %}
                 </div>
-                <div class="tab-pane fade" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
+		<!--
+                <div class="tab-pane" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
                 </div>
+		-->
             </div>
         </div>
     </div>
 </div>
+
+<script>
+{# Remeber current tab and display it when the page is reloaded (e.g. by clicking on the region button) #}
+$(document).ready(function(){
+    $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+        localStorage.setItem('activeTab', $(e.target).attr('href'));
+    });
+    var activeTab = localStorage.getItem('activeTab');
+    if (activeTab) {
+        $('#dashboard-tabs a[href="' + activeTab + '"]').tab('show');
+    }
+});
+</script>
 
 {% end %}
 
