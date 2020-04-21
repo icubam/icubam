@@ -170,6 +170,7 @@ class DBHandler(base.APIKeyProtectedHandler):
 class OperationalDashboardHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/dashboard'
+  BACKOFFICE_PREFIX = 'backoffice'
   API_COOKIE = 'api'
   ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
 
@@ -186,9 +187,12 @@ class OperationalDashboardHandler(base.APIKeyProtectedHandler):
       self.config.backoffice.extra_plots_dir,
       external=True
     )
+
+    parent_path = '/'.join(os.path.split(self.PATH)[:-1])
+    template_folder = os.path.join('/', parent_path, 'backoffice/templates/')
     return self.render(
-      "../../backoffice/templates/operational-dashboard.html",
-      backoffice_root='backoffice',
+      os.path.join(template_folder, 'operational-dashboard.html'),
+      backoffice_root=self.BACKOFFICE_PREFIX,
       api_key=self.get_query_argument('API_KEY', None),
       **kwargs
     )
