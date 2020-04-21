@@ -138,6 +138,7 @@
 </div>
 
 <script>
+{# Remeber current tab and display it when the page is reloaded (e.g. by clicking on the region button) #}
 $(document).ready(function(){
     $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
         localStorage.setItem('activeTab', $(e.target).attr('href'));
