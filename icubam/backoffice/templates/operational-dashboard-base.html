@@ -29,7 +29,7 @@
        </li>
      </ul>
      <div class="tab-content" id="dashboard-tabs-content">
-       <div class="tab-pane fade show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
+       <div class="tab-pane show active" id="operational" role="tabpanel" aria-labelledby="operational-tab">
        
        <div class="row">
            {% block dashboard_metrics %}
@@ -40,17 +40,32 @@
        
        
        </div>
-       <div class="tab-pane fade" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">
+       <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">
        {% block dashboard_covid_p %}
        {% end %}
        </div>
-       <div class="tab-pane fade" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab"></div>
+       <div class="tab-pane" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab"></div>
      </div>
    </div>
 
    </div>
 
 </div>
+
+<script>
+
+$(document).ready(function(){
+    $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+        localStorage.setItem('activeTab', $(e.target).attr('href'));
+    });
+    var activeTab = localStorage.getItem('activeTab');
+    if (activeTab) {
+        $('#dashboard-tabs a[href="' + activeTab + '"]').tab('show');
+    }
+
+});
+
+</script>
 
 {% end %}
 
