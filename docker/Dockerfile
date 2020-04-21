@@ -29,8 +29,7 @@ COPY docker docker
 COPY icubam icubam
 COPY scripts scripts
 
-# create resource folder
-RUN  mkdir resources
+# the resources folder must be mounted
 
 # copy specific files on root folder
 COPY LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py conftest.py ./

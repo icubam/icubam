@@ -36,7 +36,6 @@ docker run -d -p "${2}":8890 \
     --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
     --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
     --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
-    --env ENV_MODE="${ENV_MODE:-prod}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
     --env JWT_SECRET="${JWT_SECRET}" \
     --env GOOGLE_API_KEY="${GOOGLE_API_KEY}" \

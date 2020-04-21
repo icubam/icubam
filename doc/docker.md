@@ -110,7 +110,6 @@ Files/folders are mounted (bind) in the containers (nginx/certbot) defined in th
 
 The containers expect the following variables to be set in order to launch
 
-- ENV_MODE (can be prod or dev)
 - SECRET_COOKIE
 - JWT_SECRET
 - GOOGLE_API_KEY
@@ -119,8 +118,6 @@ The containers expect the following variables to be set in order to launch
 
 These environment variables are not set in the Docker image, but must be set when starting the 
 docker/docker-compose command.  Also check the [install.md](./install.md) documentation for more details.
-
-Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) .
 
 **Setting up environement variables**
 
@@ -149,7 +146,6 @@ set -a
 These work straight out of the box with the docker-compose scripts provided if you run them from the root folder
 ```properties
 # Application's environement variables
-ENV_MODE=dev
 SECRET_COOKIE=_a_random_string_
 JWT_SECRET=_jwt_secret_string_
 GOOGLE_API_KEY=_google_api_key_string_
@@ -158,10 +154,8 @@ TW_API=_twilio_api_string_
 DB_SALT=_another_random_string_
 
 # Docker's environement variables
-ICUBAM_COMPOSE_CONTEXT=..
-ICUBAM_CONFIG_PATH=../resources/config.toml
-ICUBAM_PROD_DB_PATH=../icubam.db
-ICUBAM_TEST_DB_PATH=../test.db
+ICUBAM_COMPOSE_CONTEXT=.
+ICUBAM_RESOURCES_PATH=./resources
 ICUBAM_CERTBOT_PATH=../docker/configs/certbot
 ICUBAM_NGINX_PATH=../docker/configs/nginx
 LOGS_DIR=../logs
