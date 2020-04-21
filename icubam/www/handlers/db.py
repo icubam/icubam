@@ -170,7 +170,8 @@ class DBHandler(base.APIKeyProtectedHandler):
 class OperationalDashboardHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/dashboard'
-  BACKOFFICE_PREFIX = 'backoffice'
+  # Problably better not to be equal to admin.
+  BACKOFFICE_PREFIX = 'static_bo'
   API_COOKIE = 'api'
   ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
 
