@@ -36,7 +36,7 @@ COPY scripts scripts
 RUN  mkdir resources
 
 # copy specific files on root folder
-COPY LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py ./
+COPY LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py conftest.py ./
 
 # pip/setup tools requires version inside .git
 COPY .git ./.git
