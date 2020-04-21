@@ -11,8 +11,8 @@ from icubam.predicu.data import CUM_COLUMNS, NCUM_COLUMNS, load_bedcounts
 from icubam.predicu.plot import COLUMN_TO_HUMAN_READABLE, COL_COLOR
 
 
-def plot_icu_values(icu_name, data_clean, path, data_raw):
-  all_dates = sorted(list(data_clean.date.unique()))
+def plot_icu_values(icu_name, data_preprocessed, path, data_raw):
+  all_dates = sorted(list(data_preprocessed.date.unique()))
   fig = plt.figure(figsize=(18, 10))
   gs = matplotlib.gridspec.GridSpec(2, 2)
   ax_c_raw = fig.add_subplot(gs[0, 0])
@@ -23,7 +23,7 @@ def plot_icu_values(icu_name, data_clean, path, data_raw):
   ax_nc_raw.set_title("Valeurs non-cumulées avant traitement")
   ax_nc_clean = fig.add_subplot(gs[1, 1], sharey=ax_nc_raw)
   ax_nc_clean.set_title("Valeurs non-cumulées après traitement")
-  data_clean = data_clean.set_index("datetime").sort_index()
+  data_preprocessed = data_preprocessed.set_index("datetime").sort_index()
   data_raw = (
     data_raw.loc[data_raw.icu_name == icu_name].set_index("datetime"
                                                           ).sort_index()
@@ -34,14 +34,14 @@ def plot_icu_values(icu_name, data_clean, path, data_raw):
   ]):
     for col in cols_grp:
       for j, (ax, df) in enumerate([(ax_raw, data_raw),
-                                    (ax_clean, data_clean)]):
+                                    (ax_clean, data_preprocessed)]):
         ax.plot(
           df.index,
           df[col],
           label=COLUMN_TO_HUMAN_READABLE[col],
           color=COL_COLOR[col],
         )
-    for ax, data in [(ax_raw, data_raw), (ax_clean, data_clean)]:
+    for ax, data in [(ax_raw, data_raw), (ax_clean, data_preprocessed)]:
       ax.legend(ncol=2, loc="upper left", frameon=True)
       ax.set_xticks(all_dates)
       ax.set_xticklabels(
@@ -60,15 +60,15 @@ def main(args):
     print("creating directory", args.output_dir)
     os.makedirs(args.output_dir)
   data_raw = load_bedcounts(
-    clean=False, api_key=args.api_key, icubam_host=args.icubam_host
+    preprocess=False, api_key=args.api_key, icubam_host=args.icubam_host
   )
-  data_clean = load_bedcounts(
+  data_preprocessed = load_bedcounts(
     api_key=args.api_key,
     icubam_host=args.icubam_host,
-    clean=True,
-    spread_cum_jump_correction=True,
+    preprocess=True,
+    spread_cum_jump_correction=False,
   )
-  for icu_name, dg in data_clean.groupby("icu_name"):
+  for icu_name, dg in data_preprocessed.groupby("icu_name"):
     path = os.path.join(args.output_dir, "{}.pdf".format(icu_name))
     plot_icu_values(icu_name, dg, path, data_raw)
 

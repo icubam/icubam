@@ -13,7 +13,7 @@ from icubam.predicu.test_utils import load_test_data
 
 def test_load_test_data():
   """Ensure consitency between test data used in plots and BD schema
-  
+
   e.g. between load_test_data and db.get_bed_counts
   """
   # TODO: cache generation of in memory DB with fake data into a pytest fixture
