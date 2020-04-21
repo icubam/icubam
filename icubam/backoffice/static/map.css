@@ -2,13 +2,6 @@
   height: 85%;
 }
 
-.bed-table {
-  max-width: 600px;
-}
-
-tr.bed-row td {
-  max-width: 200px;
-}
 
 /* Optional: Makes the sample page fill the window. */
 html {
