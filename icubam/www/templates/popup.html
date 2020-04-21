@@ -4,7 +4,7 @@
   <div class='popup-{{view["name"]}}' id='cluster-{{cluster.label}}-{{view["name"]}}'>
     <table class='bed-table'>
       {% for obj in view['beds'] %}
-        <tr>
+        <tr class='bed-row'>
           <td class='report-number modal-icu-name'>
             {{obj.label}}
             {% if view['name'] == 'full' and is_stale(obj.timestamp)%}
