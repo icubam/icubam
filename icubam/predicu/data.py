@@ -28,7 +28,8 @@ def load_department_population():
 
 def load_france_departments():
   d = pd.read_json(DATA_PATHS["departments"])
-  d.loc[d["departmentName"] == "Côtes-d'armor"] = "Côtes-d'Armor"
+  d.loc[d["departmentName"] == "Côtes-d'armor",
+        "departmentName"] = "Côtes-d'Armor"
   return d
 
 
