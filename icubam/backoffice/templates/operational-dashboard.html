@@ -111,7 +111,7 @@
                    {% if current_region_name != 'All regions' %}
                     <div class="row extra-plots">
                         <div class="col-sm-6 offset-4 figure">
-                          <img src="/{{ backoffice_root }}/static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
+                          <img src="{{ backoffice_root }}static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
                         </div>
                     </div>
                     {% else %}  {# current_region_name == 'All regions' #}
@@ -120,7 +120,7 @@
                     {% for fig_name in row %}
                     {% if fig_name is not None %}
                         <div class="col-sm-5 figure">
-                        <img src="/{{ backoffice_root }}/static/extra-plots/{{ fig_name }}.png" />
+                        <img src="{{ backoffice_root }}static/extra-plots/{{ fig_name }}.png" />
                         </div>
                     {% end %}
                     {% end %}
