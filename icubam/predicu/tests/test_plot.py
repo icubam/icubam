@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 import icubam.db.store as db_store
 from icubam.db.store import StoreFactory, to_pandas
 from icubam.db.fake import populate_store_fake
-from icubam.predicu.data import normalize_colum_names
+from icubam.predicu.preprocessing import normalize_colum_names
 from icubam.predicu.plot import PLOTS, generate_plots
 from icubam.predicu.test_utils import load_test_data
 

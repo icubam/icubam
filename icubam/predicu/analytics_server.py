@@ -4,7 +4,7 @@ from absl import logging  # noqa: F401
 
 from icubam.config import Config
 from icubam.db.store import to_pandas
-from icubam.predicu.data import normalize_colum_names
+from icubam.predicu.preprocessing import normalize_colum_names
 from icubam.predicu.plot import generate_plots
 
 

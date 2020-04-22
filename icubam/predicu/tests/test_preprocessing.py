@@ -1,6 +1,7 @@
 import numpy as np
 
-from icubam.predicu.data import CUM_COLUMNS, preprocess_bedcounts
+from icubam.predicu.data import CUM_COLUMNS
+from icubam.predicu.preprocessing import preprocess_bedcounts
 from icubam.predicu.test_utils import load_test_data
 
 
