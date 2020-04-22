@@ -149,10 +149,11 @@ def plot(
   plot_data = {}
   for name in data_source:
     data = cached_data[name].copy()
+    kwargs = getattr(plot_module, 'preprocesing_args',
+                     {}).get(name, {})  # type: ignore
+
     if name == "bedcounts":
-      kwargs = {'restrict_to_region': restrict_to_region}
-    else:
-      kwargs = {}
+      kwargs['restrict_to_region'] = restrict_to_region
 
     plot_data[name] = preprocess_data(name, data, **kwargs)
 

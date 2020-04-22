@@ -42,9 +42,17 @@ def preprocess_bedcounts(
   d,
   spread_cum_jump_correction=False,
   max_date=None,
-  restrict_to_region: Optional[str] = None
+  restrict_to_region: Optional[str] = None,
+  full: bool = True
 ) -> pd.DataFrame:
-  """Preprocess bedcounts data"""
+  """Preprocess bedcounts data
+  
+  Args:
+    full : perform full preprocessing.
+      full=False was previously done in load_icubam
+      full=True was is the result of both load_icubam and load_bedcounts
+      preprocessing
+  """
 
   if restrict_to_region is not None:
     if restrict_to_region == 'Grand-Est':
@@ -60,6 +68,8 @@ def preprocess_bedcounts(
     d.loc[d.department == wrong_name, "department"] = right_name
   d["region"] = d.icu_region_id
   d = format_data(d)
+  if not full:
+    return d
 
   d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
     (
