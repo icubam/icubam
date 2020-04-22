@@ -100,7 +100,7 @@ def load_bedcounts(
 
 
 def load_pre_icubam(data_path):
-  d = _load_generic_data(data_path)
+  d = _load_any_file(data_path)
   d = d.rename(
     columns={
       "Hopital": "icu_name",
@@ -137,7 +137,7 @@ def load_pre_icubam(data_path):
   return d
 
 
-def _load_generic_data(data_path):
+def _load_any_file(data_path):
   ext = data_path.rsplit(".", 1)[-1]
   if ext == "pickle":
     with open(data_path, "rb") as f:
@@ -200,7 +200,7 @@ def load_public():
 def combine_bedcounts_public(
   public_data: pd.DataFrame, bedcount_data: pd.DataFrame
 ) -> pd.DataFrame:
-  """Combine ICUBAM bedcounts with public data"""
+  """Combine **preprocessed** public and ICUBAM data"""
   get_dpt_pop = load_department_population().get
   dp = public_data
   di = bedcount_data

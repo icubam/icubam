@@ -2,7 +2,7 @@ import numpy as np
 
 from icubam.predicu.data import CUM_COLUMNS
 from icubam.predicu.preprocessing import preprocess_bedcounts
-from icubam.predicu.test_utils import load_test_data
+from icubam.predicu.tests.utils import load_test_data
 
 
 def test_bedcounts_data_preprocessing():

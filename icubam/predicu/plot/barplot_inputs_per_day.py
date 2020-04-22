@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data_source = ["icubam"]
+data_source = ["bedcounts"]
 
 
 def plot(data):

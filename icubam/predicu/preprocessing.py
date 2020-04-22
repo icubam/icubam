@@ -307,25 +307,4 @@ def spread_cum_jumps(d, icu_to_first_input_date):
   return pd.concat(dfs)
 
 
-def normalize_colum_names(df: pd.DataFrame, table_name="bedcounts"):
-  """Normalize column names between DB schema and plots
-
-    Args:
-    df: a dataframe with data obtained from the DB.
-    """
-  # TODO: plots should use columns names from DB. @rth
-  # This is related to fields in the exported CSV
-  if table_name == 'bedcounts':
-    df = df.rename(
-      columns={
-        "icu_dept": "department",
-        "icu_region_id": "region"
-      }
-    )
-    df['date'] = df['create_date'].dt.date
-    return df
-  else:
-    raise NotImplementedError
-
-
 PREPROCESSORS = {"bedcounts": preprocess_bedcounts}
