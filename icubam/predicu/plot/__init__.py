@@ -136,22 +136,25 @@ def plot(
   # load required raw data if it's missing
   for name in data_source:
     if name not in cached_data:
-      cached_data[name] = load_data(
-        name,
-        api_key=api_key,
-        icubam_host=icubam_host,
-      )
+      if name == 'bedcounts':
+        kwargs = dict(
+          api_key=api_key,
+          icubam_host=icubam_host,
+        )
+      else:
+        kwargs = {}
+      cached_data[name] = load_data(name, **kwargs)
 
   # preprocess the subset of data necessary this plot
   plot_data = {}
   for name in data_source:
     data = cached_data[name].copy()
     if name == "bedcounts":
-      preprocess_kwargs = {'restrict_to_region': restrict_to_region}
+      kwargs = {'restrict_to_region': restrict_to_region}
     else:
-      preprocess_kwargs = {}
+      kwargs = {}
 
-    plot_data[name] = preprocess_data(name, data, **preprocess_kwargs)
+    plot_data[name] = preprocess_data(name, data, **kwargs)
 
   if needs_combined_data:
     plot_data["combined_bedcounts_public"] = combine_bedcounts_public(

@@ -18,20 +18,18 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_healed": 10,
 }
 
-# no preprocessing done by default
-
 
 def preprocess_data(
   data_source: str, data: pd.DataFrame, **kwargs
 ) -> pd.DataFrame:
   """Generic data processing function
 
-    Calls specialized preprocess_* depending on the data_source
+  Calls specialized preprocess_* depending on the data_source
 
-    Args:
-      data_source: type of data to preprocess
-      data : DataFrame with data
-    """
+  Args:
+    data_source: type of data to preprocess
+    data : DataFrame with data
+  """
   preprocessor = PREPROCESSORS.get(data_source, None)
   if preprocessor is None:
     return data
