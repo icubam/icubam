@@ -21,7 +21,7 @@ class MessageServer(base_server.BaseServer):
     self.scheduler = scheduler.MessageScheduler(
       config=self.config, db=self.db, queue=self.queue
     )
-    self.sender = sender.Sender(self.config, self.queue)
+    self.sender = sender.Sender(self.config, self.db, self.queue)
     self.callbacks = [self.sender.process]
 
     if self.config.TELEGRAM_API_KEY is not None:

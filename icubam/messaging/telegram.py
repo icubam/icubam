@@ -33,7 +33,7 @@ class TelegramBot:
       logging.warning(f"Cannot decode json {e}")
       return
 
-    return [u for u in data["result"] if u["update_id"] >= min_id]
+    return [u for u in data["result"] if u["update_id"] > min_id]
 
   def invite_url(self, token: str) -> str:
     """Builds an invite url that send directly the user to the right place."""

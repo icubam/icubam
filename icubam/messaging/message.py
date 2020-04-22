@@ -1,8 +1,12 @@
 class Message:
 
   TEMPLATE = (
-    "Bonjour {},\nvoici le lien à suivre pour mettre à jour les données covid"
-    " de {} sur ICUBAM: {}"
+    "Bonjour {user},\nvoici le lien à suivre pour mettre à jour les"
+    " données covid de {icu} sur ICUBAM: {link}"
+  )
+  HTML = (
+    "Bonjour {user},<br/>voici le <a href=\"{link}\">lien à suivre pour mettre"
+    " à jour les données covid de {icu} sur ICUBAM</a>"
   )
 
   def __init__(self, icu, user, url: str):
@@ -12,7 +16,12 @@ class Message:
     self.user_name = user.name
     self.icu_name = icu.name
     self.url = url
-    self.text = self.TEMPLATE.format(self.user_name, self.icu_name, url)
+    self.text = self.TEMPLATE.format(
+      user=self.user_name, icu=self.icu_name, link=url
+    )
+    self.html = self.HTML.format(
+      user=self.user_name, icu=self.icu_name, link=url
+    )
     self.attempts = 0
     self.first_sent = None
 

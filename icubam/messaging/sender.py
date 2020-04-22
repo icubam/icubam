@@ -6,8 +6,9 @@ from icubam.messaging import email_sender
 
 
 class Sender:
-  def __init__(self, config, queue):
+  def __init__(self, config, db, queue):
     self.config = config
+    self.db = db
     self.queue = queue
 
     self.sms_sender = None
@@ -32,11 +33,10 @@ class Sender:
         self.queue.task_done()
 
   async def send(self, msg, user):
-    # TODO(olivier): make html messages for email and bot.
     if user.telegram_chat_id is not None:
-      return await self.bot.send(user.telegram_chat_id, msg.txt)
+      return await self.bot.send(user.telegram_chat_id, msg.html)
 
     if (self.config.SMTP_HOST is not None and user.email is not None):
-      self.email_sender.send(user.email, 'ICUBAM', msg.text)
+      self.email_sender.send(user.email, 'ICUBAM', msg.html)
     else:
       self.sms_sender.send(msg.phone, msg.text)
