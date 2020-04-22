@@ -39,12 +39,13 @@ jobs:
         SHEET_ID: ${{ secrets.SHEET_ID }}
         JWT_SECRET: some_secret_string
         SECRET_COOKIE: another_secret_string
+        ICUBAM_CONFIG_FILE: "config.toml"
       run: |
         pip install -e .
         python scripts/populate_db_fake.py
-        cp test.db icubam.db
-        ./docker/scripts/docker_build.sh latest
-        ./docker/scripts/docker_run.sh icubam:latest 8888 dev
+        mv test.db resources/icubam.db
+        docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . build
+        docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
         sleep 5
         docker logs icubam_server
 

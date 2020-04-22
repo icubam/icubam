@@ -14,7 +14,7 @@ services:
     ports:
       - "8888:8888"
     environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_RESOURCES_PATH:-icubam.toml}"
+      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_RESOURCES_PATH:-icubam.toml}"
+      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
@@ -66,7 +66,7 @@ services:
     ports:
       - "8890:8890"
     environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_RESOURCES_PATH:-icubam.toml}"
+      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"

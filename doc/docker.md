@@ -215,9 +215,15 @@ docker exec -it icubam_server bash`
 
 ### Starting containers separately
 
+The different services (i.e., containers) of the application can be started individually from docker-compose, while it is also possible to only build the target image.
+```
+docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . build
+docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
+```
+
 The `docker` folder also contains scripts to launch the application' containers individually (for debugging purposes, 
 using the `docker/scripts/docker_build.sh`, `docker/scripts/docker_run.sh` and `docker/scripts/docker_sms_build.sh` 
-scripts),
+scripts) for environments where the docker-compose command is not available (only docker).
 
 ### Issues and debug
 
