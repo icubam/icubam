@@ -19,7 +19,7 @@ class EmailSenderTest(unittest.TestCase):
     os.environ['SMTP_USER'] = SMTP_USER
     os.environ['SMTP_PASSWORD'] = SMTP_PASSWORD
     os.environ['EMAIL_FROM'] = EMAIL_FROM
-    self.config = config.Config('resources/test.toml', mode='dev')
+    self.config = config.Config('resources/test.toml')
 
   def test_fake_send(self):
     sender = email_sender.get(self.config, 'FAKE')

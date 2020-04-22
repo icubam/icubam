@@ -17,7 +17,7 @@ class OperationalDashHandler(base.AdminHandler):
     )
     return self.render(
       "operational-dashboard.html",
-      backoffice_root=self.config.backoffice.root,
+      backoffice_root=self.root_path,
       api_key=None,
       **kwargs
     )

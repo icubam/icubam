@@ -7,7 +7,7 @@ from icubam import config
 class SmsSenderTest(unittest.TestCase):
   def setUp(self):
     super().setUp()
-    self.config = config.Config('resources/test.toml', mode='dev')
+    self.config = config.Config('resources/test.toml')
 
   def test_from_string(self):
     self.assertIsInstance(

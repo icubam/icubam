@@ -16,9 +16,8 @@ if [ ! -f "$(pwd)"/resources/"${ICUBAM_CONFIG_FILE}" ]; then
     exit
 fi
 
-
-docker run -d -p "${2}":8890 \
-    --name icubam_bo_server \
+docker run -d -p "${2}":8888 \
+    --name icubam_www_server \
     --mount type=bind,source="$(pwd)"/resources,target=/home/icubam/resources \
     --env ICUBAM_CONFIG_FILE="${ICUBAM_CONFIG_FILE}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
@@ -28,4 +27,4 @@ docker run -d -p "${2}":8890 \
     --env TW_API="${TW_API}" \
     --env DB_SALT="${DB_SALT}" \
     "${1}" \
-    ./docker/start_server_bo.sh
+    ./docker/start_server_www.sh

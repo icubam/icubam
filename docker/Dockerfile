@@ -1,6 +1,3 @@
-# ARG required due to build option in docker-compose
-ARG ENV_MODE
-
 FROM python:3.8.2-slim-buster as builder
 
 # silence error messages
@@ -33,8 +30,7 @@ COPY docker docker
 COPY icubam icubam
 COPY scripts scripts
 
-# create resource folder
-RUN  mkdir resources
+# the resources folder must be mounted
 
 # copy specific files on root folder
 COPY LICENSE pyproject.toml README.md requirements.txt requirements-test.txt setup.py conftest.py ./
@@ -58,4 +54,4 @@ EXPOSE 8888 8890
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
 # default command
-CMD ["./docker/start_server.sh"]
+CMD ["./docker/start_server_www.sh"]

@@ -14,7 +14,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
   TEST_CONFIG = 'resources/test.toml'
 
   def setUp(self):
-    self.config = config.Config(self.TEST_CONFIG, mode='dev')
+    self.config = config.Config(self.TEST_CONFIG)
     self.server = server.BackOfficeServer(self.config, port=8889)
     self.db = self.server.db_factory.create()
     self.admin_id = self.db.add_default_admin()

@@ -8,8 +8,7 @@ class ConfigTestCase(unittest.TestCase):
 
   def setUp(self):
     super().setUp()
-    mode = 'dev'
-    self.config = config.Config(self.TEST_CONFIG_PATH, mode=mode)
+    self.config = config.Config(self.TEST_CONFIG_PATH)
 
   def test_read(self):
     self.assertEqual(self.config.db.sqlite_path, ':memory:')
