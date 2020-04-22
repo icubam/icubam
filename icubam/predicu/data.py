@@ -1,8 +1,8 @@
-from typing import Dict, Callable
 import logging
 import pickle
 import urllib.request
 from pathlib import Path
+from typing import Callable, Dict
 
 import pandas as pd
 from lxml import html

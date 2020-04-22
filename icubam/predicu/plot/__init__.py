@@ -12,10 +12,7 @@ import scipy
 import seaborn
 
 from icubam.predicu.data import (
-  BEDCOUNT_COLUMNS,
-  DEPARTMENTS,
-  load_data,
-  combine_bedcounts_public,
+  BEDCOUNT_COLUMNS, DEPARTMENTS, combine_bedcounts_public, load_data
 )
 from icubam.predicu.preprocessing import preprocess_data
 

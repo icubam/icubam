@@ -1,13 +1,13 @@
+import itertools
+import json
 import logging
 from typing import Optional
-import json
-import itertools
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from icubam.predicu.data import (
-  CUM_COLUMNS, NCUM_COLUMNS, BEDCOUNT_COLUMNS, ALL_COLUMNS, DATA_PATHS,
+  ALL_COLUMNS, BEDCOUNT_COLUMNS, CUM_COLUMNS, DATA_PATHS, NCUM_COLUMNS,
   format_data
 )
 
