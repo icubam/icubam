@@ -3,73 +3,37 @@ default_locale='fr-fr'
 
 # Tables
 [sms]
-  [sms.dev]
   origin = "ICUBAM"
   carrier = "FAKE"
-  [sms.prod]
-  origin = "ICUBAM"
-  carrier = "TW"
 
 [email]
-  [email.dev]
   service = "FAKE"
   use_ssl = false
-  [email.prod]
-  service = "SMTP"
-  use_ssl = true
 
 [db]
-  [db.dev]
-  sqlite_path = "test.db"
-  [db.prod]
-  sqlite_path = "icubam.db"
+  sqlite_path = "resources/test.db"
 
 [server]
-  [server.dev]
   PORT = 8888  # will be lower cased when reading.
   base_url = "http://localhost:8888/"
   upload_dir = "uploads/"
   consent = 'resources/consent.html'
   num_days_for_stale = 1.0
-  [server.prod]
-  port = 443
-  base_url = "https://test.icubam.net/"
-  upload_dir = "uploads/"
-  consent = 'resources/consent.html'
-  num_days_for_stale = 1.0
 
 [messaging]
-  [messaging.dev]
-  PORT = 8889  # will be lower cased when reading.
-  base_url = "http://localhost:8889/"
-  timeout = 2
-  [messaging.prod]
   PORT = 8889  # will be lower cased when reading.
   base_url = "http://localhost:8889/"
   timeout = 2
 
 [scheduler]
-  [scheduler.prod]
-  max_retries = 1
-  new_user_delay = 60
-  reminder_delay = 1800  # 30 minutes in seconds
-  ping = ['9:30', '17:30']
-  [scheduler.dev]
   max_retries = 3
   reminder_delay = 45
   new_user_delay = 60
   ping = ['12:30', '17:30', '14:12']
 
 [backoffice]
-  [backoffice.prod]
-    port = 8890
-    ping_every = 60  # in seconds
-    root = 'admin'
-    extra_plots_dir = "/tmp/dasboard_plots_dir"
-    extra_plots_make_every = -1  # in seconds
-  [backoffice.dev]
-    port = 8890
-    ping_every = 60  # in seconds
-    root = 'bo'
-    extra_plots_dir = "/tmp/dasboard_plots_dir"
-    extra_plots_make_every = -1  # in seconds
+  port = 8890
+  ping_every = 60  # in seconds
+  root = 'bo'
+  extra_plots_dir = "/tmp/dasboard_plots_dir"
+  extra_plots_make_every = -1  # in seconds

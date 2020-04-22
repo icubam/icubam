@@ -19,7 +19,7 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
   TEST_CONFIG = 'resources/test.toml'
 
   def setUp(self):
-    self.config = config.Config(self.TEST_CONFIG, mode='dev')
+    self.config = config.Config(self.TEST_CONFIG)
     self.server = server.WWWServer(self.config, port=8888)
     super().setUp()
     self.db = self.server.db_factory.create()

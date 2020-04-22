@@ -3,43 +3,25 @@ title = "My TOML Config"
 
 # Tables
 [sms]
-  [sms.dev]
   origin = "ICUBAM"
   carrier = "FAKE"
-  [sms.prod]
-  origin = "ICUBAM"
-  carrier = "TW"
 
 [email]
-  [email.dev]
   protocol = "FAKE"
   use_ssl = false
-  [email.prod]
-  protocol = "SMTP"
-  use_ssl = true
 
 [db]
 sqlite_path = ":memory:"
 
 [server]
-  [server.dev]
   PORT = 8888  # will be lower cased when reading.
   base_url = "https://localhost"
-  num_days_for_stale = 1
-  [server.prod]
-  port = 443
-  base_url = "https://test.icubam.net/"
   num_days_for_stale = 1
 
 
 [messaging]
   port = 8889
   [scheduler]
-    [scheduler.prod]
-    max_retries = 1
-    reminder_delay = 1800  # 30 minutes in seconds
-    ping = ['9:30', '17:30']
-    [scheduler.dev]
     max_retries = 3
     reminder_delay = 45
     ping = ['12:30', '17:30', '14:12']

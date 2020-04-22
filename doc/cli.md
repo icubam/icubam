@@ -35,3 +35,25 @@ Options:
 
   --help                 Show this message and exit.
 ```
+
+
+**icubam.predicu plot**
+```
+$ python -m icubam.predicu plot --help
+Usage: __main__.py plot [OPTIONS] [PLOTS]...
+
+  Specific plots to generate (all are by default).
+
+Options:
+  --api-key TEXT
+  --icubam-host TEXT
+  --matplotlib-style TEXT         matplotlib style used in generated plots.
+  -o, --output-dir TEXT           Directory where the resulting plots will be
+                                  stored.
+
+  --output-type, --output-type [tex|png|pdf]
+  --restrict-to-region TEXT       Whether to restrict the data a region. Valid
+                                  values are: Grand-Est.
+
+  --help                          Show this message and exit.
+  ```

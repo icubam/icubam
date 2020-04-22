@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 # check that all required parameters are provided
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
-	  echo "usage: ${0} IMAGE_NAME PORT"
+	  echo "usage: ${0} IMAGE_NAME"
 	  echo "   where IMAGE_NAME is the image name and tage to use"
-	  echo "   where PORT is the local port number where to map the port of the server on the container"
       echo ""
-      echo "   example: ${0} icubam:1.0 9000"
+      echo "   example: ${0} icubam:1.0"
 	  exit
 fi
 
@@ -16,9 +15,8 @@ if [ ! -f "$(pwd)"/resources/"${ICUBAM_CONFIG_FILE}" ]; then
     exit
 fi
 
-
-docker run -d -p "${2}":8890 \
-    --name icubam_bo_server \
+docker run -dt \
+    --name icubam_sms_server \
     --mount type=bind,source="$(pwd)"/resources,target=/home/icubam/resources \
     --env ICUBAM_CONFIG_FILE="${ICUBAM_CONFIG_FILE}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
@@ -28,4 +26,4 @@ docker run -d -p "${2}":8890 \
     --env TW_API="${TW_API}" \
     --env DB_SALT="${DB_SALT}" \
     "${1}" \
-    ./docker/start_server_bo.sh
+    ./docker/start_server_sms.sh

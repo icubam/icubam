@@ -17,7 +17,6 @@ flags.DEFINE_string(
   'dotenv_path', config.DEFAULT_DOTENV_PATH,
   'Optionally specifies the .env path.'
 )
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_string('server', 'www', 'File for the db.')
 FLAGS = flags.FLAGS
 
@@ -29,9 +28,7 @@ def main(argv):
     'backoffice': backoffice_server.BackOfficeServer,
   }
   service = servers.get(FLAGS.server, None)
-  cfg = config.Config(
-    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
-  )
+  cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   if service is not None:
     service(cfg, FLAGS.port).run()
   elif FLAGS.server == 'all':
@@ -43,7 +40,6 @@ def main(argv):
           utils.run_server,
           cls,
           config_path=FLAGS.config,
-          mode=FLAGS.mode,
           env_path=FLAGS.dotenv_path
         )
       ) for cls in servers.values()
