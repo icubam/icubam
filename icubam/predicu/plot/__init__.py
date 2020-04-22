@@ -98,10 +98,7 @@ def plot_int(
 
 PLOTS = []
 for path in os.listdir(os.path.dirname(__file__)):
-  if path.endswith(".py") and any(
-    path.startswith(prefix)
-    for prefix in ["barplot", "lineplot", "scatterplot", "stackplot", 'flux']
-  ):
+  if path.endswith(".py") and path != "__init__.py":
     plot_name = path.rsplit(".", 1)[0]
     PLOTS.append(plot_name)
 

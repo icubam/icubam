@@ -11,6 +11,7 @@ from icubam.config import Config
 from icubam.db.store import create_store_factory_for_sqlite_db
 from icubam.predicu.analytics_server import AnalyticsCallback
 from icubam.predicu.data import load_bedcounts
+from icubam.predicu.plot import generate_plots
 
 
 @click.group()
@@ -95,6 +96,47 @@ def make_dasboard_plots(config, output_dir):
   eventloop = asyncio.new_event_loop()
   eventloop.run_until_complete(callback.generate_plots())
   click.echo(f'Generated dashboard plots in {output_dir}')
+
+
+@cli.command(
+  name="plot",
+  help="Specific plots to generate (all are by default).",
+)
+@click.option("--api-key", default=None)
+@click.option("--icubam-host", default="localhost", type=str)
+@click.option(
+  "--matplotlib-style",
+  help="matplotlib style used in generated plots.",
+  default="seaborn-whitegrid",
+)
+@click.option(
+  "--output-dir",
+  "-o",
+  default="/tmp",
+  type=str,
+  help="Directory where the resulting plots will be stored."
+)
+@click.option(
+  "--output-type",
+  "--output-type",
+  type=click.Choice(["tex", "png", "pdf"]),
+  default="png",
+)
+@click.option(
+  "--restrict-to-region",
+  default=None,
+  help="Whether to restrict the data a region. Valid values are: Grand-Est."
+)
+@click.argument(
+  "plots",
+  nargs=-1,
+)
+def plot_cli(**kwargs):
+  import matplotlib
+  matplotlib.use("Agg")
+  if not kwargs['plots']:
+    kwargs['plots'] = None
+  generate_plots(**kwargs)
 
 
 if __name__ == "__main__":
