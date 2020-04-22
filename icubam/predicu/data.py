@@ -77,6 +77,8 @@ def load_data(data_source: str, **kwargs):
     raise ValueError(f'data_source={data_source} not in {DATA_SOURCES}.')
 
   func = DATA_LOADERS[data_source]
+  # If kwargs are wrong, this will explicitly fail. It's up to the user to pass
+  # correct arguments for each data loader.
   return func(**kwargs)
 
 
@@ -95,7 +97,7 @@ def load_bedcounts(
     )
     logging.info("downloading data from %s" % url)
     d = pd.read_csv(url.format(api_key))
-  d = d.sort_values(by=["date", "icu_name"])
+  d = d.sort_values(by=["create_date", "icu_name"])
   return d
 
 
