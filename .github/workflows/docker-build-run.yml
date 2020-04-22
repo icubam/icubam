@@ -43,7 +43,6 @@ jobs:
       run: |
         pip install -e .
         python scripts/populate_db_fake.py --config=resources/config.toml
-        mv test.db resources/
         docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . build
         docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
         sleep 5
