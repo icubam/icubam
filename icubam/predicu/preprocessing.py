@@ -1,4 +1,3 @@
-import itertools
 import json
 import logging
 from typing import Optional
@@ -212,8 +211,6 @@ def fill_in_missing_days(d, time_delta_threshold="3D"):
 
 
 def enforce_daily_values_for_all_icus(d):
-  dates = sorted(list(d.date.unique()))
-  icu_names = sorted(list(d.icu_name.unique()))
   new_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
@@ -226,8 +223,7 @@ def enforce_daily_values_for_all_icus(d):
               ).first().reset_index()[["icu_name", "region"
                                        ]].itertuples(name=None, index=False)
   )
-  for date, icu_name in itertools.product(dates, icu_names):
-    sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
+  for (date, icu_name), sd in d.groupby(['date', 'icu_name']):
     sd = sd.sort_values(by="datetime")
     new_data_point = {
       "date": date,
