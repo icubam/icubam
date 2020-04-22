@@ -9,9 +9,17 @@ class Sender:
   def __init__(self, config, queue):
     self.config = config
     self.queue = queue
-    self.sms_sender = sms_sender.get(config)
-    self.bot = telegram.TelegramBot(config)
-    self.email_sender = email_sender.SMTPEmailSender(config)
+
+    self.sms_sender = None
+    self.bot = None
+    self.email_sender = None
+
+    if self.config.TW_KEY is not None:
+      self.sms_sender = sms_sender.get(config)
+    if self.config.TELEGRAM_API_KEY is not None:
+      self.bot = telegram.TelegramBot(config)
+    if self.config.SMTP_HOST is not None:
+      self.email_sender = email_sender.SMTPEmailSender(config)
 
   async def process(self):
     async for msg in self.queue:

@@ -48,12 +48,13 @@ class TelegramBot:
     """Sends a text to a chat."""
     request = tornado.httpclient.HTTPRequest(
       url=f"{self.api_url}/sendMessage",
+      method='POST',
+      headers={'Content-Type': 'application/json'},
       body=json.dumps({
         'chat_id': chatid,
         'text': text,
         'parse_mode': 'HTML',
       }),
-      method='POST'
     )
     resp = await self.client.fetch(request)
     return resp.code == 200
@@ -108,7 +109,7 @@ class UpdateProcessor:
       try:
         await self.process_update(update)
       except Exception as e:
-        logging.error(f'Could not send message in message loop {e}.')
+        logging.error(f'Could not process {update}: {e}')
       finally:
         self.queue.task_done()
 
@@ -124,9 +125,9 @@ class UpdateProcessor:
       return
 
     # This is a start message with a token
-    jwt = self.bot.extract_token(update['text'])
+    jwt = self.bot.extract_token(msg.get('text', ''))
     if jwt is not None:
-      user, icu = self.token_encoder.authenticate(jwt)
+      user, icu = self.token_encoder.authenticate(jwt, self.db)
       if user is None or icu is None:
         logging.warning('cannot identify user')
         return await self.bot.send(chatid, "Cannot identify user.")
@@ -138,3 +139,5 @@ class UpdateProcessor:
         self.scheduler.scheduler(user, icu, 30)
         # TODO(olivier): i18n this.
         await self.bot.send(chatid, 'You are now registered to ICUBAM')
+    else:
+      print(msg)
