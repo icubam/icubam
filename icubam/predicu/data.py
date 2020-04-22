@@ -1,17 +1,13 @@
-import inspect
-import json
+from typing import Dict, Callable
 import logging
 import pickle
 import urllib.request
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 from lxml import html
 
 BASE_PATH = Path(__file__).resolve().parent
-
-DATA_SOURCES = {"icubam", "bedcounts", "public", "combined_bedcounts_public"}
 
 DATA_PATHS = {
   "department_population": "data/department_population.csv",
@@ -66,95 +62,45 @@ ALL_COLUMNS = (["icu_name", "date", "datetime", "department", "region"] +
                CUM_COLUMNS + NCUM_COLUMNS)
 
 
-def load_if_not_cached(data_source, cached_data, **kwargs):
-  """Load a single data source if it is not in cached data"""
-  if data_source not in DATA_SOURCES:
-    raise ValueError(f"Unknown data source: {data_source}")
-  load_data_fun = globals().get(f"load_{data_source}", None)
-  if load_data_fun is None:
-    raise RuntimeError(
-      f"No loading function associated to data source {data_source}"
+def load_data(data_source: str, **kwargs):
+  """Generic data loader for various data sources
+
+    Args:
+      data_source: must be one of DATA_SOURCES
+    """
+  if data_source == 'combined_bedcounts_public':
+    raise ValueError(
+      'combined_bedcounts_public must be manually assembled '
+      'from bedcounts and public data sources'
     )
-  if cached_data is None or data_source not in cached_data:
-    load_data_fun_signature = inspect.signature(load_data_fun)
-    kwargs = {
-      k: v
-      for k, v in kwargs.items()
-      if k in load_data_fun_signature.parameters
-    }
-    if 'cached_data' in load_data_fun_signature.parameters:
-      kwargs['cached_data'] = cached_data
-    return load_data_fun(**kwargs)
-  return cached_data[data_source]
+  elif data_source not in DATA_LOADERS:
+    raise ValueError(f'data_source={data_source} not in {DATA_SOURCES}.')
+
+  func = DATA_LOADERS[data_source]
+  return func(**kwargs)
 
 
 def load_bedcounts(
-  preprocess=True,
-  spread_cum_jump_correction=False,
   api_key=None,
   icubam_host=None,
-  max_date=None,
-  cached_data=None,
-  restrict_to_region: Optional[str] = None,
 ):
   """Load Bedcount data from ICUBAM API"""
-  d = load_if_not_cached(
-    "icubam",
-    cached_data,
-    api_key=api_key,
-    icubam_host=icubam_host,
-    restrict_to_region=restrict_to_region,
-  )
-  if preprocess:
-    from icubam.predicu.preprocessing import preprocess_bedcounts
-    d = preprocess_bedcounts(d, spread_cum_jump_correction)
-  d = d.sort_values(by=["date", "icu_name"])
-  if max_date is not None:
-    logging.info("data loaded's max date will be %s (excluded)" % max_date)
-    d = d.loc[d.date < pd.to_datetime(max_date).date()]
-  return d
-
-
-def load_icubam(
-  cached_data=None,
-  api_key=None,
-  icubam_host=None,
-  preprocess=True,
-  restrict_to_region: Optional[str] = None,
-):
-  if cached_data is not None and "raw_icubam" in cached_data:
-    d = cached_data["raw_icubam"]
+  if api_key is None or icubam_host is None:
+    raise RuntimeError("Provide API key and host to download ICUBAM data")
   else:
-    if api_key is None or icubam_host is None:
-      raise RuntimeError("Provide API key and host to download ICUBAM data")
-    else:
-      protocol = ("http" if icubam_host.startswith("localhost") else "https")
-      url = (
-        f"{protocol}://{icubam_host}/"
-        f"db/all_bedcounts?format=csv&API_KEY={api_key}"
-      )
-      logging.info("downloading data from %s" % url)
-      d = pd.read_csv(url.format(api_key))
-  if preprocess:
-    if restrict_to_region is not None:
-      if restrict_to_region == 'Grand-Est':
-        region_id = 1
-        d = d.loc[d.icu_region_id == region_id]
-      else:
-        raise NotImplementedError
-    d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
-    d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
-    with open(DATA_PATHS["department_typo_fixes"]) as f:
-      department_typo_fixes = json.load(f)
-    for wrong_name, right_name in department_typo_fixes.items():
-      d.loc[d.department == wrong_name, "department"] = right_name
-    d["region"] = d.icu_region_id
-    d = format_data(d)
+    protocol = ("http" if icubam_host.startswith("localhost") else "https")
+    url = (
+      f"{protocol}://{icubam_host}/"
+      f"db/all_bedcounts?format=csv&API_KEY={api_key}"
+    )
+    logging.info("downloading data from %s" % url)
+    d = pd.read_csv(url.format(api_key))
+  d = d.sort_values(by=["date", "icu_name"])
   return d
 
 
 def load_pre_icubam(data_path):
-  d = load_data_file(data_path)
+  d = _load_generic_data(data_path)
   d = d.rename(
     columns={
       "Hopital": "icu_name",
@@ -191,7 +137,7 @@ def load_pre_icubam(data_path):
   return d
 
 
-def load_data_file(data_path):
+def _load_generic_data(data_path):
   ext = data_path.rsplit(".", 1)[-1]
   if ext == "pickle":
     with open(data_path, "rb") as f:
@@ -251,18 +197,14 @@ def load_public():
   ]]
 
 
-def load_combined_bedcounts_public(
-  api_key=None,
-  cached_data=None,
-  icubam_host=None,
-  restrict_to_region: Optional[str] = None,
-):
+def combine_bedcounts_public(
+  public_data: pd.DataFrame, bedcount_data: pd.DataFrame
+) -> pd.DataFrame:
+  """Combine ICUBAM bedcounts with public data"""
   get_dpt_pop = load_department_population().get
-  dp = load_if_not_cached("public", cached_data)
+  dp = public_data
+  di = bedcount_data
   dp["department"] = dp.department_code.apply(CODE_TO_DEPARTMENT.get)
-  di = load_if_not_cached(
-    "bedcounts", cached_data, api_key=api_key, icubam_host=icubam_host
-  )
   dpt_to_region = dict(
     di.groupby(["department", "region"]
                ).first().reset_index()[["department", "region"
@@ -274,12 +216,6 @@ def load_combined_bedcounts_public(
   d = di.merge(dp, on=["department", "date"], suffixes=["_icubam", "_public"])
   d["department_pop"] = d.department.apply(get_dpt_pop)
   d["region"] = d.department.apply(dpt_to_region.get)
-  if restrict_to_region is not None:
-    if restrict_to_region == 'Grand-Est':
-      region_id = 1
-      d = d.loc[d.region == region_id]
-    else:
-      raise NotImplementedError
   return d
 
 
@@ -288,3 +224,13 @@ def format_data(d):
   d["date"] = d["datetime"].dt.date
   d = d[ALL_COLUMNS]
   return d
+
+
+DATA_LOADERS: Dict[str, Callable] = {
+  "bedcounts": load_bedcounts,
+  "public": load_public
+}
+# note that there is no loader for combined_bedcounts_public, it must be
+# explicitly assembled with `combine_bedcounts_public` function after
+# pre-processing
+DATA_SOURCES = ["bedcounts", "public", "combined_bedcounts_public"]

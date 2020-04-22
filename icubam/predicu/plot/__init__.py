@@ -12,8 +12,9 @@ import scipy
 import seaborn
 
 from icubam.predicu.data import (
-  BEDCOUNT_COLUMNS, DEPARTMENTS, load_if_not_cached
+  BEDCOUNT_COLUMNS, DEPARTMENTS, load_data, combine_bedcounts_public
 )
+from icubam.predicu.preprocessing import preprocess_data
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -118,15 +119,34 @@ def plot(
 ):
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot  # type: ignore
-  data_source = plot_module.data_source  # type: ignore
+  data_source = plot_module.data_source.copy()  # type: ignore
+  needs_combined_data = 'combined_bedcounts_public' in data_source
+  if needs_combined_data:
+    data_source.remove("combined_bedcounts_public")
+  if needs_combined_data and "combined_bedcounts_public" not in cached_data:
+    # load requied data to make combined dataset
+    data_source += ['bedcounts', 'public']
   for name in data_source:
-    cached_data[name] = load_if_not_cached(
-      name,
-      cached_data,
-      api_key=api_key,
-      icubam_host=icubam_host,
-      restrict_to_region=restrict_to_region,
+    if name in cached_data:
+      data = cached_data[name]
+    else:
+      data = load_data(
+        name,
+        api_key=api_key,
+        icubam_host=icubam_host,
+      )
+    if name == "bedcounts":
+      preprocess_kwargs = {'restrict_to_region': restrict_to_region}
+    else:
+      preprocess_kwargs = {}
+
+    cached_data[name] = preprocess_data(name, data, **preprocess_kwargs)
+
+  if needs_combined_data and "combined_bedcounts_public" not in cached_data:
+    cached_data[name] = combine_bedcounts_public(
+      cached_data['public'], cached_data['bedcounts']
     )
+
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
   if len(data_source) == 1:

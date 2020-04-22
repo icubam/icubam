@@ -1,9 +1,15 @@
+import logging
+from typing import Optional
+import json
 import itertools
 
 import pandas as pd
 import numpy as np
 
-from icubam.predicu.data import CUM_COLUMNS, NCUM_COLUMNS, BEDCOUNT_COLUMNS, ALL_COLUMNS
+from icubam.predicu.data import (
+  CUM_COLUMNS, NCUM_COLUMNS, BEDCOUNT_COLUMNS, ALL_COLUMNS, DATA_PATHS,
+  format_data
+)
 
 SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_deaths": 10,
@@ -12,8 +18,51 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_healed": 10,
 }
 
+# no preprocessing done by default
 
-def preprocess_bedcounts(d, spread_cum_jump_correction=False):
+
+def preprocess_data(
+  data_source: str, data: pd.DataFrame, **kwargs
+) -> pd.DataFrame:
+  """Generic data processing function
+
+    Calls specialized preprocess_* depending on the data_source
+
+    Args:
+      data_source: type of data to preprocess
+      data : DataFrame with data
+    """
+  preprocessor = PREPROCESSORS.get(data_source, None)
+  if preprocessor is None:
+    return data
+
+  res = preprocessor(data, **kwargs)
+  return res
+
+
+def preprocess_bedcounts(
+  d,
+  spread_cum_jump_correction=False,
+  max_date=None,
+  restrict_to_region: Optional[str] = None
+) -> pd.DataFrame:
+  """Preprocess bedcounts data"""
+
+  if restrict_to_region is not None:
+    if restrict_to_region == 'Grand-Est':
+      region_id = 1
+      d = d.loc[d.icu_region_id == region_id]
+    else:
+      raise NotImplementedError
+  d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
+  d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
+  with open(DATA_PATHS["department_typo_fixes"]) as f:
+    department_typo_fixes = json.load(f)
+  for wrong_name, right_name in department_typo_fixes.items():
+    d.loc[d.department == wrong_name, "department"] = right_name
+  d["region"] = d.icu_region_id
+  d = format_data(d)
+
   d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
     (
       d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] -
@@ -31,6 +80,11 @@ def preprocess_bedcounts(d, spread_cum_jump_correction=False):
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
   d = d[ALL_COLUMNS]
+  d = d.sort_values(by=["date", "icu_name"])
+
+  if max_date is not None:
+    logging.info("data loaded's max date will be %s (excluded)" % max_date)
+    d = d.loc[d.date < pd.to_datetime(max_date).date()]
   return d
 
 
@@ -272,3 +326,6 @@ def normalize_colum_names(df: pd.DataFrame, table_name="bedcounts"):
     return df
   else:
     raise NotImplementedError
+
+
+PREPROCESSORS = {"bedcounts": preprocess_bedcounts}
