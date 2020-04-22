@@ -4,7 +4,9 @@ from absl import logging  # noqa: F401
 from tornado import queues
 
 from icubam import base_server, utils
-from icubam.messaging import scheduler, sms_sender
+from icubam.messaging import scheduler
+from icubam.messaging import sender
+from icubam.messaging import telegram
 from icubam.messaging.handlers import onoff, schedule
 
 
@@ -14,12 +16,25 @@ class MessageServer(base_server.BaseServer):
     utils.maybe_init_sentry(config, server_name='messaging')
     super().__init__(config, port)
     self.port = port if port is not None else self.config.messaging.port
-    self.sender = sms_sender.get(self.config)
+    self.db = self.db_factory.create()
     self.queue = queues.Queue()
     self.scheduler = scheduler.MessageScheduler(
-      config=self.config, db=self.db_factory.create(), queue=self.queue
+      config=self.config, db=self.db, queue=self.queue
     )
-    self.callbacks = [self.process]
+    self.sender = sender.Sender(self.config, self.queue)
+
+    self.telegram_queue = queues.Queue()
+    self.telegram_updates = telegram.UpdateProcessor(
+      self.config, self.db, self.telegram_queue, self.scheduler
+    )
+    self.callbacks = [self.sender.process, self.telegram_updates.process]
+
+    self.telegram_fetcher = telegram.TelegramFetcher(
+      config, self.telegram_queue
+    )
+    repeat_every = self.config.messaging.get_updates_every * 1000
+    tornado.ioloop.PeriodicCallback(self.telegram_fetcher.fetch,
+                                    repeat_every).start()
 
   def make_app(self):
     kwargs = dict(db_factory=self.db_factory, scheduler=self.scheduler)

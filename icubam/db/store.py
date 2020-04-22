@@ -106,6 +106,8 @@ class User(Base):
   locale = Column(String)
   # One of {email, sms}.
   message_type = Column(String, default="email")
+  # In case we communicate to this user via Telegram chat.
+  telegram_chat_id = Column(String)
   # Consent to use icubam
   consent = Column(Boolean)
 
