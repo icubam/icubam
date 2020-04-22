@@ -194,12 +194,12 @@ started.
 
 Remove/force the icubam containers
 ```
-docker rm -f icubam_server icubam_sms_server icubam_bo_server
+docker rm -f icubam_www_server icubam_sms_server icubam_bo_server
 ```
 
 Get the logs of the server
 ```
-docker logs icubam_server
+docker logs icubam_www_server
 ```
 
 Delete the server container image
@@ -207,10 +207,10 @@ Delete the server container image
 docker rmi icubam
 ```
 
-To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam_server bash` or
+To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam_www_server bash` or
 ```
-docker exec -it icubam_server "ls -la"`
-docker exec -it icubam_server bash`
+docker exec -it icubam_www_server "ls -la"`
+docker exec -it icubam_www_server bash`
 ```
 
 ### Starting containers separately

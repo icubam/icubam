@@ -7,8 +7,8 @@ services:
       context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
-    container_name: icubam_server
-    command: ./docker/start_server.sh
+    container_name: icubam_www_server
+    command: ./docker/start_server_www.sh
     restart: unless-stopped
     tty: true
     ports:

@@ -11,29 +11,20 @@ then
 	  exit
 fi
 
-if [ ! -f "$(pwd)"/resources/config.toml ]; then
-    echo "resources/config.toml not found!"
+if [ ! -f "$(pwd)"/resources/"${ICUBAM_CONFIG_FILE}" ]; then
+    echo "Config file (toml) not found!"
     exit
 fi
-if [ ! -f "$(pwd)"/icubam.db ]; then
-    echo "icubam.db not found!"
-    exit
-fi
-if [ ! -f "$(pwd)"/test.db ]; then
-    echo "test.db not found!"
-    exit
-fi
-
 
 docker run -d -p "${2}":8888 \
-    --name icubam_server \
-    --mount type=bind,source="$(pwd)"/resources/config.toml,target=/home/icubam/resources/config.toml \
-    --mount type=bind,source="$(pwd)"/icubam.db,target=/home/icubam/icubam.db \
-    --mount type=bind,source="$(pwd)"/test.db,target=/home/icubam/test.db \
+    --name icubam_www_server \
+    --mount type=bind,source="$(pwd)"/resources,target=/home/icubam/resources \
+    --env ICUBAM_CONFIG_FILE="${ICUBAM_CONFIG_FILE}" \
     --env SECRET_COOKIE="${SECRET_COOKIE}" \
     --env JWT_SECRET="${JWT_SECRET}" \
     --env GOOGLE_API_KEY="${GOOGLE_API_KEY}" \
     --env TW_KEY="${TW_KEY}" \
     --env TW_API="${TW_API}" \
+    --env DB_SALT="${DB_SALT}" \
     "${1}" \
-    ./start_server.sh
+    ./docker/start_server_www.sh

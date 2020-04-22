@@ -42,10 +42,10 @@ jobs:
         ICUBAM_CONFIG_FILE: "config.toml"
       run: |
         pip install -e .
-        python scripts/populate_db_fake.py
-        mv test.db resources/icubam.db
+        python scripts/populate_db_fake.py --config=resources/config.toml
+        mv test.db resources/
         docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . build
         docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
         sleep 5
-        docker logs icubam_server
+        docker logs icubam_www_server
 

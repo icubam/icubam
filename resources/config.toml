@@ -11,7 +11,7 @@ default_locale='fr-fr'
   use_ssl = false
 
 [db]
-  sqlite_path = "test.db"
+  sqlite_path = "resources/test.db"
 
 [server]
   PORT = 8888  # will be lower cased when reading.

@@ -54,4 +54,4 @@ EXPOSE 8888 8890
 # default commend when entering the container
 ENTRYPOINT ["/bin/bash", "-c"]
 # default command
-CMD ["./docker/start_server.sh"]
+CMD ["./docker/start_server_www.sh"]
