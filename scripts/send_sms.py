@@ -10,7 +10,6 @@ flags.DEFINE_string(
   'Optionally specifies the .env path.'
 )
 flags.DEFINE_string('phone', None, 'The number to send the sms to.')
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 FLAGS = flags.FLAGS
 
 

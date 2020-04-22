@@ -110,7 +110,6 @@ Files/folders are mounted (bind) in the containers (nginx/certbot) defined in th
 
 The containers expect the following variables to be set in order to launch
 
-- ENV_MODE (can be prod or dev)
 - SECRET_COOKIE
 - JWT_SECRET
 - GOOGLE_API_KEY
@@ -119,10 +118,6 @@ The containers expect the following variables to be set in order to launch
 
 These environment variables are not set in the Docker image, but must be set when starting the 
 docker/docker-compose command.  Also check the [install.md](./install.md) documentation for more details.
-
-Change the environement variable `ENV_MODE` depending on the targeted environment (dev, prod, ...) .
-The `--mode=$ENV_MODE` command line parameter when starting the icubam server and sms apps is set using this environment
-variable (check the files `start_server.sh` and `start_server_sms.sh`).
 
 **Setting up environement variables**
 
@@ -151,7 +146,6 @@ set -a
 These work straight out of the box with the docker-compose scripts provided if you run them from the root folder
 ```properties
 # Application's environement variables
-ENV_MODE=dev
 SECRET_COOKIE=_a_random_string_
 JWT_SECRET=_jwt_secret_string_
 GOOGLE_API_KEY=_google_api_key_string_
@@ -160,10 +154,8 @@ TW_API=_twilio_api_string_
 DB_SALT=_another_random_string_
 
 # Docker's environement variables
-ICUBAM_COMPOSE_CONTEXT=..
-ICUBAM_CONFIG_PATH=../resources/config.toml
-ICUBAM_PROD_DB_PATH=../icubam.db
-ICUBAM_TEST_DB_PATH=../test.db
+ICUBAM_COMPOSE_CONTEXT=.
+ICUBAM_RESOURCES_PATH=./resources
 ICUBAM_CERTBOT_PATH=../docker/configs/certbot
 ICUBAM_NGINX_PATH=../docker/configs/nginx
 LOGS_DIR=../logs
@@ -202,12 +194,12 @@ started.
 
 Remove/force the icubam containers
 ```
-docker rm -f icubam-server icubam-sms-server icubam-bo-server
+docker rm -f icubam_www_server icubam_sms_server icubam_bo_server
 ```
 
 Get the logs of the server
 ```
-docker logs icubam-server
+docker logs icubam_www_server
 ```
 
 Delete the server container image
@@ -215,17 +207,23 @@ Delete the server container image
 docker rmi icubam
 ```
 
-To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam-server bash` or
+To debug a container, in another shell, enter the server container in interactive mode to check the files are at their expected location (using `docker exec -it icubam_www_server bash` or
 ```
-docker exec -it icubam-server "ls -la"`
-docker exec -it icubam-server bash`
+docker exec -it icubam_www_server "ls -la"`
+docker exec -it icubam_www_server bash`
 ```
 
 ### Starting containers separately
 
+The different services (i.e., containers) of the application can be started individually from docker-compose, while it is also possible to only build the target image.
+```
+docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . build
+docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
+```
+
 The `docker` folder also contains scripts to launch the application' containers individually (for debugging purposes, 
 using the `docker/scripts/docker_build.sh`, `docker/scripts/docker_run.sh` and `docker/scripts/docker_sms_build.sh` 
-scripts),
+scripts) for environments where the docker-compose command is not available (only docker).
 
 ### Issues and debug
 

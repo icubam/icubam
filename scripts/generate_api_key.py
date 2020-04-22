@@ -11,7 +11,6 @@ flags.DEFINE_string(
   'dotenv_path', config.DEFAULT_DOTENV_PATH,
   'Optionally specifies the .env path.'
 )
-flags.DEFINE_enum('mode', 'dev', ['prod', 'dev'], 'Run mode.')
 flags.DEFINE_string('name', None, 'Meta data.')
 flags.DEFINE_string('email', None, 'Meta data.')
 flags.DEFINE_string('telephone', None, 'Meta data.')
@@ -21,9 +20,7 @@ FLAGS = flags.FLAGS
 def main(argv):
   fields = ['name', 'telephone', 'email']
   values = {k: FLAGS[k].value for k in fields if FLAGS[k].value is not None}
-  cfg = config.Config(
-    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
-  )
+  cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   db_factory = store.create_store_factory_for_sqlite_db(cfg)
   db = db_factory.create()
   users = db.get_admins()

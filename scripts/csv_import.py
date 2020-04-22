@@ -6,7 +6,6 @@ from icubam.db import synchronizer
 
 flags.DEFINE_string("config", config.DEFAULT_CONFIG_PATH, "Config file.")
 flags.DEFINE_string("dotenv_path", config.DEFAULT_DOTENV_PATH, "Config file.")
-flags.DEFINE_enum("mode", "dev", ["prod", "dev"], "Run mode.")
 
 flags.DEFINE_bool(
   "force_update", False,
@@ -28,9 +27,7 @@ FLAGS = flags.FLAGS
 
 
 def main(args=None):
-  cfg = config.Config(
-    FLAGS.config, mode=FLAGS.mode, env_path=FLAGS.dotenv_path
-  )
+  cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   store_factory = db_store.create_store_factory_for_sqlite_db(cfg)
   store = store_factory.create()
   csv = synchronizer.CSVSynchronizer(store)

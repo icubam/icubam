@@ -9,10 +9,6 @@ conda activate icubam
 pwd
 ls -a
 echo "Build test db"
-PYTHONPATH=. python scripts/populate_db_fake.py --config=resources/config.toml --mode=dev
-
-echo "Build icubam db"
-PYTHONPATH=. python scripts/populate_db_fake.py --config=resources/config.toml --mode=prod
+PYTHONPATH=. python scripts/populate_db_fake.py --config=resources/config.toml
 
 cp ./test.db ./db/
-cp ./icubam.db ./db/
