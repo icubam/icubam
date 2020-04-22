@@ -41,7 +41,7 @@ jobs:
         SECRET_COOKIE: another_secret_string
       run: |
         pip install -e .
-        python scripts/populate_db_fake.py --mode=dev
+        python scripts/populate_db_fake.py
         cp test.db icubam.db
         ./docker/scripts/docker_build.sh latest
         ./docker/scripts/docker_run.sh icubam:latest 8888 dev
