@@ -107,31 +107,19 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     dg = dg.loc[mask]
 
     # rolling median average, 5 points (for cumulative qtities)
-    for col in CUM_COLUMNS:
-      dg[col] = (
-        dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
-      )
+    dg[CUM_COLUMNS] = (
+      dg[CUM_COLUMNS].rolling(5, center=True,
+                              min_periods=1).median().astype(int)
+    )
 
     # rolling median average, 3 points (for non-cumulative qtities)
-    for col in NCUM_COLUMNS:
-      dg[col] = dg[col].fillna(0)
-      dg[col] = (
-        dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
-      )
+    dg[NCUM_COLUMNS] = (
+      dg[NCUM_COLUMNS].fillna(0).rolling(3, center=True,
+                                         min_periods=1).median().astype(int)
+    )
 
-    # si la valeur decroit dans une colonne cumulative, alors on redresse ne
-    # appliquant la valeur precedente
-    for col in CUM_COLUMNS:
-      new_col = []
-      last_val = -100000
-      for idx, row in dg.iterrows():
-        if row[col] >= last_val:
-          new_val = row[col]
-        else:
-          new_val = last_val
-        new_col.append(new_val)
-        last_val = new_val
-      dg[col] = new_col
+    # force cummulative values to be montonically increasing
+    dg[CUM_COLUMNS] = np.maximum.accumulate(dg[CUM_COLUMNS].values, axis=0)
 
     res_dfs.append(dg.reset_index())
   return pd.concat(res_dfs)
