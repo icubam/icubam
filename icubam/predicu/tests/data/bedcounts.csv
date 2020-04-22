@@ -1,5 +1,5 @@
 # This file contains a randomly generated dataset for testing
-icu_name,date,datetime,department,n_covid_deaths,n_covid_healed,n_covid_transfered,n_covid_refused,n_covid_free,n_ncovid_free,n_covid_occ,n_ncovid_occ,region
+icu_name,create_date,datetime,icu_dept,n_covid_deaths,n_covid_healed,n_covid_transfered,n_covid_refused,n_covid_free,n_ncovid_free,n_covid_occ,n_ncovid_occ,icu_region_id
 4469957681522100982,2020-03-18,2020-03-18,Marne,15,38,74,90,20,70,44,28,1
 6736055822693857116,2020-03-18,2020-03-18,Bas-Rhin,91,63,42,58,23,22,34,86,1
 -5060114093634123136,2020-03-18,2020-03-18,Bas-Rhin,49,38,13,73,96,34,33,39,1

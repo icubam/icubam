@@ -1,5 +1,5 @@
 import icubam.predicu.data as icubam_data
-from icubam.predicu.test_utils import load_test_data
+from icubam.predicu.tests.utils import load_test_data
 
 
 def make_monkeypatch_load_bedcounts(data):

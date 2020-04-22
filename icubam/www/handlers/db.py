@@ -7,9 +7,9 @@ from datetime import datetime
 import tornado.web
 from absl import logging  # noqa: F401
 
-from icubam import predicu
 from icubam.db import store, synchronizer
 from icubam.predicu import operational_dashboard
+from icubam.predicu.preprocessing import preprocess_bedcounts
 from icubam.www.handlers import base, home
 
 
@@ -87,13 +87,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       get_fn = functools.partial(get_fn, max_date=max_ts)
       data = store.to_pandas(get_fn(), max_depth=1)
       if collection == 'all_bedcounts' and should_preprocess:
-        # this cached_data dict is just a way to tell predicu not to load the
-        # data from ICUBAM and use this already loaded data instead
-        cached_data = {'raw_icubam': data}
-        data = predicu.data.load_bedcounts(
-          cached_data=cached_data,
-          preprocess=True,
-        )
+        data = preprocess_bedcounts(data)
     else:
       data = store.to_pandas(get_fn(), max_depth=0)
 

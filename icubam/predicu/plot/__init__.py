@@ -12,8 +12,9 @@ import scipy
 import seaborn
 
 from icubam.predicu.data import (
-  BEDCOUNT_COLUMNS, DEPARTMENTS, load_if_not_cached
+  BEDCOUNT_COLUMNS, DEPARTMENTS, combine_bedcounts_public, load_data
 )
+from icubam.predicu.preprocessing import preprocess_data
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -113,28 +114,61 @@ def plot(
   matplotlib_style: str,
   restrict_to_region: Optional[str] = None,
 ):
+  """Generate one plot
+
+  Args:
+    plot_name: name of the plot to make. Must match one of the files in plot/
+    cached_data : a dictionary with **raw** data for different sources.
+  """
   plot_module = __import__(f"{plot_name}", globals(), locals(), ["plot"], 1)
   plot_fun = plot_module.plot  # type: ignore
-  data_source = plot_module.data_source  # type: ignore
+
+  data_source = plot_module.data_source.copy()  # type: ignore
+  needs_combined_data = 'combined_bedcounts_public' in data_source
+  if needs_combined_data:
+    data_source.remove("combined_bedcounts_public")
+    # load requied data to make combined dataset
+    data_source += ['bedcounts', 'public']
+
+  # load required raw data if it's missing
   for name in data_source:
-    cached_data[name] = load_if_not_cached(
-      name,
-      cached_data,
-      api_key=api_key,
-      icubam_host=icubam_host,
-      restrict_to_region=restrict_to_region,
+    if name not in cached_data:
+      if name == 'bedcounts':
+        kwargs = dict(
+          api_key=api_key,
+          icubam_host=icubam_host,
+        )
+      else:
+        kwargs = {}
+      cached_data[name] = load_data(name, **kwargs)
+
+  # preprocess the subset of data necessary this plot
+  plot_data = {}
+  for name in data_source:
+    data = cached_data[name].copy()
+    kwargs = getattr(plot_module, 'preprocesing_args',
+                     {}).get(name, {})  # type: ignore
+
+    if name == "bedcounts":
+      kwargs['restrict_to_region'] = restrict_to_region
+
+    plot_data[name] = preprocess_data(name, data, **kwargs)
+
+  if needs_combined_data:
+    plot_data["combined_bedcounts_public"] = combine_bedcounts_public(
+      plot_data['public'], plot_data['bedcounts']
     )
+    data_source.remove("bedcounts")
+    data_source.remove("public")
+    data_source.append("combined_bedcounts_public")
+
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
+
   if len(data_source) == 1:
-    figs, tikzplotlib_kwargs = plot_fun(
-      data=cached_data[data_source[0]].copy()
-    )
-  else:
-    figs, tikzplotlib_kwargs = plot_fun(
-      data={key: cached_data[key].copy()
-            for key in data_source}
-    )
+    plot_data = plot_data[data_source[0]]
+
+  figs, tikzplotlib_kwargs = plot_fun(data=plot_data)
 
   if not isinstance(figs, dict):
     figs = {f"{plot_name}.{output_type}": figs}
