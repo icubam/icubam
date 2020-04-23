@@ -20,20 +20,23 @@ fi
 # envvar file
 if [ -f "${ENVFILE}" ]; then
   echo -e "\n${ENVFILE} exist, load envvars"i
+  # shellcheck source=.env
   source ${ENVFILE}
 else
 	echo -e "\n###\nCreate default envvar file ${ENVFILE}"
 	touch ${ENVFILE}
-	echo "IMAGE_NAME=icubam" >> ${ENVFILE}
-	echo "IMAGE_TAG=latest" >> ${ENVFILE}
-	echo "ICUBAM_COMPOSE_CONTEXT=." >> ${ENVFILE}
-	echo "ICUBAM_CONFIG_FILE=${CONFFILE}" >> ${ENVFILE}
-	echo "SECRET_COOKIE=_random_string_" >> ${ENVFILE}
-	echo "JWT_SECRET=_random_string_" >> ${ENVFILE}
-	echo "GOOGLE_API_KEY=_random_string_" >> ${ENVFILE}
-	echo "TW_KEY=_random_string_" >> ${ENVFILE}
-	echo "TW_API=_random_string_" >> ${ENVFILE}
-	echo "DB_SALT=_random_string_" >> ${ENVFILE}
+	{
+    echo "IMAGE_NAME=icubam"
+    echo "IMAGE_TAG=latest"
+    echo "ICUBAM_COMPOSE_CONTEXT=."
+    echo "ICUBAM_CONFIG_FILE=${CONFFILE}"
+    echo "SECRET_COOKIE=_random_string_"
+    echo "JWT_SECRET=_random_string_"
+    echo "GOOGLE_API_KEY=_random_string_"
+    echo "TW_KEY=_random_string_"
+    echo "TW_API=_random_string_"
+    echo "DB_SALT=_random_string_"
+  } >> ${ENVFILE}
 
 	echo "Now update the ${ENVFILE} file with the proper values and launch the script again"
 	exit 0
@@ -41,7 +44,7 @@ fi
 
 # Retrieve Docker image
 echo -e "\n###\nRetrieve ICUBAM Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
-docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+docker pull "${IMAGE_NAME}":"${IMAGE_TAG}"
 
 # Retrieve docker-compose files - assume there is an external reverse-proxy facility for the deployment
 echo -e "\n###\nDownload compose files"
