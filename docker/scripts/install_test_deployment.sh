@@ -20,7 +20,8 @@ fi
 # envvar file
 if [ -f "${ENVFILE}" ]; then
   echo -e "\n${ENVFILE} exist, load envvars"i
-  # shellcheck source=.env
+  # .env generated at runtime, cannot check with shellcheck
+  # shellcheck disable=SC1091
   source ${ENVFILE}
 else
 	echo -e "\n###\nCreate default envvar file ${ENVFILE}"
