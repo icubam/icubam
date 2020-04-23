@@ -184,7 +184,7 @@ def plot(
         **tikzplotlib_kwargs,
       )
     elif output_type in ["png", "pdf"]:
-      fig.savefig(os.path.join(output_dir, fname_out))
+      fig.savefig(os.path.join(output_dir, fname_out), dpi=150)
     else:
       raise ValueError(f"Unknown output type: {output_type}")
     plt.close(fig)
