@@ -30,7 +30,7 @@ class MessageScheduler:
 
     # Keys: by (user_id, icu_id), value is ScheduledMessage
     self.timeouts = {}
-    self.updater = updater.Updater(self.config, None)
+    self.updater = updater.Updater(self.config, self.db)
 
   def computes_delay(self, delay=None) -> int:
     """Computes the delay if None."""

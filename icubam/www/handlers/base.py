@@ -30,7 +30,11 @@ class BaseHandler(tornado.web.RequestHandler):
     if user_token is None:
       return None
 
-    self.user, self.icu = self.authenticator.authenticate(user_token)
+    user_icu = self.authenticator.authenticate(user_token)
+    if user_icu is None:
+      return None
+
+    self.user, self.icu = user_icu
     return self.user
 
   def get_user_locale(self):

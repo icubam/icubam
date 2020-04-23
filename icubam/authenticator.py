@@ -1,5 +1,5 @@
 from absl import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 from icubam.db import store
 from icubam.www import token
 
@@ -43,11 +43,13 @@ class Authenticator:
 
     return user, icu
 
-  def decode(self, token_str: str) -> Optional[Tuple]:
+  def decode(self, token_str: Union[str, bytes]) -> Optional[Tuple]:
     """Decodes a token using different strategies.
     
     (To cope with backward compatibility.)
     """
+    token_str = token_str.decode(
+    ) if isinstance(token_str, bytes) else token_str
     user_icu = self.decode_from_db(token_str)
     if user_icu is None:
       user_icu = self.decode_from_jwt(token_str)
