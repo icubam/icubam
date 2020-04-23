@@ -41,6 +41,12 @@ def integration_config(request, tmpdir_factory):
   return config
 
 
+@pytest.fixture(scope="session")
+def icubam_services_fx(request, tmpdir_factory, integration_config):
+  from icubam.cli import run_server
+  run_server(integration_config, server="all")
+
+
 def pytest_configure(config):
   config.addinivalue_line("markers", "slow: mark test as slow to run")
   config.addinivalue_line(
