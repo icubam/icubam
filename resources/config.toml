@@ -14,7 +14,6 @@ default_locale='fr-fr'
   sqlite_path = "resources/test.db"
 
 [server]
-  [server.dev]
   PORT = 8887  # will be lower cased when reading.
   base_url = "http://localhost:8887/"
   upload_dir = "uploads/"
@@ -22,7 +21,6 @@ default_locale='fr-fr'
   num_days_for_stale = 1.0
 
 [messaging]
-  [messaging.dev]
   PORT = 8889  # will be lower cased when reading.
   base_url = "http://localhost:8889/"
   timeout = 2

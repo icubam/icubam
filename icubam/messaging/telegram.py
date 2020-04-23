@@ -1,8 +1,10 @@
 from absl import logging
 import json
+import os.path
 import tornado.httpclient
-from typing import Optional
+from typing import Dict, Optional
 
+from icubam.messaging.handlers import telegram_webhook as webhook
 from icubam.www import token
 
 
@@ -18,6 +20,16 @@ class TelegramBot:
     self.api_url = self.API_URL + self.config.TELEGRAM_API_KEY
     self.public_url = self.URL + self.config.messaging.telegram_bot
     self.client = tornado.httpclient.AsyncHTTPClient()
+
+  async def post(self, data: Dict, route: str):
+    """Sends a post request to a given telegram route."""
+    request = tornado.httpclient.HTTPRequest(
+      url=f"{self.api_url}/{route}",
+      method='POST',
+      headers={'Content-Type': 'application/json'},
+      body=json.dumps(data),
+    )
+    return await self.client.fetch(request)
 
   async def getUpdates(self, min_id=0):
     """Returns the updates."""
@@ -46,17 +58,20 @@ class TelegramBot:
 
   async def send(self, chatid: str, text: str) -> bool:
     """Sends a text to a chat."""
-    request = tornado.httpclient.HTTPRequest(
-      url=f"{self.api_url}/sendMessage",
-      method='POST',
-      headers={'Content-Type': 'application/json'},
-      body=json.dumps({
-        'chat_id': chatid,
-        'text': text,
-        'parse_mode': 'HTML',
-      }),
+    data = {
+      'chat_id': chatid,
+      'text': text,
+      'parse_mode': 'HTML',
+    }
+    resp = await self.post(data, 'sendMessage')
+    return resp.code == 200
+
+  async def setWebhook(self):
+    """Set up a webhook to receive update directly from the server."""
+    url = os.path.join(
+      self.config.server.base_url, webhook.TelegramWebhook.ROUTE
     )
-    resp = await self.client.fetch(request)
+    resp = await self.post({'url': url}, 'setWebhook')
     return resp.code == 200
 
 
@@ -141,3 +156,54 @@ class UpdateProcessor:
         await self.bot.send(chatid, 'You are now registered to ICUBAM')
     else:
       print(msg)
+
+
+class TelegramSetup:
+  """Sets up the telegram in the server support depending on the config."""
+  def __init__(self, config, db, scheduler):
+    self.config = config
+    self.queue = tornado.queues.Queue()
+    self.bot = TelegramBot(config)
+    self.processor = UpdateProcessor(config, db, self.queue, scheduler)
+    self.fetcher = TelegramFetcher(config, self.queue)
+
+  @property
+  def runs_https(self):
+    url = self.config.server.base_url
+    return 'https' in url and 'localhost' not in url
+
+  @property
+  def is_on(self):
+    msg_config = self.config.messaging
+    return (
+      msg_config.has_key('telegram_bot') and
+      msg_config.has_key('telegram_updates_every') and
+      self.config.TELEGRAM_API_KEY is not None
+    )
+
+  def setup_fetching(self, callbacks):
+    """If Telegram should be running, we either setup a webhook or
+    starts fetching regularly the updates depending on the configuration."""
+    if not self.is_on:
+      return
+
+    callbacks.append(self.processor.process)
+    if self.runs_https:
+      callbacks.append(self.bot.setWebhook)
+    else:
+      repeat_every = self.config.messaging.telegram_updates_every * 1000
+      tornado.ioloop.PeriodicCallback(self.fetcher.fetch, repeat_every).start()
+
+  def add_routes(self, app_routes):
+    """Ads the proper routes for telegram, restricting for proper subnets."""
+    if not self.is_on or not self.runs_https:
+      return
+
+    routes = [(
+      webhook.TelegramWebhook.ROUTE, webhook.TelegramWebhook, {
+        'queue': self.queue
+      }
+    )]
+    app_routes.append(
+      (tornado.routing.HostMatches(webhook.TelegramWebhook.HOSTS), routes)
+    )

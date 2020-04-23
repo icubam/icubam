@@ -24,29 +24,23 @@ class MessageServer(base_server.BaseServer):
     self.sender = sender.Sender(self.config, self.db, self.queue)
     self.callbacks = [self.sender.process]
 
-    if self.config.TELEGRAM_API_KEY is not None:
-      self.telegram_queue = queues.Queue()
-      self.telegram_updates = telegram.UpdateProcessor(
-        self.config, self.db, self.telegram_queue, self.scheduler
-      )
-      self.callbacks.append(self.telegram_updates.process)
-      self.telegram_fetcher = telegram.TelegramFetcher(
-        config, self.telegram_queue
-      )
-      repeat_every = self.config.messaging.telegram_updates_every * 1000
-      tornado.ioloop.PeriodicCallback(
-        self.telegram_fetcher.fetch, repeat_every
-      ).start()
+    self.telegram_setup = telegram.TelegramSetup(
+      self.config, self.db, self.scheduler
+    )
+    self.telegram_setup.setup_fetching(self.callbacks)
 
   def make_app(self):
     kwargs = dict(db_factory=self.db_factory, scheduler=self.scheduler)
     self.add_handler(onoff.OnOffHandler, **kwargs)
     self.add_handler(schedule.ScheduleHandler, **kwargs)
+    self.add_handler(schedule.ScheduleHandler, **kwargs)
 
     # Only accepts request from same host
-    return tornado.web.Application([
+    app_routes = [
       (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes)
-    ])
+    ]
+    self.telegram_setup.add_routes(app_routes)
+    return tornado.web.Application(app_routes)
 
   async def process(self):
     async for msg in self.queue:
