@@ -50,8 +50,9 @@ class Authenticator:
     """
     token_str = token_str.decode(
     ) if isinstance(token_str, bytes) else token_str
-    user_icu = self.decode_from_db(token_str)
-    if user_icu is None:
+    if len(token_str) == store.UserICUToken.TOKEN_SIZE:
+      user_icu = self.decode_from_db(token_str)
+    else:
       user_icu = self.decode_from_jwt(token_str)
     return user_icu
 
