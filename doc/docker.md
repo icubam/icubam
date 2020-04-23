@@ -95,9 +95,7 @@ Two kinds of environment variables must be set
 **Docker's environement variables**
 
 - ICUBAM_COMPOSE_CONTEXT: root folder for the build context
-- ICUBAM_CONFIG_PATH: path/filename for the app's configuration file
-- ICUBAM_PROD_DB_PATH: path/filename for the production database
-- ICUBAM_TEST_DB_PATH: path/filename for the test database
+- ICUBAM_RESOURCES_PATH: path/name of the resources folder to mount in the container (e.g., `./resources`). This folder contains, among other things, the app's configuration file and the database).
 - ICUBAM_CERTBOT_PATH: location for the CertBot configuration and result files
 - ICUBAM_NGINX_PATH: location for the Nginx configuration files
 - IMAGE_NAME: name of the Docker image to use
@@ -110,11 +108,14 @@ Files/folders are mounted (bind) in the containers (nginx/certbot) defined in th
 
 The containers expect the following variables to be set in order to launch
 
+- ICUBAM_CONFIG_FILE: filename for the app's configuration file (e.g., `icubam.toml`)
 - SECRET_COOKIE
 - JWT_SECRET
 - GOOGLE_API_KEY
 - TW_KEY
 - TW_API
+- TW_API
+- DB_SALT
 
 These environment variables are not set in the Docker image, but must be set when starting the 
 docker/docker-compose command.  Also check the [install.md](./install.md) documentation for more details.
