@@ -70,7 +70,7 @@ class MessageScheduler:
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return False
 
-    url = self.updater.get_user_url(user, icu.icu_id)
+    url = self.updater.get_url(user, icu)
     msg = message.Message(icu, user, url)
     return self.schedule_message(msg, delay)
 
@@ -131,7 +131,7 @@ class MessageScheduler:
     result = []
     for user in users:
       for icu in user.icus:
-        url = self.updater.get_user_url(user, icu.icu_id)
+        url = self.updater.get_url(user, icu)
         result.append(message.Message(icu, user, url))
     return result
 

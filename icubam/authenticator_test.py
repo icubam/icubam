@@ -60,6 +60,13 @@ class AuthenticatorTest(absltest.TestCase):
     self.assertIsNotNone(self.authenticator.decode(token))
     self.assertIsNone(self.authenticator.authenticate(token))
 
+  def test_get_or_new_token(self):
+    self.assertFalse(self.db.has_token(self.user_id, self.icu_id))
+    token_str = self.authenticator.get_or_new_token(self.user, self.icu)
+    self.assertGreater(len(token_str), 0)
+    token_str2 = self.authenticator.get_or_new_token(self.user, self.icu)
+    self.assertEqual(token_str, token_str2)
+
 
 if __name__ == '__main__':
   absltest.main()

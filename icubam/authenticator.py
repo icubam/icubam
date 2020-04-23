@@ -11,6 +11,16 @@ class Authenticator:
     self.db = db
     self.token_encoder = token.TokenEncoder(self.config)
 
+  def get_or_new_token(self, user, icu, admin_id=None) -> str:
+    """Returns the token for a user-icu. May insert it in the database."""
+    token_obj = self.db.get_token_from_ids(user.user_id, icu.icu_id)
+    if token_obj is not None:
+      return token_obj.token
+
+    return self.db.add_token(
+      admin_id, store.UserICUToken(user_id=user.user_id, icu_id=icu.icu_id)
+    )
+
   def authenticate(self, token_str: str) -> Optional[Tuple]:
     """Decodes the token and check that the data is valid."""
     user_icu = self.decode(token_str)

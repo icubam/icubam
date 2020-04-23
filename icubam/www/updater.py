@@ -1,8 +1,8 @@
 from absl import logging  # noqa: F401
+from icubam import authenticator
 from icubam import time_utils
 from icubam.db import store
 from icubam.www.handlers import home
-from icubam.www import token
 
 
 def apply_default(data: dict, value: int, prefix: str):
@@ -21,26 +21,13 @@ class Updater:
   def __init__(self, config, db):
     self.config = config
     self.db = db
-    self.token_encoder = token.TokenEncoder(self.config)
-
-  def get_user_url(self, user, icu_id: str) -> str:
-    icu = {i.icu_id: i for i in user.icus}.get(icu_id, None)
-    if icu is None:
-      raise ValueError(f"Cannot find ICU {icu_id} for user")
-    return self.get_url(user, icu)
+    self.authenticator = authenticator.Authenticator(self.config, self.db)
 
   def get_url(self, user, icu) -> str:
     return "{}{}?id={}".format(
       self.config.server.base_url, self.ROUTE.strip('/'),
-      self.token_encoder.encode_data(user, icu)
+      self.authenticator.get_or_new_token(user, icu)
     )
-
-  def get_urls(self):
-    result = []
-    for user in self.db.get_users():
-      for icu in user.icus:
-        result.append(self.get_url(icu.icu_id, icu.name))
-    return result
 
   def get_icu_data_by_id(self, icu_id, locale=None, def_val=0):
     """Returns the dictionary of counts for the given icu."""

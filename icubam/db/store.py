@@ -310,6 +310,14 @@ class Store(object):
       UserICUToken.token == token
     ).one_or_none()
 
+  def get_token_from_ids(self, user_id: int,
+                         icu_id: int) -> Optional[UserICUToken]:
+    return (
+      self._session.query(UserICUToken).filter(
+        UserICUToken.user_id == user_id
+      ).filter(UserICUToken.icu_id == icu_id)
+    ).one_or_none()
+
   def has_token(self, user_id: int, icu_id: int) -> bool:
     return (
       self._session.query(UserICUToken).filter(
@@ -317,14 +325,17 @@ class Store(object):
       ).filter(UserICUToken.icu_id == icu_id)
     ).count() > 0
 
-  def add_token(self, admin_user_id: int, user_icu_token: UserICUToken):
+  def add_token(
+    self, admin_user_id: Optional[int], user_icu_token: UserICUToken
+  ):
+    """If admin_user_id is None we add the token."""
     if user_icu_token.token_id:
       raise ValueError("Cannot reset UserICUToken.")
 
     if self.has_token(user_icu_token.user_id, user_icu_token.icu_id):
       raise ValueError("User Icu already has a token.")
 
-    if self.is_admin(admin_user_id):
+    if admin_user_id is None or self.is_admin(admin_user_id):
       user_icu_token.token = self.make_token(
         user_icu_token.user_id, user_icu_token.icu_id
       )
