@@ -58,9 +58,6 @@ class Authenticator:
 
   def decode_from_db(self, token_str: str) -> Optional[Tuple]:
     """Returns a User, ICU trying to get the token from the database."""
-    if len(token_str) != store.UserICUToken.TOKEN_SIZE:
-      return None
-
     uit = self.db.get_token(token_str)
     if uit is None:
       logging.warning(f'No token {token_str}')
