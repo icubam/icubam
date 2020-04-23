@@ -9,6 +9,8 @@ jobs:
   build:
     env:
       TAG: ""
+      GITLAB_PROJECT_URL: ${{ secrets.GITLAB_PROJECT_URL }}
+      GITLAB_TRIGGER_TOKEN: ${{ secrets.GITLAB_TRIGGER_TOKEN }}
     runs-on: ubuntu-latest
     steps:
     - name: git checkout
@@ -26,3 +28,17 @@ jobs:
       run: |
         docker push docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/}
         docker push docker.pkg.github.com/icubam/icubam/icubam-services:${{ github.sha }}
+    - name: Trigger CD to staging environment
+      run: |
+        if [ -z "${GITLAB_PROJECT_URL}" ]; then
+          echo "WARNING: GITLAB_PROJECT_URL secret not set: skipped CD to staging environment."
+        elif [ -z "${GITLAB_TRIGGER_TOKEN}" ]; then
+          echo "WARNING: GITLAB_TRIGGER_TOKEN secret not set: skipped CD to staging environment."
+        else
+          curl -X POST \
+            -F "token=${GITLAB_TRIGGER_TOKEN}" \
+            -F "ref=master" \
+            -F "variables[CI_JOB_STAGE]=deploy_staging" \
+            -F "variables[DEPLOY_REF]=${GITHUB_REF##*/}" \
+            "${GITLAB_PROJECT_URL}/trigger/pipeline"
+        fi
