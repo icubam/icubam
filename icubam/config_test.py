@@ -1,4 +1,5 @@
 import unittest
+import pickle
 
 from icubam import config
 
@@ -14,3 +15,10 @@ class ConfigTestCase(unittest.TestCase):
     self.assertEqual(self.config.db.sqlite_path, ':memory:')
     self.assertEqual(self.config.server.port, 8888)
     self.assertEqual(self.config.scheduler.max_retries, 3)
+
+  def test_pickle(self):
+    """Check that config is picklable"""
+    obj = pickle.dumps(self.config)
+    config2 = pickle.loads(obj)
+    self.assertEqual(self.config.db.sqlite_path, config2.db.sqlite_path)
+    self.assertEqual(self.config.server.port, config2.server.port)
