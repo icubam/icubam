@@ -18,6 +18,8 @@ data_source = ["bedcounts", "combined_bedcounts_public"]
 # departmental level. Percentages have to be recomputed (not averaged, but
 # averaged with ponderation, so, recomputed)
 
+LEGEND_ARGS = {"frameon": True, "facecolor": 'white', "framealpha": 0.8}
+
 
 def slid_window_avg(a, wi):
   """ a simple window-averaging function, centerd on the current point """
@@ -190,7 +192,9 @@ def plot_one_dep(cdep, dep_name):
     lw=3,
     ls="--"
   )
-  axs[0].legend(handlelength=4, loc='best')  # bbox_to_anchor=(0, 0.1 ),
+  axs[0].legend(
+    handlelength=4, loc='best', **LEGEND_ARGS
+  )  # bbox_to_anchor=(0, 0.1 ),
   axs[0].set_xticks(x_ticks_c)
   axs[0].set_ylim(bottom=0)
 
@@ -229,7 +233,7 @@ def plot_one_dep(cdep, dep_name):
   h2, l2 = ax2.get_legend_handles_labels()
   ax2.set_ylim([0, 100])
   axs[1].legend(
-    h1 + h2, l1 + l2, handlelength=4, loc='lower left'
+    h1 + h2, l1 + l2, handlelength=4, loc='lower left', **LEGEND_ARGS
   )  ## summing the two legends, to have a single legend-box in the subplot
   axs[1].set_xticks(x_ticks_c)
   axs[1].set_ylim(bottom=0)
@@ -258,7 +262,7 @@ def plot_one_dep(cdep, dep_name):
     ls='-',
     alpha=0.8
   )
-  axs[2].legend(handlelength=4, loc='best')
+  axs[2].legend(handlelength=4, loc='best', **LEGEND_ARGS)
   axs[2].set_xticks(x_ticks_c)
   axs[2].set_ylim(bottom=0)
 

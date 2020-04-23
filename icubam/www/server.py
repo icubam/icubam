@@ -55,7 +55,7 @@ class WWWServer(base_server.BaseServer):
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       prefix = db.OperationalDashboardHandler.BACKOFFICE_PREFIX
       self.routes.append((
-        f'/{prefix}/static/extra-plots/(.*)', tornado.web.StaticFileHandler, {
+        f'/{prefix}static/extra-plots/(.*)', tornado.web.StaticFileHandler, {
           'path': self.config.backoffice.extra_plots_dir
         }
       ))
