@@ -109,8 +109,8 @@
 
                 <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
                    {% if current_region_name != 'All regions' %}
-                    <div class="row extra-plots">
-                        <div class="col-sm-6 offset-4 figure">
+                    <div class="row align-items-center extra-plots">
+                        <div class="col-md-auto figure">
                           <img src="{{ backoffice_root }}static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                     <div class="row extra-plots">
                     {% for fig_name in row %}
                     {% if fig_name is not None %}
-                        <div class="col-sm-5 figure">
+                        <div class="col-lg-6 figure">
                         <img src="{{ backoffice_root }}static/extra-plots/{{ fig_name }}.png" />
                         </div>
                     {% end %}
