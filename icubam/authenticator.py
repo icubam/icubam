@@ -78,7 +78,7 @@ class Authenticator:
     try:
       userid, icuid = data
     except Exception as e:
-      logging.error(f'Token is not a 2-tuple falling back to old token: {e}')
+      logging.warning(f'Token is not a 2-tuple falling back to old token: {e}')
       userid, icuid = None, None
       if isinstance(data, dict):
         userid = data.get('user_id', None)
