@@ -35,7 +35,7 @@ N.B.: You can name and move this file as you want but you will have to add
 ### Pre-populate DB with test data
 
 Create a fake database in order to be able to play with it:
-`python scripts/populate_db_fake.py --config=resources/config.toml --mode=dev`
+`python scripts/populate_db_fake.py --config=resources/config.toml`
 
 The database will be named `test.db`, cf. `resources/config.toml`.
 
@@ -60,7 +60,7 @@ To get all identifiers:
 ### Main server
 
 Start the main server locally:
-`python scripts/run_server.py --config=resources/config.toml --mode=dev`
+`python scripts/run_server.py --config=resources/config.toml`
 
 Will produce the following logs:
 ```
