@@ -7,12 +7,22 @@
 ENVFILE=".env"
 CONFFILE="config.toml"
 
+# check that docker is indeed installed
+if ! [ -x "$(command -v docker)" ]; then
+  echo 'Error: docker is not installed.' >&2
+  exit 1
+fi
+if ! [ -x "$(command -v docker-compose)" ]; then
+  echo 'Error: docker-compose is not installed.' >&2
+  exit 1
+fi
+
 # envvar file
 if [ -f "${ENVFILE}" ]; then
   echo -e "\n${ENVFILE} exist, load envvars"i
   source ${ENVFILE}
 else
-	echo -e "\nCreate default envvar file ${ENVFILE}"
+	echo -e "\n###\nCreate default envvar file ${ENVFILE}"
 	touch ${ENVFILE}
 	echo "IMAGE_NAME=icubam" >> ${ENVFILE}
 	echo "IMAGE_TAG=latest" >> ${ENVFILE}
@@ -30,11 +40,11 @@ else
 fi
 
 # Retrieve Docker image
-echo -e "\nRetrieve ICUBAM Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
+echo -e "\n###\nRetrieve ICUBAM Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
 docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
 # Retrieve docker-compose files - assume there is an external reverse-proxy facility for the deployment
-echo -e "\nDownload compose files"
+echo -e "\n###\nDownload compose files"
 rm -f docker-compose-core.yml docker-compose-init-db.yml
 wget https://raw.githubusercontent.com/icubam/icubam/master/docker/docker-compose-init-db.yml
 wget https://raw.githubusercontent.com/icubam/icubam/master/docker/docker-compose-core.yml
@@ -46,7 +56,7 @@ mkdir -p resources
 if [ -f "resources/${CONFFILE}" ]; then
     echo -e "\nresources/${CONFFILE} exist, use it"i
 else
-	echo -e "\nGet default config file for containers"
+	echo -e "\n###\nGet default config file for containers"
 	wget https://raw.githubusercontent.com/icubam/icubam/master/resources/config.toml
 	mv config.toml resources
 
@@ -55,12 +65,12 @@ else
 fi
 
 # Initialize the default test database
-echo -e "\nInitialize fake database"
+echo -e "\n###\nInitialize fake database"
 docker-compose -f docker-compose-init-db.yml --project-directory . up
 docker-compose -f docker-compose-init-db.yml --project-directory . down
 
 # launch the icubam services
-echo -e "\nLaunch app containers"
+echo -e "\n###\nLaunch app containers"
 docker-compose -f docker-compose-core.yml  --project-directory . up -d
 
 
