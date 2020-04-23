@@ -1,3 +1,4 @@
+from time import sleep
 from pathlib import Path
 from subprocess import call
 
@@ -44,7 +45,13 @@ def integration_config(request, tmpdir_factory):
 @pytest.fixture(scope="session")
 def icubam_services_fx(request, tmpdir_factory, integration_config):
   from icubam.cli import run_server
-  run_server(integration_config, server="all")
+  processes = run_server(integration_config, server="all")
+  # Let services start
+  sleep(2)
+  yield
+  for p in processes:
+    if p.is_alive():
+      p.terminate()
 
 
 def pytest_configure(config):
