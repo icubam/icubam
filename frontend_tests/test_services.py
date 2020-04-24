@@ -6,12 +6,13 @@ from urllib.request import urlopen
 def test_health_urls(integration_config, icubam_services_fx, server):
   cfg = integration_config
 
-  if server in ['server', 'messaging']:
-    res = urlopen(cfg[server].base_url + 'health')
-    assert res.getcode() == 200
-  else:
-    backoffice_url = 'http://localhost:{}/{}/'.format(
-      cfg['backoffice'].port, cfg['backoffice'].root
+  if server == 'backoffice':
+    base_url = "{}{}/".format(
+      cfg['server'].base_url.replace(
+        str(cfg['server'].port), str(cfg['backoffice'].port)
+      ), cfg['backoffice'].root
     )
-    res = urlopen(backoffice_url)
-    assert res.getcode() == 200
+  else:
+    base_url = cfg[server].base_url
+  res = urlopen(base_url + 'health')
+  assert res.getcode() == 200
