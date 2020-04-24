@@ -6,6 +6,12 @@ from icubam.messaging import email_sender
 
 
 class Sender:
+  """The Sender class is responsible for sending messages to the users.
+
+  It decides the channel to be used to contact the user: sms, email or
+  via telegram bot depending on the user itself and the configuration of
+  the server.
+  """
   def __init__(self, config, db, queue):
     self.config = config
     self.db = db
@@ -25,6 +31,7 @@ class Sender:
       self.telegram_bot = bot.TelegramBot(config)
 
   async def process(self):
+    """Keeps reading the sending queue and does send the messages."""
     async for msg in self.queue:
       try:
         user = self.db.get_user(msg.user_id)
@@ -35,6 +42,7 @@ class Sender:
         self.queue.task_done()
 
   async def send(self, msg, user):
+    """Sends the message to a single user."""
     if user.telegram_chat_id is not None:
       return await self.telegram_bot.send(user.telegram_chat_id, msg.html)
 
