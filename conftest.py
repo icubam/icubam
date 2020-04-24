@@ -33,9 +33,7 @@ def integration_config(request, tmpdir_factory):
   config = Config(config_path)
   db_path = Path(config.db.sqlite_path)
   if not db_path.exists():
-    pytest.skip(
-      f'skipping integration tests as could not find DB at {db_path}.'
-    )
+    raise ValueError(f'could not find DB at {db_path} for integration tests.')
 
   db_path_new = str(tmpdir_factory.mktemp('tmpdir_factory').join("icubam.db"))
 
