@@ -48,7 +48,7 @@ jobs:
       run: |
         set -x
         pip install -e .
-        pytest --cov=icubam --cov-report=xml --cov-report=html
+        pytest --cov=icubam --cov-report=xml --cov-report=html -r s
     - name: Typecheck with mypy
       run: |
         set -ex
@@ -58,7 +58,7 @@ jobs:
         JWT_SECRET: faketest
       run: |
         set -x
-        pytest --icubam-config=resources/config.toml --run-server frontend_tests/
+        pytest --icubam-config=resources/config.toml --run-server -r s frontend_tests/
     - name: "Upload coverage to Codecov"
       uses: "codecov/codecov-action@v1"
       with:
