@@ -11,14 +11,16 @@ default_locale='fr-fr'
   use_ssl = false
 
 [db]
-  sqlite_path = "resources/test.db"
+  sqlite_path = "resources/icubam.db"
 
 [server]
-  PORT = 8888  # will be lower cased when reading.
-  base_url = "http://localhost:8888/"
+  PORT = 8887  # will be lower cased when reading.
+  base_url = "http://localhost:8887/"
   upload_dir = "uploads/"
   consent = 'resources/consent.html'
   num_days_for_stale = 1.0
+  max_cluster_size = 10
+  display_empty_icu = false
 
 [messaging]
   PORT = 8889  # will be lower cased when reading.

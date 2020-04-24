@@ -23,8 +23,17 @@ class MapBuilder:
     self.popup_template = loader.load('popup.html')
     self.locale = locale
 
+    max_size = self.config.server.max_cluster_size
+    self.max_cluster_size = max_size if isinstance(max_size, int) else None
+
+    keep_empty = self.config.server.display_empty_icu
+    print('---->', keep_empty)
+    self.keep_empty = keep_empty if isinstance(keep_empty, bool) else False
+
   def to_map_data(self, tree, level):
-    nodes = tree.extract_below(level)
+    nodes = tree.extract_below(
+      level, keep_empty=self.keep_empty, max_nodes=self.max_cluster_size
+    )
     result = []
     for cluster, icus in nodes:
       views = [
