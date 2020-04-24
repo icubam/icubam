@@ -174,6 +174,15 @@ class ICUTreeTestCase(absltest.TestCase):
     nodes = tree.extract_below(level, keep_empty=False)
     self.assertEmpty(nodes[0][1])
 
+    # Only two regions in our data
+    nodes = tree.extract_below('region', keep_empty=True, max_nodes=40)
+    self.assertEqual(len(nodes), 2)
+
+    # If we limit the number of nodes, this will split the Paris region into
+    # depts (4 of them)
+    nodes = tree.extract_below('region', keep_empty=True, max_nodes=5)
+    self.assertEqual(len(nodes), 5)
+
 
 if __name__ == '__main__':
   absltest.main()
