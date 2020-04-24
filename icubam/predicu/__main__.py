@@ -74,7 +74,7 @@ def export_data(
     "config.backoffice.extra_plots_dir is used."
   )
 )
-def make_dasboard_plots(config, output_dir):
+def make_dashboard_plots(config, output_dir):
   config = Config(config)
   # Make sure DB path exists, to avoid creating an empty one
   if not Path(config.db.sqlite_path).exists():
