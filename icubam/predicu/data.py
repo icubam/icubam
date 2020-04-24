@@ -1,4 +1,4 @@
-from absl import logging  # noqa: F401
+import logging
 import pickle
 import urllib.request
 from pathlib import Path
