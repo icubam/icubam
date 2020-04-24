@@ -29,9 +29,9 @@ class UploadHandler(base.BaseHandler):
 
     sync = synchronizer.CSVSynchronizer(self.db)
     sync_fns: Dict[str, Callable[..., int]] = {
-      'user': sync.sync_users_from_csv,
-      'icu': sync.sync_icus_from_csv,
-      'bedcounts': sync.sync_bedcounts_from_csv
+      'Users': sync.sync_users_from_csv,
+      'ICUs': sync.sync_icus_from_csv,
+      'Bed Counts': sync.sync_bedcounts_from_csv
     }
     objtype = data.get('objtype', None)
     sync_fn = sync_fns.get(objtype, None)
