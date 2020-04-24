@@ -163,13 +163,16 @@ class ICUTreeTestCase(absltest.TestCase):
     tree = icu_tree.ICUTree()
     tree.add_many(self.icus, self.db.get_latest_bed_counts())
     level = 'dept'
-    nodes = tree.extract_below(level)
+    nodes = tree.extract_below(level, keep_empty=True)
     self.assertEqual(len(nodes), 5)
     self.assertIsInstance(nodes[0], tuple)
     self.assertEqual(nodes[0][0].level, level)
     self.assertFalse(nodes[0][0].is_leaf)
     self.assertIsInstance(nodes[0][1], list)
     self.assertTrue(nodes[0][1][0].is_leaf)
+
+    nodes = tree.extract_below(level, keep_empty=False)
+    self.assertEmpty(nodes[0][1])
 
 
 if __name__ == '__main__':
