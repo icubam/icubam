@@ -38,12 +38,12 @@ class UpdateProcessor:
   the proper token, then we register it and update the scheduler about it.
   Otherwise we simply do nothing.
   """
-  def __init__(self, config, db, queue, scheduler):
+  def __init__(self, config, db, queue, scheduler, tg_bot=None):
     self.config = config
     self.db = db
     self.queue = queue
     self.scheduler = scheduler
-    self.bot = bot.TelegramBot(config)
+    self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
     # TODO(olivier): replace with authenticator.
     self.token_encoder = token.TokenEncoder(self.config)
     admins = self.db.get_admins()
