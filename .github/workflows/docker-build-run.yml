@@ -47,4 +47,3 @@ jobs:
         docker-compose --verbose -f docker/docker-compose-core.yml --project-directory . up -d app-server
         sleep 5
         docker logs icubam_www_server
-
