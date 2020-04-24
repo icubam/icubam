@@ -49,11 +49,15 @@ def integration_config(request, tmpdir_factory):
 @pytest.fixture(scope="session")
 def icubam_services_fx(request, tmpdir_factory, integration_config):
   processes = []
+  # Make sure JWT_SECRET env variable is defined, otherwise messaging
+  # server won't start.
+  assert integration_config.JWT_SECRET
+
   if request.config.getoption("--run-server"):
     from icubam.cli import run_server
     processes = run_server(integration_config, server="all")
     # Let services start
-    sleep(2)
+    sleep(1)
   yield
   for p in processes:
     if p.is_alive():
