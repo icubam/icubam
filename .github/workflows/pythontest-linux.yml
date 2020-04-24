@@ -49,6 +49,10 @@ jobs:
         set -x
         pip install -e .
         pytest --cov=icubam --cov-report=xml --cov-report=html -r s
+    - name: "Upload coverage to Codecov"
+      uses: "codecov/codecov-action@v1"
+      with:
+        fail_ci_if_error: false
     - name: Typecheck with mypy
       run: |
         set -ex
@@ -60,6 +64,7 @@ jobs:
         set -x
         python scripts/populate_db_fake.py --config=resources/config.toml
         pytest -v --cov=icubam --cov-report=xml --cov-report=html --icubam-config=resources/config.toml --run-server -r s frontend_tests/
+    # Submit coverage a second type for frontend_tests and let codecov sort it out.
     - name: "Upload coverage to Codecov"
       uses: "codecov/codecov-action@v1"
       with:
