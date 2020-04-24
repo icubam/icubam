@@ -1,7 +1,7 @@
 from absl import logging
 
 from icubam.messaging import sms_sender
-from icubam.messaging import telegram
+from icubam.messaging.telegram import bot, integrator
 from icubam.messaging import email_sender
 
 
@@ -12,15 +12,17 @@ class Sender:
     self.queue = queue
 
     self.sms_sender = None
-    self.bot = None
-    self.email_sender = None
-
     if self.config.TW_KEY is not None:
       self.sms_sender = sms_sender.get(config)
-    if self.config.TELEGRAM_API_KEY is not None:
-      self.bot = telegram.TelegramBot(config)
+
+    self.email_sender = None
     if self.config.SMTP_HOST is not None:
       self.email_sender = email_sender.SMTPEmailSender(config)
+
+    self.telegram_bot = None
+    telegram_setup = integrator.TelegramSetup(config, db)
+    if telegram_setup.is_on:
+      self.telegram_bot = bot.TelegramBot(config)
 
   async def process(self):
     async for msg in self.queue:
@@ -34,7 +36,7 @@ class Sender:
 
   async def send(self, msg, user):
     if user.telegram_chat_id is not None:
-      return await self.bot.send(user.telegram_chat_id, msg.html)
+      return await self.telegram_bot.send(user.telegram_chat_id, msg.html)
 
     if (self.config.SMTP_HOST is not None and user.email is not None):
       self.email_sender.send(user.email, 'ICUBAM', msg.html)

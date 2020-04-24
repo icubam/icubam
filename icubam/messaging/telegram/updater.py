@@ -44,6 +44,7 @@ class UpdateProcessor:
     self.queue = queue
     self.scheduler = scheduler
     self.bot = bot.TelegramBot(config)
+    # TODO(olivier): replace with authenticator.
     self.token_encoder = token.TokenEncoder(self.config)
     admins = self.db.get_admins()
     if admins:
