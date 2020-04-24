@@ -3,7 +3,7 @@ import tornado.web
 from absl import logging  # noqa: F401
 from tornado import queues
 
-from icubam import base_server, utils
+from icubam import base_server, sentry
 from icubam.messaging import scheduler, sms_sender
 from icubam.messaging.handlers import onoff, schedule
 
@@ -11,7 +11,7 @@ from icubam.messaging.handlers import onoff, schedule
 class MessageServer(base_server.BaseServer):
   """Sends and schedule SMS."""
   def __init__(self, config, port=8889):
-    utils.maybe_init_sentry(config, server_name='messaging')
+    sentry.maybe_init_sentry(config, server_name='messaging')
     super().__init__(config, port)
     self.port = port if port is not None else self.config.messaging.port
     self.sender = sms_sender.get(self.config)
