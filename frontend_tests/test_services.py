@@ -10,7 +10,7 @@ def test_health_urls(integration_config, icubam_services_fx, server):
     base_url = "{}{}/".format(
       cfg['server'].base_url.replace(
         str(cfg['server'].port), str(cfg['backoffice'].port)
-      ), cfg['backoffice'].root
+      ), cfg['backoffice'].root.strip('/')
     )
   else:
     base_url = cfg[server].base_url

@@ -57,7 +57,7 @@ def icubam_services_fx(request, tmpdir_factory, integration_config):
     from icubam.cli import run_server
     processes = run_server(integration_config, server="all")
     # Let services start
-    sleep(1)
+    sleep(3)
   yield
   for p in processes:
     if p.is_alive():
