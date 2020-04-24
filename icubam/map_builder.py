@@ -27,7 +27,6 @@ class MapBuilder:
     self.max_cluster_size = max_size if isinstance(max_size, int) else None
 
     keep_empty = self.config.server.display_empty_icu
-    print('---->', keep_empty)
     self.keep_empty = keep_empty if isinstance(keep_empty, bool) else False
 
   def to_map_data(self, tree, level):
