@@ -32,19 +32,19 @@ class TelegramBot:
     )
     return await self.client.fetch(request)
 
-  async def getUpdates(self, min_id: int = 0) -> List[Dict]:
+  async def getUpdates(self, min_id: int = 0) -> Optional[List[Dict]]:
     """Returns the updates."""
     url = f"{self.api_url}/getUpdates"
     resp = await self.client.fetch(url)
     if resp.code != 200:
       logging.warning(f"Cannot fetch {url}")
-      return []
+      return None
 
     try:
       data = json.loads(resp.body.decode())
     except Exception as e:
       logging.warning(f"Cannot decode json {e}")
-      return []
+      return None
 
     return [u for u in data["result"] if u["update_id"] > min_id]
 
