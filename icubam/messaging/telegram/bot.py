@@ -53,6 +53,10 @@ class TelegramBot:
     return self.public_url + self.START + token
 
   def extract_token(self, text: str) -> Optional[str]:
+    """Extracts the token from a messages.
+    
+    It should be sent in a start command.
+    """
     if text.startswith(self.START):
       return text[len(self.START) + 1:]
     return None
@@ -68,7 +72,7 @@ class TelegramBot:
     return resp.code == 200
 
   async def setWebhook(self) -> bool:
-    """Set up a webhook to receive update directly from the server."""
+    """Sets up a webhook to receive update directly from the server."""
     url = os.path.join(
       self.config.server.base_url, webhook.TelegramWebhook.ROUTE
     )
