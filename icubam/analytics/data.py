@@ -21,13 +21,15 @@ NCUM_COLUMNS = [
 ]
 BEDCOUNT_COLUMNS = CUM_COLUMNS + NCUM_COLUMNS
 ALL_COLUMNS = ([
-  "icu_name", "icu_region_name", "date", "datetime", "department", "region"
+  "icu_name", "date", "datetime", "department", "region_id", "region",
+  "create_date"
 ] + CUM_COLUMNS + NCUM_COLUMNS)
 
 
-def load_bedcounts(db, preprocess: bool = False):
+def load_bed_counts(db, preprocess: bool = False):
   """Load Bedcount data from ICUBAM DB"""
   bc = store.to_pandas(db.get_bed_counts(), max_depth=2)
-  bc = preprocessing.preprocess_bedcounts(bc)
+  if preprocess:
+    bc = preprocessing.preprocess_bedcounts(bc)
   bc = bc.sort_values(by=["create_date", "icu_name"])
   return bc

@@ -4,23 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-CUM_COLUMNS = [
-  "n_covid_deaths",
-  "n_covid_healed",
-  "n_covid_transfered",
-  "n_covid_refused",
-]
-NCUM_COLUMNS = [
-  "n_covid_free",
-  "n_ncovid_free",
-  "n_covid_occ",
-  "n_ncovid_occ",
-]
-BEDCOUNT_COLUMNS = CUM_COLUMNS + NCUM_COLUMNS
-ALL_COLUMNS = ([
-  "icu_name", "create_date", "datetime", "icu_dept", "icu_region_id",
-  "icu_region_name"
-] + CUM_COLUMNS + NCUM_COLUMNS)
+import icubam.analytics.data as data
 
 SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_deaths": 10,
@@ -30,30 +14,14 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
 }
 
 
-def format_data(d):
-  d["datetime"] = pd.to_datetime(d["date"])
+def format_data(d: pd.DataFrame) -> pd.DataFrame:
+  d["datetime"] = pd.to_datetime(d["create_date"])
   d["date"] = d["datetime"].dt.date
-  d = d[ALL_COLUMNS]
+  d["department"] = d["icu_dept"]
+  d["region"] = d["icu_region_name"]
+  d["region_id"] = d["icu_region_id"]
+  d = d[data.ALL_COLUMNS]
   return d
-
-
-def preprocess_data(
-  data_source: str, data: pd.DataFrame, **kwargs
-) -> pd.DataFrame:
-  """Generic data processing function
-
-  Calls specialized preprocess_* depending on the data_source
-
-  Args:
-    data_source: type of data to preprocess
-    data : DataFrame with data
-  """
-  preprocessor = PREPROCESSORS.get(data_source, None)
-  if preprocessor is None:
-    return data
-
-  res = preprocessor(data, **kwargs)
-  return res
 
 
 def preprocess_bedcounts(
@@ -94,7 +62,7 @@ def preprocess_bedcounts(
       a_min=0,
       a_max=None,
     )
-
+  # import ipdb; ipdb.set_trace()
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
@@ -106,7 +74,7 @@ def preprocess_bedcounts(
   # Step 4)
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
-  d = d[ALL_COLUMNS]
+  d = d[data.ALL_COLUMNS]
   d = d.sort_values(by=["date", "icu_name"])
 
   if max_date is not None:
@@ -131,13 +99,13 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     dg = dg.loc[mask]
 
     # Rolling median average, 5 points (for cumulative qtities):
-    for col in CUM_COLUMNS:
+    for col in data.CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
 
     # Rolling median average, 3 points (for non-cumulative qtities):
-    for col in NCUM_COLUMNS:
+    for col in data.NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
@@ -145,7 +113,7 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
 
     # Force cumulative columns to be monotonic by bringing any decreases in
     # the value up to their previous values i.e. x_t = max(x_t, x_{t-1}):
-    for col in CUM_COLUMNS:
+    for col in data.CUM_COLUMNS:
       new_col = []
       last_val = -100000
       for idx, row in dg.iterrows():
@@ -270,6 +238,11 @@ def enforce_daily_values_for_all_icus(d):
               ).first().reset_index()[["icu_name", "region"
                                        ]].itertuples(name=None, index=False)
   )
+  icu_name_to_region_id = dict(
+    d.groupby(["icu_name", "region_id"]
+              ).first().reset_index()[["icu_name", "region_id"
+                                       ]].itertuples(name=None, index=False)
+  )
   for date, icu_name in itertools.product(dates, icu_names):
     sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
     sd = sd.sort_values(by="datetime")
@@ -278,19 +251,21 @@ def enforce_daily_values_for_all_icus(d):
       "icu_name": icu_name,
       "department": icu_name_to_dept[icu_name],
       "region": icu_name_to_region[icu_name],
+      "region_id": icu_name_to_region_id[icu_name],
       "datetime": date,
+      "create_date": date,
     }
-    new_data_point.update({col: 0 for col in CUM_COLUMNS})
-    new_data_point.update({col: 0 for col in NCUM_COLUMNS})
+    new_data_point.update({col: 0 for col in data.CUM_COLUMNS})
+    new_data_point.update({col: 0 for col in data.NCUM_COLUMNS})
     if icu_name in per_icu_prev_data_point:
       new_data_point.update({
         col: per_icu_prev_data_point[icu_name][col]
-        for col in BEDCOUNT_COLUMNS
+        for col in data.BEDCOUNT_COLUMNS
       })
     if len(sd) > 0:
       new_data_point.update({
         col: sd[col].iloc[-1]
-        for col in BEDCOUNT_COLUMNS
+        for col in data.BEDCOUNT_COLUMNS
       })
     per_icu_prev_data_point[icu_name] = new_data_point
     new_data_points.append(new_data_point)
@@ -306,7 +281,7 @@ def spread_cum_jumps(d, icu_to_first_input_date):
     dg = dg.reset_index()
     already_fixed_col = set()
     for switch_point, cols in (
-      (icu_to_first_input_date[icu_name], CUM_COLUMNS),
+      (icu_to_first_input_date[icu_name], data.CUM_COLUMNS),
       (
         date_begin_transfered_refused,
         ["n_covid_transfered", "n_covid_refused"],

@@ -12,7 +12,7 @@ class AnalyticsCallback:
     self.db_factory = db_factory
 
   async def generate_plots(self):
-    df_bedcounts = data.get_bed_counts(
+    df_bedcounts = data.load_bed_counts(
       self.db_factory.create(), preprocess=True
     )
     logging.info('[periodic callback] Starting plots generation with predicu')
@@ -32,8 +32,8 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     extra_plots_dir = Path(extra_plots_dir)
 
   if config.backoffice.extra_plots_make_every <= 0:
-    logging.warn(
-      f"analytics callback not started, as extra_plots_make_every"
+    logging.warning(
+      f"Analytics callback not started, as extra_plots_make_every"
       f"={config.backoffice.extra_plots_make_every}"
     )
     return
@@ -43,7 +43,7 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     extra_plots_dir is None or
     not (extra_plots_dir.exists() or extra_plots_dir.parent.exists())
   ):
-    logging.warn(
+    logging.warning(
       f'Predicu plots not generated, as extra_plots_dir '
       f'is not valid directory: {extra_plots_dir}'
     )
