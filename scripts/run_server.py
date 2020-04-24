@@ -20,7 +20,7 @@ flags.DEFINE_string('server', 'www', 'File for the db.')
 FLAGS = flags.FLAGS
 
 
-def run_one_server(cls, cfg, port):
+def run_one_server(cls, cfg, port=None):
   logging.set_verbosity(logging.INFO)
   cls(cfg, port).run()
 
@@ -37,7 +37,7 @@ def main(argv):
     run_one_server(service, cfg, port=FLAGS.port)
   elif FLAGS.server == 'all':
     processes = [
-      mp.Process(target=run_one_server, args=(cls, cfg, None))
+      mp.Process(target=run_one_server, args=(cls, cfg))
       for cls in servers.values()
     ]
     for p in processes:
