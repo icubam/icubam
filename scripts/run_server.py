@@ -1,5 +1,5 @@
 """Runs the webserver."""
-from absl import logging
+from absl import logging  # noqa
 from absl import app
 from absl import flags
 
@@ -16,14 +16,9 @@ flags.DEFINE_string('server', 'www', 'File for the db.')
 FLAGS = flags.FLAGS
 
 
-def set_logging_and_run(func):
-  logging.set_verbosity(logging.INFO)
-  return func
-
-
 def main(argv):
   cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
-  run_server(cfg, server=FLAGS.server, port=None)
+  run_server(cfg, server=FLAGS.server, port=FLAGS.port)
 
 
 if __name__ == '__main__':
