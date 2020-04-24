@@ -1,12 +1,11 @@
 """Runs the webserver."""
-import functools
+from absl import logging
 import multiprocessing as mp
 
 from absl import app
 from absl import flags
 
 from icubam import config
-from icubam import utils
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
 from icubam.www import server as www_server
@@ -21,6 +20,11 @@ flags.DEFINE_string('server', 'www', 'File for the db.')
 FLAGS = flags.FLAGS
 
 
+def run_one_server(cls, cfg, port=None):
+  logging.set_verbosity(logging.INFO)
+  cls(cfg, port).run()
+
+
 def main(argv):
   servers = {
     'www': www_server.WWWServer,
@@ -30,19 +34,11 @@ def main(argv):
   service = servers.get(FLAGS.server, None)
   cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
   if service is not None:
-    service(cfg, FLAGS.port).run()
+    run_one_server(service, cfg, port=FLAGS.port)
   elif FLAGS.server == 'all':
-    # For some reason the cfg object won't pickle, so we pass in the
-    # necessary values to rebuild it in the child process:
     processes = [
-      mp.Process(
-        target=functools.partial(
-          utils.run_server,
-          cls,
-          config_path=FLAGS.config,
-          env_path=FLAGS.dotenv_path
-        )
-      ) for cls in servers.values()
+      mp.Process(target=run_one_server, args=(cls, cfg))
+      for cls in servers.values()
     ]
     for p in processes:
       p.start()
