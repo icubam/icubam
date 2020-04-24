@@ -16,6 +16,12 @@ class ConfigTestCase(unittest.TestCase):
     self.assertEqual(self.config.server.port, 8888)
     self.assertEqual(self.config.scheduler.max_retries, 3)
 
+  def test_missing_key(self):
+    with self.assertRaises(AttributeError):
+      self.config.invalid
+    with self.assertRaises(KeyError):
+      self.config['invalid']
+
   def test_pickle(self):
     """Check that config is picklable"""
     obj = pickle.dumps(self.config)
