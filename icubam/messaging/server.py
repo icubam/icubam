@@ -6,7 +6,7 @@ from tornado import queues
 from icubam import base_server, utils
 from icubam.messaging import scheduler
 from icubam.messaging import sender
-from icubam.messaging import telegram
+from icubam.messaging.telegram import integrator
 from icubam.messaging.handlers import onoff, schedule
 
 
@@ -24,7 +24,7 @@ class MessageServer(base_server.BaseServer):
     self.sender = sender.Sender(self.config, self.db, self.queue)
     self.callbacks = [self.sender.process]
 
-    self.telegram_setup = telegram.TelegramSetup(
+    self.telegram_setup = integrator.TelegramSetup(
       self.config, self.db, self.scheduler
     )
     self.telegram_setup.setup_fetching(self.callbacks)
