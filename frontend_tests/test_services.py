@@ -7,9 +7,6 @@ def test_health_urls(integration_config, icubam_services_fx, server):
   cfg = integration_config
 
   if server in ['server', 'messaging']:
-    if server == 'messaging':
-      # Why does this not work? Even manually.
-      pytest.skip()
     res = urlopen(cfg[server].base_url + 'health')
     assert res.getcode() == 200
   else:
