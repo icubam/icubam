@@ -49,10 +49,6 @@ jobs:
         set -x
         pip install -e .
         pytest --cov=icubam --cov-report=xml --cov-report=html -r s
-    - name: "Upload coverage to Codecov"
-      uses: "codecov/codecov-action@v1"
-      with:
-        fail_ci_if_error: false
     - name: Typecheck with mypy
       run: |
         set -ex
