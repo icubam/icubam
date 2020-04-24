@@ -54,10 +54,9 @@ jobs:
         set -ex
         mypy -p icubam --ignore-missing-imports
     - name: Frontend tests
-      env:
-        JWT_SECRET: faketest
       run: |
         set -x
+        python scripts/populate_db_fake.py --config=resources/config.toml --dotenv_path=resources/icubam.env
         pytest --icubam-config=resources/config.toml --run-server -r s frontend_tests/
     - name: "Upload coverage to Codecov"
       uses: "codecov/codecov-action@v1"
