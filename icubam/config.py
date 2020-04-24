@@ -53,6 +53,9 @@ class Config:
     if key.upper() == key:
       return self.env.get(key)
     if self.conf.has_key(key):
+      # TODO: We need to handle when attribute lookups fail
+      # on the returned object, which currently returns a DotMat
+      # object, however that's up to the dotmap library.
       return self.conf.get(key)
     raise KeyError(f"key '{key}' does not exist!")
 
