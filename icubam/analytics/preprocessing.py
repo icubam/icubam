@@ -31,19 +31,21 @@ def preprocess_bedcounts(
 ) -> pd.DataFrame:
   """This will process the bedcounts data to make analysis easier.
 
-  There are four steps to the processing;
-  1) Aggregate the timeseries into their closest T-min intervals (T=15).
+  There are five steps to the processing;
+  1) Run a low-pass filter over all timeseries to remove single spikes that
+     generally represent a data entry error.
+  2) Aggregate the timeseries into their closest T-min intervals (T=15).
      This helps remove repeate updates, and takes the most recent update 
      for a T-min window, such that if there was a correction to bad data
      that will be the only value for that time window.
-  2) Guarantee monotonicity on cumulative counts by replacing any decreasing
+  3) Guarantee monotonicity on cumulative counts by replacing any decreasing
      values in the timeseries with their previous count: x_t = max(x_t, x_{t+1}).
-  3) Imput missing data with two strategies: For holes > 3 days, impute data 
+  4) Imput missing data with two strategies: For holes > 3 days, impute data 
      by linearly interpolating between the two end-points of the missing data.
      Subsequently, guarantee that each ICU has data for the whole timeseries,
      either by forward-propagating data at day t for impution, or setting to 0 for 
      days before the ICU started its data collection.
-  4) (Optional) Spread out sudden jumps in data that reflect onboardings or
+  5) (Optional) Spread out sudden jumps in data that reflect onboardings or
      change in reporting habit.
   
   Args:
@@ -52,6 +54,7 @@ def preprocess_bedcounts(
   """
   # Extract useful columns and recast date properly:
   d = format_data(d)
+  d = d.fillna(0)
 
   if "Mulhouse-Chir" in d.icu_name.unique():
     d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
@@ -62,11 +65,10 @@ def preprocess_bedcounts(
       a_min=0,
       a_max=None,
     )
-  # import ipdb; ipdb.set_trace()
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
-  # Apply steps 1) & 2)
+  # Apply steps 1) 2) & 3)
   d = aggregate_multiple_inputs(d, "15Min")
   # Step 3)
   d = fill_in_missing_days(d, "3D")
@@ -98,7 +100,9 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     mask = mask.shift(-1).fillna(True).astype(bool)
     dg = dg.loc[mask]
 
+    # This will run low-pass filters to remove spurious outliers:
     # Rolling median average, 5 points (for cumulative qtities):
+    # breakpoint()
     for col in data.CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
@@ -319,6 +323,24 @@ def spread_cum_jumps(d, icu_to_first_input_date):
           )
           already_fixed_col.add(col)
     dfs.append(dg)
+  return pd.concat(dfs)
+
+
+def compute_flow(d):
+  sum_cols = set(data.CUM_COLUMNS + ["n_covid_occ"]) - {"n_covid_refused"}
+  summed = d[sum_cols].sum(axis=1)
+  flow = summed.diff(1).fillna(0)
+  flow.iloc[0] = summed.iloc[0]
+  return flow
+
+
+def compute_flow_per_dpt(data):
+  dfs = []
+  for dpt, d in data.groupby("department"):
+    d = d.sort_values(by="date")
+    d["flow"] = compute_flow(d)
+    d["cum_flow"] = d.flow.cumsum()
+    dfs.append(d)
   return pd.concat(dfs)
 
 

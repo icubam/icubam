@@ -70,7 +70,7 @@ def plot_int(
   s=3,
   fill_below=False,
 ):
-  f = scipy.interpolate.interp1d(x, y, kind="quadratic")
+  f = scipy.interpolate.interp1d(x, y, kind="linear")
   x_i = np.linspace(0, len(x) - 1, len(x) * 5)
   y_i = f(x_i)
   if marker is not None:

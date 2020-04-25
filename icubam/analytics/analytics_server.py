@@ -18,7 +18,7 @@ class AnalyticsCallback:
     logging.info('[periodic callback] Starting plots generation with predicu')
     plot_data = {'bedcounts': df_bedcounts}
     plots.generate_plots(
-      plots=["flux_dept_lits_dept_visu_4panels"],
+      plots=["base_dashboard_plots"],
       data=plot_data,
       output_dir=self.output_dir
     )
