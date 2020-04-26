@@ -19,11 +19,20 @@ class Authenticator:
       self.validity = None
 
   def get_or_new_token(
-    self, user_id: int, icu_id: int, admin_id: int = None
+    self,
+    user_id: int,
+    icu_id: int,
+    admin_id: int = None,
+    update=False
   ) -> str:
     """Returns the token for a user-icu. May insert it in the database.
     
     If the token is stale, set a new one in the database.
+    Args:
+     user_id: the user id associated with the token.
+     icu_id: the icu id associated with the token.
+     admin_id: if set the user id of the admin requesting this token.
+     update: if True, may update the token if it is stale in the db.
     """
     token_obj = self.db.get_token_from_ids(user_id, icu_id)
 
@@ -33,8 +42,8 @@ class Authenticator:
         admin_id, store.UserICUToken(user_id=user_id, icu_id=icu_id)
       )
 
-    # The token has expired. Renew it.
-    if self.validity is None:
+    # We do not wish to update stale tokens, return the current one.
+    if self.validity is None or not update:
       return token_obj.token
 
     delta = self.validity + 1
@@ -42,6 +51,7 @@ class Authenticator:
       time_delta = datetime.datetime.utcnow() - token_obj.last_modified
       delta = time_delta.total_seconds() / 86400
 
+    # The token has expired. Renew it.
     if delta > self.validity:
       return self.db.renew_token(admin_id, user_id, icu_id)
 

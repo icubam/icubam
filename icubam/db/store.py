@@ -335,6 +335,16 @@ class Store(object):
   def has_token(self, user_id: int, icu_id: int) -> bool:
     return self._get_token_query(user_id, icu_id).count() > 0
 
+  def update_token(
+    self, admin_user_id: Optional[int], token_id: int, values: Dict
+  ):
+    if admin_user_id is not None and not self.is_admin(admin_user_id):
+      raise ValueError(f"User {admin_user_id} cannot update token {token_id}.")
+    with self._commit_or_rollback():
+      self._session.query(UserICUToken).filter(
+        UserICUToken.token_id == token_id
+      ).update(values)
+
   def renew_token(
     self, admin_user_id: Optional[int], user_id: int, icu_id: int
   ) -> str:

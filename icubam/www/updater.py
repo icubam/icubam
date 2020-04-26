@@ -23,10 +23,10 @@ class Updater:
     self.db = db
     self.authenticator = authenticator.Authenticator(self.config, self.db)
 
-  def get_url(self, user_id, icu_id) -> str:
+  def get_url(self, user_id, icu_id, update=False) -> str:
     return "{}{}?id={}".format(
       self.config.server.base_url, self.ROUTE.strip('/'),
-      self.authenticator.get_or_new_token(user_id, icu_id)
+      self.authenticator.get_or_new_token(user_id, icu_id, update=update)
     )
 
   def get_icu_data_by_id(self, icu_id, locale=None, def_val=0):

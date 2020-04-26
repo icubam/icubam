@@ -1,4 +1,5 @@
 from absl.testing import absltest
+import datetime
 from icubam import authenticator
 from icubam import config
 from icubam.db import store
@@ -62,10 +63,60 @@ class AuthenticatorTest(absltest.TestCase):
 
   def test_get_or_new_token(self):
     self.assertFalse(self.db.has_token(self.user_id, self.icu_id))
-    token_str = self.authenticator.get_or_new_token(self.user, self.icu)
+    token_str = self.authenticator.get_or_new_token(
+      self.user.user_id, self.icu.icu_id
+    )
     self.assertGreater(len(token_str), 0)
-    token_str2 = self.authenticator.get_or_new_token(self.user, self.icu)
+    token_str2 = self.authenticator.get_or_new_token(
+      self.user.user_id, self.icu.icu_id
+    )
     self.assertEqual(token_str, token_str2)
+
+  def test_get_or_new_old_but_valid(self):
+    user_icu = self.user.user_id, self.icu.icu_id
+    validity = self.config.messaging.token_validity_days
+    token_str = self.authenticator.get_or_new_token(*user_icu)
+    # Now let's change the date of the token in the db to make it old but valid
+    old_date = datetime.datetime.utcnow() - datetime.timedelta(
+      days=validity * 0.8
+    )
+    token_obj = self.db.get_token(token_str)
+    self.db.update_token(
+      None, token_obj.token_id, dict(last_modified=old_date)
+    )
+    # Checks that we did change the date.
+    token_obj = self.db.get_token(token_str)
+    self.assertEqual(token_obj.last_modified, old_date)
+    # Checks that by calling this function the token has been renewed.
+    token_str2 = self.authenticator.get_or_new_token(*user_icu, update=True)
+    self.assertIsNotNone(self.authenticator.validity)
+    self.assertEqual(token_str, token_str2)
+
+  def test_get_or_new_needs_renew(self):
+    user_icu = self.user.user_id, self.icu.icu_id
+    validity = self.config.messaging.token_validity_days
+    token_str = self.authenticator.get_or_new_token(*user_icu)
+    # Now let's change the date of the token in the db to make it old but valid
+    old_date = datetime.datetime.utcnow() - datetime.timedelta(
+      days=validity + 1
+    )
+    token_obj = self.db.get_token(token_str)
+    self.db.update_token(
+      None, token_obj.token_id, dict(last_modified=old_date)
+    )
+    # Checks that we did change the date.
+    token_obj = self.db.get_token(token_str)
+    self.assertEqual(token_obj.last_modified, old_date)
+
+    # Checks that by calling this function the token has not been renewed.
+    token_str2 = self.authenticator.get_or_new_token(*user_icu, update=False)
+    self.assertIsNotNone(self.authenticator.validity)
+    self.assertEqual(token_str, token_str2)
+
+    # Checks that by calling this function the token has been renewed.
+    token_str3 = self.authenticator.get_or_new_token(*user_icu, update=True)
+    self.assertIsNotNone(self.authenticator.validity)
+    self.assertNotEqual(token_str, token_str3)
 
 
 if __name__ == '__main__':

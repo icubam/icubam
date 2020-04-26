@@ -127,7 +127,7 @@ class MessageScheduler:
 
   def may_update_url(self, msg):
     """Before sending the message for real, we might update the url's token."""
-    msg.update_url(self.updater.get_url(msg.user_id, msg.icu_id))
+    msg.update_url(self.updater.get_url(msg.user_id, msg.icu_id, update=True))
 
   @property
   def messages(self):
