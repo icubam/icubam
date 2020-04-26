@@ -92,34 +92,26 @@ Two kinds of environment variables must be set
 - env. variables used by the app's services
 - env. variables used by docker/docker-compose when building/launching the application 
 
+**Application's environement variables**
+
+Check [Installation instructions](install.md#Configuration) for the required variables
+  
 **Docker's environement variables**
 
 - ICUBAM_COMPOSE_CONTEXT: root folder for the build context
-- ICUBAM_CONFIG_PATH: path/filename for the app's configuration file
-- ICUBAM_PROD_DB_PATH: path/filename for the production database
-- ICUBAM_TEST_DB_PATH: path/filename for the test database
+- ICUBAM_RESOURCES_PATH: path/name of the resources folder to mount in the container (e.g., `./resources`). This folder contains, among other things, the app's configuration file and the database).
+- ICUBAM_CONFIG_FILE: filename for the app's configuration file (e.g., `icubam.toml`) expected in the `./resources` folder
 - ICUBAM_CERTBOT_PATH: location for the CertBot configuration and result files
 - ICUBAM_NGINX_PATH: location for the Nginx configuration files
 - IMAGE_NAME: name of the Docker image to use
 - IMAGE_TAG: tag of the Docker image to use
 - LOGS_DIR: folder where log files (e.g., './logs')
 
-Files/folders are mounted (bind) in the containers (nginx/certbot) defined in the `docker-compose-proxy.yml`file.
-
-**Application's environement variables**
-
-The containers expect the following variables to be set in order to launch
-
-- SECRET_COOKIE
-- JWT_SECRET
-- GOOGLE_API_KEY
-- TW_KEY
-- TW_API
-
-These environment variables are not set in the Docker image, but must be set when starting the 
-docker/docker-compose command.  Also check the [install.md](./install.md) documentation for more details.
+Folders (i.e., resources, nginx, certbot) are mounted (bind) in the containers defined in the docker-compose yml files.
 
 **Setting up environement variables**
+
+Environment variables are not part of the Docker image, but are provided to the starting containers thru the docker/docker-compose commands.
 
 There are multiple ways for setting up these variables.
 - have a .env file at the root of the project
@@ -143,21 +135,20 @@ set -a
 
 **Example .env file**
 
-These work straight out of the box with the docker-compose scripts provided if you run them from the root folder
+For the application's environment variables, see the identically named section above.
+Below are the Docker specific environement variables with default values.
+
 ```properties
 # Application's environement variables
-SECRET_COOKIE=_a_random_string_
-JWT_SECRET=_jwt_secret_string_
-GOOGLE_API_KEY=_google_api_key_string_
-TW_KEY=_twilio_key_string_
-TW_API=_twilio_api_string_
-DB_SALT=_another_random_string_
 
 # Docker's environement variables
 ICUBAM_COMPOSE_CONTEXT=.
 ICUBAM_RESOURCES_PATH=./resources
+ICUBAM_CONFIG_FILE=config.toml
 ICUBAM_CERTBOT_PATH=../docker/configs/certbot
 ICUBAM_NGINX_PATH=../docker/configs/nginx
+IMAGE_NAME=icubam
+IMAGE_TAG=latest
 LOGS_DIR=../logs
 ```
 
