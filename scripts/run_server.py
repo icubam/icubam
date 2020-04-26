@@ -1,15 +1,10 @@
 """Runs the webserver."""
-import functools
-import multiprocessing as mp
-
+from absl import logging  # noqa
 from absl import app
 from absl import flags
 
 from icubam import config
-from icubam import utils
-from icubam.backoffice import server as backoffice_server
-from icubam.messaging import server as msg_server
-from icubam.www import server as www_server
+from icubam.cli import run_server
 
 flags.DEFINE_integer('port', None, 'Port of the application.')
 flags.DEFINE_string('config', config.DEFAULT_CONFIG_PATH, 'Config file.')
@@ -22,30 +17,8 @@ FLAGS = flags.FLAGS
 
 
 def main(argv):
-  servers = {
-    'www': www_server.WWWServer,
-    'message': msg_server.MessageServer,
-    'backoffice': backoffice_server.BackOfficeServer,
-  }
-  service = servers.get(FLAGS.server, None)
   cfg = config.Config(FLAGS.config, env_path=FLAGS.dotenv_path)
-  if service is not None:
-    service(cfg, FLAGS.port).run()
-  elif FLAGS.server == 'all':
-    # For some reason the cfg object won't pickle, so we pass in the
-    # necessary values to rebuild it in the child process:
-    processes = [
-      mp.Process(
-        target=functools.partial(
-          utils.run_server,
-          cls,
-          config_path=FLAGS.config,
-          env_path=FLAGS.dotenv_path
-        )
-      ) for cls in servers.values()
-    ]
-    for p in processes:
-      p.start()
+  run_server(cfg, server=FLAGS.server, port=FLAGS.port)
 
 
 if __name__ == '__main__':

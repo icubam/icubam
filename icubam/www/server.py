@@ -5,7 +5,7 @@ import tornado.web
 from absl import logging  # noqa: F401
 from tornado import queues
 
-from icubam import base_server, utils
+from icubam import base_server, sentry
 from icubam.db import queue_writer
 from icubam.www.handlers import consent, db, error, home, static, update
 from icubam.www.handlers.version import VersionHandler
@@ -14,7 +14,7 @@ from icubam.www.handlers.version import VersionHandler
 class WWWServer(base_server.BaseServer):
   """Serves and manipulates the ICUBAM data."""
   def __init__(self, config, port=None):
-    utils.maybe_init_sentry(config, server_name='www')
+    sentry.maybe_init_sentry(config, server_name='www')
     super().__init__(config, port)
     self.port = port if port is not None else self.config.server.port
     self.writing_queue = queues.Queue()
