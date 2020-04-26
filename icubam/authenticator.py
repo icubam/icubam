@@ -1,4 +1,6 @@
 from absl import logging
+import datetime
+import numbers
 from typing import Optional, Tuple, Union
 from icubam.db import store
 from icubam.www import token
@@ -11,15 +13,39 @@ class Authenticator:
     self.db = db
     self.token_encoder = token.TokenEncoder(self.config)
 
-  def get_or_new_token(self, user, icu, admin_id=None) -> str:
-    """Returns the token for a user-icu. May insert it in the database."""
-    token_obj = self.db.get_token_from_ids(user.user_id, icu.icu_id)
-    if token_obj is not None:
+    # Reads token validation from the config.
+    self.validity = self.config.messaging.token_validity_days
+    if not isinstance(self.validity, numbers.Number):
+      self.validity = None
+
+  def get_or_new_token(
+    self, user_id: int, icu_id: int, admin_id: int = None
+  ) -> str:
+    """Returns the token for a user-icu. May insert it in the database.
+    
+    If the token is stale, set a new one in the database.
+    """
+    token_obj = self.db.get_token_from_ids(user_id, icu_id)
+
+    # This token does not exist, create one.
+    if token_obj is None:
+      return self.db.add_token(
+        admin_id, store.UserICUToken(user_id=user_id, icu_id=icu_id)
+      )
+
+    # The token has expired. Renew it.
+    if self.validity is None:
       return token_obj.token
 
-    return self.db.add_token(
-      admin_id, store.UserICUToken(user_id=user.user_id, icu_id=icu.icu_id)
-    )
+    delta = self.validity + 1
+    if token_obj.last_modified is not None:
+      time_delta = datetime.datetime.utcnow() - token_obj.last_modified
+      delta = time_delta.total_seconds() / 86400
+
+    if delta > self.validity:
+      return self.db.renew_token(admin_id, user_id, icu_id)
+
+    return token_obj.token
 
   def authenticate(self, token_str: str) -> Optional[Tuple]:
     """Decodes the token and check that the data is valid."""

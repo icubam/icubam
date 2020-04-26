@@ -11,7 +11,7 @@ default_locale='fr-fr'
   use_ssl = false
 
 [db]
-  sqlite_path = "resources/test.db"
+  sqlite_path = "test.db"
 
 [server]
   PORT = 8887  # will be lower cased when reading.
@@ -26,6 +26,7 @@ default_locale='fr-fr'
   PORT = 8889  # will be lower cased when reading.
   base_url = "http://localhost:8889/"
   timeout = 2
+  token_validity_days = 2
 
 [scheduler]
   max_retries = 3

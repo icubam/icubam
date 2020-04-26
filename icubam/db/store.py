@@ -92,10 +92,23 @@ class UserICUToken(Base):
 
   TOKEN_SIZE = 12
 
+  # The internal id of this row.
   token_id = Column(Integer, primary_key=True)
+
+  # The token itself, as sent to the user.
   token = Column(String, unique=True)
+
+  # The user_id, icu_id this token is for.
   user_id = Column(Integer, ForeignKey("users.user_id"))
   icu_id = Column(Integer, ForeignKey("icus.icu_id"))
+
+  # Is this token active or not.
+  is_active = Column(Boolean, default=True, server_default=text("1"))
+
+  # When was this token last modified.
+  last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
+
+  # Relationships
   user = relationship("User")
   icu = relationship("ICU")
 
@@ -310,20 +323,29 @@ class Store(object):
       UserICUToken.token == token
     ).one_or_none()
 
+  def _get_token_query(self, user_id: int, icu_id: int):
+    return self._session.query(UserICUToken).filter(
+      UserICUToken.user_id == user_id
+    ).filter(UserICUToken.icu_id == icu_id)
+
   def get_token_from_ids(self, user_id: int,
                          icu_id: int) -> Optional[UserICUToken]:
-    return (
-      self._session.query(UserICUToken).filter(
-        UserICUToken.user_id == user_id
-      ).filter(UserICUToken.icu_id == icu_id)
-    ).one_or_none()
+    return self._get_token_query(user_id, icu_id).one_or_none()
 
   def has_token(self, user_id: int, icu_id: int) -> bool:
-    return (
-      self._session.query(UserICUToken).filter(
-        UserICUToken.user_id == user_id
-      ).filter(UserICUToken.icu_id == icu_id)
-    ).count() > 0
+    return self._get_token_query(user_id, icu_id).count() > 0
+
+  def renew_token(
+    self, admin_user_id: Optional[int], user_id: int, icu_id: int
+  ) -> str:
+    """Changes the last_modified date and the token itself of a given token."""
+    if admin_user_id is not None and not self.is_admin(admin_user_id):
+      raise ValueError('Only admins can renew tokens.')
+
+    with self._commit_or_rollback():
+      token = self.make_token(user_id, icu_id)
+      self._get_token_query(user_id, icu_id).update({'token': token})
+      return token
 
   def add_token(
     self, admin_user_id: Optional[int], user_icu_token: UserICUToken
@@ -601,7 +623,8 @@ class Store(object):
     ).hex()
 
   def make_token(self, user_id: int, icu_id: int) -> str:
-    token_hash = self.get_password_hash(json.dumps([user_id, icu_id]))
+    now_ts = datetime.utcnow().timestamp()
+    token_hash = self.get_password_hash(json.dumps([user_id, icu_id, now_ts]))
     return token_hash[:UserICUToken.TOKEN_SIZE]
 
   def auth_user(self, email: str, password: str) -> int:

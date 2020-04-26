@@ -853,6 +853,11 @@ class StoreTest(absltest.TestCase):
     self.assertIsNotNone(token_obj)
     self.assertEqual(token_obj.token, token_str)
 
+    # Now renew the token.
+    renewed_token_str = self.store.renew_token(None, user_id, icu_id)
+    renewed_token = self.store.get_token(renewed_token_str)
+    self.assertNotEqual(token_str, renewed_token)
+
   def test_create_store_factory_for_sqlite_db(self):
     cfg = config.Config(
       os.path.join(
