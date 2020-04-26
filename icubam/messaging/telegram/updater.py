@@ -93,7 +93,8 @@ class UpdateProcessor:
         self.db.update_user(
           self.admin_id, user.user_id, {"telegram_chat_id": chatid}
         )
-        self.scheduler.scheduler(user, icu, 30)
+        if self.scheduler is not None:
+          self.scheduler.schedule(user, icu, 30)
         # TODO(olivier): i18n this.
         await self.bot.send(chatid, 'You are now registered to ICUBAM')
     else:
