@@ -23,7 +23,14 @@ class Updater:
     self.db = db
     self.authenticator = authenticator.Authenticator(self.config, self.db)
 
-  def get_url(self, user_id, icu_id, update=False) -> str:
+  def get_url(self, user_id: int, icu_id: int, update: bool = False) -> str:
+    """Returns the url for the update form for the given user and icu.
+    
+    Args:
+     user_id: the user id of the target user.
+     icu_id: the icu id of the target icu.
+     update: should we update the token in the db in case it is stale.
+    """
     return "{}{}?id={}".format(
       self.config.server.base_url, self.ROUTE.strip('/'),
       self.authenticator.get_or_new_token(user_id, icu_id, update=update)
