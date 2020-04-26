@@ -136,7 +136,7 @@ class MessageScheduler:
     result = []
     for user in users:
       for icu in user.icus:
-        url = self.updater.get_url(user.user_id, icu.icu_ud)
+        url = self.updater.get_url(user.user_id, icu.icu_id)
         result.append(message.Message(icu, user, url))
     return result
 
