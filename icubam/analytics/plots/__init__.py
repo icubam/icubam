@@ -69,8 +69,9 @@ def plot_int(
   ls="solid",
   s=3,
   fill_below=False,
+  kind="quadratic"
 ):
-  f = scipy.interpolate.interp1d(x, y, kind="linear")
+  f = scipy.interpolate.interp1d(x, y, kind=kind)
   x_i = np.linspace(0, len(x) - 1, len(x) * 5)
   y_i = f(x_i)
   if marker is not None:
@@ -119,7 +120,9 @@ def plot(
     figs = {f"{plot_name}.{output_type}": figs}
   for fname_out, fig in figs.items():
     if output_type in ["png", "pdf"]:
-      fig.savefig(os.path.join(output_dir, fname_out), dpi=150)
+      fig.savefig(
+        os.path.join(output_dir, f'{fname_out}.{output_type}'), dpi=150
+      )
     else:
       raise ValueError(f"Unknown output type: {output_type}")
     plt.close(fig)

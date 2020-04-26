@@ -4,20 +4,45 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
+import pandas as pd
 
-from icubam.predicu.data import BEDCOUNT_COLUMNS
-from icubam.predicu.plot import COL_COLOR, COLUMN_TO_HUMAN_READABLE
+from datetime import datetime
+
+from icubam.analytics.data import BEDCOUNT_COLUMNS
+from icubam.analytics.plots import COL_COLOR, COLUMN_TO_HUMAN_READABLE
 
 data_source = ["bedcounts"]
 
 
-def plot(data):
-  data = data.groupby(["date", "department"]
-                      ).agg({col: "sum"
-                             for col in BEDCOUNT_COLUMNS})
+def plot(data, **kwargs):
+  kwargs['days_ago'] = 5
+  regions = data['region'].unique()
+  # departments = data['department'].unique()
+  # breakpoint()
+  if kwargs.get('days_ago', None):
+    data = data[data['create_date'] >=
+                (datetime.now() -
+                 pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
+  figs = {}
+  for region in regions:
+    region_data = data[data['region'] == region]
+    figs[region] = gen_plot(region_data, groupby='department', **kwargs)
+
+  tikzplotlib_kwargs = dict(
+    axis_width="10cm",
+    axis_height="10cm",
+    textsize=5.0,
+  )
+  return figs, tikzplotlib_kwargs
+
+
+def gen_plot(data, groupby="department", **kwargs):
+  data = data.groupby(["date",
+                       groupby]).agg({col: "sum"
+                                      for col in BEDCOUNT_COLUMNS})
   data = data.reset_index()
-  data = data.sort_values(by=["department", "date"])
-  data = data.groupby("department").last()
+  data = data.sort_values(by=[groupby, "date"])
+  data = data.groupby(groupby).last()
   data = data.reset_index()
   barplot_columns = [
     "n_covid_deaths",
@@ -63,9 +88,5 @@ def plot(data):
     loc="upper right",
   )
   # ax.set_title(r'Nbr de décès par réa (18 mars $\rightarrow$ 3 avril)')
-  tikzplotlib_kwargs = dict(
-    axis_width="10cm",
-    axis_height="10cm",
-    textsize=5.0,
-  )
-  return fig, tikzplotlib_kwargs
+
+  return fig
