@@ -28,13 +28,13 @@ class UploadHandler(base.BaseHandler):
       return self.answer(f'No CSV content', error=True)
 
     sync = synchronizer.CSVSynchronizer(self.db)
-    sync_fns: Dict[str, Callable[..., int]] = {
-      'Users': sync.sync_users_from_csv,
-      'ICUs': sync.sync_icus_from_csv,
-      'Bed Counts': sync.sync_bedcounts_from_csv
+    sync_fns: Dict[int, Callable[..., int]] = {
+      base.ObjType.USERS.value: sync.sync_users_from_csv,
+      base.ObjType.ICUS.value: sync.sync_icus_from_csv,
+      base.ObjType.BEDCOUNTS.value: sync.sync_bedcounts_from_csv
     }
     objtype = data.get('objtype', None)
-    sync_fn = sync_fns.get(objtype, None)
+    sync_fn = sync_fns.get(int(objtype), None)
     if sync_fn is None:
       return self.answer(
         'Cannot find proper synchronization method.', error=True

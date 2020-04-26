@@ -61,5 +61,5 @@ class ListMessagesHandler(base.AdminHandler):
     locale = self.get_user_locale()
     data = [self.prepare_for_table(msg, locale) for msg in messages]
     self.render_list(
-      data=data, objtype='Scheduled Messages', create_handler=None
+      data=data, objtype=base.ObjType.MESSAGES, create_handler=None
     )
