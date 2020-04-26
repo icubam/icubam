@@ -135,7 +135,7 @@ set -a
 
 **Example .env file**
 
-For the application's environment variables, check the repository for an up-to-date list.
+For the application's environment variables, see the identically named section above.
 Below are the Docker specific environement variables with default values.
 
 ```properties
