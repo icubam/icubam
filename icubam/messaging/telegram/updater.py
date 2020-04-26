@@ -11,10 +11,10 @@ class UpdateFetcher:
   The UpdateFetcher is only used in dev mode when the webhook is not
   for convenience.
   """
-  def __init__(self, config, queue):
+  def __init__(self, config, queue, tg_bot=None):
     self.config = config
     self.queue = queue
-    self.bot = bot.TelegramBot(config)
+    self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
     self.last_update_id = 0
 
   async def fetch(self):

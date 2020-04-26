@@ -1,3 +1,4 @@
+import json
 import tornado.queues
 import tornado.testing
 
@@ -6,6 +7,27 @@ from icubam.db import store
 from icubam.www import token
 from icubam.messaging.telegram import updater
 from icubam.messaging.telegram import mock_bot
+
+
+class UpdateFetcherTest(tornado.testing.AsyncTestCase):
+  JSON_FILE = 'resources/telegram_updates.json'
+
+  def setUp(self):
+    super().setUp()
+    self.config = config.Config('resources/test.toml')
+    self.queue = tornado.queues.Queue()
+    self.fetcher = updater.UpdateFetcher(
+      self.config, self.queue, mock_bot.MockTelegramBot(self.config)
+    )
+
+  @tornado.testing.gen_test
+  async def test_fetch(self):
+    with open(self.JSON_FILE, 'w') as fp:
+      self.fetcher.bot.client.set_body(json.loads(fp.read()))
+
+    await self.fetcher.fetch()
+    self.assertGreater(self.fetcher.last_update_id, 0)
+    self.assertFalse(self.queue.empty())
 
 
 class UpdateProcessorTest(tornado.testing.AsyncTestCase):
@@ -61,7 +83,7 @@ class UpdateProcessorTest(tornado.testing.AsyncTestCase):
     )
     user = self.db.get_user(user_id)
 
-    # TODO(olivier): use authenticator here.
+    # TODO(olivier): use authenticator here when available.
     token_encoder = token.TokenEncoder(self.config)
     jwt = token_encoder.encode_data(user, icu)
     example_update['message']['text'] = f'/start {jwt}'
