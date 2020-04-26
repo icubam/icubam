@@ -48,13 +48,32 @@ class Config:
         result[k.lower()] = v
       else:
         result[k.lower()] = self._preprocess(v)
-
     return result
 
   def __getitem__(self, key: str):
     if key.upper() == key:
       return self.env.get(key)
-    return self.conf.get(key) if self.conf.has_key(key) else None
+    if self.conf.has_key(key):
+      # TODO: We need to handle when attribute lookups fail
+      # on the returned object, which currently returns a DotMat
+      # object, however that's up to the dotmap library.
+      return self.conf.get(key)
+    raise KeyError(f"key '{key}' does not exist!")
 
   def __getattr__(self, key: str):
-    return self[key]
+    raise_err = False
+    try:
+      res = self[key]
+    except KeyError:
+      raise_err = True
+    # Avoid raising an exception inside an exception for traceback
+    # readability.
+    if raise_err:
+      raise AttributeError(f"attribute '{key}' does not exist!")
+    return res
+
+  def __setstate__(self, state):
+    self.__dict__ = state
+
+  def __getstate__(self):
+    return self.__dict__

@@ -19,6 +19,8 @@ default_locale='fr-fr'
   upload_dir = "uploads/"
   consent = 'resources/consent.html'
   num_days_for_stale = 1.0
+  max_cluster_size = 10
+  display_empty_icu = false
 
 [messaging]
   PORT = 8889  # will be lower cased when reading.
