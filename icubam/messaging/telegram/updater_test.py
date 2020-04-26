@@ -3,11 +3,12 @@ import tornado.testing
 
 from icubam import config
 from icubam.db import store
+from icubam.www import token
 from icubam.messaging.telegram import updater
 from icubam.messaging.telegram import mock_bot
 
 
-class UpdateFetcherTest(tornado.testing.AsyncTestCase):
+class UpdateProcessorTest(tornado.testing.AsyncTestCase):
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml')
@@ -45,7 +46,29 @@ class UpdateFetcherTest(tornado.testing.AsyncTestCase):
         }]
       }
     }
+    # This should lead to a unknown user.
     await self.processor.process_update(example_update)
+    self.assertGreater(len(self.processor.bot.client.requests), 0)
+    msg_json = self.processor.bot.client.requests[-1].body
+    self.assertIn('Cannot identify', msg_json.decode())
+
+    # Now makes a real user and pass a token along
+    admin_id = self.db.add_default_admin()
+    icu_id = self.db.add_icu(admin_id, store.ICU(name='icu'))
+    icu = self.db.get_icu(icu_id)
+    user_id = self.db.add_user_to_icu(
+      admin_id, icu_id, store.User(name='patrick')
+    )
+    user = self.db.get_user(user_id)
+
+    # TODO(olivier): use authenticator here.
+    token_encoder = token.TokenEncoder(self.config)
+    jwt = token_encoder.encode_data(user, icu)
+    example_update['message']['text'] = f'/start {jwt}'
+    await self.processor.process_update(example_update)
+    self.assertGreater(len(self.processor.bot.client.requests), 0)
+    msg_json = self.processor.bot.client.requests[-1].body
+    self.assertIn('registered', msg_json.decode())
 
 
 if __name__ == '__main__':

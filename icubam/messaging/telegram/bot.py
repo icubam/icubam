@@ -14,11 +14,21 @@ class TelegramBot:
   URL = "http://telegram.me/"
   START = "/start"
 
-  def __init__(self, config):
+  def __init__(self, config, client=None):
     self.config = config
     self.api_url = self.API_URL + self.config.TELEGRAM_API_KEY
     self.public_url = self.URL + self.config.messaging.telegram_bot
-    self.client = tornado.httpclient.AsyncHTTPClient()
+    self.client = client
+    if self.client is None:
+      self.client = tornado.httpclient.AsyncHTTPClient()
+
+  async def get(self, route: str) -> tornado.httpclient.HTTPResponse:
+    """Sends a GET request to telegram."""
+    request = tornado.httpclient.HTTPRequest(
+      url=f"{self.api_url}/{route}",
+      method='GET',
+    )
+    return await self.client.fetch(request)
 
   async def post(
     self, data: Dict, route: str
