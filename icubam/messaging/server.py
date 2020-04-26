@@ -12,7 +12,7 @@ from icubam.messaging.handlers import onoff, schedule
 
 class MessageServer(base_server.BaseServer):
   """Sends and schedule SMS."""
-  def __init__(self, config, port=8889):
+  def __init__(self, config, port=8889, telegram_setup=None):
     sentry.maybe_init_sentry(config, server_name='messaging')
     super().__init__(config, port)
     self.port = port if port is not None else self.config.messaging.port
@@ -24,9 +24,11 @@ class MessageServer(base_server.BaseServer):
     self.sender = sender.Sender(self.config, self.db, self.queue)
     self.callbacks = [self.sender.process]
 
-    self.telegram_setup = integrator.TelegramSetup(
-      self.config, self.db, self.scheduler
-    )
+    self.telegram_setup = telegram_setup
+    if self.telegram_setup is None:
+      self.telegram_setup = integrator.TelegramSetup(
+        self.config, self.db, self.scheduler
+      )
     self.telegram_setup.setup_fetching(self.callbacks)
 
   def make_app(self):

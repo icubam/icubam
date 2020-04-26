@@ -12,7 +12,7 @@ class TelegramWebhook(tornado.web.RequestHandler):
   # https://core.telegram.org/bots/webhooks#testing-your-bot-with-updates
   HOSTS = r'(149\.154\.160\.0|91\.108\.4\.0)'
 
-  def __init__(self, queue):
+  def initialize(self, queue):
     self.queue = queue
 
   async def post(self):

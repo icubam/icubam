@@ -29,4 +29,5 @@ class MockTelegramBot(bot.TelegramBot):
   def __init__(self, config):
     config.TELEGRAM_API_KEY = 'key'
     config.messaging.telegram_bot = 'michel'
+    config.messaging.telegram_updates_every = '60'
     super().__init__(config, MockHTTPClient())

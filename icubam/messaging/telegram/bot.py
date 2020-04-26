@@ -4,7 +4,7 @@ import os.path
 import tornado.httpclient
 from typing import Dict, List, Optional
 
-from icubam.messaging.handlers import telegram_webhook as webhook
+from icubam.messaging.telegram import webhook
 
 
 class TelegramBot:

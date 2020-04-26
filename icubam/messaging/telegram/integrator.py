@@ -1,14 +1,13 @@
 import tornado.queues
-from icubam.messaging.handlers import telegram_webhook as webhook
-from icubam.messaging.telegram import bot, updater
+from icubam.messaging.telegram import bot, updater, webhook
 
 
 class TelegramSetup:
   """Sets up the telegram in the server support depending on the config."""
-  def __init__(self, config, db, scheduler=None):
+  def __init__(self, config, db, scheduler=None, tg_bot=None):
     self.config = config
     self.queue = tornado.queues.Queue()
-    self.bot = bot.TelegramBot(config)
+    self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
     self.processor = updater.UpdateProcessor(config, db, self.queue, scheduler)
     self.fetcher = updater.UpdateFetcher(config, self.queue)
 
@@ -26,6 +25,11 @@ class TelegramSetup:
       self.config.TELEGRAM_API_KEY is not None
     )
 
+  def _start_periodic_fetching(self):
+    """A function to periodically fetch updates."""
+    repeat_every = self.config.messaging.telegram_updates_every * 1000
+    tornado.ioloop.PeriodicCallback(self.fetcher.fetch, repeat_every).start()
+
   def setup_fetching(self, callbacks):
     """If Telegram should be running, we either setup a webhook or
     starts fetching regularly the updates depending on the configuration."""
@@ -36,8 +40,7 @@ class TelegramSetup:
     if self.uses_webhook:
       callbacks.append(self.bot.setWebhook)
     else:
-      repeat_every = self.config.messaging.telegram_updates_every * 1000
-      tornado.ioloop.PeriodicCallback(self.fetcher.fetch, repeat_every).start()
+      self._start_periodic_fetching()
 
   def add_routes(self, app_routes):
     """Ads the proper routes for telegram, restricting for proper subnets."""
