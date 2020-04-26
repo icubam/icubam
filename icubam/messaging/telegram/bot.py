@@ -44,10 +44,10 @@ class TelegramBot:
 
   async def getUpdates(self, min_id: int = 0) -> Optional[List[Dict]]:
     """Returns the updates."""
-    url = f"{self.api_url}/getUpdates"
-    resp = await self.client.fetch(url)
+    route = "getUpdates"
+    resp = await self.get(route)
     if resp.code != 200:
-      logging.warning(f"Cannot fetch {url}")
+      logging.warning(f"Cannot fetch {route} from telegram.")
       return None
 
     try:

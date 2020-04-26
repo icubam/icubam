@@ -8,10 +8,10 @@ from icubam.www import token
 from icubam.messaging.telegram import updater
 from icubam.messaging.telegram import mock_bot
 
+UPDATES_FILE = 'resources/test/telegram_updates.json'
+
 
 class UpdateFetcherTest(tornado.testing.AsyncTestCase):
-  JSON_FILE = 'resources/telegram_updates.json'
-
   def setUp(self):
     super().setUp()
     self.config = config.Config('resources/test.toml')
@@ -22,8 +22,8 @@ class UpdateFetcherTest(tornado.testing.AsyncTestCase):
 
   @tornado.testing.gen_test
   async def test_fetch(self):
-    with open(self.JSON_FILE, 'w') as fp:
-      self.fetcher.bot.client.set_body(json.loads(fp.read()))
+    with open(UPDATES_FILE, 'r') as fp:
+      self.fetcher.bot.client.set_body(json.load(fp))
 
     await self.fetcher.fetch()
     self.assertGreater(self.fetcher.last_update_id, 0)
@@ -44,30 +44,9 @@ class UpdateProcessorTest(tornado.testing.AsyncTestCase):
 
   @tornado.testing.gen_test
   async def test_process_update(self):
-    example_update = {
-      'update_id': 372570010,
-      'message': {
-        'message_id': 19,
-        'from': {
-          'id': 170497,
-          'is_bot': False,
-          'first_name': 'Olivier',
-          'language_code': 'fr'
-        },
-        'chat': {
-          'id': 170497,
-          'first_name': 'Olivier',
-          'type': 'private'
-        },
-        'date': 1587576957,
-        'text': '/start something',
-        'entities': [{
-          'offset': 0,
-          'length': 6,
-          'type': 'bot_command'
-        }]
-      }
-    }
+    with open(UPDATES_FILE, 'r') as fp:
+      data = json.load(fp)
+    example_update = data['result'][0]
     # This should lead to a unknown user.
     await self.processor.process_update(example_update)
     self.assertGreater(len(self.processor.bot.client.requests), 0)
