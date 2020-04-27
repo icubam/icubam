@@ -20,6 +20,21 @@ class TelegramSetupTest(tornado.testing.AsyncTestCase):
       self.config, self.db, scheduler=None, tg_bot=tg_bot
     )
 
+  def test_members(self):
+    # Fresh config without API_KEY: nothing is set.
+    cfg = config.Config('resources/test.toml')
+    cfg.env.pop('TELEGRAM_API_KEY', None)
+    setupper = integrator.TelegramSetup(cfg, self.db)
+    self.assertIsNone(setupper.bot)
+    self.assertIsNone(setupper.processor)
+    self.assertIsNone(setupper.fetcher)
+
+    # Fresh config with API_KEY (mock bot sets it): everything is set.
+    setupper = integrator.TelegramSetup(self.config, self.db)
+    self.assertIsNotNone(setupper.bot)
+    self.assertIsNotNone(setupper.processor)
+    self.assertIsNotNone(setupper.fetcher)
+
   def test_uses_webhook(self):
     self.assertFalse(self.integrator.uses_webhook)
     self.config.server.base_url = 'https://www.example.com/'

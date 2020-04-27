@@ -16,6 +16,7 @@ class TelegramBot:
 
   def __init__(self, config, client=None):
     self.config = config
+    self.client = None
     self.api_url = self.API_URL + self.config.TELEGRAM_API_KEY
     self.public_url = self.URL + self.config.messaging.telegram_bot
     self.client = client

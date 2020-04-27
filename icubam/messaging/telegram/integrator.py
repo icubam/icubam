@@ -7,9 +7,15 @@ class TelegramSetup:
   def __init__(self, config, db, scheduler=None, tg_bot=None):
     self.config = config
     self.queue = tornado.queues.Queue()
-    self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
-    self.processor = updater.UpdateProcessor(config, db, self.queue, scheduler)
-    self.fetcher = updater.UpdateFetcher(config, self.queue)
+    self.bot = None
+    self.processor = None
+    self.fetcher = None
+    if self.is_on:
+      self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
+      self.processor = updater.UpdateProcessor(
+        config, db, self.queue, scheduler, tg_bot=self.bot
+      )
+      self.fetcher = updater.UpdateFetcher(config, self.queue, tg_bot=self.bot)
 
   @property
   def uses_webhook(self):
