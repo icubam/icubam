@@ -17,13 +17,17 @@ class Sender:
     self.db = db
     self.queue = queue
 
-    self.sms_sender = None
-    if self.config.TW_KEY is not None:
+    try:
       self.sms_sender = sms_sender.get(config)
+    except Exception as e:
+      logging.warning(f"Cannot set sms_sender {e}")
+      self.sms_sender = None
 
-    self.email_sender = None
-    if self.config.SMTP_HOST is not None:
+    try:
       self.email_sender = email_sender.get(config)
+    except Exception as e:
+      logging.warning(f"Cannot set email_sender {e}")
+      self.email_sender = None
 
     self.telegram_bot = None
     telegram_setup = integrator.TelegramSetup(config, db)
@@ -43,13 +47,13 @@ class Sender:
 
   async def send(self, msg, user) -> bool:
     """Sends the message to a single user."""
-    if user.telegram_chat_id is not None:
+    if self.telegram_bot is not None and user.telegram_chat_id is not None:
       await self.telegram_bot.send(user.telegram_chat_id, msg.html)
       return True
-    elif (self.config.SMTP_HOST is not None and user.email is not None):
+    elif user.email is not None and self.email_sender is not None:
       self.email_sender.send(user.email, 'ICUBAM', msg.html)
       return True
-    elif user.telephone is not None:
+    elif self.sms_sender is not None and user.telephone is not None:
       self.sms_sender.send(msg.phone, msg.text)
       return True
     return False
