@@ -4,13 +4,14 @@ services:
   # ICUBAM service
   db-builder:
     build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-..}"
+      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: db-builder
-    command: "./build_fake_dbs.sh"
+    command: "./docker/build_fake_dbs.sh"
     tty: true
     environment:
+      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"
       JWT_SECRET : "$JWT_SECRET"
       GOOGLE_API_KEY : "$GOOGLE_API_KEY"
@@ -22,9 +23,6 @@ services:
       - type: bind
         source: "${ICUBAM_RESOURCES_PATH:-./resources}"
         target: /home/icubam/resources
-      - type: bind
-        source: "${ICUBAM_COMPOSE_CONTEXT:-.}"
-        target: /home/icubam/db
     networks:
       - icubam-network
 
