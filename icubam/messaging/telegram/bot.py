@@ -23,17 +23,20 @@ class TelegramBot:
     if self.client is None:
       self.client = tornado.httpclient.AsyncHTTPClient()
 
-  async def get(self, route: str) -> tornado.httpclient.HTTPResponse:
+  async def get(self, route: str) -> Optional[tornado.httpclient.HTTPResponse]:
     """Sends a GET request to telegram."""
     request = tornado.httpclient.HTTPRequest(
       url=f"{self.api_url}/{route}",
       method='GET',
     )
-    return await self.client.fetch(request)
+    try:
+      return await self.client.fetch(request)
+    except Exception as e:
+      logging.warning(f'Cannot fetch telegram GET route {route}: {e}')
+      return None
 
-  async def post(
-    self, data: Dict, route: str
-  ) -> tornado.httpclient.HTTPResponse:
+  async def post(self, data: Dict,
+                 route: str) -> Optional[tornado.httpclient.HTTPResponse]:
     """Sends a post request to a given telegram route."""
     request = tornado.httpclient.HTTPRequest(
       url=f"{self.api_url}/{route}",
@@ -41,13 +44,17 @@ class TelegramBot:
       headers={'Content-Type': 'application/json'},
       body=json.dumps(data),
     )
-    return await self.client.fetch(request)
+    try:
+      return await self.client.fetch(request)
+    except Exception as e:
+      logging.warning(f'Cannot fetch telegram POST route {route}: {e}')
+      return None
 
   async def getUpdates(self, min_id: int = 0) -> Optional[List[Dict]]:
     """Returns the updates."""
     route = "getUpdates"
     resp = await self.get(route)
-    if resp.code != 200:
+    if resp is None or resp.code != 200:
       logging.warning(f"Cannot fetch {route} from telegram.")
       return None
 
@@ -80,7 +87,7 @@ class TelegramBot:
       'parse_mode': 'HTML',
     }
     resp = await self.post(data, 'sendMessage')
-    return resp.code == 200
+    return resp is not None and resp.code == 200
 
   async def setWebhook(self) -> bool:
     """Sets up a webhook to receive update directly from the server."""
@@ -88,4 +95,4 @@ class TelegramBot:
       self.config.server.base_url, webhook.TelegramWebhook.ROUTE
     )
     resp = await self.post({'url': url}, 'setWebhook')
-    return resp.code == 200
+    return resp is not None and resp.code == 200

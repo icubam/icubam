@@ -29,6 +29,13 @@ class UpdateFetcherTest(tornado.testing.AsyncTestCase):
     self.assertGreater(self.fetcher.last_update_id, 0)
     self.assertFalse(self.queue.empty())
 
+  @tornado.testing.gen_test
+  async def test_fetch_fail(self):
+    self.fetcher.bot.code = 404
+    self.assertIsNone(await self.fetcher.fetch())
+    self.assertEqual(self.fetcher.last_update_id, 0)
+    self.assertTrue(self.queue.empty())
+
 
 class UpdateProcessorTest(tornado.testing.AsyncTestCase):
   def setUp(self):
