@@ -1,7 +1,7 @@
 from absl import logging
 
 from icubam.messaging import sms_sender
-from icubam.messaging.telegram import bot, integrator
+from icubam.messaging.telegram import integrator
 from icubam.messaging import email_sender
 
 
@@ -29,10 +29,8 @@ class Sender:
       logging.warning(f"Cannot set email_sender {e}")
       self.email_sender = None
 
-    self.telegram_bot = None
-    telegram_setup = integrator.TelegramSetup(config, db)
-    if telegram_setup.is_on:
-      self.telegram_bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
+    # This might return be None if telegram is not properly set.
+    self.telegram_bot = integrator.TelegramSetup(config, db, tg_bot=tg_bot).bot
 
   async def process(self):
     """Keeps reading the sending queue and does send the messages."""
