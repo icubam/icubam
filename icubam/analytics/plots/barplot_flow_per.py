@@ -10,7 +10,6 @@ import math
 
 from datetime import datetime
 from icubam.analytics.data import BEDCOUNT_COLUMNS
-from icubam.analytics.plots import plot_int
 from icubam.analytics.preprocessing import compute_flow_per_dpt
 
 FIG_NAME = 'CUM_FLOW_DEPT'
