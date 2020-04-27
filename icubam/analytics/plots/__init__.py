@@ -1,6 +1,7 @@
 import itertools
 import logging
 import os
+from datetime import datetime
 from typing import Dict, List
 
 import matplotlib
@@ -28,7 +29,7 @@ COLUMN_TO_HUMAN_READABLE = {
 }
 
 COL_COLOR = {
-  col: seaborn.color_palette("colorblind",
+  col: seaborn.color_palette("bright",
                              len(BEDCOUNT_COLUMNS) + 1)[i]
   for i, col in enumerate(BEDCOUNT_COLUMNS + ["flow"])
 }
@@ -55,7 +56,7 @@ COL_COLOR.update({
 })
 
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
-RANDOM_COLORS = itertools.cycle(seaborn.color_palette("colorblind", 10))
+RANDOM_COLORS = itertools.cycle(seaborn.color_palette("bright", 10))
 
 
 def plot_int(
@@ -114,7 +115,7 @@ def plot(
 
   matplotlib.use("agg")
   matplotlib.style.use(matplotlib_style)
-  figs, tikzplotlib_kwargs = plot_fun(data=plot_data, **kwargs)
+  figs = plot_fun(data=plot_data, **kwargs)
 
   if not isinstance(figs, dict):
     figs = {f"{plot_name}.{output_type}": figs}
@@ -151,3 +152,34 @@ def generate_plots(
       output_type=output_type,
       output_dir=output_dir,
     )
+
+
+def plot_each_region(data, gen_plot, fig_name, **kwargs):
+  """This function will run gen_plot over each group of elements.
+  
+  This function is generally called by a specific plot if that plot
+  is intended to generate a bunch of subplots.
+  In this case it will run it once nationally grouping by region, and
+  then for each region grouping by department.
+  """
+  regions = data['region'].unique()
+  data = data.fillna(0)
+  # departments = data['department'].unique()
+  # breakpoint()
+  if kwargs.get('days_ago', None):
+    data = data[data['create_date'] >=
+                (datetime.now() -
+                 pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
+  figs = {}
+  # Generate a national plot:
+  figs[f'National-{fig_name}'] = gen_plot(data, groupby='region', **kwargs)
+
+  # And now regional plots:
+  for region in regions:
+    region_id = data[data['region'] == region]['region_id'].iloc[0]
+    region_data = data[data['region'] == region]
+    figs[f'region_id={region_id}-{region}-{fig_name}'] = gen_plot(
+      region_data, groupby='department', **kwargs
+    )
+
+  return figs

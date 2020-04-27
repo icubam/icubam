@@ -326,19 +326,20 @@ def spread_cum_jumps(d, icu_to_first_input_date):
   return pd.concat(dfs)
 
 
-def compute_flow(d):
-  sum_cols = set(data.CUM_COLUMNS + ["n_covid_occ"]) - {"n_covid_refused"}
+def compute_flow(d, col_prefix="n_covid"):
+  sum_cols = set(data.CUM_COLUMNS +
+                 [f"{col_prefix}_occ"]) - {f"{col_prefix}_refused"}
   summed = d[sum_cols].sum(axis=1)
   flow = summed.diff(1).fillna(0)
   flow.iloc[0] = summed.iloc[0]
   return flow
 
 
-def compute_flow_per_dpt(data):
+def compute_flow_per_dpt(data, groupby, col_prefix="n_covid"):
   dfs = []
-  for dpt, d in data.groupby("department"):
+  for dpt, d in data.groupby(groupby):
     d = d.sort_values(by="date")
-    d["flow"] = compute_flow(d)
+    d["flow"] = compute_flow(d, col_prefix)
     d["cum_flow"] = d.flow.cumsum()
     dfs.append(d)
   return pd.concat(dfs)

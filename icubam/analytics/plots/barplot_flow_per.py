@@ -1,3 +1,5 @@
+import math
+
 import matplotlib.cm
 import matplotlib.gridspec
 import matplotlib.patches
@@ -5,45 +7,22 @@ import matplotlib.pyplot as plt
 import matplotlib.style
 import numpy as np
 import seaborn
-import pandas as pd
-import math
 
-from datetime import datetime
+from icubam.analytics import plots
 from icubam.analytics.data import BEDCOUNT_COLUMNS
 from icubam.analytics.preprocessing import compute_flow_per_dpt
 
-FIG_NAME = 'CUM_FLOW_DEPT'
+FIG_NAME = 'CUM_FLOW'
 data_source = ["bedcounts"]
 
 
 def plot(data, **kwargs):
-  """This function will run gen_plot over each group of elements.
-  
-  In this case it will run it once nationally grouping by region, and
-  then for each region grouping by department.
-  """
-  kwargs['days_ago'] = 8
-  regions = data['region'].unique()
-  data = data.fillna(0)
-  # departments = data['department'].unique()
-  # breakpoint()
-  if kwargs.get('days_ago', None):
-    data = data[data['create_date'] >=
-                (datetime.now() -
-                 pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
-  figs = {}
-  for region in regions:
-    region_id = data[data['region'] == region]['region_id'].iloc[0]
-    region_data = data[data['region'] == region]
-    figs[f'region_id={region_id}-{region}-{FIG_NAME}'] = gen_plot(
-      region_data, groupby='department', **kwargs
-    )
-
-  tikzplotlib_kwargs = dict(
-    axis_width="14cm",
-    axis_height="8cm",
-  )
-  return figs, tikzplotlib_kwargs
+  return {
+    **plots.plot_each_region(
+      data, gen_plot, f"{FIG_NAME}_7D", days_ago=8, **kwargs
+    ),
+    **plots.plot_each_region(data, gen_plot, FIG_NAME, **kwargs)
+  }
 
 
 def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
@@ -72,7 +51,7 @@ def gen_plot(data, groupby='department', **kwargs):
   }
   data = data.groupby(["date", groupby]).agg(agg)
   data = data.reset_index()
-  data = compute_flow_per_dpt(data)
+  data = compute_flow_per_dpt(data, groupby)
   # Get rid of the first day as it has edge weirdness:
   start_date = sorted(data['date'].unique())[0]
   data = data[data['date'] > start_date]
@@ -85,23 +64,21 @@ def gen_plot(data, groupby='department', **kwargs):
   for i, (date,
           d_date) in enumerate(data.sort_values(by="date").groupby("date")):
     # Group into negative counts and positive counts:
-    neg_deps = d_date[d_date[col] < 0][['department',
-                                        col]].sort_values('department')
-    pos_deps = d_date[d_date[col] >= 0][['department',
-                                         col]].sort_values('department')
+    neg_deps = d_date[d_date[col] < 0][[groupby, col]].sort_values(groupby)
+    pos_deps = d_date[d_date[col] >= 0][[groupby, col]].sort_values(groupby)
     # Accumulate starting point
     start_cum = neg_deps[col].sum()
     # Plot negative values:
     for j, row in neg_deps.iterrows():
       ax = draw_rect(
-        ax, i, start_cum, abs(row[col]), row['department'], GROUP_COLORS
+        ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])
     # Now plot positive values:
     start_cum = 0
     for j, row in pos_deps.iterrows():
       ax = draw_rect(
-        ax, i, start_cum, abs(row[col]), row['department'], GROUP_COLORS
+        ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])
 
