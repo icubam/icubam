@@ -98,7 +98,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       data_icus = dict()
       with open("resources/test/icu2.csv") as csv_f:
         data_icus['data'] = csv_f.read()
-        data_icus['objtype'] = base.ObjType.ICUS.value
+        data_icus['objtype'] = base.ObjType.ICUS.name
         response = self.fetch(
           handler.ROUTE, method='POST', body=json.dumps(data_icus)
         )
@@ -110,7 +110,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
       data_bedcounts = dict()
       with open("resources/test/bedcounts.csv") as csv_f:
         data_bedcounts['data'] = csv_f.read()
-        data_bedcounts['objtype'] = base.ObjType.BEDCOUNTS.value
+        data_bedcounts['objtype'] = base.ObjType.BEDCOUNTS.name
         response = self.fetch(
           handler.ROUTE, method='POST', body=json.dumps(data_bedcounts)
         )
