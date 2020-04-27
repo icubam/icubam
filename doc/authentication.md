@@ -7,11 +7,12 @@ ICUBAM supports password, token based and cookie based authentication, depending
 ### JWT tokens
 
 JWT encoded tokens are used for the `/update` endpoint of the WWW server.  For
-this endpoint, each token is only valid for a `user_id`, `icu_id`  pair.
+this endpoint, each token is only valid for a `user_id`, `icu_id`  pair, and allows
+to update information for a given ICU.
 
 ### External client tokens
 
-Additional tokens are created for external tokens. These tokens can be of one the following 4 types,
+Additional tokens are created for external clients. These tokens can be of one the following 4 types,
 
  - **MAP**  allows GET access to `/map` endpoint on the WWW server
  - **STATS** allows GET access to `/db/*` endpoints  on the WWW server as well
@@ -31,6 +32,3 @@ endpoint.
 
 Finally, the backoffice server also includes standard password base
 authentication for administrators.
-
-
-
