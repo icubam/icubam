@@ -23,7 +23,7 @@ class Sender:
 
     self.email_sender = None
     if self.config.SMTP_HOST is not None:
-      self.email_sender = email_sender.SMTPEmailSender(config)
+      self.email_sender = email_sender.get(config)
 
     self.telegram_bot = None
     telegram_setup = integrator.TelegramSetup(config, db)
