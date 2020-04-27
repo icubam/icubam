@@ -11,7 +11,7 @@ import pandas as pd
 import scipy
 import seaborn
 
-from icubam.predicu.data import BEDCOUNT_COLUMNS
+from icubam.analytics.data import BEDCOUNT_COLUMNS
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
