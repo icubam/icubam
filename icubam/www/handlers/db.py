@@ -8,8 +8,8 @@ import tornado.web
 from absl import logging  # noqa: F401
 
 from icubam.db import store, synchronizer
-from icubam.predicu import operational_dashboard
-from icubam.predicu.preprocessing import preprocess_bedcounts
+from icubam.analytics import operational_dashboard
+from icubam.analytics.preprocessing import preprocess_bedcounts
 from icubam.www.handlers import base, home
 
 
