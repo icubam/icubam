@@ -11,7 +11,9 @@ class Message:
 
   def __init__(self, icu, user, url: str):
     self.icu_id = icu.icu_id
-    self.phone = user.telephone.encode('ascii', 'ignore').decode()
+    self.phone = user.telephone
+    if self.phone is not None:
+      self.phone = self.phone.encode('ascii', 'ignore').decode()
     self.user_id = user.user_id
     self.user_name = user.name
     self.icu_name = icu.name
