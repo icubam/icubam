@@ -1,3 +1,4 @@
+import os.path
 import tornado.web
 
 import icubam
@@ -14,6 +15,15 @@ class HomeHandler(base.BaseHandler):
     super().initialize(config, db_factory)
     self.icu = None  # should be overwritten by the authentication
 
+  def get_disclaimer_url(self):
+    """To show a disclaimer link if defined in configuration."""
+    if os.path.exists(self.config.server.disclaimer):
+      return "<a href='{}disclaimer'>disclaimer</a>".format(
+        self.config.server.base_url
+      )
+    else:
+      return ""
+
   @tornado.web.authenticated
   def get(self):
     locale = self.get_user_locale()
@@ -26,7 +36,8 @@ class HomeHandler(base.BaseHandler):
       API_KEY=self.config.GOOGLE_API_KEY,
       center=center,
       data=data,
-      version=icubam.__version__
+      version=icubam.__version__,
+      disclaimer_url=self.get_disclaimer_url()
     )
 
 
@@ -39,6 +50,15 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.regions = None
+
+  def get_disclaimer_url(self):
+    """To show a disclaimer link if defined in configuration."""
+    if os.path.exists(self.config.server.disclaimer):
+      return "<a href='{}disclaimer'>disclaimer</a>".format(
+        self.config.server.base_url
+      )
+    else:
+      return ""
 
   @base.authenticated(code=503)
   def get(self):
@@ -53,5 +73,6 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
       API_KEY=self.config.GOOGLE_API_KEY,
       center=center,
       data=data,
-      version=icubam.__version__
+      version=icubam.__version__,
+      disclaimer_url=self.get_disclaimer_url()
     )
