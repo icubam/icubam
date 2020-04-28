@@ -11,7 +11,7 @@ services:
     command: ./docker/start_server_www.sh
     restart: unless-stopped
     tty: true
-    user: "${UID:-0}:${GID:-0}"
+    user: "${USER_ID:-0}:${GROUP_ID:-0}"
     ports:
       - "8888:8888"
     environment:
@@ -45,7 +45,7 @@ services:
     command: ./docker/start_server_sms.sh
     restart: unless-stopped
     tty: true
-    user: "${UID:-0}:${GID:-0}"
+    user: "${USER_ID:-0}:${GROUP_ID:-0}"
     environment:
       ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"
@@ -77,7 +77,7 @@ services:
     command: ./docker/start_server_bo.sh
     restart: unless-stopped
     tty: true
-    user: "${UID:-0}:${GID:-0}"
+    user: "${USER_ID:-0}:${GROUP_ID:-0}"
     ports:
       - "8890:8890"
     environment:
