@@ -43,19 +43,20 @@ def populate_store_fake(store):
         telephone=telephone
       )
     )
-    store.update_bed_count_for_icu(
-      admin_user_id,
-      BedCount(
-        icu_id=icu_id,
-        n_covid_occ=n_covid_occ,
-        n_covid_free=n_covid_free,
-        n_ncovid_free=n_ncovid_free,
-        n_covid_deaths=n_covid_deaths,
-        n_covid_healed=n_covid_healed,
-        n_covid_refused=n_covid_refused,
-        n_covid_transfered=n_covid_transfered
+    for i in range(20):
+      store.update_bed_count_for_icu(
+        admin_user_id,
+        BedCount(
+          icu_id=icu_id,
+          n_covid_occ=n_covid_occ + i,
+          n_covid_free=n_covid_free + i,
+          n_ncovid_free=n_ncovid_free + i,
+          n_covid_deaths=n_covid_deaths + i,
+          n_covid_healed=n_covid_healed + i,
+          n_covid_refused=n_covid_refused + i,
+          n_covid_transfered=n_covid_transfered + i
+        )
       )
-    )
     return icu_id
 
   add_icu(
