@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import sqlalchemy as sqla
 
-from icubam.analytics import data
+from icubam.analytics import dataset, preprocessing
 from icubam.db import store
 from icubam.db.fake import populate_store_fake
 
@@ -18,11 +18,11 @@ def fake_db():
 
 
 def test_bedcounts_data_preprocessing(fake_db):
-  preprocessed = data.load_bed_counts(fake_db, preprocess=True)
-
+  data = dataset.load_bed_counts(fake_db)
+  preprocessed = preprocessing.preprocess_bedcounts(data)
   assert len(preprocessed) > 0
   for icu_name, dg in preprocessed.groupby('icu_name'):
     dg = dg.sort_values(by='create_date')
-    for col in data.CUM_COLUMNS:
+    for col in dataset.CUM_COLUMNS:
       diffs = dg[col].diff(1).fillna(0).values
       assert np.all(diffs >= 0)

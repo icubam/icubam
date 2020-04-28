@@ -25,7 +25,7 @@ ALL_COLUMNS = ([
 ] + CUM_COLUMNS + NCUM_COLUMNS)
 
 
-def load_bed_counts(db, preprocess: bool = False):
+def load_bed_counts(db):
   """Load Bedcount data from ICUBAM DB"""
   bc = store.to_pandas(db.get_bed_counts(), max_depth=2)
   bc = bc.sort_values(by=["create_date", "icu_name"])
