@@ -51,6 +51,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
 
   def test_homepage_without(self):
     handlers = [
+      home.HomeHandler,
       icus.ListICUsHandler,
       icus.ICUHandler,
       users.ListUsersHandler,
@@ -119,3 +120,69 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.assertIn('error', resp_data)
     self.assertIn('msg', resp_data)
     self.assertEqual(resp_data['error'], False)
+
+  def test_post_region(self):
+    handler = regions.RegionHandler
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = self.admin
+
+      name = "InvalidRegion"
+      self.assertIsNone(self.db.get_region_by_name(name))
+      response = self.fetch(
+        handler.ROUTE, method='POST', body=f"region_id=&name={name}"
+      )
+      # redirect to ListRegionsHandler
+      self.assertEqual(response.code, 302)
+      self.assertIsNotNone(self.db.get_region_by_name(name))
+
+  def test_post_icu(self):
+    handler = icus.ICUHandler
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = self.admin
+
+      data = {
+        'icu_id': '',
+        'name': 'TestICU',
+        'telephone': '00000000000',
+        'legal_id': '',
+        'is_active': 'on',
+        'region_id': 1,
+        'city': 'Paris',
+        'dept': 'Ile-de-France',
+        'lat': 0.0000,
+        'long': 0.0000
+      }
+      self.assertIsNone(self.db.get_icu_by_name(data['name']))
+      response = self.fetch(
+        handler.ROUTE,
+        method='POST',
+        body='&'.join(f'{key}={val}' for key, val in data.items())
+      )
+      # redirect to ListICUsHandler
+      self.assertEqual(response.code, 302)
+      self.assertIsNotNone(self.db.get_icu_by_name(data['name']))
+
+  def test_post_token(self):
+    handler = tokens.TokenHandler
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = self.admin
+
+      data_email = 'test@test.org'
+      data = {
+        'external_client_id': '',
+        'name': 'TestToken',
+        'telephone': '00000000000',
+        'email': "test%40test.org",
+        'is_active': 'on',
+        'access_type': 'ALL',
+        'expiration_date': ''
+      }
+      self.assertIsNone(self.db.get_external_client_by_email(data_email))
+      response = self.fetch(
+        handler.ROUTE,
+        method='POST',
+        body='&'.join(f'{key}={val}' for key, val in data.items())
+      )
+      # redirect to ListTokensHandler
+      self.assertEqual(response.code, 302)
+      self.assertIsNotNone(self.db.get_external_client_by_email(data_email))
