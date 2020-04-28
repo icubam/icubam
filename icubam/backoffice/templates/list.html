@@ -28,13 +28,15 @@
 
     <section class="content">
       <div class="card">
-        {% if create_route %}
+        {% if create_route or upload_type %}
         <div class="card-header">
           <h3 class="card-title">{{ _('Add') }}</h3>
+          {% if create_route %}
           <button type="button" class="btn badge badge-primary"
             data-card-widget="remove" onclick="navigateTo('{{create_route}}')">
             <i class="fas fa-plus"></i>
           </button>
+          {% end %}
           {% if upload_type %}
           <label for="file-upload" class="btn badge badge-warning upload-button">
             <i class="fa fa-upload"></i>

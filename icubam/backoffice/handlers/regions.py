@@ -27,7 +27,7 @@ class ListRegionsHandler(base.AdminHandler):
     regions = self.db.get_regions()
     data = [self.prepare_for_table(region) for region in regions]
     return self.render_list(
-      data=data, objtype="Regions", create_handler=RegionHandler
+      data=data, objtype=base.ObjType.REGIONS, create_handler=RegionHandler
     )
 
 

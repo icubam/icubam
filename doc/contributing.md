@@ -38,6 +38,27 @@ are run (see [pytest
 documentation](https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests)
 for more details).
 
+
+### Frontend tests
+
+Frontend tests can be run in two ways,
+
+ 1. Manually starting the services with,
+    ```
+    python scripts/run_server.py --server=all --config=<..>
+    ```
+    and then running
+    ```
+    pytest --icubam-config=<..> frontend_tests/
+    ```
+    
+ 2. Letting pytest start the web-services automatically with,
+    ```
+    pytest --icubam-config=<..>  --run-server frontend_tests/
+    ```
+    which is equivalent to two above steps. Web-services will be stopped at
+    the end of the test session.
+
 ## Code style
 
 Install [pre-commit](https://pre-commit.com/#install) to

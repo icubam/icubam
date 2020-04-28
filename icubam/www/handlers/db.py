@@ -1,30 +1,25 @@
 import functools
 import io
 import os
-import tempfile
 from datetime import datetime
 
 import tornado.web
 from absl import logging  # noqa: F401
 
 from icubam.db import store, synchronizer
-from icubam.predicu import operational_dashboard
-from icubam.predicu.preprocessing import preprocess_bedcounts
+from icubam.analytics import operational_dashboard
+from icubam.analytics.preprocessing import preprocess_bedcounts
 from icubam.www.handlers import base, home
 
 
 def _get_headers(collection, asked_file_type):
-  if asked_file_type not in {'csv', 'hdf'}:
+  if asked_file_type not in {'csv'}:
     return dict()
 
-  extension = 'csv' if asked_file_type == 'csv' else 'h5'
   datestr = datetime.now().strftime('%Y-%m-%d_%Hh%M')
-  filename = f'{collection}_{datestr}.{extension}'
-  content_type = (
-    'text/csv' if asked_file_type == 'csv' else 'application/octetstream'
-  )
+  filename = f'{collection}_{datestr}.csv'
   headers = {
-    'Content-Type': content_type,
+    'Content-Type': "text/csv",
     'Content-Disposition': f'attachment; filename={filename}'
   }
   return headers
@@ -85,7 +80,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       if isinstance(max_ts, str) and max_ts.isnumeric():
         max_ts = datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
-      data = store.to_pandas(get_fn(), max_depth=1)
+      data = store.to_pandas(get_fn(), max_depth=2)
       if collection == 'all_bedcounts' and should_preprocess:
         data = preprocess_bedcounts(data)
     else:
@@ -98,18 +93,6 @@ class DBHandler(base.APIKeyProtectedHandler):
       stream = io.StringIO()
       data.to_csv(stream, index=False)
       self.write(stream.getvalue())
-    elif file_format == 'hdf':
-      with tempfile.NamedTemporaryFile() as f:
-        tmp_path = f.name
-      data.to_hdf(
-        tmp_path,
-        key='data',
-        complib='blosc:lz4',
-        complevel=9,
-      )
-      with open(tmp_path, 'rb') as f:
-        self.write(f.read())
-      os.remove(tmp_path)
     else:
       self.write(data.to_html())
 
@@ -165,7 +148,7 @@ class OperationalDashboardHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/dashboard'
   # Problably better not to be equal to admin.
-  BACKOFFICE_PREFIX = 'static_bo'
+  BACKOFFICE_PREFIX = 'static_bo/'
   API_COOKIE = 'api'
   ACCESS = [store.AccessTypes.STATS, store.AccessTypes.ALL]
 
