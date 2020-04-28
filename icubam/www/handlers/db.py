@@ -85,7 +85,7 @@ class DBHandler(base.APIKeyProtectedHandler):
       if isinstance(max_ts, str) and max_ts.isnumeric():
         max_ts = datetime.fromtimestamp(int(max_ts))
       get_fn = functools.partial(get_fn, max_date=max_ts)
-      data = store.to_pandas(get_fn(), max_depth=1)
+      data = store.to_pandas(get_fn(), max_depth=2)
       if collection == 'all_bedcounts' and should_preprocess:
         data = preprocess_bedcounts(data)
     else:
