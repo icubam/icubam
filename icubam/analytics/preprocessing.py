@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-import icubam.analytics.data as data
+from icubam.analytics import dataset
 
 SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_deaths": 10,
@@ -20,7 +20,7 @@ def format_data(d: pd.DataFrame) -> pd.DataFrame:
   d["department"] = d["icu_dept"]
   d["region"] = d["icu_region_name"]
   d["region_id"] = d["icu_region_id"]
-  d = d[data.ALL_COLUMNS]
+  d = d[dataset.ALL_COLUMNS]
   return d
 
 
@@ -41,7 +41,7 @@ def preprocess_bedcounts(
   3) Guarantee monotonicity on cumulative counts by replacing any decreasing
      values in the timeseries with their previous count: x_t = max(x_t, x_{t+1}).
   4) Imput missing data with two strategies: For holes > 3 days, impute data 
-     by linearly interpolating between the two end-points of the missing data.
+     by linearly interpolating between the two end-points of the missing set
      Subsequently, guarantee that each ICU has data for the whole timeseries,
      either by forward-propagating data at day t for impution, or setting to 0 for 
      days before the ICU started its data collection.
@@ -76,7 +76,7 @@ def preprocess_bedcounts(
   # Step 4)
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
-  d = d[data.ALL_COLUMNS]
+  d = d[dataset.ALL_COLUMNS]
   d = d.sort_values(by=["date", "icu_name"])
 
   if max_date is not None:
@@ -103,13 +103,13 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     # This will run low-pass filters to remove spurious outliers:
     # Rolling median average, 5 points (for cumulative qtities):
     # breakpoint()
-    for col in data.CUM_COLUMNS:
+    for col in dataset.CUM_COLUMNS:
       dg[col] = (
         dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
       )
 
     # Rolling median average, 3 points (for non-cumulative qtities):
-    for col in data.NCUM_COLUMNS:
+    for col in dataset.NCUM_COLUMNS:
       dg[col] = dg[col].fillna(0)
       dg[col] = (
         dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
@@ -117,7 +117,7 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
 
     # Force cumulative columns to be monotonic by bringing any decreases in
     # the value up to their previous values i.e. x_t = max(x_t, x_{t-1}):
-    for col in data.CUM_COLUMNS:
+    for col in dataset.CUM_COLUMNS:
       new_col = []
       last_val = -100000
       for idx, row in dg.iterrows():
@@ -259,17 +259,17 @@ def enforce_daily_values_for_all_icus(d):
       "datetime": date,
       "create_date": date,
     }
-    new_data_point.update({col: 0 for col in data.CUM_COLUMNS})
-    new_data_point.update({col: 0 for col in data.NCUM_COLUMNS})
+    new_data_point.update({col: 0 for col in dataset.CUM_COLUMNS})
+    new_data_point.update({col: 0 for col in dataset.NCUM_COLUMNS})
     if icu_name in per_icu_prev_data_point:
       new_data_point.update({
         col: per_icu_prev_data_point[icu_name][col]
-        for col in data.BEDCOUNT_COLUMNS
+        for col in dataset.BEDCOUNT_COLUMNS
       })
     if len(sd) > 0:
       new_data_point.update({
         col: sd[col].iloc[-1]
-        for col in data.BEDCOUNT_COLUMNS
+        for col in dataset.BEDCOUNT_COLUMNS
       })
     per_icu_prev_data_point[icu_name] = new_data_point
     new_data_points.append(new_data_point)
@@ -285,7 +285,7 @@ def spread_cum_jumps(d, icu_to_first_input_date):
     dg = dg.reset_index()
     already_fixed_col = set()
     for switch_point, cols in (
-      (icu_to_first_input_date[icu_name], data.CUM_COLUMNS),
+      (icu_to_first_input_date[icu_name], dataset.CUM_COLUMNS),
       (
         date_begin_transfered_refused,
         ["n_covid_transfered", "n_covid_refused"],
@@ -327,7 +327,7 @@ def spread_cum_jumps(d, icu_to_first_input_date):
 
 
 def compute_flow(d, col_prefix="n_covid"):
-  sum_cols = set(data.CUM_COLUMNS +
+  sum_cols = set(dataset.CUM_COLUMNS +
                  [f"{col_prefix}_occ"]) - {f"{col_prefix}_refused"}
   summed = d[sum_cols].sum(axis=1)
   flow = summed.diff(1).fillna(0)

@@ -7,7 +7,7 @@ from pathlib import Path
 from absl import app, flags
 
 from icubam import config
-from icubam.analytics import data, plots, preprocessing
+from icubam.analytics import dataset, plots, preprocessing
 from icubam.analytics.analytics_server import AnalyticsCallback
 from icubam.db.store import create_store_factory_for_sqlite_db
 
@@ -43,7 +43,7 @@ def main(argv):
     eventloop.run_until_complete(callback.generate_plots())
     logging.info(f'Generated dashboard plots in {output_dir}')
   else:
-    df_bedcounts = data.load_bed_counts(
+    df_bedcounts = dataset.load_bed_counts(
       store_factory.create(), preprocess=True
     )
     df_bedcounts = preprocessing.preprocess_bedcounts(df_bedcounts)

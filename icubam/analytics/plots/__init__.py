@@ -12,7 +12,7 @@ import pandas as pd
 import scipy
 import seaborn
 
-from icubam.analytics.data import BEDCOUNT_COLUMNS
+from icubam.analytics import dataset
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -30,8 +30,8 @@ COLUMN_TO_HUMAN_READABLE = {
 
 COL_COLOR = {
   col: seaborn.color_palette("bright",
-                             len(BEDCOUNT_COLUMNS) + 1)[i]
-  for i, col in enumerate(BEDCOUNT_COLUMNS + ["flow"])
+                             len(dataset.BEDCOUNT_COLUMNS) + 1)[i]
+  for i, col in enumerate(dataset.BEDCOUNT_COLUMNS + ["flow"])
 }
 COL_COLOR.update({
   "n_covid_deaths": (0, 0, 0),
@@ -164,8 +164,7 @@ def plot_each_region(data, gen_plot, fig_name, **kwargs):
   """
   regions = data['region'].unique()
   data = data.fillna(0)
-  # departments = data['department'].unique()
-  # breakpoint()
+
   if kwargs.get('days_ago', None):
     data = data[data['create_date'] >=
                 (datetime.now() -

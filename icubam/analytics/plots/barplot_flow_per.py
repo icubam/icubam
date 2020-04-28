@@ -9,7 +9,7 @@ import numpy as np
 import seaborn
 
 from icubam.analytics import plots
-from icubam.analytics.data import BEDCOUNT_COLUMNS
+from icubam.analytics import dataset
 from icubam.analytics.preprocessing import compute_flow_per_dpt
 
 FIG_NAME = 'CUM_FLOW'
@@ -43,7 +43,7 @@ def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
 
 
 def gen_plot(data, groupby='department', **kwargs):
-  agg = {col: "sum" for col in BEDCOUNT_COLUMNS}
+  agg = {col: "sum" for col in dataset.BEDCOUNT_COLUMNS}
   groups = sorted(data[groupby].unique())
   GROUP_COLORS = {
     dpt: seaborn.color_palette("colorblind", len(groups))[i]
