@@ -59,6 +59,7 @@ def wipe_db(
     ALTERATIONS[BedCount].update({"n_covid_free": 2, "n_covid_occ": 4})
   for alteration in ALTERATIONS.items():
     store._session.query(alteration[0]).update(values=alteration[1])
+  store._session.commit()
 
   if reset_admin:
     if None in [admin_email, admin_pass]:
