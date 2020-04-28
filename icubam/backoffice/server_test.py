@@ -6,7 +6,7 @@ from icubam import config
 from icubam.backoffice import server
 from icubam.backoffice.handlers import (
   base, home, login, logout, users, tokens, icus, bedcounts,
-  operational_dashboard, regions, maps, consent
+  operational_dashboard, regions, maps, consent, upload
 )
 
 
@@ -90,3 +90,32 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     self.assertIn('error', resp_data)
     self.assertIn('msg', resp_data)
     self.assertIsNone(resp_data['error'])
+
+  def test_upload(self):
+    handler = upload.UploadHandler
+    with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
+      m.return_value = self.admin
+      data_icus = dict()
+      with open("resources/test/icu2.csv") as csv_f:
+        data_icus['data'] = csv_f.read()
+        data_icus['objtype'] = base.ObjType.ICUS.name
+        response = self.fetch(
+          handler.ROUTE, method='POST', body=json.dumps(data_icus)
+        )
+      self.assertEqual(response.code, 200)
+      resp_data = json.loads(response.body)
+      self.assertIn('error', resp_data)
+      self.assertIn('msg', resp_data)
+      self.assertEqual(resp_data['error'], False)
+      data_bedcounts = dict()
+      with open("resources/test/bedcounts.csv") as csv_f:
+        data_bedcounts['data'] = csv_f.read()
+        data_bedcounts['objtype'] = base.ObjType.BEDCOUNTS.name
+        response = self.fetch(
+          handler.ROUTE, method='POST', body=json.dumps(data_bedcounts)
+        )
+    self.assertEqual(response.code, 200)
+    resp_data = json.loads(response.body)
+    self.assertIn('error', resp_data)
+    self.assertIn('msg', resp_data)
+    self.assertEqual(resp_data['error'], False)
