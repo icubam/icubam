@@ -1,4 +1,5 @@
 """Generates plots using icubam.analytic"""
+import asyncio
 import logging
 import sys
 from pathlib import Path
@@ -6,12 +7,13 @@ from pathlib import Path
 from absl import app, flags
 
 from icubam import config
+from icubam.analytics import data, plots, preprocessing
+from icubam.analytics.analytics_server import AnalyticsCallback
 from icubam.db.store import create_store_factory_for_sqlite_db
-from icubam.analytics import data, plots
 
 flags.DEFINE_string('config', config.DEFAULT_CONFIG_PATH, 'Config file.')
 flags.DEFINE_string('output_dir', '/tmp', 'Output dir for plots.')
-flags.DEFINE_string('plot_name', 'base_dashboard_plots', 'Plot name.')
+flags.DEFINE_string('plot_name', 'dashboard_default', 'Plot name.')
 FLAGS = flags.FLAGS
 
 
@@ -33,14 +35,22 @@ def main(argv):
     if not output_dir.parent.exists():
       logging.error(f"Output directory {output_dir} does not exist.")
       sys.exit(1)
-    # otherwise necessary folder will be created by generate_plots
 
   store_factory = create_store_factory_for_sqlite_db(cfg)
-  df_bedcounts = data.load_bed_counts(store_factory.create(), preprocess=True)
-  logging.info('[periodic callback] Starting plots generation with predicu')
-  plot_data = {'bedcounts': df_bedcounts}
-  plots.generate_plots([plot_name], plot_data, output_dir=output_dir)
-  print(f'Generated dashboard plots in {output_dir}')
+  if plot_name == 'dashboard_default':
+    callback = AnalyticsCallback(output_dir, store_factory)
+    eventloop = asyncio.new_event_loop()
+    eventloop.run_until_complete(callback.generate_plots())
+    logging.info(f'Generated dashboard plots in {output_dir}')
+  else:
+    df_bedcounts = data.load_bed_counts(
+      store_factory.create(), preprocess=True
+    )
+    df_bedcounts = preprocessing.preprocess_bedcounts(df_bedcounts)
+    logging.info('[periodic callback] Starting plots generation with predicu')
+    plot_data = {'bedcounts': df_bedcounts}
+    plots.generate_plots([plot_name], plot_data, output_dir=output_dir)
+    print(f'Generated dashboard plots in {output_dir}')
 
 
 if __name__ == '__main__':

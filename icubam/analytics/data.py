@@ -2,7 +2,6 @@ from pathlib import Path
 
 from absl import logging  # noqa: F401
 
-from icubam.analytics import preprocessing
 from icubam.db import store
 
 BASE_PATH = Path(__file__).resolve().parent
@@ -29,7 +28,5 @@ ALL_COLUMNS = ([
 def load_bed_counts(db, preprocess: bool = False):
   """Load Bedcount data from ICUBAM DB"""
   bc = store.to_pandas(db.get_bed_counts(), max_depth=2)
-  if preprocess:
-    bc = preprocessing.preprocess_bedcounts(bc)
   bc = bc.sort_values(by=["create_date", "icu_name"])
   return bc

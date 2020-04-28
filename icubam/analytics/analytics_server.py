@@ -2,7 +2,7 @@ from pathlib import Path
 
 from absl import logging  # noqa: F401
 
-from icubam.analytics import data, plots
+from icubam.analytics import data, plots, preprocessing
 from icubam.config import Config
 
 
@@ -12,13 +12,12 @@ class AnalyticsCallback:
     self.db_factory = db_factory
 
   async def generate_plots(self):
-    df_bedcounts = data.load_bed_counts(
-      self.db_factory.create(), preprocess=True
-    )
+    df_bedcounts = data.load_bed_counts(self.db_factory.create())
+    df_bedcounts = preprocessing.preprocess_bedcounts(df_bedcounts)
     logging.info('[periodic callback] Starting plots generation with predicu')
     plot_data = {'bedcounts': df_bedcounts}
     plots.generate_plots(
-      plots=["barplot_beds_per"],
+      plots=["barplot_beds_per", "barplot_flow_per", "lineplot_beds_per"],
       data=plot_data,
       output_dir=self.output_dir
     )

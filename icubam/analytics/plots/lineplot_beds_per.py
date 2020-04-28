@@ -14,7 +14,7 @@ def plot(data, **kwargs):
     **plots.plot_each_region(
       data,
       gen_plot,
-      col_prefix="n_ncovid",
+      col_prefix="n_covid",
       fig_name=f"{FIG_NAME}_14D_COVID",
       days_ago=15,
       **kwargs
@@ -22,7 +22,7 @@ def plot(data, **kwargs):
     **plots.plot_each_region(
       data,
       gen_plot,
-      col_prefix="n_ncovid",
+      col_prefix="n_covid",
       fig_name=f"{FIG_NAME}_COVID",
       **kwargs
     ),
@@ -44,15 +44,16 @@ def plot(data, **kwargs):
   }
 
 
-
 def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
   n_occ = data.groupby("date").sum()[f"{col_prefix}_occ"]
   n_free = data.groupby("date").sum()[f"{col_prefix}_free"]
-  n_transfered = (
-    data.groupby("date").sum()["n_covid_transfered"].diff(1).fillna(0)
-  )
   n_tot = n_occ + n_free
-  n_req = n_occ + n_transfered
+  n_req = n_occ
+  if col_prefix == "n_covid":
+    n_transfered = (
+      data.groupby("date").sum()["n_covid_transfered"].diff(1).fillna(0)
+    )
+    n_req = n_occ + n_transfered
   fig, ax = plt.subplots(1, figsize=(12, 6))
 
   date_range_idx = np.arange(len(n_req))

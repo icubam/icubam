@@ -90,7 +90,6 @@ def gen_plot(data, groupby='department', **kwargs):
     y_min = -1
   if math.isnan(y_max):
     y_max = 1
-  print(y_min, y_max)
   ax.set_ylim(y_min, y_max)
   ax.legend(
     bbox_to_anchor=(1.35, 1),
