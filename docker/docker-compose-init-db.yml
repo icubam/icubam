@@ -10,6 +10,7 @@ services:
     container_name: db-builder
     command: "./docker/build_fake_dbs.sh"
     tty: true
+    user: "${UID:-0}:${GID:-0}"
     environment:
       ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
       SECRET_COOKIE : "$SECRET_COOKIE"

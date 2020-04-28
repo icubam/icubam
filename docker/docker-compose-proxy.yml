@@ -7,6 +7,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     tty: true
+    user: "${UID:-0}:${GID:-0}"
     ports:
       - "80:80"
       - "443:443"
@@ -29,6 +30,7 @@ services:
   certbot:
     image: certbot/certbot
     restart: unless-stopped
+    user: "${UID:-0}:${GID:-0}"
     volumes:
       - type: bind
         source:  "${ICUBAM_CERTBOT_PATH:-./docker/configs/certbot}/conf"
