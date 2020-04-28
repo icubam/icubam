@@ -16,7 +16,7 @@ Additional tokens are created for external clients. These tokens can be of one t
 
  - **MAP**  allows GET access to `/map` endpoint on the WWW server
  - **STATS** allows GET access to `/db/*` endpoints  on the WWW server as well
-   as `/dasboard` endpoint on the backoffice server.
+   as `/dashboard` endpoint on the backoffice server.
  - **UPLOAD** allows PUT access for the `/db/*` endpoint on the WWW server.
  - **ALL** allows all above operations.
 
