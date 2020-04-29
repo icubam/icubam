@@ -1,6 +1,7 @@
 import os.path
 import tornado.locale
 import tornado.template
+import pathlib
 
 
 class MessageFormatter:
@@ -9,11 +10,8 @@ class MessageFormatter:
   Formatting means turning the data in the message into a localized text or
   html.
   """
-  ROOT_PATH = os.path.abspath(__file__)
-  for _ in range(3):
-    ROOT_PATH = os.path.dirname(ROOT_PATH)
-
-  ROOT_PATH = os.path.join(ROOT_PATH, 'resources/messages/')
+  ROOT_PATH = pathlib.Path(__file__).resolve().parents[2].as_posix()
+  ROOT_PATH = os.path.join(ROOT_PATH, 'resources', 'messages')
   TRANSLATION_FOLDER = os.path.join(ROOT_PATH, 'translations')
   HTML_TEMPLATE = 'message.html'
   TEXT_TEMPLATE = 'message.txt'
