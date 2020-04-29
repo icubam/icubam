@@ -3,9 +3,10 @@ import tornado.web
 import os.path
 
 import icubam
+from icubam.messaging.telegram import integrator
+from icubam.www import updater
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-from icubam.www import updater
 
 
 class UpdateHandler(base.BaseHandler):
@@ -17,6 +18,7 @@ class UpdateHandler(base.BaseHandler):
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.updater = updater.Updater(self.config, self.db)
+    self.telegram_setup = integrator.TelegramSetup(self.config, self.db)
 
   def get_consent_html(self, user):
     """To show a consent modal, the user should be seeing it for the first time
@@ -45,6 +47,11 @@ class UpdateHandler(base.BaseHandler):
     data['icu_name'] = icu.name
     data['version'] = icubam.__version__
     data['consent'] = self.get_consent_html(user)
+
+    data['telegram_url'] = None
+    if user.telegram_chat_id is None and self.telegram_setup.is_on:
+      data['telegram_url'] = self.telegram_setup.get_bot_url(user_token)
+
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
 

@@ -1,4 +1,5 @@
 import tornado.queues
+from typing import Optional
 from icubam.messaging.telegram import bot, updater, webhook
 
 
@@ -7,6 +8,7 @@ class TelegramSetup:
   def __init__(self, config, db, scheduler=None, tg_bot=None):
     self.config = config
     self.queue = tornado.queues.Queue()
+    self.db = db
     self.bot = None
     self.processor = None
     self.fetcher = None
@@ -30,6 +32,11 @@ class TelegramSetup:
       msg_config.has_key('telegram_updates_every') and
       self.config.TELEGRAM_API_KEY is not None
     )
+
+  def get_bot_url(self, token: str) -> Optional[str]:
+    if self.bot is not None:
+      return self.bot.invite_url(token)
+    return None
 
   def _start_periodic_fetching(self):
     """A function to periodically fetch updates."""
