@@ -302,8 +302,14 @@ def spread_cum_jumps(d, icu_to_first_input_date):
       for col in cols:
         if col in already_fixed_col:
           continue
-        beg_val = dg.loc[dg.date == beg, col].values[0]
-        end_val = dg.loc[dg.date == end, col].values[0]
+        beg_val = dg.loc[dg.date == beg, col]
+        if not len(beg_val):
+          continue
+        beg_val = beg_val.values[0]
+        end_val = dg.loc[dg.date == end, col]
+        if not len(end_val):
+          continue
+        end_val = end_val.values[0]
         diff = end_val - beg_val
         if diff >= SPREAD_CUM_JUMPS_MAX_JUMP[col]:
           spread_beg = dg.date.min()
