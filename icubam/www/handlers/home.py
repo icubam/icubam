@@ -54,13 +54,14 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
     self.regions = None
 
   def get_disclaimer_url(self):
-    """To show a disclaimer link if defined in configuration."""
-    if os.path.exists(self.config.server.disclaimer):
-      return "<a href='{}disclaimer'>disclaimer</a>".format(
-        self.config.server.base_url
-      )
-    else:
-      return ""
+    if self.config.server.has_key('disclaimer'):
+      path = self.config.server.disclaimer
+      # The user has already agreed, we skip.
+      if path is not None and os.path.exists(path):
+        return "<a href='{}disclaimer'>disclaimer</a>".format(
+          self.config.server.base_url
+        )
+    return ""
 
   @base.authenticated(code=503)
   def get(self):
