@@ -23,6 +23,7 @@ class DisclaimerHandler(base.BaseHandler):
 
   async def get(self):
     """Serves the page filled with the configuration specified file."""
-    html = self.get_disclaimer_html()
-    data = {'disclaimer': html}
-    self.render('disclaimer.html', **data)
+    if self.config.server.has_key('disclaimer'):
+      html = self.get_disclaimer_html()
+      data = {'disclaimer': html}
+      self.render('disclaimer.html', **data)
