@@ -218,12 +218,27 @@ def enforce_daily_values_for_all_icus(d):
      Each missing day in the series is imputed by forward-filling from
      the most recent day with data.
   """
-  dates = d.date.unique()
-  df = d.groupby('icu_name').apply(
-    lambda x: x.set_index(['date']).reindex(dates, method='ffill').reset_index(
-    )
-  )
-  return df
+  dates = np.sort(d.date.unique())
+
+  def reindex_icu(x):
+    # Process data for an ICU.
+
+    # For repeated entries per day, only keep the last entry.
+    # This is necessary as we cannot re-index indexes with duplicates.
+    x = x.drop_duplicates(['date'], keep='last')
+    # forward fill all missing values
+    x = x.set_index(['date']).reindex(dates, method='ffill').reset_index()
+    # backward fill categorical variables (that don't change with time)
+    cat_columns = ['icu_name', 'department', 'region']
+    x[cat_columns] = x[cat_columns].fillna(method='bfill')
+    # Set all other variables to 0 before first observation
+    int_columns = dataset.CUM_COLUMNS + dataset.NCUM_COLUMNS
+    x[int_columns] = x[int_columns].fillna(0)
+    # Leave all unknown variables as NaN
+    return x
+
+  df = d.groupby('icu_name').apply(reindex_icu)
+  return df.reset_index(drop=True)
 
 
 def spread_cum_jumps(d, icu_to_first_input_date):
