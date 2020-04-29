@@ -225,11 +225,11 @@ def enforce_daily_values_for_all_icus(d):
 
     # For repeated entries per day, only keep the last entry.
     # This is necessary as we cannot re-index indexes with duplicates.
-    x = x.drop_duplicates(['date'], keep='last')
+    x = x.sort_values('date').drop_duplicates(['date'], keep='first')
     # forward fill all missing values
     x = x.set_index(['date']).reindex(dates, method='ffill').reset_index()
     # backward fill categorical variables (that don't change with time)
-    cat_columns = ['icu_name', 'department', 'region']
+    cat_columns = ['icu_name', 'department', 'region', 'region_id']
     x[cat_columns] = x[cat_columns].fillna(method='bfill')
     # Set all other variables to 0 before first observation
     int_columns = dataset.CUM_COLUMNS + dataset.NCUM_COLUMNS
@@ -238,6 +238,9 @@ def enforce_daily_values_for_all_icus(d):
     return x
 
   df = d.groupby('icu_name').apply(reindex_icu)
+  # Reproduce behaviour of earlier versions of this function
+  df['datetime'] = df['date']
+  df['create_date'] = df['date']
   return df.reset_index(drop=True)
 
 
