@@ -1,6 +1,7 @@
 import json
 import tornado.testing
 from unittest import mock
+from urllib.parse import urlencode
 
 from icubam import config
 from icubam.backoffice import server
@@ -153,11 +154,7 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
         'long': 0.0000
       }
       self.assertIsNone(self.db.get_icu_by_name(data['name']))
-      response = self.fetch(
-        handler.ROUTE,
-        method='POST',
-        body='&'.join(f'{key}={val}' for key, val in data.items())
-      )
+      response = self.fetch(handler.ROUTE, method='POST', body=urlencode(data))
       # redirect to ListICUsHandler
       self.assertEqual(response.code, 302)
       self.assertIsNotNone(self.db.get_icu_by_name(data['name']))
@@ -167,48 +164,38 @@ class ServerTestCase(tornado.testing.AsyncHTTPTestCase):
     with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
       m.return_value = self.admin
 
-      data_email = 'test@test.org'
       data = {
         'external_client_id': '',
         'name': 'TestToken',
         'telephone': '00000000000',
-        'email': "test%40test.org",
+        'email': "test@test.org",
         'is_active': 'on',
         'access_type': 'ALL',
         'expiration_date': ''
       }
-      self.assertIsNone(self.db.get_external_client_by_email(data_email))
-      response = self.fetch(
-        handler.ROUTE,
-        method='POST',
-        body='&'.join(f'{key}={val}' for key, val in data.items())
-      )
+      self.assertIsNone(self.db.get_external_client_by_email(data['email']))
+      response = self.fetch(handler.ROUTE, method='POST', body=urlencode(data))
       # redirect to ListTokensHandler
       self.assertEqual(response.code, 302)
-      self.assertIsNotNone(self.db.get_external_client_by_email(data_email))
+      self.assertIsNotNone(self.db.get_external_client_by_email(data['email']))
 
   def test_post_user(self):
     handler = users.UserHandler
     with mock.patch.object(base.BaseHandler, 'get_current_user') as m:
       m.return_value = self.admin
 
-      data_email = 'test@test.org'
       data = {
         'user_id': '',
         'name': 'TestUser',
         'telephone': '00000000000',
         'is_active': 'on',
-        'email': "test%40test.org",
+        'email': "test@test.org",
         'password': 'test123',
-        'icus%5B%5D': '1',
-        'managed_icus%5B%5D': 1,
+        'icus[]': '1',
+        'managed_icus[]': 1,
       }
-      self.assertIsNone(self.db.get_user_by_email(data_email))
-      response = self.fetch(
-        handler.ROUTE,
-        method='POST',
-        body='&'.join(f'{key}={val}' for key, val in data.items())
-      )
+      self.assertIsNone(self.db.get_user_by_email(data['email']))
+      response = self.fetch(handler.ROUTE, method='POST', body=urlencode(data))
       # redirect to ListUserHandler
       self.assertEqual(response.code, 302)
-      self.assertIsNotNone(self.db.get_user_by_email(data_email))
+      self.assertIsNotNone(self.db.get_user_by_email(data['email']))
