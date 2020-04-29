@@ -28,10 +28,6 @@ default_locale='fr-fr'
   timeout = 2
   telegram_bot = "test_test_icu_bot"
   telegram_updates_every = 10
-  [messaging.prod]
-  PORT = 8889  # will be lower cased when reading.
-  base_url = "http://localhost:8889/"
-  timeout = 2
 
 [scheduler]
   max_retries = 3
