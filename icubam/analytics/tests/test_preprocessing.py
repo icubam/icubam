@@ -39,11 +39,11 @@ def test_enforce_daily_values_for_all_icus():
     "region_id": [1, 2, 1, 1, 1],
     "datetime":
     pd.to_datetime([
-      '2020-01-01', '2020-01-01', '2020-01-02', '2020-01-03', '2020-01-04'
+      '2020-01-01', '2020-01-02', '2020-01-02', '2020-01-03', '2020-01-04'
     ]),
     "create_date":
     pd.to_datetime([
-      '2020-01-01', '2020-01-01', '2020-01-02', '2020-01-03', '2020-01-04'
+      '2020-01-01', '2020-01-02', '2020-01-02', '2020-01-03', '2020-01-04'
     ]),
   })
   df_raw['date'] = df_raw["datetime"].dt.date
@@ -67,9 +67,9 @@ def test_enforce_daily_values_for_all_icus():
   )
   # For ICU B we fill missing days
   assert_allclose(
-    df.loc[df['icu_name'] == 'B', dataset.CUM_COLUMNS[0]].values, [1, 1, 1, 1]
+    df.loc[df['icu_name'] == 'B', dataset.CUM_COLUMNS[0]].values, [0, 1, 1, 1]
   )
   assert_allclose(
     df.loc[df['icu_name'] == 'B', dataset.NCUM_COLUMNS[0]].values,
-    [3, 3, 3, 3]
+    [0, 3, 3, 3]
   )
