@@ -66,6 +66,7 @@ def wipe_db(
       raise ValueError("admin_email and admin_pass must be defined")
     store._session.query(User).filter(User.is_admin == True
                                       ).update({'is_admin': False})
+    store._session.commit()
     hash = store.get_password_hash(admin_pass)
     store.add_user(
       User(name="admin", email=admin_email, password_hash=hash, is_admin=True)
