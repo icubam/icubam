@@ -278,6 +278,7 @@ def enforce_daily_values_for_all_icus(d):
 
 def spread_cum_jumps(d, icu_to_first_input_date):
   assert np.all(d.date.values == d.datetime.values)
+  # TODO: do not hardcode this value
   date_begin_transfered_refused = pd.to_datetime("2020-03-25").date()
   dfs = []
   for icu_name, dg in d.groupby("icu_name"):
