@@ -46,6 +46,10 @@ class UpdateProcessor:
     self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
     # TODO(olivier): replace with authenticator.
     self.token_encoder = token.TokenEncoder(self.config)
+
+    # The updater processor might register a user to the telegram messages.
+    # For this we need to set a field in the db and to update a user we need
+    # to pass along an admin id (see store.py).
     admins = self.db.get_admins()
     if admins:
       self.admin_id = admins[0].user_id

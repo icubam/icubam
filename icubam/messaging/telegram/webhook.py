@@ -4,7 +4,10 @@ import tornado.web
 
 
 class TelegramWebhook(tornado.web.RequestHandler):
-  """Receives updates from the telegram server directly."""
+  """Receives updates from the telegram server directly.
+  
+  See https://core.telegram.org/bots/webhooks for more details.
+  """
 
   ROUTE = '/telegram'
 
