@@ -1,4 +1,3 @@
-import itertools
 import logging
 
 import numpy as np
@@ -219,52 +218,12 @@ def enforce_daily_values_for_all_icus(d):
      Each missing day in the series is imputed by forward-filling from
      the most recent day with data.
   """
-  dates = sorted(list(d.date.unique()))
-  icu_names = sorted(list(d.icu_name.unique()))
-  new_data_points = list()
-  per_icu_prev_data_point = dict()
-  icu_name_to_dept = dict(
-    d.groupby(["icu_name", "department"]
-              ).first().reset_index()[["icu_name", "department"
-                                       ]].itertuples(name=None, index=False)
+  dates = d.date.unique()
+  df = d.groupby('icu_name').apply(
+    lambda x: x.set_index(['date']).reindex(dates, method='ffill').reset_index(
+    )
   )
-  icu_name_to_region = dict(
-    d.groupby(["icu_name", "region"]
-              ).first().reset_index()[["icu_name", "region"
-                                       ]].itertuples(name=None, index=False)
-  )
-  icu_name_to_region_id = dict(
-    d.groupby(["icu_name", "region_id"]
-              ).first().reset_index()[["icu_name", "region_id"
-                                       ]].itertuples(name=None, index=False)
-  )
-  for date, icu_name in itertools.product(dates, icu_names):
-    sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
-    sd = sd.sort_values(by="datetime")
-    new_data_point = {
-      "date": date,
-      "icu_name": icu_name,
-      "department": icu_name_to_dept[icu_name],
-      "region": icu_name_to_region[icu_name],
-      "region_id": icu_name_to_region_id[icu_name],
-      "datetime": date,
-      "create_date": date,
-    }
-    new_data_point.update({col: 0 for col in dataset.CUM_COLUMNS})
-    new_data_point.update({col: 0 for col in dataset.NCUM_COLUMNS})
-    if icu_name in per_icu_prev_data_point:
-      new_data_point.update({
-        col: per_icu_prev_data_point[icu_name][col]
-        for col in dataset.BEDCOUNT_COLUMNS
-      })
-    if len(sd) > 0:
-      new_data_point.update({
-        col: sd[col].iloc[-1]
-        for col in dataset.BEDCOUNT_COLUMNS
-      })
-    per_icu_prev_data_point[icu_name] = new_data_point
-    new_data_points.append(new_data_point)
-  return pd.DataFrame(new_data_points)
+  return df
 
 
 def spread_cum_jumps(d, icu_to_first_input_date):

@@ -55,6 +55,7 @@ def test_enforce_daily_values_for_all_icus():
   assert df_raw.shape == (5, 15)
 
   df = preprocessing.enforce_daily_values_for_all_icus(df_raw)
+  assert set(df.columns) == set(df_raw.columns)
   assert df.shape == (8, 15)
   # For ICU A the data is unchanged
   assert_allclose(
