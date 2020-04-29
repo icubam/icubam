@@ -1,7 +1,10 @@
 <html>
-  {{_("Hello")}} {{msg.user_name}},<br/>
+  <p>{{_("Hello")}} {{msg.user_name}},</p>
 
-  {{_("Here is")}} <a href=\"{{msg.url}}\">{{_("the link")}}</a>
-  {{_("to update your covid data on ICUBAM for")}}
-  {{msg.icu_name}}.
+  <p>
+    {{_("Here is")}} <a href=\"{{msg.url}}\">{{_("the link")}}</a>
+    {{_("to update your covid data on ICUBAM for")}} {{msg.icu_name}}.
+  </p>
+
+  <p>The ICUBAM team.</p>
 </html>
