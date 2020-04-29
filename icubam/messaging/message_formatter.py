@@ -25,9 +25,11 @@ class MessageFormatter:
     self.html_template = loader.load(self.HTML_TEMPLATE)
     self.text_template = loader.load(self.TEXT_TEMPLATE)
 
-  def format(self, msg):
+  def format(self, msg, may_renew_token=False):
     """Sets both the msg.text and msg.html members of the message."""
+    # TODO(olivier): use the updater to renew the token.
     locale = tornado.locale.get(msg.locale_code)
-    msg.html = self.html_template.generate(msg, locale=locale)
-    msg.text = self.text_template.generate(msg, locale=locale)
-    print(msg.html)
+    html = self.html_template.generate(msg=msg, _=locale.translate)
+    msg.html = html.decode()
+    text = self.text_template.generate(msg=msg, _=locale.translate)
+    msg.text = text.decode()
