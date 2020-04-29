@@ -1,14 +1,4 @@
 class Message:
-
-  TEMPLATE = (
-    "Bonjour {user},\nvoici le lien à suivre pour mettre à jour les"
-    " données covid de {icu} sur ICUBAM: {link}"
-  )
-  HTML = (
-    "Bonjour {user},<br/>voici le <a href=\"{link}\">lien à suivre pour mettre"
-    " à jour les données covid de {icu} sur ICUBAM</a>"
-  )
-
   def __init__(self, icu, user, url: str):
     self.icu_id = icu.icu_id
     self.phone = user.telephone
@@ -18,12 +8,15 @@ class Message:
     self.user_name = user.name
     self.icu_name = icu.name
     self.url = url
-    self.text = self.TEMPLATE.format(
-      user=self.user_name, icu=self.icu_name, link=url
-    )
-    self.html = self.HTML.format(
-      user=self.user_name, icu=self.icu_name, link=url
-    )
+
+    # TODO(olivier): have this in the region.
+    self.locale_code = 'fr'
+
+    # Those are filled at send time by the MessageFormatter
+    self.text = ""
+    self.html = ""
+
+    # Members used by the scheduler.
     self.attempts = 0
     self.first_sent = None
 

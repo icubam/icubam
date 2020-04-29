@@ -1,8 +1,10 @@
 from absl import logging
 
+from icubam.messaging import message_formatter
 from icubam.messaging import sms_sender
 from icubam.messaging.telegram import integrator
 from icubam.messaging import email_sender
+from icubam.www import updater
 
 
 class Sender:
@@ -16,6 +18,9 @@ class Sender:
     self.config = config
     self.db = db
     self.queue = queue
+    self.formatter = message_formatter.MessageFormatter(
+      updater.Updater(config, db)
+    )
 
     try:
       self.sms_sender = sms_sender.get(config)
@@ -45,6 +50,7 @@ class Sender:
 
   async def send(self, msg, user) -> bool:
     """Sends the message to a single user."""
+    self.formatter.format(msg)
     if self.telegram_bot is not None and user.telegram_chat_id is not None:
       await self.telegram_bot.send(user.telegram_chat_id, msg.html)
       return True
