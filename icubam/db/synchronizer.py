@@ -192,7 +192,7 @@ class CSVSynchronizer(StoreSynchronizer):
     return users_df.shape[0]
 
   def sync_bedcounts_from_csv(
-    self, csv_contents: TextIO, force_update=False, timezone="UTC"
+    self, csv_contents: TextIO, force_update=False
   ) -> int:
     """Check that columns correspond, insert into a DF and synchronize."""
     bedcounts_df = pd.read_csv(csv_contents)
@@ -200,9 +200,8 @@ class CSVSynchronizer(StoreSynchronizer):
     if len(col_diff) > 0:
       raise ValueError(f"Missing columns in input data: {col_diff}.")
     # Parse datetime and convert to UTC:
-    bedcounts_df['create_date'] = pd.to_datetime(
-      bedcounts_df['create_date']
-    ).dt.tz_localize(timezone).dt.tz_convert(tz.tzutc())
+    bedcounts_df['create_date'] = pd.to_datetime(bedcounts_df['create_date']
+                                                 ).dt.tz_convert(tz.tzutc())
     self.sync_bed_counts(bedcounts_df, force_update)
     return bedcounts_df.shape[0]
 

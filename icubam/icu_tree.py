@@ -139,16 +139,29 @@ class ICUTree:
     self._get_leaves(nodes)
     return nodes
 
-  def _extract_below(self, level, nodes):
-    if self.level == level:
-      nodes.append((self, self.get_leaves()))
-    else:
-      for child in self.children.values():
-        child._extract_below(level, nodes)
+  def _extract_below(self, level, nodes, keep_empty=False, max_nodes=None):
+    target = self.LEVELS.index(level)
+    curr = self.LEVELS.index(self.level)
 
-  def extract_below(self, level):
+    recurse = curr < target
+    if not recurse:
+      leaves = [n for n in self.get_leaves() if (n.total > 0 or keep_empty)]
+      if max_nodes is not None and len(leaves) > max_nodes:
+        recurse = True
+      else:
+        nodes.append((self, leaves))
+
+    if recurse:
+      for child in self.children.values():
+        child._extract_below(
+          level, nodes, keep_empty=keep_empty, max_nodes=max_nodes
+        )
+
+  def extract_below(self, level, keep_empty=False, max_nodes=10):
     """Returns a list of tuples, where the first element is the cluster info
     and the second one are all the icus in the cluster."""
     nodes = []
-    self._extract_below(level, nodes)
+    self._extract_below(
+      level, nodes, keep_empty=keep_empty, max_nodes=max_nodes
+    )
     return nodes

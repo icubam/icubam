@@ -36,7 +36,10 @@ class ListICUsHandler(base.BaseHandler):
 
     data = [self.prepare_for_table(icu) for icu in icus]
     return self.render_list(
-      data=data, objtype='ICUs', create_handler=ICUHandler, upload=True
+      data=data,
+      objtype=base.ObjType.ICUS,
+      create_handler=ICUHandler,
+      upload=True
     )
 
 
@@ -51,8 +54,8 @@ class ICUHandler(base.BaseHandler):
     regions.sort(key=lambda r: r.name)
 
     icus = self.db.get_managed_icus(self.current_user.user_id)
-    depts = sorted(set([i.dept for i in icus]))
-    cities = sorted(set([i.city for i in icus]))
+    depts = sorted(set([i.dept for i in icus if i.dept is not None]))
+    cities = sorted(set([i.city for i in icus if i.city is not None]))
     icu = icu if icu is not None else store.ICU()
     if icu.is_active is None:
       icu.is_active = True

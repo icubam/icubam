@@ -2,7 +2,28 @@ import json
 import os.path
 import tornado.locale
 import tornado.web
+from enum import Enum, unique
 from typing import List, Dict, Union, Optional
+
+
+@unique
+class ObjType(Enum):
+  ICUS = 1
+  BEDCOUNTS = 2
+  MESSAGES = 3
+  REGIONS = 4
+  USERS = 5
+  TOKENS = 6
+
+  def __str__(self):
+    return {
+      self.ICUS: "ICUs",
+      self.BEDCOUNTS: "Bed Counts",
+      self.MESSAGES: "Scheduled Messages",
+      self.REGIONS: "Regions",
+      self.USERS: "Users",
+      self.TOKENS: "Access Tokens",
+    }[self]
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -30,14 +51,14 @@ class BaseHandler(tornado.web.RequestHandler):
     self, data, objtype, create_handler=None, upload=False, **kwargs
   ):
     route = None if create_handler is None else create_handler.ROUTE
-    upload_type = route if upload else None
+    upload_type = objtype.name if upload else None
     item = data[0] if data else []
     columns = json.dumps([x['key'] for x in item])
     return self.render(
       "list.html",
       data=data,
       columns=columns,
-      objtype=objtype,
+      objtype=str(objtype),
       create_route=route,
       upload_type=upload_type,
       **kwargs

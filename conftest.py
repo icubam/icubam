@@ -1,3 +1,4 @@
+from time import sleep
 from pathlib import Path
 from subprocess import call
 
@@ -15,6 +16,12 @@ def pytest_addoption(parser):
     default=None,
     help="Path to ICUBAM config for integration tests"
   )
+  parser.addoption(
+    "--run-server",
+    action="store_true",
+    default=False,
+    help="Start all ICUBAM services"
+  )
 
 
 @pytest.fixture(scope="session")
@@ -26,9 +33,7 @@ def integration_config(request, tmpdir_factory):
   config = Config(config_path)
   db_path = Path(config.db.sqlite_path)
   if not db_path.exists():
-    pytest.skip(
-      f'skipping integration tests as could not find DB at {db_path}.'
-    )
+    raise ValueError(f'could not find DB at {db_path} for integration tests.')
 
   db_path_new = str(tmpdir_factory.mktemp('tmpdir_factory').join("icubam.db"))
 
@@ -39,6 +44,24 @@ def integration_config(request, tmpdir_factory):
   assert config.db.sqlite_path == db_path_new
   assert Path(config.db.sqlite_path).exists()
   return config
+
+
+@pytest.fixture(scope="session")
+def icubam_services_fx(request, tmpdir_factory, integration_config):
+  processes = []
+  # Make sure JWT_SECRET env variable is defined, otherwise messaging
+  # server won't start.
+  assert integration_config.JWT_SECRET
+
+  if request.config.getoption("--run-server"):
+    from icubam.cli import run_server
+    processes = run_server(integration_config, server="all")
+    # Let services start
+    sleep(3)
+  yield
+  for p in processes:
+    if p.is_alive():
+      p.terminate()
 
 
 def pytest_configure(config):

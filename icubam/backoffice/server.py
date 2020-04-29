@@ -9,12 +9,12 @@ import tornado.locale
 import tornado.web
 from absl import logging  # noqa: F401
 
-from icubam import base_server, utils
+from icubam import base_server, sentry
 from icubam.backoffice.handlers import (
   bedcounts, consent, home, icus, login, logout, maps, messages,
   operational_dashboard, regions, tokens, upload, users
 )
-from icubam.predicu.analytics_server import register_analytics_callback
+from icubam.analytics.analytics_server import register_analytics_callback
 
 
 @dataclasses.dataclass
@@ -32,7 +32,7 @@ class BackofficeApplication(tornado.web.Application):
     self.db_factory = db_factory
     self.server_status = collections.defaultdict(ServerStatus)
     self.client = tornado.httpclient.AsyncHTTPClient()
-    utils.maybe_init_sentry(config, server_name='backoffice')
+    sentry.maybe_init_sentry(config, server_name='backoffice')
     super().__init__(routes, **settings)
 
     repeat_every = self.config.backoffice.ping_every * 1000

@@ -19,9 +19,6 @@ flags.DEFINE_string(
 flags.DEFINE_string(
   "bedcounts_csv", None, "Path to csv file containing bedcounts data."
 )
-flags.DEFINE_string(
-  "timezone", "UTC", "Timezone in which dates should be interpreted."
-)
 
 FLAGS = flags.FLAGS
 
@@ -45,9 +42,7 @@ def main(args=None):
   if FLAGS.bedcounts_csv:
     print(f"Loading bedcounts CSV from: {FLAGS.bedcounts_csv}")
     with open(FLAGS.bedcounts_csv) as bedcounts_f:
-      csv.sync_bedcounts_from_csv(
-        bedcounts_f, FLAGS.force_update, timezone=FLAGS.timezone
-      )
+      csv.sync_bedcounts_from_csv(bedcounts_f, FLAGS.force_update)
 
 
 if __name__ == "__main__":

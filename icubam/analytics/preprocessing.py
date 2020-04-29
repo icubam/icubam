@@ -1,14 +1,10 @@
-import json
+import itertools
 import logging
-from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from icubam.predicu.data import (
-  ALL_COLUMNS, BEDCOUNT_COLUMNS, CUM_COLUMNS, DATA_PATHS, NCUM_COLUMNS,
-  format_data
-)
+from icubam.analytics import dataset
 
 SPREAD_CUM_JUMPS_MAX_JUMP = {
   "n_covid_deaths": 10,
@@ -18,75 +14,69 @@ SPREAD_CUM_JUMPS_MAX_JUMP = {
 }
 
 
-def preprocess_data(
-  data_source: str, data: pd.DataFrame, **kwargs
-) -> pd.DataFrame:
-  """Generic data processing function
-
-  Calls specialized preprocess_* depending on the data_source
-
-  Args:
-    data_source: type of data to preprocess
-    data : DataFrame with data
-  """
-  preprocessor = PREPROCESSORS.get(data_source, None)
-  if preprocessor is None:
-    return data
-
-  res = preprocessor(data, **kwargs)
-  return res
+def format_data(d: pd.DataFrame) -> pd.DataFrame:
+  d["datetime"] = pd.to_datetime(d["create_date"])
+  d["date"] = d["datetime"].dt.date
+  d["department"] = d["icu_dept"]
+  d["region"] = d["icu_region_name"]
+  d["region_id"] = d["icu_region_id"]
+  d = d[dataset.ALL_COLUMNS]
+  return d
 
 
 def preprocess_bedcounts(
-  d,
-  spread_cum_jump_correction=False,
-  max_date=None,
-  restrict_to_region: Optional[str] = None,
-  full: bool = True
+  d: pd.DataFrame,
+  spread_cum_jump_correction: bool = False,
+  max_date: bool = None,
 ) -> pd.DataFrame:
-  """Preprocess bedcounts data
+  """This will process the bedcounts data to make analysis easier.
+
+  There are five steps to the processing;
+  1) Run a low-pass filter over all timeseries to remove single spikes that
+     generally represent a data entry error.
+  2) Aggregate the timeseries into their closest T-min intervals (T=15).
+     This helps remove repeate updates, and takes the most recent update 
+     for a T-min window, such that if there was a correction to bad data
+     that will be the only value for that time window.
+  3) Guarantee monotonicity on cumulative counts by replacing any decreasing
+     values in the timeseries with their previous count: x_t = max(x_t, x_{t+1}).
+  4) Imput missing data with two strategies: For holes > 3 days, impute data 
+     by linearly interpolating between the two end-points of the missing set
+     Subsequently, guarantee that each ICU has data for the whole timeseries,
+     either by forward-propagating data at day t for impution, or setting to 0 for 
+     days before the ICU started its data collection.
+  5) (Optional) Spread out sudden jumps in data that reflect onboardings or
+     change in reporting habit.
   
   Args:
-    full : perform full preprocessing.
-      full=False was previously done in load_icubam
-      full=True was is the result of both load_icubam and load_bedcounts
-      preprocessing
+    spread_cum_jump_correction : Whether to apply step 4) to the data.
+    max_date : Only return data up to this date.
   """
-
-  if restrict_to_region is not None:
-    if restrict_to_region == 'Grand-Est':
-      region_id = 1
-      d = d.loc[d.icu_region_id == region_id]
-    else:
-      raise NotImplementedError
-  d = d.rename(columns={"create_date": "date", "icu_dept": "department"})
-  d.loc[d.icu_name == "St-Dizier", "department"] = "Haute-Marne"
-  with open(DATA_PATHS["department_typo_fixes"]) as f:
-    department_typo_fixes = json.load(f)
-  for wrong_name, right_name in department_typo_fixes.items():
-    d.loc[d.department == wrong_name, "department"] = right_name
-  d["region"] = d.icu_region_id
+  # Extract useful columns and recast date properly:
   d = format_data(d)
-  if not full:
-    return d
+  d = d.fillna(0)
 
-  d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
-    (
-      d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] -
-      d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_transfered"]
-    ).values,
-    a_min=0,
-    a_max=None,
-  )
+  if "Mulhouse-Chir" in d.icu_name.unique():
+    d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] = np.clip(
+      (
+        d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_healed"] -
+        d.loc[d.icu_name == "Mulhouse-Chir", "n_covid_transfered"]
+      ).values,
+      a_min=0,
+      a_max=None,
+    )
   icu_to_first_input_date = dict(
     d.groupby("icu_name")[["date"]].min().itertuples(name=None)
   )
+  # Apply steps 1) 2) & 3)
   d = aggregate_multiple_inputs(d, "15Min")
+  # Step 3)
   d = fill_in_missing_days(d, "3D")
   d = enforce_daily_values_for_all_icus(d)
+  # Step 4)
   if spread_cum_jump_correction:
     d = spread_cum_jumps(d, icu_to_first_input_date)
-  d = d[ALL_COLUMNS]
+  d = d[dataset.ALL_COLUMNS]
   d = d.sort_values(by=["date", "icu_name"])
 
   if max_date is not None:
@@ -96,6 +86,11 @@ def preprocess_bedcounts(
 
 
 def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
+  """Aggregate the timeseries into time bins.
+
+  This will aggregate the timeseries into regular time intervals, and use the
+  most recent update prior to time t to populate the bin at time t.
+  """
   res_dfs = []
   for icu_name, dg in d.groupby("icu_name"):
     dg = dg.set_index("datetime")
@@ -105,26 +100,34 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
     mask = mask.shift(-1).fillna(True).astype(bool)
     dg = dg.loc[mask]
 
-    # rolling median average, 5 points (for cumulative qtities)
-    dg[CUM_COLUMNS] = (
-      dg[CUM_COLUMNS].rolling(5, center=True,
-                              min_periods=1).median().astype(int)
-    )
+    # This will run low-pass filters to remove spurious outliers:
+    # Rolling median average, 5 points (for cumulative qtities):
+    # breakpoint()
+    for col in dataset.CUM_COLUMNS:
+      dg[col] = (
+        dg[col].rolling(5, center=True, min_periods=1).median().astype(int)
+      )
 
-    # rolling median average, 3 points (for non-cumulative qtities)
-    dg[NCUM_COLUMNS] = (
-      dg[NCUM_COLUMNS].fillna(0).rolling(3, center=True,
-                                         min_periods=1).median().astype(int)
-    )
+    # Rolling median average, 3 points (for non-cumulative qtities):
+    for col in dataset.NCUM_COLUMNS:
+      dg[col] = dg[col].fillna(0)
+      dg[col] = (
+        dg[col].rolling(3, center=True, min_periods=1).median().astype(int)
+      )
 
-    # force cummulative values to be montonically increasing
-    dg[CUM_COLUMNS] = np.maximum.accumulate(dg[CUM_COLUMNS].values, axis=0)
+    # Force cumulative columns to be monotonic by bringing any decreases in
+    # the value up to their previous values i.e. x_t = max(x_t, x_{t-1}):
+    dg[dataset.CUM_COLUMNS
+       ] = np.maximum.accumulate(dg[dataset.CUM_COLUMNS].values, axis=0)
 
     res_dfs.append(dg.reset_index())
   return pd.concat(res_dfs)
 
 
 def fill_in_missing_days(d, time_delta_threshold="3D"):
+  """Group the timeseries into days, and impute data linearly for holes
+     in the data superior to 3 days.
+  """
   res_dfs = []
 
   for icu_name, dg in d.groupby("icu_name"):
@@ -211,6 +214,13 @@ def fill_in_missing_days(d, time_delta_threshold="3D"):
 
 
 def enforce_daily_values_for_all_icus(d):
+  """Guarantee that each ICU has a continuous daily timeseries.
+     
+     Each missing day in the series is imputed by forward-filling from
+     the most recent day with data.
+  """
+  dates = sorted(list(d.date.unique()))
+  icu_names = sorted(list(d.icu_name.unique()))
   new_data_points = list()
   per_icu_prev_data_point = dict()
   icu_name_to_dept = dict(
@@ -223,26 +233,34 @@ def enforce_daily_values_for_all_icus(d):
               ).first().reset_index()[["icu_name", "region"
                                        ]].itertuples(name=None, index=False)
   )
-  for (date, icu_name), sd in d.groupby(['date', 'icu_name']):
+  icu_name_to_region_id = dict(
+    d.groupby(["icu_name", "region_id"]
+              ).first().reset_index()[["icu_name", "region_id"
+                                       ]].itertuples(name=None, index=False)
+  )
+  for date, icu_name in itertools.product(dates, icu_names):
+    sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
     sd = sd.sort_values(by="datetime")
     new_data_point = {
       "date": date,
       "icu_name": icu_name,
       "department": icu_name_to_dept[icu_name],
       "region": icu_name_to_region[icu_name],
+      "region_id": icu_name_to_region_id[icu_name],
       "datetime": date,
+      "create_date": date,
     }
-    new_data_point.update({col: 0 for col in CUM_COLUMNS})
-    new_data_point.update({col: 0 for col in NCUM_COLUMNS})
+    new_data_point.update({col: 0 for col in dataset.CUM_COLUMNS})
+    new_data_point.update({col: 0 for col in dataset.NCUM_COLUMNS})
     if icu_name in per_icu_prev_data_point:
       new_data_point.update({
         col: per_icu_prev_data_point[icu_name][col]
-        for col in BEDCOUNT_COLUMNS
+        for col in dataset.BEDCOUNT_COLUMNS
       })
     if len(sd) > 0:
       new_data_point.update({
         col: sd[col].iloc[-1]
-        for col in BEDCOUNT_COLUMNS
+        for col in dataset.BEDCOUNT_COLUMNS
       })
     per_icu_prev_data_point[icu_name] = new_data_point
     new_data_points.append(new_data_point)
@@ -258,7 +276,7 @@ def spread_cum_jumps(d, icu_to_first_input_date):
     dg = dg.reset_index()
     already_fixed_col = set()
     for switch_point, cols in (
-      (icu_to_first_input_date[icu_name], CUM_COLUMNS),
+      (icu_to_first_input_date[icu_name], dataset.CUM_COLUMNS),
       (
         date_begin_transfered_refused,
         ["n_covid_transfered", "n_covid_refused"],
@@ -296,6 +314,25 @@ def spread_cum_jumps(d, icu_to_first_input_date):
           )
           already_fixed_col.add(col)
     dfs.append(dg)
+  return pd.concat(dfs)
+
+
+def compute_flow(d, col_prefix="n_covid"):
+  sum_cols = set(dataset.CUM_COLUMNS +
+                 [f"{col_prefix}_occ"]) - {f"{col_prefix}_refused"}
+  summed = d[sum_cols].sum(axis=1)
+  flow = summed.diff(1).fillna(0)
+  flow.iloc[0] = summed.iloc[0]
+  return flow
+
+
+def compute_flow_per_dpt(data, groupby, col_prefix="n_covid"):
+  dfs = []
+  for dpt, d in data.groupby(groupby):
+    d = d.sort_values(by="date")
+    d["flow"] = compute_flow(d, col_prefix)
+    d["cum_flow"] = d.flow.cumsum()
+    dfs.append(d)
   return pd.concat(dfs)
 
 
