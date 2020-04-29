@@ -59,12 +59,14 @@ def wipe_db(
     ALTERATIONS[BedCount].update({"n_covid_free": 2, "n_covid_occ": 4})
   for alteration in ALTERATIONS.items():
     store._session.query(alteration[0]).update(values=alteration[1])
+  store._session.commit()
 
   if reset_admin:
     if None in [admin_email, admin_pass]:
       raise ValueError("admin_email and admin_pass must be defined")
     store._session.query(User).filter(User.is_admin == True
                                       ).update({'is_admin': False})
+    store._session.commit()
     hash = store.get_password_hash(admin_pass)
     store.add_user(
       User(name="admin", email=admin_email, password_hash=hash, is_admin=True)
