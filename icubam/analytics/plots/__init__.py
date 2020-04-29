@@ -72,9 +72,13 @@ def plot_int(
   fill_below=False,
   kind="quadratic"
 ):
-  f = scipy.interpolate.interp1d(x, y, kind=kind)
-  x_i = np.linspace(0, len(x) - 1, len(x) * 5)
-  y_i = f(x_i)
+  if len(x) > 1:
+    f = scipy.interpolate.interp1d(x, y, kind=kind)
+    x_i = np.linspace(0, len(x) - 1, len(x) * 5)
+    y_i = f(x_i)
+  else:
+    x_i = x
+    y_i = y
   if marker is not None:
     ax.scatter(x, y, marker=marker, color=color)
   if fill_below:

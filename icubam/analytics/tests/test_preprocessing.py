@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-import sqlalchemy as sqla
+import sqlalchemy
 
 from icubam.analytics import dataset, preprocessing
 from icubam.db import store
@@ -10,7 +10,7 @@ from icubam.db.fake import populate_store_fake
 @pytest.fixture
 def fake_db():
   store_factory = store.StoreFactory(
-    sqla.create_engine("sqlite:///:memory:", echo=False)
+    sqlalchemy.create_engine("sqlite:///:memory:", echo=False)
   )
   db = store_factory.create()
   populate_store_fake(db)
