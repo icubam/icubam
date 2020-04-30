@@ -89,6 +89,7 @@ class Authenticator:
     if len(token_str) == store.UserICUToken.TOKEN_SIZE:
       user_icu = self.decode_from_db(token_str)
     else:
+      logging.info("Decoding an old-fashioned token.")
       user_icu = self.decode_from_jwt(token_str)
     return user_icu
 
