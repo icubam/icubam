@@ -73,6 +73,9 @@ def plot_int(
   fill_below=False,
   kind="quadratic"
 ):
+  if len(x) <= 1:
+    # Linear interpolation requires at least 2 entries
+    kind = "zero"
   f = scipy.interpolate.interp1d(x, y, kind=kind)
   x_i = np.linspace(0, len(x) - 1, len(x) * 5)
   y_i = f(x_i)
