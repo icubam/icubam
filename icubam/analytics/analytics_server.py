@@ -2,9 +2,8 @@ from pathlib import Path
 
 from absl import logging  # noqa: F401
 
+from icubam.analytics import dataset, plots, preprocessing
 from icubam.config import Config
-from icubam.db.store import to_pandas
-from icubam.predicu.plot import generate_plots
 
 
 class AnalyticsCallback:
@@ -13,13 +12,13 @@ class AnalyticsCallback:
     self.db_factory = db_factory
 
   async def generate_plots(self):
-    db = self.db_factory.create()
-    df_bedcounts = to_pandas(db.get_bed_counts())
+    df_bedcounts = dataset.load_bed_counts(self.db_factory.create())
+    df_bedcounts = preprocessing.preprocess_bedcounts(df_bedcounts)
     logging.info('[periodic callback] Starting plots generation with predicu')
-    cached_data = {'bedcounts': df_bedcounts}
-    generate_plots(
-      plots=["flux_dept_lits_dept_visu_4panels"],
-      cached_data=cached_data,
+    plot_data = {'bedcounts': df_bedcounts}
+    plots.generate_plots(
+      plots=["barplot_beds_per", "barplot_flow_per", "lineplot_beds_per"],
+      data=plot_data,
       output_dir=self.output_dir
     )
     logging.info('[periodic callback] Finished plots generation with predicu')
@@ -32,8 +31,8 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     extra_plots_dir = Path(extra_plots_dir)
 
   if config.backoffice.extra_plots_make_every <= 0:
-    logging.warn(
-      f"analytics callback not started, as extra_plots_make_every"
+    logging.warning(
+      f"Analytics callback not started, as extra_plots_make_every"
       f"={config.backoffice.extra_plots_make_every}"
     )
     return
@@ -43,8 +42,8 @@ def register_analytics_callback(config: Config, db_factory, ioloop) -> None:
     extra_plots_dir is None or
     not (extra_plots_dir.exists() or extra_plots_dir.parent.exists())
   ):
-    logging.warn(
-      f'predicu plots not generated, as extra_plots_dir '
+    logging.warning(
+      f'Predicu plots not generated, as extra_plots_dir '
       f'is not valid directory: {extra_plots_dir}'
     )
   else:
