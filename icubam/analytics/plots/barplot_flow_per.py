@@ -42,7 +42,7 @@ def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
   return ax
 
 
-def gen_plot(data, groupby='department', **kwargs):
+def gen_plot(data, groupby='department', figsize=(7, 4), **kwargs):
   agg = {col: "sum" for col in dataset.BEDCOUNT_COLUMNS}
   groups = sorted(data[groupby].unique())
   GROUP_COLORS = {
@@ -59,7 +59,7 @@ def gen_plot(data, groupby='department', **kwargs):
   # Set plotting to 'flow':
   col = 'flow'
   # Start plotting!
-  fig, ax = plt.subplots(1, figsize=(7, 4))
+  fig, ax = plt.subplots(1, figsize=figsize, constrained_layout=True)
   # Iterate over dates:
   for i, (date,
           d_date) in enumerate(data.sort_values(by="date").groupby("date")):

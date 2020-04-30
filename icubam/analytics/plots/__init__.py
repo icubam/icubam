@@ -157,6 +157,7 @@ def generate_plots(
       plot_data=data,
       output_type=output_type,
       output_dir=output_dir,
+      figsize=(10, 6)
     )
 
 
