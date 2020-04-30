@@ -19,7 +19,7 @@ data_source = ["bedcounts"]
 def plot(data, **kwargs):
   return {
     **plots.plot_each_region(
-      data, gen_plot, f"{FIG_NAME}_7D", days_ago=8, **kwargs
+      data, gen_plot, f"{FIG_NAME}_14D", days_ago=15, **kwargs
     ),
     **plots.plot_each_region(data, gen_plot, FIG_NAME, **kwargs)
   }

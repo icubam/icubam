@@ -108,17 +108,17 @@
                 <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
                     <div class="row align-items-center extra-plots">
                         <div class="col-sm-6 figure">
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW', region_id=region_id, region=region_name) }}" />
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW_14D', region_id=region_id, region=region_name) }}" />
                         </div>
                         <div class="col-sm-6 figure">
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_COVID', region_id=region_id, region=region_name) }}" />
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_14D_COVID', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
                     <div class="row align-items-center extra-plots">
                         <div class="col-sm-6 figure">
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_NCOVID', region_id=region_id, region=region_name) }}" />
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_14D_NCOVID', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
                 </div>
