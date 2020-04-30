@@ -4,11 +4,11 @@ import pytest
 import sqlalchemy
 
 import icubam.db.store as db_store
-from icubam.db.fake import populate_store_fake
+from icubam.analytics import dataset
+from icubam.analytics.image_url_mapper import ImageURLMapper
 from icubam.analytics.plots import PLOTS, generate_plots
 from icubam.analytics.preprocessing import preprocess_bedcounts
-from icubam.analytics.image_url_mapper import ImageURLMapper
-from icubam.analytics import dataset
+from icubam.db.fake import populate_store_fake
 
 
 @pytest.fixture
@@ -39,6 +39,8 @@ def check_generate_plots(name, db, output_dir):
     assert (output_dir / img_map.make_path('CUM_FLOW_14D')).exists()
   elif name == "lineplot_beds_per":
     assert (output_dir / img_map.make_path('LINE_BEDS_PER_14D_COVID')).exists()
+  elif name == "barplot_beds_per":
+    assert (output_dir / img_map.make_path('BAR_BEDS_PER_7D_COVID+')).exists()
   else:
     raise ValueError
 
@@ -59,8 +61,6 @@ def test_fake_generate_plots(name, tmpdir, fake_db):
       output_dir /
       (img_map.make_path('LINE_BEDS_PER_COVID', region_id=1, region='Paris'))
     ).exists()
-  else:
-    raise ValueError
 
 
 @pytest.mark.integration

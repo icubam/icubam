@@ -59,6 +59,12 @@ COL_COLOR.update({
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("bright", 10))
 
+PLOTS = []
+for path in os.listdir(os.path.dirname(__file__)):
+  if path.endswith(".py") and path != "__init__.py":
+    plot_name = path.rsplit(".", 1)[0]
+    PLOTS.append(plot_name)
+
 
 def plot_int(
   x,
@@ -89,11 +95,21 @@ def plot_int(
   return ax
 
 
-PLOTS = []
-for path in os.listdir(os.path.dirname(__file__)):
-  if path.endswith(".py") and path != "__init__.py":
-    plot_name = path.rsplit(".", 1)[0]
-    PLOTS.append(plot_name)
+def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
+  """Draws a single rectangle patch for a cumulative bar plot."""
+  rect_patch = matplotlib.patches.Rectangle(
+    xy=(x, start),
+    width=1,
+    height=abs(end),
+    fill=True,
+    linewidth=0.7,
+    edgecolor="black",
+    hatch=hatch,
+    facecolor=GROUP_COLORS[label],
+    label=label,
+  )
+  ax.add_patch(rect_patch)
+  return ax
 
 
 def plot(
