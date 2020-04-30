@@ -1,4 +1,4 @@
-from icubam.predicu.analytics_server import register_analytics_callback
+from icubam.analytics.analytics_server import register_analytics_callback
 from icubam.config import Config
 
 
