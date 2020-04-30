@@ -14,7 +14,7 @@ class ImageURLMapper:
     plot_name,
     region_id: Optional[int] = None,
     region: Optional[str] = None,
-    extension: Optional[str] = None
+    extension: Optional[str] = 'png'
   ) -> str:
     """Map a query to a file path"""
     tokens = []

@@ -7,6 +7,7 @@ import icubam.db.store as db_store
 from icubam.db.fake import populate_store_fake
 from icubam.analytics.plots import PLOTS, generate_plots
 from icubam.analytics.preprocessing import preprocess_bedcounts
+from icubam.analytics.image_url_mapper import ImageURLMapper
 from icubam.analytics import dataset
 
 
@@ -33,10 +34,11 @@ def check_generate_plots(name, db, output_dir):
   assert data['bedcounts'].shape[0] > 0
   generate_plots(plots=[name], output_dir=output_dir, data=data)
   output_dir = Path(output_dir)
+  img_map = ImageURLMapper()
   if name == "barplot_flow_per":
-    assert (output_dir / "National-CUM_FLOW_7D.png").exists()
+    assert (output_dir / img_map.make_path('CUM_FLOW_7D')).exists()
   elif name == "lineplot_beds_per":
-    assert (output_dir / 'National-LINE_BEDS_PER_14D_COVID.png').exists()
+    assert (output_dir / img_map.make_path('LINE_BEDS_PER_14D_COVID')).exists()
   else:
     raise ValueError
 
@@ -46,10 +48,16 @@ def test_fake_generate_plots(name, tmpdir, fake_db):
   output_dir = str(tmpdir.mkdir("out"))
   check_generate_plots(name, fake_db, output_dir)
   output_dir = Path(output_dir)
+  img_map = ImageURLMapper()
   if name == "barplot_flow_per":
-    assert (output_dir / "region_id=1-Paris-CUM_FLOW.png").exists()
+    assert (
+      output_dir / img_map.make_path('CUM_FLOW', region_id=1, region='Paris')
+    ).exists()
   elif name == "lineplot_beds_per":
-    assert (output_dir / 'region_id=1-Paris-LINE_BEDS_PER_COVID.png').exists()
+    assert (
+      output_dir /
+      (img_map.make_path('LINE_BEDS_PER_COVID', region_id=1, region='Paris'))
+    ).exists()
   else:
     raise ValueError
 

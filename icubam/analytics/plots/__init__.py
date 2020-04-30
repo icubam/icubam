@@ -177,16 +177,16 @@ def plot_each_region(data, gen_plot, fig_name, **kwargs):
                  pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
   figs = {}
   # Generate a national plot:
-  fig_name = ImageURLMapper.make_path(fig_name)
-  figs[fig_name] = gen_plot(data, groupby='region', **kwargs)
+  name = ImageURLMapper.make_path(fig_name, extension=None)
+  figs[name] = gen_plot(data, groupby='region', **kwargs)
 
   # And now regional plots:
   for region in regions:
     region_id = data[data['region'] == region]['region_id'].iloc[0]
     region_data = data[data['region'] == region]
-    fig_name = ImageURLMapper.make_path(
-      fig_name, region_id=region_id, region=region
+    name = ImageURLMapper.make_path(
+      fig_name, region_id=region_id, region=region, extension=None
     )
-    figs[fig_name] = gen_plot(region_data, groupby='department', **kwargs)
+    figs[name] = gen_plot(region_data, groupby='department', **kwargs)
 
   return figs
