@@ -1,8 +1,8 @@
 from absl import logging
 from typing import Dict
 
+from icubam import authenticator
 from icubam.messaging.telegram import bot
-from icubam.www import token
 
 
 class UpdateFetcher:
@@ -44,8 +44,7 @@ class UpdateProcessor:
     self.queue = queue
     self.scheduler = scheduler
     self.bot = bot.TelegramBot(config) if tg_bot is None else tg_bot
-    # TODO(olivier): replace with authenticator.
-    self.token_encoder = token.TokenEncoder(self.config)
+    self.authenticator = authenticator.Authenticator(self.config, self.db)
 
     # The updater processor might register a user to the telegram messages.
     # For this we need to set a field in the db and to update a user we need
@@ -86,13 +85,14 @@ class UpdateProcessor:
       return
 
     # This is a start message with a token
-    jwt = self.bot.extract_token(msg.get('text', ''))
-    if jwt is not None:
-      user, icu = self.token_encoder.authenticate(jwt, self.db)
-      if user is None or icu is None:
-        logging.warning('cannot identify user')
+    token = self.bot.extract_token(msg.get('text', ''))
+    if token is not None:
+      user_icu = self.authenticator.authenticate(token)
+      if user_icu is None:
+        logging.warning(f'cannot identify user from {token}')
         return await self.bot.send(chatid, "Cannot identify user.")
 
+      user, icu = user_icu
       if user.telegram_chat_id is None:
         self.db.update_user(
           self.admin_id, user.user_id, {"telegram_chat_id": chatid}
@@ -101,5 +101,5 @@ class UpdateProcessor:
           self.scheduler.schedule(user, icu, 30)
         # TODO(olivier): i18n this.
         await self.bot.send(chatid, 'You are now registered to ICUBAM')
-    else:
-      print(msg)
+      else:
+        await self.bot.send(chatid, 'You are already registered, stay tuned!')

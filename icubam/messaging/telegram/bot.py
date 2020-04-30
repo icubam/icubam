@@ -68,7 +68,8 @@ class TelegramBot:
 
   def invite_url(self, token: str) -> str:
     """Builds an invite url that send directly the user to the right place."""
-    return self.public_url + self.START + token
+    start = self.START.lstrip('/')
+    return f"{self.public_url}?{start}={token}"
 
   def extract_token(self, text: str) -> Optional[str]:
     """Extracts the token from a messages.

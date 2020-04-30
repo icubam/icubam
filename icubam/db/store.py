@@ -319,6 +319,10 @@ class Store(object):
 
   # UserICUToken related methods:
 
+  def get_tokens(self) -> Iterable[UserICUToken]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session.query(UserICUToken).all()
+
   def get_token(self, token: str) -> Optional[UserICUToken]:
     """Returns the UserICUToken with the specified ID."""
     return self._session.query(UserICUToken).filter(
