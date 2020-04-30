@@ -36,7 +36,7 @@ def check_generate_plots(name, db, output_dir):
   output_dir = Path(output_dir)
   img_map = ImageURLMapper()
   if name == "barplot_flow_per":
-    assert (output_dir / img_map.make_path('CUM_FLOW_7D')).exists()
+    assert (output_dir / img_map.make_path('CUM_FLOW_14D')).exists()
   elif name == "lineplot_beds_per":
     assert (output_dir / img_map.make_path('LINE_BEDS_PER_14D_COVID')).exists()
   else:
@@ -51,7 +51,8 @@ def test_fake_generate_plots(name, tmpdir, fake_db):
   img_map = ImageURLMapper()
   if name == "barplot_flow_per":
     assert (
-      output_dir / img_map.make_path('CUM_FLOW', region_id=1, region='Paris')
+      output_dir /
+      img_map.make_path('CUM_FLOW_14D', region_id=1, region='Paris')
     ).exists()
   elif name == "lineplot_beds_per":
     assert (
