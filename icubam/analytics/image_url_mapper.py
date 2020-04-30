@@ -23,7 +23,7 @@ class ImageURLMapper:
     elif region is None:
       raise ValueError('when region_id is not None, region must be provided!')
     else:
-      tokens.append(f'region_id={region_id:.0f}-{region}')
+      tokens.append(f'region_id-{region_id:.0f}-{region}')
 
     tokens.append(plot_name)
     path = '-'.join(tokens)

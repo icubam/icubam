@@ -15,4 +15,4 @@ def test_query2path():
 
   assert m.make_path(
     'some', region_id=1, region='A'
-  ) == 'region_id=1-A-some.png'
+  ) == 'region_id-1-A-some.png'
