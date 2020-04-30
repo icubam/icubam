@@ -13,6 +13,7 @@ import scipy
 import seaborn
 
 from icubam.analytics import dataset
+from icubam.analytics.image_url_mapper import ImageURLMapper
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -143,7 +144,9 @@ def generate_plots(
     os.makedirs(output_dir)
   plots_unknown = set(plots).difference(PLOTS)
   if plots_unknown:
-    raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
+    raise ValueError(
+      "Unknown plot(s): {} not in {}".format(", ".join(plots_unknown), PLOTS)
+    )
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(
@@ -171,14 +174,16 @@ def plot_each_region(data, gen_plot, fig_name, **kwargs):
                  pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
   figs = {}
   # Generate a national plot:
-  figs[f'National-{fig_name}'] = gen_plot(data, groupby='region', **kwargs)
+  fig_name = ImageURLMapper.make_path(fig_name)
+  figs[fig_name] = gen_plot(data, groupby='region', **kwargs)
 
   # And now regional plots:
   for region in regions:
     region_id = data[data['region'] == region]['region_id'].iloc[0]
     region_data = data[data['region'] == region]
-    figs[f'region_id={region_id}-{region}-{fig_name}'] = gen_plot(
-      region_data, groupby='department', **kwargs
+    fig_name = ImageURLMapper.make_path(
+      fig_name, region_id=region_id, region=region
     )
+    figs[fig_name] = gen_plot(region_data, groupby='department', **kwargs)
 
   return figs
