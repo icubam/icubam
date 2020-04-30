@@ -21,6 +21,7 @@ def plot(data, **kwargs):
         gen_plot,
         col_prefix=col_prefix,
         fig_name=f"{FIG_NAME}_{days}COVID{covid_pos}",
+        days_ago=n_days + 1 if n_days is not None else None,
         **kwargs
       )
     )
