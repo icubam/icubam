@@ -837,6 +837,27 @@ class StoreTest(absltest.TestCase):
        ("icu3", now): 5}
     )
 
+  def test_user_icu_token(self):
+    icu_id = self.add_icu('icu')
+    user_id = self.admin_user_id
+    self.assertFalse(self.store.has_token(user_id, icu_id))
+    self.assertIsNone(self.store.get_token_from_ids(user_id, icu_id))
+    token_obj = db_store.UserICUToken(user_id=user_id, icu_id=icu_id)
+    token_str = self.store.add_token(self.admin_user_id, token_obj)
+    self.assertEqual(len(token_str), db_store.UserICUToken.TOKEN_SIZE)
+    self.assertTrue(self.store.has_token(user_id, icu_id))
+    with self.assertRaises(ValueError):
+      self.store.add_token(self.admin_user_id, token_obj)
+
+    token_obj = self.store.get_token_from_ids(user_id, icu_id)
+    self.assertIsNotNone(token_obj)
+    self.assertEqual(token_obj.token, token_str)
+
+    # Now renew the token.
+    renewed_token_str = self.store.renew_token(None, user_id, icu_id)
+    renewed_token = self.store.get_token(renewed_token_str)
+    self.assertNotEqual(token_str, renewed_token)
+
   def test_create_store_factory_for_sqlite_db(self):
     cfg = config.Config(
       os.path.join(

@@ -26,6 +26,7 @@ default_locale='fr-fr'
   PORT = 8889  # will be lower cased when reading.
   base_url = "http://localhost:8889/"
   timeout = 2
+  token_validity_days = 2
 
 [scheduler]
   max_retries = 3
