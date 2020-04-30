@@ -6,7 +6,7 @@ from icubam.analytics import plots
 
 data_source = ["bedcounts"]
 
-FIG_NAME = 'LINE_BEDS_PER'
+FIG_NAME = 'BAR_BEDS_PER'
 
 
 def plot(data, **kwargs):
@@ -58,33 +58,41 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
 
   date_range_idx = np.arange(len(n_req))
 
-  ax = plots.plot_int(
+  tot_color = 'brown'
+  occ_color = 'blue'
+
+  ax.set_ylabel('# Lits', color=tot_color)
+  ax.tick_params(axis='y', labelcolor=tot_color)
+  ax.bar(
     date_range_idx,
-    n_tot.values,
-    ax=ax,
-    color=next(plots.RANDOM_COLORS),
-    marker=next(plots.RANDOM_MARKERS),
-    label="Total (lits)",
+    n_tot,
+    label='nombre lits de réanimation (total) covid-',
+    color=tot_color,
+    edgecolor=tot_color,
     lw=2,
+    ls='-',
+    alpha=0.2
   )
-  ax = plots.plot_int(
+  ax.bar(
     date_range_idx,
-    n_req.values,
-    ax=ax,
-    color=next(plots.RANDOM_COLORS),
-    marker=next(plots.RANDOM_MARKERS),
-    label="Lits occupés + transferts",
-    lw=2,
+    n_occ,
+    label='nombre lits de réanimation occupés covid-',
+    color=occ_color,
+    edgecolor=None,
+    lw=3,
+    ls='-',
+    alpha=0.8
   )
-  ax = plots.plot_int(
-    date_range_idx,
-    n_occ.values,
-    ax=ax,
-    color=next(plots.RANDOM_COLORS),
-    marker=next(plots.RANDOM_MARKERS),
-    label="Lits occupés",
-    lw=2,
+  ax.legend(
+    handlelength=4,
+    loc='best',
+    frameon=True,
+    facecolor='white',
+    framealpha=0.8
   )
+  #   ax.set_xticks(x_ticks_c)
+  ax.set_ylim(bottom=0)
+
   ax.set_ylabel(r"Nombre de lits")
   ax.legend(loc="lower right")
   ax.set_xticks(np.arange(data.date.unique().shape[0]))
