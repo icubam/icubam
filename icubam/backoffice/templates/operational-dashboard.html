@@ -108,12 +108,12 @@
                 <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
                     <div class="row align-items-center extra-plots">
                         <div class="col-sm-6 figure">
-			  <h6 class="text-center"> {{ _("Number of new entries to ICU for COVID+") }} </h6>
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW_14D', region_id=region_id, region=region_name) }}" />
+			   <h6 class="text-center"> {{ _("Evolution of the number of COVID+ beds") }} </h6>
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('BAR_BEDS_PER_14D_COVID+', region_id=region_id, region=region_name) }}" />
                         </div>
                         <div class="col-sm-6 figure">
-			   <h6 class="text-center"> {{ _("Evolution of the number of COVID+ beds") }} </h6>
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_14D_COVID', region_id=region_id, region=region_name) }}" />
+			  <h6 class="text-center"> {{ _("Number of new entries to ICU for COVID+") }} </h6>
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW_14D', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                     <div class="row align-items-center extra-plots">
                         <div class="col-sm-6 figure">
 			  <h6 class="text-center"> {{ _("Evolution of the number of COVID- beds") }} </h6>
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_14D_NCOVID', region_id=region_id, region=region_name) }}" />
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('BAR_BEDS_PER_14D_COVID-', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
                 </div>

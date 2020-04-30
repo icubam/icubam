@@ -17,7 +17,7 @@ class AnalyticsCallback:
     logging.info('[periodic callback] Starting plots generation with predicu')
     plot_data = {'bedcounts': df_bedcounts}
     plots.generate_plots(
-      plots=['barplot_flow_per', 'lineplot_beds_per'],
+      plots=['barplot_beds_per', 'barplot_flow_per'],
       data=plot_data,
       output_dir=self.output_dir
     )
