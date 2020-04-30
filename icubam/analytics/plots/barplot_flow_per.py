@@ -25,23 +25,6 @@ def plot(data, **kwargs):
   }
 
 
-def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
-  """Draws a single rectangle patch for a cumulative bar plot."""
-  rect_patch = matplotlib.patches.Rectangle(
-    xy=(x, start),
-    width=1,
-    height=abs(end),
-    fill=True,
-    linewidth=0.7,
-    edgecolor="black",
-    hatch=hatch,
-    facecolor=GROUP_COLORS[label],
-    label=label,
-  )
-  ax.add_patch(rect_patch)
-  return ax
-
-
 def gen_plot(data, groupby='department', **kwargs):
   agg = {col: "sum" for col in dataset.BEDCOUNT_COLUMNS}
   groups = sorted(data[groupby].unique())
@@ -70,14 +53,14 @@ def gen_plot(data, groupby='department', **kwargs):
     start_cum = neg_deps[col].sum()
     # Plot negative values:
     for j, row in neg_deps.iterrows():
-      ax = draw_rect(
+      ax = plots.draw_rect(
         ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])
     # Now plot positive values:
     start_cum = 0
     for j, row in pos_deps.iterrows():
-      ax = draw_rect(
+      ax = plots.draw_rect(
         ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])
