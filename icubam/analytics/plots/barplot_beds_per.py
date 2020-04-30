@@ -48,25 +48,21 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
   n_occ = data.groupby("date").sum()[f"{col_prefix}_occ"]
   n_free = data.groupby("date").sum()[f"{col_prefix}_free"]
   n_tot = n_occ + n_free
-  n_req = n_occ
-  if col_prefix == "n_covid":
-    n_transfered = (
-      data.groupby("date").sum()["n_covid_transfered"].diff(1).fillna(0)
-    )
-    n_req = n_occ + n_transfered
+
+  covid_pos = '+' if col_prefix == "n_covid" else '-'
   fig, ax = plt.subplots(1, figsize=(12, 6))
 
-  date_range_idx = np.arange(len(n_req))
+  date_range_idx = np.arange(len(n_tot))
 
   tot_color = 'brown'
-  occ_color = 'blue'
+  occ_color = 'green'
 
   ax.set_ylabel('# Lits', color=tot_color)
   ax.tick_params(axis='y', labelcolor=tot_color)
   ax.bar(
     date_range_idx,
     n_tot,
-    label='nombre lits de réanimation (total) covid-',
+    label=f'# lits réa COVID{covid_pos} (total)',
     color=tot_color,
     edgecolor=tot_color,
     lw=2,
@@ -76,7 +72,7 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
   ax.bar(
     date_range_idx,
     n_occ,
-    label='nombre lits de réanimation occupés covid-',
+    label=f'# lits réa COVID{covid_pos} (occupés)',
     color=occ_color,
     edgecolor=None,
     lw=3,
@@ -94,10 +90,10 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
   ax.set_ylim(bottom=0)
 
   ax.set_ylabel(r"Nombre de lits")
-  ax.legend(loc="lower right")
   ax.set_xticks(np.arange(data.date.unique().shape[0]))
   ax.set_xticklabels(
     [date.strftime("%d-%m") for date in sorted(data.date.unique())],
     rotation=45,
   )
+  fig.tight_layout()
   return fig
