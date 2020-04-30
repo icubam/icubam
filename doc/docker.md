@@ -81,7 +81,7 @@ Three nginx configurations are provided,
 - a `dev` file for testing locally, that only supports http (change https to http
 and remove port 8888 when using the link provided by the running server).
 - a `prod` file that manages ssl connections for testing on an internet reachable host. Depending on the deployment server name, changes to the `nginx/app.conf` file are required.
-In particular, WEB_HOSTNAME should be replaced with the targeted's URL hostname (e.g., www.example.org)
+In particular, `WEB_HOSTNAME` should be replaced with the targeted's URL hostname (e.g., www.example.org)
 for both the `server_name` and also in the path for the ssl certificates.
 
 Compared to the initial `init-letsencrypt.sh`script, explicit setup of the docker-compose-proxy.yml file and root path has been added as all the docker related files are in a specific subfolder.
@@ -98,14 +98,14 @@ Check [Installation instructions](install.md#Configuration) for the required var
   
 **Docker's environement variables**
 
-- ICUBAM_COMPOSE_CONTEXT: root folder for the build context
-- ICUBAM_RESOURCES_PATH: path/name of the resources folder to mount in the container (e.g., `./resources`). This folder contains, among other things, the app's configuration file and the database).
-- ICUBAM_CONFIG_FILE: filename for the app's configuration file (e.g., `icubam.toml`) expected in the `./resources` folder
-- ICUBAM_CERTBOT_PATH: location for the CertBot configuration and result files
-- ICUBAM_NGINX_PATH: location for the Nginx configuration files
-- IMAGE_NAME: name of the Docker image to use
-- IMAGE_TAG: tag of the Docker image to use
-- LOGS_DIR: folder where log files (e.g., './logs')
+- `ICUBAM_COMPOSE_CONTEXT`: root folder for the build context
+- `ICUBAM_RESOURCES_PATH`: path/name of the resources folder to mount in the container (e.g., `./resources`). This folder contains, among other things, the app's configuration file and the database).
+- `ICUBAM_CONFIG_FILE`: filename for the app's configuration file (e.g., `icubam.toml`) expected in the `./resources` folder
+- `ICUBAM_CERTBOT_PATH`: location for the CertBot configuration and result files
+- `ICUBAM_NGINX_PATH`: location for the Nginx configuration files
+- `IMAGE_NAME`: name of the Docker image to use
+- `IMAGE_TAG`: tag of the Docker image to use
+- `LOGS_DIR`: folder where log files (e.g., './logs')
 - `USER_ID`: uid to use inside the Docker container (should be set to the uid of the user launching the docker-compose, default is root) 
 - `GROUP_ID`: gid to use inside the Docker container (should be set to the gid of the user launching the docker-compose, default is root) 
 
