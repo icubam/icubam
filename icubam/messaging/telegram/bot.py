@@ -1,6 +1,7 @@
 from absl import logging
 import json
 import os.path
+import tornado.gen
 import tornado.httpclient
 from typing import Dict, List, Optional
 
@@ -87,6 +88,8 @@ class TelegramBot:
       'text': text,
       'parse_mode': 'HTML',
     }
+    # Respect the 30ms per seconds
+    await tornado.gen.sleep(0.04)
     resp = await self.post(data, 'sendMessage')
     return resp is not None and resp.code == 200
 

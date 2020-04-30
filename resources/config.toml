@@ -28,7 +28,7 @@ default_locale='fr-fr'
   timeout = 2
   telegram_bot = "test_test_icu_bot"
   telegram_updates_every = 10
-  token_validity_days = 2
+  token_validity_days = -1
 
 [scheduler]
   max_retries = 3
