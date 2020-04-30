@@ -4,9 +4,9 @@ import time
 import tornado.ioloop
 from typing import List, Optional
 
+from icubam import time_utils
 from icubam.messaging import message
 from icubam.www import updater
-from icubam import time_utils
 
 
 @dataclasses.dataclass
@@ -30,7 +30,7 @@ class MessageScheduler:
 
     # Keys: by (user_id, icu_id), value is ScheduledMessage
     self.timeouts = {}
-    self.updater = updater.Updater(self.config, None)
+    self.updater = updater.Updater(self.config, self.db)
 
   def computes_delay(self, delay=None) -> int:
     """Computes the delay if None."""
@@ -70,7 +70,7 @@ class MessageScheduler:
       logging.info(f'Cannot send message to user {user_id} in icu {icu_id}')
       return False
 
-    url = self.updater.get_user_url(user, icu.icu_id)
+    url = self.updater.get_url(user.user_id, icu.icu_id)
     msg = message.Message(icu, user, url)
     return self.schedule_message(msg, delay)
 
@@ -120,9 +120,14 @@ class MessageScheduler:
         msg.icu_name, msg.attempts, self.max_retries + 1
       )
     )
+    self.may_update_url(msg)
     if self.queue is not None:
       await self.queue.put(msg)
     self.schedule_message(msg, delay=self.reminder_delay)
+
+  def may_update_url(self, msg):
+    """Before sending the message for real, we might update the url's token."""
+    msg.url = self.updater.get_url(msg.user_id, msg.icu_id, update=True)
 
   @property
   def messages(self):
@@ -131,7 +136,7 @@ class MessageScheduler:
     result = []
     for user in users:
       for icu in user.icus:
-        url = self.updater.get_user_url(user, icu.icu_id)
+        url = self.updater.get_url(user.user_id, icu.icu_id)
         result.append(message.Message(icu, user, url))
     return result
 

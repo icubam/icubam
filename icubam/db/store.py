@@ -1,21 +1,23 @@
 """Data store for ICUBAM."""
 
-from absl import logging
-import enum
-import pandas as pd
-from contextlib import contextmanager
 import dataclasses
-from datetime import datetime
+import enum
 import hashlib
-from sqlalchemy import create_engine, desc, func
-from sqlalchemy import Column, Table
-from sqlalchemy import ForeignKey
-from sqlalchemy import Boolean, Enum, Float, DateTime, Integer, String
+import json
+import uuid
+from contextlib import contextmanager
+from datetime import datetime
+from typing import Any, Dict, Iterable, Optional, Tuple
+
+import pandas as pd
+from absl import logging
+from sqlalchemy import (
+  Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Table,
+  create_engine, desc, func
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.sql import text
-from typing import Iterable, Optional, Tuple, Dict, Any
-import uuid
 
 
 class RawBase(object):
@@ -83,6 +85,32 @@ external_client_regions = Table(
     primary_key=True
   ), Column("region_id", ForeignKey("regions.region_id"), primary_key=True)
 )
+
+
+class UserICUToken(Base):
+  __tablename__ = "user_icu_tokens"
+
+  TOKEN_SIZE = 12
+
+  # The internal id of this row.
+  token_id = Column(Integer, primary_key=True)
+
+  # The token itself, as sent to the user.
+  token = Column(String, unique=True)
+
+  # The user_id, icu_id this token is for.
+  user_id = Column(Integer, ForeignKey("users.user_id"))
+  icu_id = Column(Integer, ForeignKey("icus.icu_id"))
+
+  # Is this token active or not.
+  is_active = Column(Boolean, default=True, server_default=text("1"))
+
+  # When was this token last modified.
+  last_modified = Column(DateTime, default=func.now(), onupdate=func.now())
+
+  # Relationships
+  user = relationship("User")
+  icu = relationship("ICU")
 
 
 class User(Base):
@@ -288,6 +316,66 @@ class Store(object):
     """Returns true if the user with the specified ID is an admin."""
     user = self.get_user(user_id)
     return bool(user and user.is_admin)
+
+  # UserICUToken related methods:
+
+  def get_token(self, token: str) -> Optional[UserICUToken]:
+    """Returns the UserICUToken with the specified ID."""
+    return self._session.query(UserICUToken).filter(
+      UserICUToken.token == token
+    ).one_or_none()
+
+  def _get_token_query(self, user_id: int, icu_id: int):
+    return self._session.query(UserICUToken).filter(
+      UserICUToken.user_id == user_id
+    ).filter(UserICUToken.icu_id == icu_id)
+
+  def get_token_from_ids(self, user_id: int,
+                         icu_id: int) -> Optional[UserICUToken]:
+    return self._get_token_query(user_id, icu_id).one_or_none()
+
+  def has_token(self, user_id: int, icu_id: int) -> bool:
+    return self._get_token_query(user_id, icu_id).count() > 0
+
+  def update_token(
+    self, admin_user_id: Optional[int], token_id: int, values: Dict
+  ):
+    if admin_user_id is not None and not self.is_admin(admin_user_id):
+      raise ValueError(f"User {admin_user_id} cannot update token {token_id}.")
+    with self._commit_or_rollback():
+      self._session.query(UserICUToken).filter(
+        UserICUToken.token_id == token_id
+      ).update(values)
+
+  def renew_token(
+    self, admin_user_id: Optional[int], user_id: int, icu_id: int
+  ) -> str:
+    """Changes the last_modified date and the token itself of a given token."""
+    if admin_user_id is not None and not self.is_admin(admin_user_id):
+      raise ValueError('Only admins can renew tokens.')
+
+    with self._commit_or_rollback():
+      token = self.make_token(user_id, icu_id)
+      self._get_token_query(user_id, icu_id).update({'token': token})
+      return token
+
+  def add_token(
+    self, admin_user_id: Optional[int], user_icu_token: UserICUToken
+  ):
+    """If admin_user_id is None we add the token."""
+    if user_icu_token.token_id:
+      raise ValueError("Cannot reset UserICUToken.")
+
+    if self.has_token(user_icu_token.user_id, user_icu_token.icu_id):
+      raise ValueError("User Icu already has a token.")
+
+    if admin_user_id is None or self.is_admin(admin_user_id):
+      user_icu_token.token = self.make_token(
+        user_icu_token.user_id, user_icu_token.icu_id
+      )
+      self._session.add(user_icu_token)
+      self._session.commit()
+      return user_icu_token.token
 
   # ICU related methods.
 
@@ -545,6 +633,11 @@ class Store(object):
     return hashlib.pbkdf2_hmac(
       "sha256", password.encode("utf8"), self._salt, 100000
     ).hex()
+
+  def make_token(self, user_id: int, icu_id: int) -> str:
+    now_ts = datetime.utcnow().timestamp()
+    token_hash = self.get_password_hash(json.dumps([user_id, icu_id, now_ts]))
+    return token_hash[:UserICUToken.TOKEN_SIZE]
 
   def auth_user(self, email: str, password: str) -> int:
     """Authenticates a user using email and password.

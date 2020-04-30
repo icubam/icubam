@@ -1,4 +1,3 @@
-import itertools
 import logging
 
 import numpy as np
@@ -117,17 +116,8 @@ def aggregate_multiple_inputs(d, agg_time_delta="15Min"):
 
     # Force cumulative columns to be monotonic by bringing any decreases in
     # the value up to their previous values i.e. x_t = max(x_t, x_{t-1}):
-    for col in dataset.CUM_COLUMNS:
-      new_col = []
-      last_val = -100000
-      for idx, row in dg.iterrows():
-        if row[col] >= last_val:
-          new_val = row[col]
-        else:
-          new_val = last_val
-        new_col.append(new_val)
-        last_val = new_val
-      dg[col] = new_col
+    dg[dataset.CUM_COLUMNS
+       ] = np.maximum.accumulate(dg[dataset.CUM_COLUMNS].values, axis=0)
 
     res_dfs.append(dg.reset_index())
   return pd.concat(res_dfs)
@@ -228,56 +218,35 @@ def enforce_daily_values_for_all_icus(d):
      Each missing day in the series is imputed by forward-filling from
      the most recent day with data.
   """
-  dates = sorted(list(d.date.unique()))
-  icu_names = sorted(list(d.icu_name.unique()))
-  new_data_points = list()
-  per_icu_prev_data_point = dict()
-  icu_name_to_dept = dict(
-    d.groupby(["icu_name", "department"]
-              ).first().reset_index()[["icu_name", "department"
-                                       ]].itertuples(name=None, index=False)
-  )
-  icu_name_to_region = dict(
-    d.groupby(["icu_name", "region"]
-              ).first().reset_index()[["icu_name", "region"
-                                       ]].itertuples(name=None, index=False)
-  )
-  icu_name_to_region_id = dict(
-    d.groupby(["icu_name", "region_id"]
-              ).first().reset_index()[["icu_name", "region_id"
-                                       ]].itertuples(name=None, index=False)
-  )
-  for date, icu_name in itertools.product(dates, icu_names):
-    sd = d.loc[(d.date == date) & (d.icu_name == icu_name)]
-    sd = sd.sort_values(by="datetime")
-    new_data_point = {
-      "date": date,
-      "icu_name": icu_name,
-      "department": icu_name_to_dept[icu_name],
-      "region": icu_name_to_region[icu_name],
-      "region_id": icu_name_to_region_id[icu_name],
-      "datetime": date,
-      "create_date": date,
-    }
-    new_data_point.update({col: 0 for col in dataset.CUM_COLUMNS})
-    new_data_point.update({col: 0 for col in dataset.NCUM_COLUMNS})
-    if icu_name in per_icu_prev_data_point:
-      new_data_point.update({
-        col: per_icu_prev_data_point[icu_name][col]
-        for col in dataset.BEDCOUNT_COLUMNS
-      })
-    if len(sd) > 0:
-      new_data_point.update({
-        col: sd[col].iloc[-1]
-        for col in dataset.BEDCOUNT_COLUMNS
-      })
-    per_icu_prev_data_point[icu_name] = new_data_point
-    new_data_points.append(new_data_point)
-  return pd.DataFrame(new_data_points)
+  dates = np.sort(d.date.unique())
+
+  def reindex_icu(x):
+    # Process data for an ICU.
+
+    # For repeated entries per day, only keep the last entry.
+    # This is necessary as we cannot re-index indexes with duplicates.
+    x = x.sort_values('datetime').drop_duplicates(['date'], keep='last')
+    # forward fill all missing values
+    x = x.set_index(['date']).reindex(dates, method='ffill').reset_index()
+    # backward fill categorical variables (that don't change with time)
+    cat_columns = ['icu_name', 'department', 'region', 'region_id']
+    x[cat_columns] = x[cat_columns].fillna(method='bfill')
+    # Set all other variables to 0 before first observation
+    int_columns = dataset.CUM_COLUMNS + dataset.NCUM_COLUMNS
+    x[int_columns] = x[int_columns].fillna(0)
+    # Leave all unknown variables as NaN
+    return x
+
+  df = d.groupby('icu_name').apply(reindex_icu)
+  # Reproduce behaviour of earlier versions of this function
+  df['datetime'] = df['date']
+  df['create_date'] = df['date']
+  return df.reset_index(drop=True)
 
 
 def spread_cum_jumps(d, icu_to_first_input_date):
   assert np.all(d.date.values == d.datetime.values)
+  # TODO: do not hardcode this value
   date_begin_transfered_refused = pd.to_datetime("2020-03-25").date()
   dfs = []
   for icu_name, dg in d.groupby("icu_name"):
@@ -302,8 +271,14 @@ def spread_cum_jumps(d, icu_to_first_input_date):
       for col in cols:
         if col in already_fixed_col:
           continue
-        beg_val = dg.loc[dg.date == beg, col].values[0]
-        end_val = dg.loc[dg.date == end, col].values[0]
+        beg_val = dg.loc[dg.date == beg, col]
+        if not len(beg_val):
+          continue
+        beg_val = beg_val.values[0]
+        end_val = dg.loc[dg.date == end, col]
+        if not len(end_val):
+          continue
+        end_val = end_val.values[0]
         diff = end_val - beg_val
         if diff >= SPREAD_CUM_JUMPS_MAX_JUMP[col]:
           spread_beg = dg.date.min()

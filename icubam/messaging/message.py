@@ -1,5 +1,5 @@
 class Message:
-  def __init__(self, icu, user, url: str):
+  def __init__(self, icu, user, url: str = ''):
     self.icu_id = icu.icu_id
     self.phone = user.telephone
     if self.phone is not None:

@@ -36,11 +36,12 @@ class UpdateHandler(base.BaseHandler):
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
-    user, icu = self.token_encoder.authenticate(user_token, self.db)
-    if user is None or icu is None:
+    user_icu = self.authenticator.authenticate(user_token)
+    if user_icu is None:
       logging.error("Token authentication failed")
       self.clear_cookie(self.COOKIE)
       return self.set_status(404)
+    user, icu = user_icu
 
     locale = self.get_user_locale()
     data = self.updater.get_icu_data_by_id(icu.icu_id, locale=locale)
