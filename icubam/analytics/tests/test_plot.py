@@ -34,11 +34,11 @@ def check_generate_plots(name, db, output_dir):
   generate_plots(plots=[name], output_dir=output_dir, data=data)
   output_dir = Path(output_dir)
   if name == "barplot_flow_per":
-    assert (output_dir / "National_CUM_FLOW_7D.png").exists()
+    assert (output_dir / "National-CUM_FLOW_7D.png").exists()
   elif name == "lineplot_beds_per":
-    assert (output_dir / 'National_LINE_BEDS_PER_14D_COVID.png').exists()
+    assert (output_dir / 'National-LINE_BEDS_PER_14D_COVID.png').exists()
   elif name == "barplot_beds_per":
-    assert (output_dir / "National_BAR_BEDS_PER_7D_COVID+.png").exists()
+    assert (output_dir / "National-BAR_BEDS_PER_7D_COVID+.png").exists()
   else:
     raise ValueError
 
@@ -52,8 +52,6 @@ def test_fake_generate_plots(name, tmpdir, fake_db):
     assert (output_dir / "region_id=1-Paris-CUM_FLOW.png").exists()
   elif name == "lineplot_beds_per":
     assert (output_dir / 'region_id=1-Paris-LINE_BEDS_PER_COVID.png').exists()
-  else:
-    raise ValueError
 
 
 @pytest.mark.integration
