@@ -43,7 +43,7 @@ class ListTokensHandler(base.AdminHandler):
     clients = self.db.get_external_clients()
     data = [self.prepare_for_table(client) for client in clients]
     self.render_list(
-      data=data, objtype='Acces Tokens', create_handler=TokenHandler
+      data=data, objtype=base.ObjType.TOKENS, create_handler=TokenHandler
     )
 
 
