@@ -225,7 +225,7 @@ def enforce_daily_values_for_all_icus(d):
 
     # For repeated entries per day, only keep the last entry.
     # This is necessary as we cannot re-index indexes with duplicates.
-    x = x.sort_values('date').drop_duplicates(['date'], keep='first')
+    x = x.sort_values('datetime').drop_duplicates(['date'], keep='last')
     # forward fill all missing values
     x = x.set_index(['date']).reindex(dates, method='ffill').reset_index()
     # backward fill categorical variables (that don't change with time)
