@@ -16,7 +16,9 @@ class ListBedCountsHandler(base.BaseHandler):
 
   def prepare_data(self, icu, locale) -> list:
     link = {'key': 'ICU (update link)', 'value': icu.name}
-    link['link'] = self.link_fn(icu.users[0], icu) if icu.users else None
+    link['link'] = self.link_fn(
+      icu.users[0].user_id, icu.icu_id
+    ) if icu.users else None
     result = [link]
 
     bed_count = icu.bed_counts[-1] if icu.bed_counts else store.BedCount()
