@@ -62,13 +62,11 @@
                         Covid+
                     </a>
                 </li>
-		<!--
                 <li class="nav-item">
                     <a class="nav-link" id="covid_n-tab" data-toggle="tab" href="#covid_n" role="tab" aria-controls="covid_n" aria-selected="false">
                         Covid-
                     </a>
                 </li>
-		-->
             </ul>
 
             <div class="tab-content" id="dashboard-tabs-content">
@@ -108,21 +106,21 @@
                 </div>
 
                 <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
-                   {% if region_name is not None %}
                     <div class="row align-items-center extra-plots">
                         <div class="col-sm-6 figure">
                           <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW', region_id=region_id, region=region_name) }}" />
                         </div>
-                    </div>
-                    {% else %}  {# region_name == 'All regions' #}
-                    <div class="row extra-plots">
                         <div class="col-sm-6 figure">
-                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path("CUM_FLOW") }}" />
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_COVID', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
-                    {% end %}
                 </div>
                 <div class="tab-pane" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
+                    <div class="row align-items-center extra-plots">
+                        <div class="col-sm-6 figure">
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('LINE_BEDS_PER_NCOVID', region_id=region_id, region=region_name) }}" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
