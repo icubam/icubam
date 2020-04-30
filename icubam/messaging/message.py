@@ -1,19 +1,22 @@
 class Message:
-
-  TEMPLATE = (
-    "Bonjour {},\nvoici le lien à suivre pour mettre à jour les données covid"
-    " de {} sur ICUBAM: {}"
-  )
-
   def __init__(self, icu, user, url: str = ''):
     self.icu_id = icu.icu_id
-    self.phone = user.telephone.encode('ascii', 'ignore').decode()
+    self.phone = user.telephone
+    if self.phone is not None:
+      self.phone = self.phone.encode('ascii', 'ignore').decode()
     self.user_id = user.user_id
     self.user_name = user.name
     self.icu_name = icu.name
-    self.url = ''
-    self.text = ''
-    self.update_url(url)
+    self.url = url
+
+    # TODO(olivier): have this in the region.
+    self.locale_code = 'fr'
+
+    # Those are filled at send time by the MessageFormatter
+    self.text = ""
+    self.html = ""
+
+    # Members used by the scheduler.
     self.attempts = 0
     self.first_sent = None
 
@@ -25,7 +28,3 @@ class Message:
   def key(self):
     """Returns an identifier of the message for keying in dicts."""
     return self.user_id, self.icu_id
-
-  def update_url(self, url: str):
-    self.url = url
-    self.text = self.TEMPLATE.format(self.user_name, self.icu_name, url)
