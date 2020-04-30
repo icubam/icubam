@@ -16,10 +16,10 @@
     <div class="row dashboard-filter">
         <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% if current_region_name != 'All regions' %}
+            {% if region_id is not None %}
                 {{ _("Region") }}:
             {% end %}
-            {{ current_region_name }}
+            {{ region_name }}
             </a>
 
             {% if api_key %}
@@ -108,30 +108,22 @@
                 </div>
 
                 <div class="tab-pane" id="covid_p" role="tabpanel" aria-labelledby="covid_p-tab">               
-                   {% if current_region_name != 'All regions' %}
+                   {% if region_name is not None %}
                     <div class="row align-items-center extra-plots">
-                        <div class="col-md-auto figure">
-                          <img src="{{ backoffice_root }}static/extra-plots/flux-lits-region-{{ region2region.get(current_region_name, current_region_name) }}.png" />
+                        <div class="col-sm-6 figure">
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path('CUM_FLOW', region_id=region_id, region=region_name) }}" />
                         </div>
                     </div>
-                    {% else %}  {# current_region_name == 'All regions' #}
-                    {% for row in _grouper([name for name in plots_extra if name.startswith('flux-lits-region')], 2) %}
+                    {% else %}  {# region_name == 'All regions' #}
                     <div class="row extra-plots">
-                    {% for fig_name in row %}
-                    {% if fig_name is not None %}
-                        <div class="col-lg-6 figure">
-                        <img src="{{ backoffice_root }}static/extra-plots/{{ fig_name }}.png" />
+                        <div class="col-sm-6 figure">
+                          <img src="{{ backoffice_root }}static/extra-plots/{{ img_map.make_path("CUM_FLOW") }}" />
                         </div>
-                    {% end %}
-                    {% end %}
                     </div>
-                    {% end %}
                     {% end %}
                 </div>
-		<!--
                 <div class="tab-pane" id="covid_n" role="tabpanel" aria-labelledby="covid_n-tab">
                 </div>
-		-->
             </div>
         </div>
     </div>
