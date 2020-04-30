@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-# import seaborn
+import itertools
 
 from icubam.analytics import plots
 
@@ -10,38 +10,21 @@ FIG_NAME = 'BAR_BEDS_PER'
 
 
 def plot(data, **kwargs):
-  return {
-    **plots.plot_each_region(
-      data,
-      gen_plot,
-      col_prefix="n_covid",
-      fig_name=f"{FIG_NAME}_14D_COVID",
-      days_ago=15,
-      **kwargs
-    ),
-    **plots.plot_each_region(
-      data,
-      gen_plot,
-      col_prefix="n_covid",
-      fig_name=f"{FIG_NAME}_COVID",
-      **kwargs
-    ),
-    **plots.plot_each_region(
-      data,
-      gen_plot,
-      col_prefix="n_ncovid",
-      fig_name=f"{FIG_NAME}_14D_NCOVID",
-      days_ago=15,
-      **kwargs
-    ),
-    **plots.plot_each_region(
-      data,
-      gen_plot,
-      col_prefix="n_ncovid",
-      fig_name=f"{FIG_NAME}_NCOVID",
-      **kwargs
+  all_plots = {}
+  for col_prefix, n_days in itertools.product(('n_covid', 'n_ncovid'),
+                                              (None, 14, 7)):
+    covid_pos = '+' if col_prefix == 'n_covid' else '-'
+    days = '' if n_days is None else f'{n_days}D_'
+    all_plots.update(
+      plots.plot_each_region(
+        data,
+        gen_plot,
+        col_prefix=col_prefix,
+        fig_name=f"{FIG_NAME}_{days}COVID{covid_pos}",
+        **kwargs
+      )
     )
-  }
+  return all_plots
 
 
 def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
