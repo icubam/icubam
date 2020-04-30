@@ -106,8 +106,19 @@ Check [Installation instructions](install.md#Configuration) for the required var
 - IMAGE_NAME: name of the Docker image to use
 - IMAGE_TAG: tag of the Docker image to use
 - LOGS_DIR: folder where log files (e.g., './logs')
+- `USER_ID`: uid to use inside the Docker container (should be set to the uid of the user launching the docker-compose, default is root) 
+- `GROUP_ID`: gid to use inside the Docker container (should be set to the gid of the user launching the docker-compose, default is root) 
 
 Folders (i.e., resources, nginx, certbot) are mounted (bind) in the containers defined in the docker-compose yml files.
+
+On Linux hosts, files created inside the container on mounted folders end up creating files owned by root on the host 
+system. Beside the security implications, this generates errors when cleaning up pn the host system. To address this 
+issue, the `USER_UD` and `GROUP_ID` variables should be set with the uid and gid of the user.
+```
+USER_ID=`id -u`
+GROUP_ID=`id -g`
+```
+
 
 **Setting up environement variables**
 
