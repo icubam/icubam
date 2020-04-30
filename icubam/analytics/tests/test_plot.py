@@ -4,10 +4,10 @@ import pytest
 import sqlalchemy
 
 import icubam.db.store as db_store
-from icubam.db.fake import populate_store_fake
+from icubam.analytics import dataset
 from icubam.analytics.plots import PLOTS, generate_plots
 from icubam.analytics.preprocessing import preprocess_bedcounts
-from icubam.analytics import dataset
+from icubam.db.fake import populate_store_fake
 
 
 @pytest.fixture
@@ -37,6 +37,8 @@ def check_generate_plots(name, db, output_dir):
     assert (output_dir / "National-CUM_FLOW_7D.png").exists()
   elif name == "lineplot_beds_per":
     assert (output_dir / 'National-LINE_BEDS_PER_14D_COVID.png').exists()
+  elif name == "barplot_beds_per":
+    assert (output_dir / "National-BAR_BEDS_PER_7D_COVID+.png").exists()
   else:
     raise ValueError
 
@@ -50,8 +52,6 @@ def test_fake_generate_plots(name, tmpdir, fake_db):
     assert (output_dir / "region_id=1-Paris-CUM_FLOW.png").exists()
   elif name == "lineplot_beds_per":
     assert (output_dir / 'region_id=1-Paris-LINE_BEDS_PER_COVID.png').exists()
-  else:
-    raise ValueError
 
 
 @pytest.mark.integration
