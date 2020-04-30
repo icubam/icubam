@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 import pandas as pd
 import sqlalchemy as sqla
 from numpy.testing import assert_allclose
@@ -12,16 +13,19 @@ from icubam.db.fake import populate_store_fake
 @pytest.fixture
 def fake_db():
   store_factory = store.StoreFactory(
-    sqla.create_engine("sqlite:///:memory:", echo=True)
+    sqla.create_engine("sqlite:///:memory:", echo=False)
   )
   db = store_factory.create()
   populate_store_fake(db)
   return db
 
 
-def test_bedcounts_data_preprocessing(fake_db):
+@pytest.mark.parametrize('spread_cum_jumps', [False, True])
+def test_bedcounts_data_preprocessing(fake_db, spread_cum_jumps):
   data = dataset.load_bed_counts(fake_db)
-  preprocessed = preprocessing.preprocess_bedcounts(data)
+  preprocessed = preprocessing.preprocess_bedcounts(
+    data, spread_cum_jump_correction=spread_cum_jumps
+  )
   assert len(preprocessed) > 0
   for icu_name, dg in preprocessed.groupby('icu_name'):
     dg = dg.sort_values(by='create_date')
