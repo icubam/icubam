@@ -304,6 +304,15 @@
       </button>
     </div>
   </form>
+
+  {% if telegram_url %}
+  <div>
+    <hr>
+    <img src="https://telegram.org/img/t_logo.png" width="25px"/>
+    <a href="{{telegram_url}}">Click here</a>
+    to subscribe to receiving messages with Telegram.
+  </div>
+  {% end %}
 </div>
 {% end %}
 

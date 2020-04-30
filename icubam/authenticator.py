@@ -15,7 +15,7 @@ class Authenticator:
 
     # Reads token validation from the config.
     self.validity = self.config.messaging.token_validity_days
-    if not isinstance(self.validity, numbers.Number):
+    if not isinstance(self.validity, numbers.Number) or self.validity <= 0:
       self.validity = None
 
   def get_or_new_token(
