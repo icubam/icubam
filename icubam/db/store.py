@@ -134,6 +134,8 @@ class User(Base):
   locale = Column(String)
   # One of {email, sms}.
   message_type = Column(String, default="email")
+  # In case we communicate to this user via Telegram chat.
+  telegram_chat_id = Column(String)
   # Consent to use icubam
   consent = Column(Boolean)
 
@@ -316,6 +318,10 @@ class Store(object):
     return bool(user and user.is_admin)
 
   # UserICUToken related methods:
+
+  def get_tokens(self) -> Iterable[UserICUToken]:
+    """Returns all users, e.g. sync. Do not use in user facing code."""
+    return self._session.query(UserICUToken).all()
 
   def get_token(self, token: str) -> Optional[UserICUToken]:
     """Returns the UserICUToken with the specified ID."""

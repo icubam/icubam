@@ -6,7 +6,6 @@ import tornado.web
 
 from icubam import authenticator
 from icubam.db import store
-from icubam.www import token
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -19,7 +18,6 @@ class BaseHandler(tornado.web.RequestHandler):
     self.config = config
     self.db = db_factory.create()
     self.user = None
-    self.token_encoder = token.TokenEncoder(self.config)
     self.authenticator = authenticator.Authenticator(self.config, self.db)
 
   def get_template_path(self):
@@ -82,5 +80,5 @@ class APIKeyProtectedHandler(BaseHandler):
       self.regions = client.regions
       return client
     else:
-      logging.info(f'Unauthorized route.')
+      logging.info('Unauthorized route.')
       return None
