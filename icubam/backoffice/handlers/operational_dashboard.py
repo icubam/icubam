@@ -1,6 +1,6 @@
 import tornado.web
 from icubam.backoffice.handlers import base
-from icubam.predicu import operational_dashboard
+from icubam.analytics import operational_dashboard
 
 
 class OperationalDashHandler(base.AdminHandler):
