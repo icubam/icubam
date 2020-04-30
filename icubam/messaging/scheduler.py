@@ -120,14 +120,11 @@ class MessageScheduler:
         msg.icu_name, msg.attempts, self.max_retries + 1
       )
     )
-    self.may_update_url(msg)
+    # Watch out, this might change the token if stale!
+    msg.url = self.updater.get_url(msg.user_id, msg.icu_id, update=True)
     if self.queue is not None:
       await self.queue.put(msg)
     self.schedule_message(msg, delay=self.reminder_delay)
-
-  def may_update_url(self, msg):
-    """Before sending the message for real, we might update the url's token."""
-    msg.url = self.updater.get_url(msg.user_id, msg.icu_id, update=True)
 
   @property
   def messages(self):

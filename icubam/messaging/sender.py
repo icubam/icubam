@@ -4,7 +4,6 @@ from icubam.messaging import message_formatter
 from icubam.messaging import sms_sender
 from icubam.messaging.telegram import integrator
 from icubam.messaging import email_sender
-from icubam.www import updater
 
 
 class Sender:
@@ -18,9 +17,7 @@ class Sender:
     self.config = config
     self.db = db
     self.queue = queue
-    self.formatter = message_formatter.MessageFormatter(
-      updater.Updater(config, db)
-    )
+    self.formatter = message_formatter.MessageFormatter()
 
     try:
       self.sms_sender = sms_sender.get(config)

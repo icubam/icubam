@@ -16,8 +16,7 @@ class MessageFormatter:
   HTML_TEMPLATE = 'message.html'
   TEXT_TEMPLATE = 'message.txt'
 
-  def __init__(self, updater):
-    self.updater = updater
+  def __init__(self):
     tornado.locale.load_translations(self.TRANSLATION_FOLDER)
     loader = tornado.template.Loader(self.ROOT_PATH)
     self.html_template = loader.load(self.HTML_TEMPLATE)
@@ -25,7 +24,6 @@ class MessageFormatter:
 
   def format(self, msg, may_renew_token=False):
     """Sets both the msg.text and msg.html members of the message."""
-    # TODO(olivier): use the updater to renew the token.
     locale = tornado.locale.get(msg.locale_code)
     html = self.html_template.generate(msg=msg, _=locale.translate)
     msg.html = html.decode()

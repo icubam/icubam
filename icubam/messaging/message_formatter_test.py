@@ -6,7 +6,6 @@ from icubam import config
 from icubam.db import store
 from icubam.messaging import message_formatter
 from icubam.messaging import message
-from icubam.www import updater
 
 
 class MessageFormatterTest(absltest.TestCase):
@@ -14,9 +13,7 @@ class MessageFormatterTest(absltest.TestCase):
     super().setUp()
     self.config = config.Config('resources/test.toml')
     self.db = store.create_store_factory_for_sqlite_db(self.config).create()
-    self.formatter = message_formatter.MessageFormatter(
-      updater.Updater(self.config, self.db)
-    )
+    self.formatter = message_formatter.MessageFormatter()
     self.admin_id = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin_id, store.ICU(name='rea'))
     self.icu = self.db.get_icu(self.icu_id)
