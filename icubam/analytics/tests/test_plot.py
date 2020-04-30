@@ -4,10 +4,10 @@ import pytest
 import sqlalchemy
 
 import icubam.db.store as db_store
-from icubam.db.fake import populate_store_fake
+from icubam.analytics import dataset
 from icubam.analytics.plots import PLOTS, generate_plots
 from icubam.analytics.preprocessing import preprocess_bedcounts
-from icubam.analytics import dataset
+from icubam.db.fake import populate_store_fake
 
 
 @pytest.fixture

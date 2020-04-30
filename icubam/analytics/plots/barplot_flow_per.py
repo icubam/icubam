@@ -8,8 +8,7 @@ import matplotlib.style
 import numpy as np
 import seaborn
 
-from icubam.analytics import plots
-from icubam.analytics import dataset
+from icubam.analytics import dataset, plots
 from icubam.analytics.preprocessing import compute_flow_per_dpt
 
 FIG_NAME = 'CUM_FLOW'
