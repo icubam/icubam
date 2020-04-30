@@ -18,13 +18,13 @@ data_source = ["bedcounts"]
 def plot(data, **kwargs):
   return {
     **plots.plot_each_region(
-      data, gen_plot, f"{FIG_NAME}_7D", days_ago=8, **kwargs
+      data, gen_plot, f"{FIG_NAME}_14D", days_ago=15, **kwargs
     ),
     **plots.plot_each_region(data, gen_plot, FIG_NAME, **kwargs)
   }
 
 
-def gen_plot(data, groupby='department', **kwargs):
+def gen_plot(data, groupby='department', figsize=(7, 4), **kwargs):
   agg = {col: "sum" for col in dataset.BEDCOUNT_COLUMNS}
   groups = sorted(data[groupby].unique())
   GROUP_COLORS = {
@@ -41,7 +41,7 @@ def gen_plot(data, groupby='department', **kwargs):
   # Set plotting to 'flow':
   col = 'flow'
   # Start plotting!
-  fig, ax = plt.subplots(1, figsize=(7, 4))
+  fig, ax = plt.subplots(1, figsize=figsize, constrained_layout=True)
   # Iterate over dates:
   for i, (date,
           d_date) in enumerate(data.sort_values(by="date").groupby("date")):

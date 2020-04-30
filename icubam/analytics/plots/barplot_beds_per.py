@@ -27,13 +27,15 @@ def plot(data, **kwargs):
   return all_plots
 
 
-def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
+def gen_plot(
+  data, groupby="department", col_prefix="n_covid", figsize=(12, 6), **kwargs
+):
   n_occ = data.groupby("date").sum()[f"{col_prefix}_occ"]
   n_free = data.groupby("date").sum()[f"{col_prefix}_free"]
   n_tot = n_occ + n_free
 
   covid_pos = '+' if col_prefix == "n_covid" else '-'
-  fig, ax = plt.subplots(1, figsize=(12, 6))
+  fig, ax = plt.subplots(1, figsize=figsize, constrained_layout=True)
 
   date_range_idx = np.arange(len(n_tot))
 
@@ -78,5 +80,4 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
     [date.strftime("%d-%m") for date in sorted(data.date.unique())],
     rotation=45,
   )
-  fig.tight_layout()
   return fig
