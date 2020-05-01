@@ -41,6 +41,14 @@ export GCP_PROJECT_ID="icubam-272015"
 export GCP_SA_NAME="$(whoami)"
 ```
 
+Optionally, to avoid having Terraform prompt you on every command, you can have:
+
+```console
+export TF_VAR_gcp_project_id="${GCP_PROJECT_ID}"
+export TF_VAR_project_name="$(whoami)-test"
+export TF_VAR_ssh_username="$(whoami)"
+```
+
 Otherwise, please run:
 
 ```console
