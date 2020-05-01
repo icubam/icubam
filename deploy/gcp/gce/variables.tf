@@ -42,7 +42,7 @@ variable "gcp_machine_type" {
   # - https://cloud.google.com/compute/docs/machine-types
   # - $ gcloud compute machine-types list
   description = "Google Cloud Platform's selected machine type"
-  default     = "f1-micro"
+  default     = "g1-small"
 }
 
 variable "gcp_os_image" {
