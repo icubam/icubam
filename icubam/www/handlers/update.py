@@ -3,9 +3,10 @@ import tornado.web
 import os.path
 
 import icubam
+from icubam.messaging.telegram import integrator
+from icubam.www import updater
 from icubam.www.handlers import base
 from icubam.www.handlers import home
-from icubam.www import updater
 
 
 class UpdateHandler(base.BaseHandler):
@@ -17,6 +18,7 @@ class UpdateHandler(base.BaseHandler):
   def initialize(self, config, db_factory):
     super().initialize(config, db_factory)
     self.updater = updater.Updater(self.config, self.db)
+    self.telegram_setup = integrator.TelegramSetup(self.config, self.db)
 
   def get_consent_html(self, user):
     """To show a consent modal, the user should be seeing it for the first time
@@ -34,17 +36,23 @@ class UpdateHandler(base.BaseHandler):
   async def get(self):
     """Serves the page with a form to be filled by the user."""
     user_token = self.get_query_argument(self.QUERY_ARG)
-    user, icu = self.decode_token(user_token)
-    if user is None or icu is None:
+    user_icu = self.authenticator.authenticate(user_token)
+    if user_icu is None:
       logging.error("Token authentication failed")
       self.clear_cookie(self.COOKIE)
       return self.set_status(404)
+    user, icu = user_icu
 
     locale = self.get_user_locale()
     data = self.updater.get_icu_data_by_id(icu.icu_id, locale=locale)
     data['icu_name'] = icu.name
     data['version'] = icubam.__version__
     data['consent'] = self.get_consent_html(user)
+
+    data['telegram_url'] = None
+    if user.telegram_chat_id is None and self.telegram_setup.is_on:
+      data['telegram_url'] = self.telegram_setup.get_bot_url(user_token)
+
     self.set_secure_cookie(self.COOKIE, user_token)
     self.render('update_form.html', **data)
 

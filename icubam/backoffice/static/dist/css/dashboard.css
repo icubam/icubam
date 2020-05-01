@@ -26,3 +26,8 @@ div.operational-dash .figure img {
 div.operational-dash #dashboard-tabs-content > div {
     margin-top: 3em;
 }
+
+div.operational-dash .extra-plots {
+    padding-right: 30px;
+    margin-bottom: 1em;
+}

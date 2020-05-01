@@ -1,0 +1,2 @@
+{{_("Hello")}} {{msg.user_name}},
+{{_("Here is")}} {{_("the link")}} {{_("to update your covid data on ICUBAM for")}} {{msg.icu_name}}: {{msg.url}}

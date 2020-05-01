@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "result": [
+    {
+      "update_id": 3725710,
+      "message": {
+        "message_id": 19,
+        "from": {
+          "id": 11111111,
+          "is_bot": false,
+          "first_name": "Michel",
+          "language_code": "fr"
+        },
+        "chat": {"id": 11111111, "first_name": "Michel", "type": "private"},
+        "date": 1587576957,
+        "text": "/start eyJ0eXAiOiJKV",
+        "entities": [{"offset": 0, "length": 6, "type": "bot_command"}]
+      }
+    },
+    {
+      "update_id": 372570011,
+      "message": {
+        "message_id": 21,
+        "from": {
+          "id": 11111111,
+          "is_bot": false,
+          "first_name": "Michel",
+          "language_code": "fr"},
+          "chat": {"id": 11111111, "first_name": "Michel", "type": "private"},
+          "date": 1587577865,
+          "text": "/start ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2N",
+          "entities": [{"offset": 0, "length": 6, "type": "bot_command"}]
+        }
+    }
+  ]
+}
