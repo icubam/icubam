@@ -12,8 +12,8 @@ services:
       - "443:443"
     volumes:
       - type: bind
-        source:  "${ICUBAM_NGINX_PATH:-./docker/configs/nginx}"
-        target: /etc/nginx/conf.d
+        source:  "${ICUBAM_NGINX_CONF:-./docker/configs/nginx/app.conf}"
+        target: /etc/nginx/conf.d/app.conf
       - type: bind
         source:  "${ICUBAM_CERTBOT_PATH:-./docker/configs/certbot}/conf"
         target: /etc/letsencrypt
