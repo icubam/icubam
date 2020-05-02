@@ -1,4 +1,3 @@
-import os.path
 import tornado.web
 
 import icubam
