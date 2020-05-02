@@ -18,12 +18,11 @@ class HomeHandler(base.BaseHandler):
   def get_disclaimer_url(self):
     """To show a disclaimer link if defined in configuration."""
     if self.config.server.has_key('disclaimer'):
-      path = self.config.server.disclaimer
-      if os.path.exists(path):
-        return "<a href='{}disclaimer'>disclaimer</a>".format(
-          self.config.server.base_url
-        )
-    return ""
+      return "<a href='{}disclaimer'>disclaimer</a>".format(
+        self.config.server.base_url
+      )
+    else:
+      return ""
 
   @tornado.web.authenticated
   def get(self):
@@ -53,13 +52,13 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
     self.regions = None
 
   def get_disclaimer_url(self):
+    """To show a disclaimer link if defined in configuration."""
     if self.config.server.has_key('disclaimer'):
-      path = self.config.server.disclaimer
-      if os.path.exists(path):
-        return "<a href='{}disclaimer'>disclaimer</a>".format(
-          self.config.server.base_url
-        )
-    return ""
+      return "<a href='{}disclaimer'>disclaimer</a>".format(
+        self.config.server.base_url
+      )
+    else:
+      return ""
 
   @base.authenticated(code=503)
   def get(self):

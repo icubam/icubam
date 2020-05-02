@@ -1,4 +1,5 @@
 import os.path
+from absl import logging
 
 from icubam.www.handlers import base
 
@@ -15,6 +16,9 @@ class DisclaimerHandler(base.BaseHandler):
     if os.path.exists(path):
       with open(path, 'r') as fp:
         return fp.read()
+    else:
+      logging.warning(f"Disclaimer file from config {path} is set but not available")
+      return ""
 
   def get_current_user(self):
     """This route is not secured at first."""
