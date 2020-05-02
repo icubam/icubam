@@ -18,16 +18,16 @@ jobs:
     - name: Build the Docker image
       run: |
         docker build . --file docker/Dockerfile \
-          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/} \
-          --tag docker.pkg.github.com/icubam/icubam/icubam-services:${{ github.sha }}
+          --tag icubam/icubam-services:${GITHUB_REF##*/} \
+          --tag icubam/icubam-services:${{ github.sha }}
         # sanity check: run unit tests from within the container
-        docker run -e JWT_SECRET=faketest --mount type=bind,source=$PWD/resources,target=/home/icubam/resources,readonly docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/} "pytest"
-    - name: docker login (GitHub)
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-    - name: docker push (GitHub)
+        docker run -e JWT_SECRET=faketest --mount type=bind,source=$PWD/resources,target=/home/icubam/resources,readonly icubam/icubam-services:${GITHUB_REF##*/} "pytest"
+    - name: docker login (Docker Hub)
+      run: echo "${{ secrets. DOCKER_HUB_TOKEN }}" | docker login --username ${{ secrets. DOCKER_HUB_USERNAME }} --password-stdin
+    - name: docker push (Docker Hub)
       run: |
-        docker push docker.pkg.github.com/icubam/icubam/icubam-services:${GITHUB_REF##*/}
-        docker push docker.pkg.github.com/icubam/icubam/icubam-services:${{ github.sha }}
+        docker push icubam/icubam-services:${GITHUB_REF##*/}
+        docker push icubam/icubam-services:${{ github.sha }}
     - name: Trigger CD to staging environment
       run: |
         if [ -z "${GITLAB_PROJECT_URL}" ]; then
