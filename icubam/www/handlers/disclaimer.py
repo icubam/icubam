@@ -12,7 +12,6 @@ class DisclaimerHandler(base.BaseHandler):
   def get_disclaimer_html(self):
     """To show a disclaimer page if specified in configuration."""
     path = self.config.server.disclaimer
-    # The user has already agreed, we skip.
     if path is not None and os.path.exists(path):
       with open(path, 'r') as fp:
         return fp.read()
