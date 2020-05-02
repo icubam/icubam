@@ -17,7 +17,9 @@ class DisclaimerHandler(base.BaseHandler):
       with open(path, 'r') as fp:
         return fp.read()
     else:
-      logging.warning(f"Disclaimer file from config {path} is set but not available")
+      logging.warning(
+        f"Disclaimer file from config {path} is set but not available"
+      )
       return ""
 
   def get_current_user(self):
