@@ -19,7 +19,7 @@ class HomeHandler(base.BaseHandler):
     """To show a disclaimer link if defined in configuration."""
     if self.config.server.has_key('disclaimer'):
       path = self.config.server.disclaimer
-      if path is not None and os.path.exists(path):
+      if os.path.exists(path):
         return "<a href='{}disclaimer'>disclaimer</a>".format(
           self.config.server.base_url
         )
@@ -55,7 +55,7 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   def get_disclaimer_url(self):
     if self.config.server.has_key('disclaimer'):
       path = self.config.server.disclaimer
-      if path is not None and os.path.exists(path):
+      if os.path.exists(path):
         return "<a href='{}disclaimer'>disclaimer</a>".format(
           self.config.server.base_url
         )
