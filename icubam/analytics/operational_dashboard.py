@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from icubam.db.store import to_pandas, BedCount
+from icubam.analytics.image_url_mapper import ImageURLMapper
 
 
 def _prepare_data(bed_counts: pd.DataFrame) -> Tuple[pd.DataFrame, List]:
@@ -148,11 +149,13 @@ def make(
     current_region_name = locale.translate("All regions")
   else:
     current_region_name = "All regions"
+  current_region_id = None
 
   if region is not None and region.isdigit():
     try:
       current_region = db.get_region(int(region))
       current_region_name = current_region.name
+      current_region_id = int(region)
     except Exception:
       logging.warning(
         f"Invalid query argument: region={region} "
@@ -191,28 +194,20 @@ def make(
 
   plots_extra = _list_extra_plots(Path(extra_plots_dir))
 
+  img_map = ImageURLMapper(plots_extra)
+
   regions = [{
     'name': el.name,
     'id': el.region_id
   } for el in db.get_regions() if el.region_id in region_id_seen]
   regions = list(sorted(regions, key=lambda x: x['name']))
 
-  # TODO: remove this in favor of fixing plot names
-  region2region = {
-    "Grand-Est": "Alsace-Champagne-Ardenne-Lorraine",
-    "Nouvelle-Aquitaine": "Aquitaine-Limousin-Poitou-Charentes",
-    "AURA": "Auvergne-Rhône-Alpes",
-    "Centre-Val-de-Loire": "Centre-Val de Loire",
-    "Hauts-de-France": "Nord-Pas-de-Calais-Picardie",
-    "Pays-de-la-Loire": "Pays de la Loire"
-  }
-
   return {
     'figures': figures,
     'regions': regions,
-    'current_region_name': current_region_name,
+    'region_name': current_region_name,
+    'region_id': current_region_id,
     'metrics_layout': metrics_layout,
-    'plots_extra': plots_extra,
+    'img_map': img_map,
     '_grouper': _grouper,
-    "region2region": region2region,
   }

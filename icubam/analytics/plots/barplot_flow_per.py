@@ -8,8 +8,7 @@ import matplotlib.style
 import numpy as np
 import seaborn
 
-from icubam.analytics import plots
-from icubam.analytics import dataset
+from icubam.analytics import dataset, plots
 from icubam.analytics.preprocessing import compute_flow_per_dpt
 
 FIG_NAME = 'CUM_FLOW'
@@ -19,30 +18,13 @@ data_source = ["bedcounts"]
 def plot(data, **kwargs):
   return {
     **plots.plot_each_region(
-      data, gen_plot, f"{FIG_NAME}_7D", days_ago=8, **kwargs
+      data, gen_plot, f"{FIG_NAME}_14D", days_ago=15, **kwargs
     ),
     **plots.plot_each_region(data, gen_plot, FIG_NAME, **kwargs)
   }
 
 
-def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
-  """Draws a single rectangle patch for a cumulative bar plot."""
-  rect_patch = matplotlib.patches.Rectangle(
-    xy=(x, start),
-    width=1,
-    height=abs(end),
-    fill=True,
-    linewidth=0.7,
-    edgecolor="black",
-    hatch=hatch,
-    facecolor=GROUP_COLORS[label],
-    label=label,
-  )
-  ax.add_patch(rect_patch)
-  return ax
-
-
-def gen_plot(data, groupby='department', **kwargs):
+def gen_plot(data, groupby='department', figsize=(7, 4), **kwargs):
   agg = {col: "sum" for col in dataset.BEDCOUNT_COLUMNS}
   groups = sorted(data[groupby].unique())
   GROUP_COLORS = {
@@ -59,7 +41,7 @@ def gen_plot(data, groupby='department', **kwargs):
   # Set plotting to 'flow':
   col = 'flow'
   # Start plotting!
-  fig, ax = plt.subplots(1, figsize=(7, 4))
+  fig, ax = plt.subplots(1, figsize=figsize, constrained_layout=True)
   # Iterate over dates:
   for i, (date,
           d_date) in enumerate(data.sort_values(by="date").groupby("date")):
@@ -70,14 +52,14 @@ def gen_plot(data, groupby='department', **kwargs):
     start_cum = neg_deps[col].sum()
     # Plot negative values:
     for j, row in neg_deps.iterrows():
-      ax = draw_rect(
+      ax = plots.draw_rect(
         ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])
     # Now plot positive values:
     start_cum = 0
     for j, row in pos_deps.iterrows():
-      ax = draw_rect(
+      ax = plots.draw_rect(
         ax, i, start_cum, abs(row[col]), row[groupby], GROUP_COLORS
       )
       start_cum += abs(row[col])

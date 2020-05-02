@@ -44,7 +44,9 @@ def plot(data, **kwargs):
   }
 
 
-def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
+def gen_plot(
+  data, groupby="department", col_prefix="n_covid", figsize=(12, 6), **kwargs
+):
   n_occ = data.groupby("date").sum()[f"{col_prefix}_occ"]
   n_free = data.groupby("date").sum()[f"{col_prefix}_free"]
   n_tot = n_occ + n_free
@@ -54,7 +56,7 @@ def gen_plot(data, groupby="department", col_prefix="n_covid", **kwargs):
       data.groupby("date").sum()["n_covid_transfered"].diff(1).fillna(0)
     )
     n_req = n_occ + n_transfered
-  fig, ax = plt.subplots(1, figsize=(12, 6))
+  fig, ax = plt.subplots(1, figsize=figsize, constrained_layout=True)
 
   date_range_idx = np.arange(len(n_req))
 

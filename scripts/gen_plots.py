@@ -43,9 +43,7 @@ def main(argv):
     eventloop.run_until_complete(callback.generate_plots())
     logging.info(f'Generated dashboard plots in {output_dir}')
   else:
-    df_bedcounts = dataset.load_bed_counts(
-      store_factory.create(), preprocess=True
-    )
+    df_bedcounts = dataset.load_bed_counts(store_factory.create())
     df_bedcounts = preprocessing.preprocess_bedcounts(df_bedcounts)
     logging.info('[periodic callback] Starting plots generation with predicu')
     plot_data = {'bedcounts': df_bedcounts}

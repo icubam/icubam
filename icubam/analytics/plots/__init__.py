@@ -13,6 +13,7 @@ import scipy
 import seaborn
 
 from icubam.analytics import dataset
+from icubam.analytics.image_url_mapper import ImageURLMapper
 
 COLUMN_TO_HUMAN_READABLE = {
   "n_covid_deaths": "Décès",
@@ -58,6 +59,12 @@ COL_COLOR.update({
 RANDOM_MARKERS = itertools.cycle(("x", "+", ".", "|"))
 RANDOM_COLORS = itertools.cycle(seaborn.color_palette("bright", 10))
 
+PLOTS = []
+for path in os.listdir(os.path.dirname(__file__)):
+  if path.endswith(".py") and path != "__init__.py":
+    plot_name = path.rsplit(".", 1)[0]
+    PLOTS.append(plot_name)
+
 
 def plot_int(
   x,
@@ -72,6 +79,9 @@ def plot_int(
   fill_below=False,
   kind="quadratic"
 ):
+  if len(x) <= 1:
+    # Linear interpolation requires at least 2 entries
+    kind = "zero"
   f = scipy.interpolate.interp1d(x, y, kind=kind)
   x_i = np.linspace(0, len(x) - 1, len(x) * 5)
   y_i = f(x_i)
@@ -85,11 +95,21 @@ def plot_int(
   return ax
 
 
-PLOTS = []
-for path in os.listdir(os.path.dirname(__file__)):
-  if path.endswith(".py") and path != "__init__.py":
-    plot_name = path.rsplit(".", 1)[0]
-    PLOTS.append(plot_name)
+def draw_rect(ax, x, start, end, label, GROUP_COLORS, hatch=''):
+  """Draws a single rectangle patch for a cumulative bar plot."""
+  rect_patch = matplotlib.patches.Rectangle(
+    xy=(x, start),
+    width=1,
+    height=abs(end),
+    fill=True,
+    linewidth=0.7,
+    edgecolor="black",
+    hatch=hatch,
+    facecolor=GROUP_COLORS[label],
+    label=label,
+  )
+  ax.add_patch(rect_patch)
+  return ax
 
 
 def plot(
@@ -143,7 +163,9 @@ def generate_plots(
     os.makedirs(output_dir)
   plots_unknown = set(plots).difference(PLOTS)
   if plots_unknown:
-    raise ValueError("Unknown plot(s): {}".format(", ".join(plots_unknown)))
+    raise ValueError(
+      "Unknown plot(s): {} not in {}".format(", ".join(plots_unknown), PLOTS)
+    )
   for name in sorted(plots):
     logging.info("generating plot %s in %s" % (name, output_dir))
     plot(
@@ -151,6 +173,7 @@ def generate_plots(
       plot_data=data,
       output_type=output_type,
       output_dir=output_dir,
+      figsize=(10, 6)
     )
 
 
@@ -171,14 +194,16 @@ def plot_each_region(data, gen_plot, fig_name, **kwargs):
                  pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
   figs = {}
   # Generate a national plot:
-  figs[f'National-{fig_name}'] = gen_plot(data, groupby='region', **kwargs)
+  name = ImageURLMapper.make_path(fig_name, extension=None)
+  figs[name] = gen_plot(data, groupby='region', **kwargs)
 
   # And now regional plots:
   for region in regions:
     region_id = data[data['region'] == region]['region_id'].iloc[0]
     region_data = data[data['region'] == region]
-    figs[f'region_id={region_id}-{region}-{fig_name}'] = gen_plot(
-      region_data, groupby='department', **kwargs
+    name = ImageURLMapper.make_path(
+      fig_name, region_id=region_id, region=region, extension=None
     )
+    figs[name] = gen_plot(region_data, groupby='department', **kwargs)
 
   return figs
