@@ -34,7 +34,7 @@ class DBHandler(base.APIKeyProtectedHandler):
   GET_ACCESS = [store.AccessTypes.ALL, store.AccessTypes.STATS]
   POST_ACCESS = [store.AccessTypes.UPLOAD, store.AccessTypes.STATS]
 
-  def initialize(self, upload_path, config, db_factory, dataset):
+  def initialize(self, upload_path, config, db_factory):
     super().initialize(config, db_factory)
     self.upload_path = upload_path
     self.client = client.AnalyticsClient(config)
@@ -48,9 +48,10 @@ class DBHandler(base.APIKeyProtectedHandler):
       self.set_status(403)
       return
 
-    print('---->', self.path_kwargs)
     try:
-      result = await self.client.get(collection, self.path_kwargs)
+      # We fetch the data from the analytics server, in case it needs heavy
+      # computation and caching.
+      result = await self.client.get(collection, self.request.query)
     except Exception as e:
       logging.warning(f'Could not fetch {collection}: {e}')
       self.redirect(home.HomeHandler.ROUTE)

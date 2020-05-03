@@ -39,7 +39,7 @@ class BackofficeApplication(tornado.web.Application):
     pings.start()
 
   async def ping(self):
-    servers = {'server': 'www', 'messaging': 'sms'}
+    servers = {'server': 'www', 'messaging': 'sms', 'analytics': 'analytics'}
     for server, name in servers.items():
       url = self.config[server].base_url + 'health'
       status = self.server_status[server]
