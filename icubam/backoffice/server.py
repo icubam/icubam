@@ -14,7 +14,6 @@ from icubam.backoffice.handlers import (
   bedcounts, consent, home, icus, login, logout, maps, messages,
   operational_dashboard, regions, tokens, upload, users
 )
-from icubam.analytics.analytics_server import register_analytics_callback
 
 
 @dataclasses.dataclass
@@ -38,8 +37,6 @@ class BackofficeApplication(tornado.web.Application):
     repeat_every = self.config.backoffice.ping_every * 1000
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
-
-    register_analytics_callback(self.config, db_factory, tornado.ioloop)
 
   async def ping(self):
     servers = {'server': 'www', 'messaging': 'sms'}

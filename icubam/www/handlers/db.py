@@ -1,4 +1,3 @@
-import functools
 import io
 import os
 from datetime import datetime
@@ -7,8 +6,8 @@ import tornado.web
 from absl import logging  # noqa: F401
 
 from icubam.db import store, synchronizer
+from icubam.analytics import client
 from icubam.analytics import operational_dashboard
-from icubam.analytics.preprocessing import preprocess_bedcounts
 from icubam.www.handlers import base, home
 
 
@@ -35,19 +34,13 @@ class DBHandler(base.APIKeyProtectedHandler):
   GET_ACCESS = [store.AccessTypes.ALL, store.AccessTypes.STATS]
   POST_ACCESS = [store.AccessTypes.UPLOAD, store.AccessTypes.STATS]
 
-  def initialize(self, upload_path, config, db_factory):
+  def initialize(self, upload_path, config, db_factory, dataset):
     super().initialize(config, db_factory)
     self.upload_path = upload_path
-
-    keys = ['icus', 'regions']
-    self.get_fns = {k: getattr(self.db, f'get_{k}', None) for k in keys}
-    self.get_fns['all_bedcounts'] = self.db.get_bed_counts
-    self.get_fns['bedcounts'] = functools.partial(
-      self.db.get_visible_bed_counts_for_user, user_id=None, force=True
-    )
+    self.client = client.AnalyticsClient(config)
 
   @base.authenticated(code=503)
-  def get(self, collection):
+  async def get(self, collection):
     if self.current_user.access_type not in self.GET_ACCESS:
       logging.info(
         f"API called with incorrect access_type: {self.current_user.access_type}."
@@ -55,47 +48,15 @@ class DBHandler(base.APIKeyProtectedHandler):
       self.set_status(403)
       return
 
-    file_format = self.get_query_argument('format', default=None)
-    max_ts = self.get_query_argument('max_ts', default=None)
-    # should_preprocess: whether preprocessing should be applied to the data
-    # the raw data of ICUBAM contains inputs errors and this preprocessing will
-    # attempt to fix them
-    # it should be used cautiously because it alters the data in ways that are
-    # useful for analysis purposes but not necessarily reflect the exact/real
-    # bed count values
-    # whenever a query argument named 'preprocess' is present, we enable this
-    # preprocessing (it can be 'preprocess=<anything>' or simply 'preprocess')
-    should_preprocess = (
-      self.get_query_argument('preprocess', default=None) is not None
-    )
-    data = None
-
-    get_fn = self.get_fns.get(collection, None)
-    if get_fn is None:
-      logging.debug("API called with incorrect endpoint: {collection}.")
+    print('---->', self.path_kwargs)
+    try:
+      result = await self.client.get(collection, self.path_kwargs)
+    except Exception as e:
+      logging.warning(f'Could not fetch {collection}: {e}')
       self.redirect(home.HomeHandler.ROUTE)
       return
 
-    if collection in ['bedcounts', 'all_bedcounts']:
-      if isinstance(max_ts, str) and max_ts.isnumeric():
-        max_ts = datetime.fromtimestamp(int(max_ts))
-      get_fn = functools.partial(get_fn, max_date=max_ts)
-      data = store.to_pandas(get_fn(), max_depth=2)
-      data = data.drop(columns=['icu_bed_counts', 'icu_users', 'icu_managers'])
-      if collection == 'all_bedcounts' and should_preprocess:
-        data = preprocess_bedcounts(data)
-    else:
-      data = store.to_pandas(get_fn(), max_depth=0)
-
-    for k, v in _get_headers(collection, file_format).items():
-      self.set_header(k, v)
-
-    if file_format == 'csv':
-      stream = io.StringIO()
-      data.to_csv(stream, index=False)
-      self.write(stream.getvalue())
-    else:
-      self.write(data.to_html())
+    self.write(result.body)
 
   @tornado.web.authenticated
   def post(self, collection):
