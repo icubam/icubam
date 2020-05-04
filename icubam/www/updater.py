@@ -41,14 +41,12 @@ class Updater:
     bed_count = self.db.get_bed_count_for_icu(icu_id)
     bed_count = bed_count if bed_count is not None else store.BedCount()
     # In case there is a weird corner case, we don't want to crash the form:
-    last_update = bed_count.last_modified
-    if last_update is not None:
-      last_update = last_update.timestamp()
+    date = bed_count.create_date
+    if date is not None:
+      date = date.timestamp()
     result = bed_count.to_dict()
     apply_default(result, value=def_val, prefix='n_')
-    result['since_update'] = time_utils.localewise_time_ago(
-      last_update, locale
-    )
+    result['since_update'] = time_utils.localewise_time_ago(date, locale)
     result['home_route'] = home.HomeHandler.ROUTE
     result['update_route'] = self.POST_ROUTE
     return result
