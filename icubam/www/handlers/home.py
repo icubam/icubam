@@ -53,8 +53,7 @@ class MapByAPIHandler(base.APIKeyProtectedHandler):
   def get_disclaimer_url(self):
     """To show a disclaimer link if defined in configuration."""
     if self.config.server.has_key('disclaimer'):
-      return "<a href='{}disclaimer'>disclaimer</a>".format(
-        self.config.server.base_url
+      return "<a href='/disclaimer'>disclaimer</a>"
       )
     else:
       return ""
