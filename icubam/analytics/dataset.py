@@ -41,7 +41,8 @@ def cached(func):
       for i in range(1,
                      len(argspec.defaults) + 1)
     }
-    key_dict.update(argspec.kwonlydefaults)
+    if argspec.kwonlydefaults is not None:
+      key_dict.update(argspec.kwonlydefaults)
     func_args = argspec.args[1:]
     key_dict.update({k: v for k, v in zip(func_args, args)})
     key_dict.update(kwargs)

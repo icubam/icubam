@@ -1,4 +1,4 @@
-from icubam.analytics.analytics_server import register_analytics_callback
+from icubam.analytics import generator, dataset
 from icubam.config import Config
 
 
@@ -15,24 +15,27 @@ class MockIOLoop:
     return MockCallback()
 
 
-def test_analytics_server(tmpdir):
+def test_generator(tmpdir):
   config = Config('resources/test.toml')
+  ds = dataset.Dataset(None)
 
   # Non existing path, callback not registred
-  for val in ['/invalid/path/2', None]:
+  for _l in ['/invalid/path/2', None]:
     config.backoffice.extra_plots_dir = '/invalid/path/2'
+    gen = generator.PlotGenerator(config, None, ds, frequency=100)
     ioloop = MockIOLoop()
-    register_analytics_callback(config, db_factory=None, ioloop=MockIOLoop())
+    gen.register(ioloop)
     assert ioloop.n_calls == 0
 
   # Callback registered
   config.backoffice.extra_plots_dir = str(tmpdir.mkdir("tmp"))
+  gen = generator.PlotGenerator(config, None, ds, frequency=100)
   ioloop = MockIOLoop()
-  register_analytics_callback(config, db_factory=None, ioloop=ioloop)
+  gen.register(ioloop)
   assert ioloop.n_calls == 1
 
-  # extra_plots_make_every = -1, callback not registred
-  config.backoffice.extra_plots_make_every = -1
+  # Negative frequency: do not register.
+  gen = generator.PlotGenerator(config, None, ds, frequency=-1)
   ioloop = MockIOLoop()
-  register_analytics_callback(config, db_factory=None, ioloop=MockIOLoop())
+  gen.register(ioloop)
   assert ioloop.n_calls == 0

@@ -6,7 +6,10 @@ from icubam.analytics import plots
 
 class PlotGenerator:
   """Generates all the plots periodically."""
-  def __init__(self, config, db, dataset, frequency):
+
+  DEFAULT = ['barplot_beds_per', 'barplot_flow_per']
+
+  def __init__(self, config, db, dataset, frequency=None):
     self.config = config
     self.db = db
 
@@ -19,21 +22,23 @@ class PlotGenerator:
         self.folder = None
 
     self.dataset = dataset
-    self.frequency = frequency
+    self.frequency = None
+    if frequency is not None and frequency > 0:
+      self.frequency = frequency
 
   @property
   def is_valid(self):
     return self.frequency is not None and self.folder is not None
 
-  async def run(self):
+  async def run(self, names=None):
     df = self.dataset.get_bedcounts(latest=False)
     logging.info('[periodic callback] Starting plots generation with predicu')
     plots.generate_plots(
-      plots=['barplot_beds_per', 'barplot_flow_per'],
+      plots=self.DEFAULT if names is None else names,
       data={'bedcounts': df},
       output_dir=self.folder
     )
-    logging.info('[periodic callback] Finished plots generation with predicu')
+    logging.info(f'plots generated in {self.folder}')
 
   def register(self, ioloop) -> None:
     """Register a callback to generate plots"""
