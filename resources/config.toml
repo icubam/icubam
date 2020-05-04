@@ -18,6 +18,7 @@ default_locale='fr-fr'
   base_url = "http://localhost:8887/"
   upload_dir = "uploads/"
   consent = 'resources/consent.html'
+  disclaimer = 'resources/disclaimer.html'
   num_days_for_stale = 1.0
   max_cluster_size = 10
   display_empty_icu = false

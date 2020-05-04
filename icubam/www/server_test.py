@@ -13,6 +13,7 @@ from icubam.www import token
 from icubam.www.handlers import base
 from icubam.www.handlers import home
 from icubam.www.handlers import update
+from icubam.www.handlers import disclaimer
 from icubam.www.handlers.version import VersionHandler
 
 
@@ -147,3 +148,8 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     url = f'{route}&API_KEY={access_key.key}&preprocess=true'
     response = self.fetch(url, method="GET")
     check_response_csv(self, response)
+
+  def test_disclaimer_page(self):
+    """Test the route is reachable."""
+    response = self.fetch(disclaimer.DisclaimerHandler.ROUTE)
+    self.assertEqual(response.code, 200)

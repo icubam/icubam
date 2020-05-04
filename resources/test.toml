@@ -17,6 +17,7 @@ sqlite_path = ":memory:"
   PORT = 8888  # will be lower cased when reading.
   base_url = "http://localhost"
   num_days_for_stale = 1
+  disclaimer = 'resources/test/test_disclaimer.html'
 
 
 [messaging]

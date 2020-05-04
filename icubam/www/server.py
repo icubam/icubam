@@ -8,7 +8,7 @@ from tornado import queues
 from icubam import base_server, sentry
 from icubam.analytics import client
 from icubam.db import queue_writer
-from icubam.www.handlers import consent, db, error, home, static, update
+from icubam.www.handlers import consent, db, error, disclaimer, home, static, update
 from icubam.www.handlers.version import VersionHandler
 
 
@@ -54,6 +54,7 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(error.ErrorHandler, **kwargs)
+    self.add_handler(disclaimer.DisclaimerHandler, **kwargs)
 
     if os.path.isdir(self.config.backoffice.extra_plots_dir):
       prefix = db.OperationalDashboardHandler.BACKOFFICE_PREFIX
