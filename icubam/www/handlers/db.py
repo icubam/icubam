@@ -6,7 +6,6 @@ import tornado.web
 from absl import logging  # noqa: F401
 
 from icubam.db import store, synchronizer
-from icubam.analytics import client
 from icubam.analytics import operational_dashboard
 from icubam.www.handlers import base, home
 
@@ -34,10 +33,10 @@ class DBHandler(base.APIKeyProtectedHandler):
   GET_ACCESS = [store.AccessTypes.ALL, store.AccessTypes.STATS]
   POST_ACCESS = [store.AccessTypes.UPLOAD, store.AccessTypes.STATS]
 
-  def initialize(self, upload_path, config, db_factory):
+  def initialize(self, upload_path, config, db_factory, client):
     super().initialize(config, db_factory)
     self.upload_path = upload_path
-    self.client = client.AnalyticsClient(config)
+    self.client = client
 
   @base.authenticated(code=503)
   async def get(self, collection):
@@ -54,8 +53,11 @@ class DBHandler(base.APIKeyProtectedHandler):
       result = await self.client.get(collection, self.request.query)
     except Exception as e:
       logging.warning(f'Could not fetch {collection}: {e}')
-      self.redirect(home.HomeHandler.ROUTE)
-      return
+      return self.redirect(home.HomeHandler.ROUTE)
+
+    file_format = self.get_query_argument('format', default=None)
+    for k, v in _get_headers(collection, file_format).items():
+      self.set_header(k, v)
 
     self.write(result.body)
 

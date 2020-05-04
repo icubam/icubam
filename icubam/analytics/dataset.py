@@ -85,20 +85,25 @@ class Dataset:
       result = self.db.get_bed_counts(max_date=max_ts)
 
     result = store.to_pandas(result, max_depth=2)
-    result = result.drop(
-      columns=['icu_bed_counts', 'icu_users', 'icu_managers']
-    )
+    if result.shape[0] == 0:
+      return result
+
+    to_drop = set(result.columns).intersection([
+      'icu_bed_counts', 'icu_users', 'icu_managers'
+    ])
+    result = result.drop(columns=to_drop)
     if preprocess:
       result = preprocessing.preprocess_bedcounts(result)
 
     result = result.sort_values(by=["create_date", "icu_name"])
     return result
 
-  def get(self, collection='bedcounts', max_ts=None):
+  def get(self, collection='bedcounts', max_ts=None, preprocess=None):
     """Returns the proper pandas dataframe."""
     if collection in ['bedcounts', 'all_bedcounts']:
       latest = collection == 'bedcounts'
-      return self.get_bedcounts(max_ts, latest=latest, preprocess=not latest)
+      preprocess = not latest if preprocess is None else preprocess
+      return self.get_bedcounts(max_ts, latest=latest, preprocess=preprocess)
 
     if collection == 'icus':
       result = self.db.get_icus()

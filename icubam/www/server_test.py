@@ -5,6 +5,7 @@ from unittest import mock
 import tornado.testing
 import pandas as pd
 from icubam import config
+from icubam.analytics.tests import mock_client
 from icubam.db import store
 from icubam.db.fake import populate_store_fake
 from icubam.www import server
@@ -21,8 +22,10 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
   def setUp(self):
     self.config = config.Config(self.TEST_CONFIG)
     self.server = server.WWWServer(self.config, port=8888)
-    super().setUp()
     self.db = self.server.db_factory.create()
+    self.server.analytics_client = mock_client.MockClient(config, self.db)
+    super().setUp()
+
     self.admin_id = self.db.add_default_admin()
     self.icu_id = self.db.add_icu(self.admin_id, store.ICU(name='icu'))
     self.user_id = self.db.add_user_to_icu(
@@ -81,8 +84,6 @@ class TestWWWServer(tornado.testing.AsyncHTTPTestCase):
     url = f'{route}?API_KEY=aaaaa'
     response = self.fetch(url, method="GET")
     self.assertEqual(response.code, 503)
-
-    # Wrong access type
     access_stats = store.ExternalClient(
       name='stats-key', access_type=store.AccessTypes.STATS
     )
