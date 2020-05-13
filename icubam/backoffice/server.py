@@ -82,11 +82,11 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(upload.UploadHandler)
     self.add_handler(consent.ConsentResetHandler)
 
-    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+    if os.path.isdir(self.config.analytics.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
       self.routes.append((
         route, tornado.web.StaticFileHandler, {
-          'path': self.config.backoffice.extra_plots_dir
+          'path': self.config.analytics.extra_plots_dir
         }
       ))
 

@@ -13,7 +13,7 @@ class PlotGenerator:
     self.config = config
     self.db = db
 
-    self.folder = config.backoffice.extra_plots_dir
+    self.folder = config.analytics.extra_plots_dir
     if not isinstance(self.folder, str):
       self.folder = None
     else:

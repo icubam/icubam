@@ -127,7 +127,7 @@ class OperationalDashboardHandler(base.APIKeyProtectedHandler):
       self.db,
       arg_region,
       locale,
-      self.config.backoffice.extra_plots_dir,
+      self.config.analytics.extra_plots_dir,
       external=True
     )
 
