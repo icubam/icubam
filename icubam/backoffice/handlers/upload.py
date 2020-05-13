@@ -25,7 +25,7 @@ class UploadHandler(base.BaseHandler):
 
     content = data.get('data', None)
     if content is None:
-      return self.answer(f'No CSV content', error=True)
+      return self.answer('No CSV content', error=True)
 
     sync = synchronizer.CSVSynchronizer(self.db)
     sync_fns: Dict[base.ObjType, Callable[..., int]] = {
