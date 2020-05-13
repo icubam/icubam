@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install linters
       run: |
-        pip install yapf flake8==3.7.9
+        pip install yapf flake8
     - name: Run yapf
       run: |
         yapf -r --diff .
