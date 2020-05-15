@@ -8,8 +8,8 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: db-builder
-    command: "./docker/build_fake_dbs.sh"
-    tty: true
+    command: ["python3", "scripts/populate_db_fake.py" "--config=/home/icubam/resources/${ICUBAM_CONFIG_FILE:-icubam.toml}"]
+   tty: true
     user: "${USER_ID:-0}:${GROUP_ID:-0}"
     environment:
       ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
