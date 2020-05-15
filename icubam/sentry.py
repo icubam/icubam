@@ -6,7 +6,7 @@ import icubam
 def maybe_init_sentry(cfg, server_name=None):
   """Enable Sentry SDK if module available and SENTRY_URL set."""
   if not cfg.SENTRY_URL:
-    logging.info(f"Not loading Sentry as cfg.SENTRY_URL not loaded.")
+    logging.info("Not loading Sentry as cfg.SENTRY_URL not loaded.")
     return
   try:
     import sentry_sdk

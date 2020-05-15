@@ -21,7 +21,10 @@
       <span class="subtitle-cluster" />{{ _('Available beds') }}</span>
       <span class="subtitle-full" />{{ _('Occupied / Total COVID beds') }}</span>
     </span>
-    </div>
+    <span class="subtitle-display-format">
+      {% raw disclaimer_url %}
+    </span>
+  </div>
   <div id="map"></div>
 </div>
 {% end %}
