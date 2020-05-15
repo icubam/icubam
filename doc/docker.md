@@ -168,9 +168,13 @@ docker-compose -f docker/docker-compose-core.yml -f docker/docker-compose-proxy.
 ## App-only setup
 docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 ```
-![](<img src="../doc/deployment_1vm.png" height="200">)
+![](<img src="../doc/deployment_1vm.png">)
 
-![](<img src="/doc/deployment_2vm.png" height="200">)
+![](<img src="/doc/deployment_2vm.png">)
+
+![](<img src="deployment_1vm.png">)
+
+![](<img src="/doc/deployment_2vm.png">)
 
 
 By default, the application is launched from the root of the project (and not from the folder containing the 
