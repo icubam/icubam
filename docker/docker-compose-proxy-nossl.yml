@@ -11,8 +11,8 @@ services:
       - "80:80"
     volumes:
       - type: bind
-        source:  "${ICUBAM_NGINX_PATH:-./docker/configs/nginx}"
-        target: /etc/nginx/conf.d
+        source:  "${ICUBAM_NGINX_CONF:-./docker/configs/nginx/app.conf}"
+        target: /etc/nginx/conf.d/app.conf
     networks:
       - icubam-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
