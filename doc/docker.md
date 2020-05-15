@@ -169,7 +169,9 @@ docker-compose -f docker/docker-compose-core.yml -f docker/docker-compose-proxy.
 docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 ```
 
-<img src="https://github.com/icubam/icubam/blob/pierreg_nginx_confs/doc/deployment_1vm.png" height=200>
+<img src="./deployment_1vm.png" height=200>
+
+<img src="./doc/deployment_1vm.png" height=200>
 
 <img src="https://github.com/icubam/icubam/blob/pierreg_nginx_confs/doc/deployment_2vm.png" height=200>
 
