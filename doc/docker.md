@@ -178,6 +178,9 @@ docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 
 ![](https://github.com/icubam/icubam/blob/pierreg_nginx_confs/doc/deployment_1vm.png | height=200) )
 
+![](../doc/deployment_1vm.png | height=200) )
+
+<img src="https://github.com/icubam/icubam/blob/pierreg_nginx_confs/doc/deployment_1vm.png">
 
 By default, the application is launched from the root of the project (and not from the folder containing the 
 compose files). 
