@@ -185,13 +185,15 @@ def plot_each_region(data, gen_plot, fig_name, **kwargs):
   In this case it will run it once nationally grouping by region, and
   then for each region grouping by department.
   """
-  regions = data['region'].unique()
   data = data.fillna(0)
 
   if kwargs.get('days_ago', None):
     data = data[data['create_date'] >=
                 (datetime.now() -
                  pd.Timedelta(f"{kwargs['days_ago']}D")).date()]
+
+  regions = data['region'].unique()
+
   figs = {}
   # Generate a national plot:
   name = ImageURLMapper.make_path(fig_name, extension=None)
