@@ -180,6 +180,15 @@ docker-compose -f docker/docker-compose-core.yml -f docker/docker-compose-proxy.
 docker-compose -f docker/docker-compose-core.yml --project-directory .  up
 ```
 
+<img src="./deployment_1vm.png" height=300>
+
+Single VM deployment with Certbot and Nginx for proxy and ssl endpoint
+
+<img src="./deployment_2vm.png" height=300>
+
+Two VMs deployment with Certbot and Nginx on one VM for proxy and ssl endpoint, and nginx on the second VM for local redirection.
+
+
 By default, the application is launched from the root of the project (and not from the folder containing the 
 compose files). 
 

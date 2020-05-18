@@ -48,10 +48,9 @@ RUN rm -rf ~/.cache/pip
 # make sure final image is clean
 FROM builder as launcher
 
-# expose ports for flask app - both server and backoffice
+# expose ports for tornado app - both server and backoffice
 EXPOSE 8888 8890
 
-# default commend when entering the container
-ENTRYPOINT ["/bin/bash", "-c"]
-# default command
-CMD ["./docker/start_server_www.sh"]
+# default command when entering the container
+ENTRYPOINT ["python3", "-m", "scripts.run_server", "--config", "${ICUBAM_CONFIG_FILE:-icubam.toml}"]
+
