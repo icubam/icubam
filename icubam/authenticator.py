@@ -66,7 +66,7 @@ class Authenticator:
     user, icu = user_icu
 
     if user.consent is not None and not user.consent:
-      logging.warning(f"User has bailed out from ICUBAM.")
+      logging.warning("User has bailed out from ICUBAM.")
       return None
 
     if not user.is_active or not icu.is_active:
