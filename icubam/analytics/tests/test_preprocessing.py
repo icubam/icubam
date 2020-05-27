@@ -22,7 +22,8 @@ def fake_db():
 
 @pytest.mark.parametrize('spread_cum_jumps', [False, True])
 def test_bedcounts_data_preprocessing(fake_db, spread_cum_jumps):
-  data = dataset.load_bed_counts(fake_db)
+  ds = dataset.Dataset(fake_db)
+  data = ds.get_bedcounts(preprocess=False)
   preprocessed = preprocessing.preprocess_bedcounts(
     data, spread_cum_jump_correction=spread_cum_jumps
   )

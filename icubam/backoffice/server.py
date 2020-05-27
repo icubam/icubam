@@ -14,7 +14,6 @@ from icubam.backoffice.handlers import (
   bedcounts, consent, home, icus, login, logout, maps, messages,
   operational_dashboard, regions, tokens, upload, users
 )
-from icubam.analytics.analytics_server import register_analytics_callback
 
 
 @dataclasses.dataclass
@@ -39,10 +38,8 @@ class BackofficeApplication(tornado.web.Application):
     pings = tornado.ioloop.PeriodicCallback(self.ping, repeat_every)
     pings.start()
 
-    register_analytics_callback(self.config, db_factory, tornado.ioloop)
-
   async def ping(self):
-    servers = {'server': 'www', 'messaging': 'sms'}
+    servers = {'server': 'www', 'messaging': 'sms', 'analytics': 'analytics'}
     for server, name in servers.items():
       url = self.config[server].base_url + 'health'
       status = self.server_status[server]
@@ -85,11 +82,11 @@ class BackOfficeServer(base_server.BaseServer):
     self.add_handler(upload.UploadHandler)
     self.add_handler(consent.ConsentResetHandler)
 
-    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+    if os.path.isdir(self.config.analytics.extra_plots_dir):
       route = os.path.join("/", self.root, r'static/extra-plots/(.*)')
       self.routes.append((
         route, tornado.web.StaticFileHandler, {
-          'path': self.config.backoffice.extra_plots_dir
+          'path': self.config.analytics.extra_plots_dir
         }
       ))
 

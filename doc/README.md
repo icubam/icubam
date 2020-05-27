@@ -3,7 +3,7 @@
 This document includes a preliminary technical documentation of ICUBAM.
 
  - [Installation](./install.md)
- - [Backoffice server](./backoffice.md)
+ - [Analytics server](./analytics.md)
  - [Docker deployment](./docker.md)
  - [Authentication](./authentication.md)
  - [Contributing](./contributing.md)

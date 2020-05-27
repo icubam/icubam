@@ -7,7 +7,6 @@ import icubam.db.store as db_store
 from icubam.analytics import dataset
 from icubam.analytics.image_url_mapper import ImageURLMapper
 from icubam.analytics.plots import PLOTS, generate_plots
-from icubam.analytics.preprocessing import preprocess_bedcounts
 from icubam.db.fake import populate_store_fake
 
 
@@ -28,9 +27,9 @@ def test_generate_plots_wrong_name():
 
 
 def check_generate_plots(name, db, output_dir):
+  ds = dataset.Dataset(db)
   data = {}
-  bc = dataset.load_bed_counts(db)
-  data['bedcounts'] = preprocess_bedcounts(bc)
+  data['bedcounts'] = ds.get_bedcounts()
   assert data['bedcounts'].shape[0] > 0
   generate_plots(plots=[name], output_dir=output_dir, data=data)
   output_dir = Path(output_dir)
