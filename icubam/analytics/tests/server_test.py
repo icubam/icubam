@@ -30,8 +30,20 @@ class TestAnalyticsServer(tornado.testing.AsyncHTTPTestCase):
     self.server.dataset.db = self.db
     return self.server.make_app()
 
+  def test_db_no_key(self):
+    route = "/db/all_bedcounts?format=csv"
+    response = self.fetch(route, method="GET")
+    self.assertEqual(response.code, 503)
+
   def test_db_all_bedcounts(self):
     route = "/db/all_bedcounts?format=csv"
+    access_all = store.ExternalClient(
+      name='all-access', access_type=store.AccessTypes.ALL
+    )
+    access_token_id, access_key = self.db.add_external_client(
+      self.admin_id, access_all
+    )
+    route = f'{route}&API_KEY={access_key.key}'
 
     def check_response_csv(self, response):
       """Check the the response CSV is well formatted"""
@@ -41,11 +53,11 @@ class TestAnalyticsServer(tornado.testing.AsyncHTTPTestCase):
       self.assertIn('icu_name', df.columns)
       self.assertGreater(df.shape[0], 0)
 
-    # CSV with no preprocessing
+    # Check without preprocessing
     response = self.fetch(route, method="GET")
+    self.assertEqual(response.code, 200)
     check_response_csv(self, response)
 
     # CSV with preprocessing
-    url = f'{route}&preprocess=true'
-    response = self.fetch(url, method="GET")
+    response = self.fetch(f'{route}&preprocess=true', method="GET")
     check_response_csv(self, response)
