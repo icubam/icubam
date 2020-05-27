@@ -56,11 +56,11 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(error.ErrorHandler, **kwargs)
     self.add_handler(disclaimer.DisclaimerHandler, **kwargs)
 
-    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+    if os.path.isdir(self.config.analytics.extra_plots_dir):
       prefix = db.OperationalDashboardHandler.BACKOFFICE_PREFIX
       self.routes.append((
         f'/{prefix}static/extra-plots/(.*)', tornado.web.StaticFileHandler, {
-          'path': self.config.backoffice.extra_plots_dir
+          'path': self.config.analytics.extra_plots_dir
         }
       ))
       parent = os.path.join('/', '/'.join(os.path.split(self.path)[:-1]))

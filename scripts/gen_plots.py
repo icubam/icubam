@@ -30,12 +30,17 @@ def main(argv):
     return
 
   if FLAGS.output_dir is not None:
-    cfg.backoffice.extra_plots_dir = FLAGS.output_dir
+    cfg.analytics.extra_plots_dir = FLAGS.output_dir
 
   db = store.create_store_factory_for_sqlite_db(cfg).create()
   plot_generator = generator.PlotGenerator(cfg, db, dataset.Dataset(db))
   eventloop = asyncio.new_event_loop()
-  eventloop.run_until_complete(plot_generator.run([FLAGS.plot_name]))
+  if FLAGS.plot_name is not None:
+    plots = [FLAGS.plot_name]
+  else:
+    plots = None
+
+  eventloop.run_until_complete(plot_generator.run(plots))
 
 
 if __name__ == '__main__':

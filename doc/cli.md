@@ -31,7 +31,7 @@ Usage: __main__.py make_dashboard_plots [OPTIONS]
 Options:
   -o, --config TEXT      ICUBAM config file.  [required]
   -o, --output-dir TEXT  Output directory where to store plots. If not
-                         provided config.backoffice.extra_plots_dir is used.
+                         provided config.analytics.extra_plots_dir is used.
 
   --help                 Show this message and exit.
 ```
