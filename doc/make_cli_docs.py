@@ -25,10 +25,10 @@ def main():
     out.append(name)
     out.append('-' * len(name))
     try:
-      res = subprocess.run(['python', str(fname.name), '--help'],
+      res = subprocess.run(['python', f'scripts/{fname.name}', '--help'],
                            encoding='utf-8',
                            capture_output=True,
-                           cwd=str(BASE_DIR.parent / 'scripts'))
+                           cwd=str(BASE_DIR.parent))
     except subprocess.CalledProcessError:
       # calling --help on absl scripts produces a non zero exist
       # status.
