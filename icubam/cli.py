@@ -1,6 +1,7 @@
 from absl import logging
 import multiprocessing as mp
 
+from icubam.analytics import server as analytics_server
 from icubam.backoffice import server as backoffice_server
 from icubam.messaging import server as msg_server
 from icubam.www import server as www_server
@@ -22,6 +23,7 @@ def run_server(cfg, server="www", port=None):
     'www': www_server.WWWServer,
     'message': msg_server.MessageServer,
     'backoffice': backoffice_server.BackOfficeServer,
+    'analytics': analytics_server.AnalyticsServer,
   }
   service = servers.get(server, None)
   if service is not None:

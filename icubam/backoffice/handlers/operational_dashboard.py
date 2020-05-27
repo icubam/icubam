@@ -13,7 +13,7 @@ class OperationalDashHandler(base.AdminHandler):
     locale = self.get_user_locale()
     kwargs = operational_dashboard.make(
       self.current_user.user_id, self.db, arg_region, locale,
-      self.config.backoffice.extra_plots_dir
+      self.config.analytics.extra_plots_dir
     )
     return self.render(
       "operational-dashboard.html",
