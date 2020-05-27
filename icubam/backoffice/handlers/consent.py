@@ -18,7 +18,7 @@ class ConsentResetHandler(base.BaseHandler):
     try:
       user_id = json.loads(self.request.body.decode())
     except Exception as err:
-      return self.answer(f'Cannot read request', error=f'{err}')
+      return self.answer('Cannot read request', error=f'{err}')
 
     try:
       self.db.update_user(

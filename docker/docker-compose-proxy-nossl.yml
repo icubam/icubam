@@ -1,0 +1,23 @@
+version: '3.2'
+services:
+
+  # Nginx Service
+  # do not set a container_name as the init script for bottstraping the certificate uses the default naming scheme
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source:  "${ICUBAM_NGINX_CONF:-./docker/configs/nginx/app.conf}"
+        target: /etc/nginx/conf.d/app.conf
+    networks:
+      - icubam-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+# Docker Networks
+networks:
+  icubam-network:
+    driver: bridge
