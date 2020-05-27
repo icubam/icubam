@@ -42,3 +42,6 @@ settings.json
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
+
+# sphinx build directory
+_build/
