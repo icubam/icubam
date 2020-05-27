@@ -10,4 +10,6 @@ sphinx:
 python:
   version: 3.8
   install:
+    - requirements: ./requirements.txt
     - requirements: ./.github/doc-requirements.txt
+

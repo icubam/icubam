@@ -43,5 +43,9 @@ settings.json
 terraform.tfstate
 terraform.tfstate.backup
 
+# coverage files
+.coverage
+
 # sphinx build directory
 _build/
+doc/_generated/

@@ -26,7 +26,7 @@ fill in 15 seconds.
    :caption: Technical documentation
 
    authentication.md
-   backoffice.md
+   analytics.md
    cli.md
 
 
