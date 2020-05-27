@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from glob import glob
 import os
@@ -37,6 +38,10 @@ def main():
         raise
     out.append('.. code-block:: text\n')
     out.append(textwrap.indent(str(res.stdout), ' ' * 8))
+    if res.stderr:
+      print(f'Error: stderr is not empty for {fname.name} --help')
+      print(res.stderr)
+      sys.exit(1)
     print(f'- Processed {name}')
   with open(BASE_DIR / '_generated' / 'cli-api.rst', 'wt') as fh:
     fh.write('\n'.join(out))

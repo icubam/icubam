@@ -57,4 +57,6 @@ source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
 
-subprocess.call(['python', str(Path(__file__).parent / 'make_cli_docs.py')])
+subprocess.run(['python',
+                str(Path(__file__).parent / 'make_cli_docs.py')],
+               check=True)
