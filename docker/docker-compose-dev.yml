@@ -8,7 +8,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam_www_server
-    command: ./docker/start_server_www.sh
+    command: "--server www"
     restart: unless-stopped
     tty: true
     user: "${USER_ID:-0}:${GROUP_ID:-0}"
@@ -42,7 +42,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam_sms_server
-    command: ./docker/start_server_sms.sh
+    command: "--server message"
     restart: unless-stopped
     tty: true
     user: "${USER_ID:-0}:${GROUP_ID:-0}"
@@ -74,7 +74,7 @@ services:
       dockerfile: ./docker/Dockerfile
     image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
     container_name: icubam_bo_server
-    command: ./docker/start_server_bo.sh
+    command: "--server backoffice"
     restart: unless-stopped
     tty: true
     user: "${USER_ID:-0}:${GROUP_ID:-0}"

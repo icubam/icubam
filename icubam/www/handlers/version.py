@@ -23,7 +23,7 @@ class VersionHandler(base.BaseHandler):
     except Exception:
       git_hash = 'NA'
     data['git-hash'] = git_hash
-    bed_counts = self.db.get_bed_counts()
+    bed_counts = self.db.get_bed_counts(latest=True)
     last_modified = max([el.last_modified for el in bed_counts], default='NA')
     data['bed_counts.last_modified'] = str(last_modified)
     return data
