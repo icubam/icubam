@@ -45,5 +45,5 @@ class UploadHandler(base.BaseHandler):
     try:
       num_updates = sync_fn(io.StringIO(content), force_update=True)
       return self.answer(f'Updated {num_updates} {objtype}')
-    except:
-      return self.answer('Failing while syncing csv content', error=True)
+    except Exception as e:
+      return self.answer(f'Failing while syncing csv content: {e}', error=True)
