@@ -6,7 +6,6 @@ from absl import logging  # noqa: F401
 from tornado import queues
 
 from icubam import base_server, sentry
-from icubam.analytics import client
 from icubam.db import queue_writer
 from icubam.www.handlers import consent, db, error, disclaimer, home, static, update
 from icubam.www.handlers.version import VersionHandler
@@ -22,7 +21,6 @@ class WWWServer(base_server.BaseServer):
     self.callbacks = [
       queue_writer.QueueWriter(self.writing_queue, self.db_factory).process
     ]
-    self.analytics_client = client.AnalyticsClient(config)
     self.path = home.HomeHandler.PATH
 
   def make_routes(self):
@@ -41,15 +39,6 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(update.UpdateHandler, **kwargs)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
-    self.add_handler(
-      db.DBHandler, **{
-        **kwargs,
-        **{
-          'upload_path': self.config.server.upload_dir,
-          'client': self.analytics_client,
-        }
-      }
-    )
     self.add_handler(db.OperationalDashboardHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)

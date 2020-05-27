@@ -29,7 +29,8 @@ class AnalyticsServer(base_server.BaseServer):
       dataset_handler.DatasetHandler,
       config=self.config,
       db_factory=self.db_factory,
-      dataset=self.dataset
+      dataset=self.dataset,
+      upload_path=self.config.server.upload_dir,
     )
     # Only accepts request from same host
     app_routes = [

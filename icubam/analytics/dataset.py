@@ -53,11 +53,13 @@ def cached(func):
 
     value = self.cache.get(key, None)
     if value is not None and time.time() - value[1] <= self.ttl:
+      logging.info('Serving from cache')
       return value[0]
 
     self.cache.pop(key, None)
     result = func(self, *args, **kwargs)
     self.cache[key] = (result, time.time())
+    logging.info('Inserting in cache')
     return result
 
   return wrapper
