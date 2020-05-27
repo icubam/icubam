@@ -25,7 +25,7 @@ def main():
     out.append(name)
     out.append('-' * len(name))
     try:
-      res = subprocess.run(['python', f'scripts/{fname.name}', '--help'],
+      res = subprocess.run([sys.executable, f'scripts/{fname.name}', '--help'],
                            encoding='utf-8',
                            capture_output=True,
                            cwd=str(BASE_DIR.parent))
@@ -40,6 +40,7 @@ def main():
     out.append(textwrap.indent(str(res.stdout), ' ' * 8))
     if res.stderr:
       print(f'Error: stderr is not empty for {fname.name} --help')
+      print(res.stdout)
       print(res.stderr)
       sys.exit(1)
     print(f'- Processed {name}')

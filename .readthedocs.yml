@@ -12,6 +12,3 @@ python:
   install:
     - requirements: ./requirements.txt
     - requirements: ./.github/doc-requirements.txt
-    - method: pip
-      path: .
-
