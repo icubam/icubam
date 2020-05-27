@@ -19,9 +19,7 @@ def main():
   for fname in sorted(glob(str(BASE_DIR.parent / 'scripts' / '*.py'))):
     fname = Path(fname)
     name = f'{fname.stem}'
-    if name in [
-      '__init__',
-    ]:
+    if name == '__init__':
       continue
     out.append(name)
     out.append('-' * len(name))
