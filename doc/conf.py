@@ -14,6 +14,7 @@ from pathlib import Path
 import sys
 import sphinx_rtd_theme  # noqa
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # -- Project information -----------------------------------------------------
 
@@ -54,10 +55,6 @@ html_static_path = ['_static']
 source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
-
-from subprocess import check_output
-print(check_output(['which', 'python']))
-print(check_output(['which', 'python3']))
 
 import make_cli_docs
 make_cli_docs.main()
