@@ -8,6 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 def main():
+  """This function auto-generates a list of CLI commands and their help
+
+  We manually create _generated/cli-api.rst file that will be included in
+  the documentation.
+  """
   print('# Generating CLI API')
   os.makedirs(BASE_DIR / '_generated', exist_ok=True)
   out = []
