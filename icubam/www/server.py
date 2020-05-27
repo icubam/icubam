@@ -39,25 +39,17 @@ class WWWServer(base_server.BaseServer):
     self.add_handler(update.UpdateHandler, **kwargs)
     self.add_handler(home.HomeHandler, **kwargs)
     self.add_handler(home.MapByAPIHandler, **kwargs)
-    self.add_handler(
-      db.DBHandler, **{
-        **kwargs,
-        **{
-          'upload_path': self.config.server.upload_dir
-        }
-      }
-    )
     self.add_handler(db.OperationalDashboardHandler, **kwargs)
     self.add_handler(VersionHandler, **kwargs)
     self.add_handler(consent.ConsentHandler, **kwargs)
     self.add_handler(error.ErrorHandler, **kwargs)
     self.add_handler(disclaimer.DisclaimerHandler, **kwargs)
 
-    if os.path.isdir(self.config.backoffice.extra_plots_dir):
+    if os.path.isdir(self.config.analytics.extra_plots_dir):
       prefix = db.OperationalDashboardHandler.BACKOFFICE_PREFIX
       self.routes.append((
         f'/{prefix}static/extra-plots/(.*)', tornado.web.StaticFileHandler, {
-          'path': self.config.backoffice.extra_plots_dir
+          'path': self.config.analytics.extra_plots_dir
         }
       ))
       parent = os.path.join('/', '/'.join(os.path.split(self.path)[:-1]))

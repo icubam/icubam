@@ -34,5 +34,10 @@ sqlite_path = ":memory:"
   port = 8979
   ping_every = 60
   root = 'mybo'
+
+[analytics]
+  port = 8891
+  base_url = "http://localhost:8891/"
+  generate_plots_every = 3600  # in seconds
   extra_plots_dir = "/tmp/dasboard_plots_dir"
-  extra_plots_make_every = 20  # in seconds
+  timeout = 10
