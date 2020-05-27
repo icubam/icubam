@@ -25,7 +25,12 @@ class AnalyticsServer(base_server.BaseServer):
     self.generator.register(tornado.ioloop)
 
   def make_app(self):
-    self.add_handler(dataset_handler.DatasetHandler, dataset=self.dataset)
+    self.add_handler(
+      dataset_handler.DatasetHandler,
+      config=self.config,
+      db_factory=self.db_factory,
+      dataset=self.dataset
+    )
     # Only accepts request from same host
     app_routes = [
       (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes)

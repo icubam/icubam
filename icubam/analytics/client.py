@@ -12,8 +12,8 @@ class AnalyticsClient:
   async def get(self, collection: str, query: str):
     path = os.path.join(
       self.config.analytics.base_url, dataset.DatasetHandler.ROUTE.lstrip('/')
-    )
-    url = f'{path}?{query}'
+    ).rstrip('/')
+    url = f'{path}/{collection}?{query}'
     return await self.http_client.fetch(
       tornado.httpclient.HTTPRequest(
         url, method='GET', request_timeout=self.config.analytics.timeout

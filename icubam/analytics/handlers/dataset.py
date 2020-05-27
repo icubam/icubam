@@ -1,17 +1,18 @@
 import io
 
 from absl import logging  # noqa: F401
-import tornado.web
+from icubam.www.handlers import base
 
 
-class DatasetHandler(tornado.web.RequestHandler):
+class DatasetHandler(base.APIKeyProtectedHandler):
 
   ROUTE = '/db/(.*)'
 
-  def initialize(self, dataset):
-    super().initialize()
+  def initialize(self, config, db_factory, dataset):
+    super().initialize(config, db_factory)
     self.dataset = dataset
 
+  @base.authenticated(code=503)
   def get(self, collection):
     file_format = self.get_query_argument('format', default=None)
     max_ts = self.get_query_argument('max_ts', default=None)
