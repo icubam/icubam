@@ -1,4 +1,6 @@
-# Developer install
+# Installing
+
+ICUBAM can be used by either installing it natively or using docker. To use docker see [following section](./docker.md)).
 
 ## Installing
 
@@ -41,9 +43,7 @@ The database will be named `test.db`, cf. `resources/config.toml`.
 
 ## Running unit tests
 
-A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/icubam.env` file. If the TOKEN_LOC variable is not present, those tests will be skipped.
-
-To start the tests, install `pytest` and run `pytest`
+To run unit tests, see the [contributing section](./contributing.md#testing).
 
 ## Running locally
 
@@ -84,19 +84,3 @@ Then open backoffice at [http://localhost:8890/bo/](http://localhost:8890/bo/)
 login with user credentials created by the `populate_db_fake.py` script,
  - user: `admin@test.org`
  - password: `password`
-
-## Docker
-
-To build and run the application using Docker (docker or docker-compose) check the [documentation](./docker/README.md)
-in the docker folder.
-
-## Source code formatting
-
-The codebase is formatted using `yapf`. 
-
-Running `yapf -i <filename>` will reformat a file in-place. Running `yapf -i -r .` at the root of the working copy will reformat the whole project in-place.
-
-For convenience, there is a pre-commit hook available that will reject non-yapfing code. This requires an initial setup step:
-
-- Install the development requirements using `pip install -r requirements-dev.txt` (this will pull yapf and pre-commit)
-- Run `pre-commit install` to set up the git hook. (this only needs to be done once)

@@ -4,6 +4,10 @@
 
 ### Unit tests
 
+A few unit tests require `TOKEN_LOC` to be set with a valid `token.pickle` file in the `resources/icubam.env` file. If the `TOKEN_LOC` variable is not present, those tests will be skipped.
+
+You also need to set the `JWT_SECRET` environement variable to any value e.g. `export JWT_SECRET="fakesecret"`.
+
 Unit tests can be run with,
 ```
 pytest
@@ -60,6 +64,12 @@ Frontend tests can be run in two ways,
     the end of the test session.
 
 ## Code style
+The codebase is formatted using `yapf`. 
+
+Running `yapf -i <filename>` will reformat a file in-place. Running `yapf -i -r .` at the root of the working copy will reformat the whole project in-place.
+
+For convenience, there is a pre-commit hook available that will reject non-yapfing code.
+The pre-commit additionally runs flake8 and mypy. 
 
 Install [pre-commit](https://pre-commit.com/#install) to
 run code style checks before each commit:
@@ -69,5 +79,5 @@ $ pip install pre-commit
 $ pre-commit install
 ```
 
-These include, in particular, yapf, flake8 and mypy. pre-commit checks can be
+pre-commit checks can be
 disabled for a particular commit with `git commit -n`.
