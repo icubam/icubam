@@ -7,7 +7,7 @@ from typing import Optional, Tuple, List, Set
 
 from icubam.backoffice.handlers import base
 from icubam.www.handlers import home as www_home
-from icubam.www.handlers import db as www_db
+from icubam.analytics.handlers import dataset as www_db
 from icubam.db import store
 
 
@@ -29,9 +29,9 @@ class ListTokensHandler(base.AdminHandler):
     )
     client_dict['regions'] = ', '.join([r.name for r in client.regions])
     result.extend(self.format_list_item(client_dict))
-    for handler in [www_home.MapByAPIHandler, www_db.DBHandler]:
+    for handler in [www_home.MapByAPIHandler, www_db.DatasetHandler]:
       route = handler.ROUTE.strip('/').split('/')[0]
-      if handler == www_db.DBHandler:
+      if handler == www_db.DatasetHandler:
         route += '/bedcounts'
       args = f'?API_KEY={client.access_key}'
       url = os.path.join(self.config.server.base_url, route + args)
