@@ -10,10 +10,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+from pathlib import Path
+import sys
 import sphinx_rtd_theme  # noqa
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # -- Project information -----------------------------------------------------
 
@@ -55,3 +56,6 @@ html_static_path = ['_static']
 source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
+
+import make_cli_docs
+make_cli_docs.main()

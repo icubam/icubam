@@ -12,5 +12,4 @@
      -  id: mypy
         args:
           - --ignore-missing-imports
-        files: icubam/
         types: [file, python]
