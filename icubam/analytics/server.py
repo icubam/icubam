@@ -33,7 +33,4 @@ class AnalyticsServer(base_server.BaseServer):
       upload_path=self.config.server.upload_dir,
     )
     # Only accepts request from same host
-    app_routes = [
-      (tornado.routing.HostMatches(r'(localhost|127\.0\.0\.1)'), self.routes)
-    ]
-    return tornado.web.Application(app_routes)
+    return tornado.web.Application(self.routes)
