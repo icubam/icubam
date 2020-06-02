@@ -40,11 +40,15 @@ with the ministry of health (only ARS Est for now)'s back-end system for
 - and retrieving data to synchronise with other data sources.
 
 This software is open-source and made available on
-[GitHUb](https://github.com/icubam/icubam).
+
+[GitHUb](https://github.com/icubam/icubam). See the documentation for more
+details: [docs.icubam.net](https://docs.icubam.net).
 
 It will soon be released as a one-click deployable docker container.
 
 You can contact the team for deployment information or general experience
-sharing at contact@icubam.net.
+sharing at contact@icubam.net. The [ICUBAM
+paper](https://www.medrxiv.org/content/10.1101/2020.05.18.20091264v1) is also
+available on  medRxiv.
 
 This project is a collaboration between INRIA, Polytechnique, CHRU Nancy, Université de Lorraine & individual contributors.
