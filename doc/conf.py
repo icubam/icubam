@@ -29,6 +29,7 @@ author = 'icubam'
 extensions = [
   "sphinx_rtd_theme",
   "recommonmark",
+  "sphinxcontrib.httpdomain",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

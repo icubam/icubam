@@ -27,6 +27,7 @@ fill in 15 seconds.
 
    authentication.md
    backoffice.md
+   api.md
    cli.md
 
 
