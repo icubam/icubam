@@ -52,5 +52,5 @@ FROM builder as launcher
 EXPOSE 8888 8890
 
 # default command when entering the container
-ENTRYPOINT ["python3", "-m", "scripts.run_server", "--config", "${ICUBAM_CONFIG_FILE:-icubam.toml}"]
+ENTRYPOINT ["python3", "scripts/run_server.py", "--config", "${ICUBAM_CONFIG_FILE:-icubam.toml}"]
 
