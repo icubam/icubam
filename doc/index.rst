@@ -39,8 +39,8 @@ fill in 15 seconds.
    whats_new.md
 
 You can contact the team for deployment information or general experience
-sharing at contact@icubam.net. The [ICUBAM
-paper](https://www.medrxiv.org/content/10.1101/2020.05.18.20091264v1) is also
+sharing at contact@icubam.net. The `ICUBAM
+paper <https://www.medrxiv.org/content/10.1101/2020.05.18.20091264v1>`_ is also
 available on  medRxiv.
 
 This project is a collaboration between INRIA, Polytechnique, CHRU Nancy, Université de Lorraine & individual contributors.
