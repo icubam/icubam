@@ -1,107 +1,66 @@
-version: '3.2'
+version: '3.4'
+
+x-defaults: &defaults
+  build:
+    context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
+    dockerfile: ./docker/Dockerfile
+  image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+  restart: unless-stopped
+  tty: true
+  user: "${USER_ID:-0}:${GROUP_ID:-0}"
+  environment:
+    ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
+    SECRET_COOKIE : "$SECRET_COOKIE"
+    JWT_SECRET : "$JWT_SECRET"
+    GOOGLE_API_KEY : "$GOOGLE_API_KEY"
+    TW_KEY : "$TW_KEY"
+    TW_API : "$TW_API"
+    DB_SALT: "$DB_SALT"
+  working_dir: /home/icubam
+  volumes:
+    - type: bind
+      source: "${ICUBAM_RESOURCES_PATH:-./resources}"
+      target: /home/icubam/resources
+    - type: bind
+      source: ../icubam
+      target: /home/icubam/icubam
+    - type: bind
+      source: ../scripts
+      target: /home/icubam/scripts
+  networks:
+    - icubam-network
+
 services:
 
   # ICUBAM service
   app-server:
-    build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
-      dockerfile: ./docker/Dockerfile
-    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    <<: *defaults
     container_name: icubam_www_server
     command: "--server www"
-    restart: unless-stopped
-    tty: true
-    user: "${USER_ID:-0}:${GROUP_ID:-0}"
     ports:
       - "8888:8888"
-    environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
-      SECRET_COOKIE : "$SECRET_COOKIE"
-      JWT_SECRET : "$JWT_SECRET"
-      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
-      TW_KEY : "$TW_KEY"
-      TW_API : "$TW_API"
-    working_dir: /home/icubam
-    volumes:
-      - type: bind
-        source: "${ICUBAM_RESOURCES_PATH:-./resources}"
-        target: /home/icubam/resources
-      - type: bind
-        source: ../icubam
-        target: /home/icubam/icubam
-      - type: bind
-        source: ../scripts
-        target: /home/icubam/scripts
-    networks:
-      - icubam-network
 
   # ICUBAM sms service
   app-sms:
-    build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
-      dockerfile: ./docker/Dockerfile
-    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    <<: *defaults
     container_name: icubam_sms_server
     command: "--server message"
-    restart: unless-stopped
-    tty: true
-    user: "${USER_ID:-0}:${GROUP_ID:-0}"
-    environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
-      SECRET_COOKIE : "$SECRET_COOKIE"
-      JWT_SECRET : "$JWT_SECRET"
-      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
-      TW_KEY : "$TW_KEY"
-      TW_API : "$TW_API"
-    working_dir: /home/icubam
-    volumes:
-      - type: bind
-        source: "${ICUBAM_RESOURCES_PATH:-./resources}"
-        target: /home/icubam/resources
-      - type: bind
-        source: ../icubam
-        target: /home/icubam/icubam
-      - type: bind
-        source: ../scripts
-        target: /home/icubam/scripts
-    networks:
-      - icubam-network
 
   # ICUBAM back-office service
   app-backoffice:
-    build:
-      context: "${ICUBAM_COMPOSE_CONTEXT:-.}"
-      dockerfile: ./docker/Dockerfile
-    image: "${IMAGE_NAME:-icubam}:${IMAGE_TAG:-latest}"
+    <<: *defaults
     container_name: icubam_bo_server
     command: "--server backoffice"
-    restart: unless-stopped
-    tty: true
-    user: "${USER_ID:-0}:${GROUP_ID:-0}"
     ports:
       - "8890:8890"
-    environment:
-      ICUBAM_CONFIG_FILE : "${ICUBAM_CONFIG_FILE:-icubam.toml}"
-      SECRET_COOKIE : "$SECRET_COOKIE"
-      JWT_SECRET : "$JWT_SECRET"
-      GOOGLE_API_KEY : "$GOOGLE_API_KEY"
-      TW_KEY : "$TW_KEY"
-      TW_API : "$TW_API"
-      DB_SALT: "$DB_SALT"
-    working_dir: /home/icubam
-    volumes:
-      - type: bind
-        source: "${ICUBAM_RESOURCES_PATH:-./resources}"
-        target: /home/icubam/resources
-      - type: bind
-        source: ../icubam
-        target: /home/icubam/icubam
-      - type: bind
-        source: ../scripts
-        target: /home/icubam/scripts
-    networks:
-      - icubam-network
 
+  # ICUBAM analytics service
+  app-analytics:
+    <<: *defaults
+    container_name: icubam_analytics_server
+    command: "--server analytics"
+    ports:
+      - "8891:8891"
 
 # Docker Networks
 networks:

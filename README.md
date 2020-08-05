@@ -40,8 +40,7 @@ with the ministry of health (only ARS Est for now)'s back-end system for
 - and retrieving data to synchronise with other data sources.
 
 This software is open-source and made available on
-
-[GitHUb](https://github.com/icubam/icubam). See the documentation for more
+[GitHub](https://github.com/icubam/icubam). See the documentation for more
 details: [docs.icubam.net](https://docs.icubam.net).
 
 It will soon be released as a one-click deployable docker container.
