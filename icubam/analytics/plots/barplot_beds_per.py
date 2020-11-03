@@ -3,6 +3,7 @@ import numpy as np
 import itertools
 
 from icubam.analytics import plots
+plt.rcParams.update({'figure.max_open_warning': 0})
 
 data_source = ["bedcounts"]
 
