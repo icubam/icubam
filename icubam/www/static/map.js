@@ -14,9 +14,9 @@ function togglePopup(cluster_id, color) {
     full.style.display = "block"
     box.style.borderStyle = 'solid'
     box.style.borderColor = color
-    if (subtitleFullPos !== null) {subtitleFullPos.style.display = titleBox.getElementsByClassName('subtitle-covid-pos') [0]}
-    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = titleBox.getElementsByClassName('subtitle-covid-neg') [0]}
-    if (subtitleFullAll !== null) {subtitleFullAll.style.display = titleBox.getElementsByClassName('subtitle-covid-all') [0]}
+    if (subtitleFullPos !== null) {subtitleFullPos.style.display = titleBox.getElementsByClassName('subtitle-covid-pos') [0].style.display}
+    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = titleBox.getElementsByClassName('subtitle-covid-neg') [0].style.display}
+    if (subtitleFullAll !== null) {subtitleFullAll.style.display = titleBox.getElementsByClassName('subtitle-covid-all') [0].style.display}
     if (subtitleCluster !== null) {subtitleCluster.style.display = 'none'}
     showed.add(cluster_id)
 
