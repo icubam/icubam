@@ -14,18 +14,20 @@ function togglePopup(cluster_id, color) {
     full.style.display = "block"
     box.style.borderStyle = 'solid'
     box.style.borderColor = color
-  //  if (subtitleFullPos !== null) subtitleFull.style.display = 'inline'
-    if (subtitleCluster !== null) subtitleCluster.style.display = 'none'
+    if (subtitleFullPos !== null) {subtitleFullPos.style.display = titleBox.getElementsByClassName('subtitle-covid-pos') [0]}
+    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = titleBox.getElementsByClassName('subtitle-covid-neg') [0]}
+    if (subtitleFullAll !== null) {subtitleFullAll.style.display = titleBox.getElementsByClassName('subtitle-covid-all') [0]}
+    if (subtitleCluster !== null) {subtitleCluster.style.display = 'none'}
     showed.add(cluster_id)
 
   } else {
     cluster.style.display = "block"
     full.style.display = "none"
     box.style.borderStyle = 'none'
-    if (subtitleFullPos !== null) subtitleFullPos.style.display = 'none'
-    if (subtitleFullNeg !== null) subtitleFullNeg.style.display = 'none'
-    if (subtitleFullAll !== null) subtitleFullAll.style.display = 'none'
-    if (subtitleCluster !== null) subtitleCluster.style.display = 'inline'
+    if (subtitleFullPos !== null) {subtitleFullPos.style.display = titleBox.getElementsByClassName('subtitle-covid-pos') [0]}
+    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = titleBox.getElementsByClassName('subtitle-covid-neg') [0]}
+    if (subtitleFullAll !== null) {subtitleFullAll.style.display = titleBox.getElementsByClassName('subtitle-covid-all') [0]}
+    if (subtitleCluster !== null) {subtitleCluster.style.display = 'inline'}
     showed.delete(cluster_id)
   }
 }
