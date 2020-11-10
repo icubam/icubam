@@ -4,9 +4,9 @@ function togglePopup(cluster_id, color) {
   var box = document.getElementById('infowindow-' + cluster_id)
 
   var titleBox = document.getElementById('title-box')
- // var subtitleFullPos = titleBox.getElementsByClassName('subtitle-full-pos')[0]
- // var subtitleFullNeg = titleBox.getElementsByClassName('subtitle-full-neg')[0]
- // var subtitleFullAll = titleBox.getElementsByClassName('subtitle-full-all')[0]
+  var subtitleFullPos = titleBox.getElementsByClassName('subtitle-full-pos')[0]
+  var subtitleFullNeg = titleBox.getElementsByClassName('subtitle-full-neg')[0]
+  var subtitleFullAll = titleBox.getElementsByClassName('subtitle-full-all')[0]
   var subtitleCluster = titleBox.getElementsByClassName('subtitle-cluster')[0]
 
   if (cluster.style.display === "block" || cluster.style.display === "") {
@@ -22,7 +22,9 @@ function togglePopup(cluster_id, color) {
     cluster.style.display = "block"
     full.style.display = "none"
     box.style.borderStyle = 'none'
-   // if (subtitleFull !== null) subtitleFull.style.display = 'none'
+    if (subtitleFullPos !== null) subtitleFullPos.style.display = 'none'
+    if (subtitleFullNeg !== null) subtitleFullNeg.style.display = 'none'
+    if (subtitleFullAll !== null) subtitleFullAll.style.display = 'none'
     if (subtitleCluster !== null) subtitleCluster.style.display = 'inline'
     showed.delete(cluster_id)
   }
