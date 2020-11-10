@@ -241,28 +241,28 @@ function plotMap(data, center, covid_status=true) {
    titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'block';
    titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
    titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
-   titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'block';
-   titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
-   titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
-   titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
+//   titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'block';
+//   titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
+//   titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
+//   titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
   }
   else if (covid_status == false){
     titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'block';
     titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
     titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'block';
-    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'block';
+//    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
   }
   else {
     titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'block';
     titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
     titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
-    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'block';
-    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
+//    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'block';
+//    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
   }
 //  var dispEl = covid_status ? 'pos' : 'neg'
 //  var hideEl = !covid_status ? 'pos' : 'neg'
