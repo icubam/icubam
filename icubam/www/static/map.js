@@ -241,38 +241,23 @@ function plotMap(data, center, covid_status=true) {
    titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'block';
    titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
    titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
-//   titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'block';
-//   titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
-//   titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
-//   titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
   }
   else if (covid_status == false){
     titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'block';
     titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
     titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'block';
-//    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
+
   }
   else {
     titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'block';
     titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
     titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-full-pos')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-full-neg')[0].style.display = 'none';
-//    titleClone.getElementsByClassName('subtitle-full-all')[0].style.display = 'block';
-//    titleClone.getElementsByClassName('subtitle-cluster')[0].style.display = 'none';
   }
-//  var dispEl = covid_status ? 'pos' : 'neg'
-//  var hideEl = !covid_status ? 'pos' : 'neg'
-//  titleClone.getElementsByClassName('subtitle-covid-'.concat(dispEl))[0].style.display = 'block'
-//  titleClone.getElementsByClassName('subtitle-covid-'.concat(hideEl))[0].style.display = 'none'
+
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(titleClone);
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var covidControlDiv = document.createElement('div');
-  //const covidText = covid ? showingCovidText : showingNCovidText;
   var covidText;
   if (covid_status == true) {
     covidText = showingCovidText;
