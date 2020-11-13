@@ -15,12 +15,15 @@
     <span class="subtitle-covid-status">
       <span class="subtitle-covid-pos" />COVID+</span>
       <span class="subtitle-covid-neg" />COVID-</span>
+      <span class="subtitle-covid-all" />All Beds</span>
     </span>
     <span class="subtitle-display-format">
       <span class="subtitle-cluster" />{{ _('Available beds') }}</span>
-      <span class="subtitle-full" />{{ _('Occupied / Total COVID beds') }}</span>
+      <span class="subtitle-full-pos" />{{ _('Occupied / Total COVID+ beds') }}</span>
+      <span class="subtitle-full-neg" />{{ _('Occupied / Total COVID- beds') }}</span>
+      <span class="subtitle-full-all" />{{ _('Occupied / Total beds') }}</span>
     </span>
-    </div>
+  </div>
   <div class="container-fluid" id="map">
   </div>
 </section>
@@ -36,8 +39,10 @@
   const displayAllText = "{{ _('Display All') }}"
   const showingCovidText = "{{ _('Display') }} COVID-"
   const showingNCovidText = "{{ _('Display') }} COVID+"
+  const showingAllText = "{{ _('Display') }} All beds"
+
   const displayAllAltText = "{{ _('Click here to display all') }}"
-  const covidAltText = "{{ _('Click here to chage bed types') }}"
+  const covidAltText = "{{ _('Click here to change bed types') }}"
   function initMap () {
     plotMap(data[covid], center)
   }

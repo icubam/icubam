@@ -25,9 +25,8 @@ class HomeHandler(base.BaseHandler):
   def get(self):
     locale = self.get_user_locale()
     builder = map_builder.MapBuilder(self.config, self.db, locale)
-    data, center = builder.prepare_jsons(
-      None, center_icu=self.icu, level='dept'
-    )
+    self.jsons = builder.prepare_jsons(None, center_icu=self.icu, level='dept')
+    data, center = self.jsons
     return self.render(
       'index.html',
       API_KEY=self.config.GOOGLE_API_KEY,

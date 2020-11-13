@@ -129,10 +129,17 @@ html {
   display: block;
 }
 
-.subtitle-full {
+.subtitle-full-pos {
   display: none;
 }
 
+.subtitle-full-neg {
+  display: none;
+}
+
+.subtitle-full-all {
+  display: none;
+}
 
 #title-box-orig {
   display: none;

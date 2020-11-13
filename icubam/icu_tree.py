@@ -13,9 +13,9 @@ def get_color(value):
 class ICUTree:
   """Represents a hierarchical clustering of icus per political region.
 
-  Intermediate nodes contains aggregated counts while the leaves contain
-  individual icu information.
-  """
+Intermediate nodes contains aggregated counts while the leaves contain
+individual icu information.
+"""
 
   LEVELS = ['country', 'region', 'dept', 'city', 'icu']
 
@@ -56,8 +56,25 @@ class ICUTree:
     return None
 
   def account_for_beds(self, bedcount):
-    occ = bedcount.n_covid_occ if self.covid else bedcount.n_ncovid_occ
-    free = bedcount.n_covid_free if self.covid else bedcount.n_ncovid_free
+    # Case COVID+
+    if (self.covid == True):
+      occ = bedcount.n_covid_occ;
+      free = bedcount.n_covid_free;
+    # Case COVID-
+    elif (self.covid == False):
+      occ = bedcount.n_ncovid_occ;
+      free = bedcount.n_ncovid_free;
+    # Case "All Beds"
+    else:
+      if bedcount.n_ncovid_occ is not None:
+        occ = bedcount.n_covid_occ + bedcount.n_ncovid_occ
+      else:
+        occ = 0
+      if bedcount.n_ncovid_free is not None:
+        free = bedcount.n_covid_free + bedcount.n_ncovid_free
+      else:
+        free = 0
+
     self.occ += occ if occ is not None else 0
     self.free += free if free is not None else 0
     self.total = self.occ + self.free
@@ -159,7 +176,7 @@ class ICUTree:
 
   def extract_below(self, level, keep_empty=False, max_nodes=10):
     """Returns a list of tuples, where the first element is the cluster info
-    and the second one are all the icus in the cluster."""
+and the second one are all the icus in the cluster."""
     nodes = []
     self._extract_below(
       level, nodes, keep_empty=keep_empty, max_nodes=max_nodes

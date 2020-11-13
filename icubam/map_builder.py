@@ -76,7 +76,11 @@ class MapBuilder:
       'lat': center_icu.lat,
       'lng': center_icu.long
     } if center_icu else None
-    for covid in [True, False]:
+    # Show either "COVID+, COVID- or ALL" beds available.
+    # True -> COVID+
+    # False -> COVID-
+    # None -> ALL
+    for covid in [True, False, None]:
       tree = icu_tree.ICUTree(covid=covid)
       icus = self.db.get_icus()
       if regions:

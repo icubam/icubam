@@ -4,7 +4,9 @@ function togglePopup(cluster_id, color) {
   var box = document.getElementById('infowindow-' + cluster_id)
 
   var titleBox = document.getElementById('title-box')
-  var subtitleFull = titleBox.getElementsByClassName('subtitle-full')[0]
+  var subtitleFullPos = titleBox.getElementsByClassName('subtitle-full-pos')[0]
+  var subtitleFullNeg = titleBox.getElementsByClassName('subtitle-full-neg')[0]
+  var subtitleFullAll = titleBox.getElementsByClassName('subtitle-full-all')[0]
   var subtitleCluster = titleBox.getElementsByClassName('subtitle-cluster')[0]
 
   if (cluster.style.display === "block" || cluster.style.display === "") {
@@ -12,16 +14,20 @@ function togglePopup(cluster_id, color) {
     full.style.display = "block"
     box.style.borderStyle = 'solid'
     box.style.borderColor = color
-    if (subtitleFull !== null) subtitleFull.style.display = 'inline'
-    if (subtitleCluster !== null) subtitleCluster.style.display = 'none'
+    if (subtitleFullPos !== null) {subtitleFullPos.style.display = titleBox.getElementsByClassName('subtitle-covid-pos') [0].style.display}
+    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = titleBox.getElementsByClassName('subtitle-covid-neg') [0].style.display}
+    if (subtitleFullAll !== null) {subtitleFullAll.style.display = titleBox.getElementsByClassName('subtitle-covid-all') [0].style.display}
+    if (subtitleCluster !== null) {subtitleCluster.style.display = 'none'}
     showed.add(cluster_id)
 
   } else {
     cluster.style.display = "block"
     full.style.display = "none"
     box.style.borderStyle = 'none'
-    if (subtitleFull !== null) subtitleFull.style.display = 'none'
-    if (subtitleCluster !== null) subtitleCluster.style.display = 'inline'
+    if (subtitleFullPos !== null) {subtitleFullPos.style.display = 'none'}
+    if (subtitleFullNeg !== null) {subtitleFullNeg.style.display = 'none'}
+    if (subtitleFullAll !== null) {subtitleFullAll.style.display = 'none'}
+    if (subtitleCluster !== null) {subtitleCluster.style.display = 'inline'}
     showed.delete(cluster_id)
   }
 }
@@ -105,7 +111,17 @@ function addPopup(obj, map, Popup) {
 }
 
 function toggleCovid() {
-  covid = !covid
+  if (covid == true) {
+    covid = false;
+  }
+  else if (covid == false){
+    covid = null;
+  }
+  else {
+    covid = true;
+  }
+
+  //covid = !covid
   plotMap(data[covid], center, covid)
 }
 
@@ -221,17 +237,40 @@ function plotMap(data, center, covid_status=true) {
   var titleDiv = document.getElementById('title-box-orig')
   var titleClone = titleDiv.cloneNode(true); // true means clone all childNodes and all event handlers
   titleClone.id = "title-box";
-  var dispEl = covid_status ? 'pos' : 'neg'
-  var hideEl = !covid_status ? 'pos' : 'neg'
-  titleClone.getElementsByClassName('subtitle-covid-'.concat(dispEl))[0].style.display = 'block'
-  titleClone.getElementsByClassName('subtitle-covid-'.concat(hideEl))[0].style.display = 'none'
+  if (covid_status == true){
+   titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'block';
+   titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
+   titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
+  }
+  else if (covid_status == false){
+    titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'block';
+    titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
+    titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'none';
+
+  }
+  else {
+    titleClone.getElementsByClassName('subtitle-covid-all')[0].style.display = 'block';
+    titleClone.getElementsByClassName('subtitle-covid-neg')[0].style.display = 'none';
+    titleClone.getElementsByClassName('subtitle-covid-pos')[0].style.display = 'none';
+  }
+
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(titleClone);
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
   var covidControlDiv = document.createElement('div');
-  const covidText = covid ? showingCovidText : showingNCovidText;
+  var covidText;
+  if (covid_status == true) {
+    covidText = showingCovidText;
+  }
+  else if (covid_status == false)
+  {
+     covidText = showingAllText;
+  }
+  else{
+    covidText = showingNCovidText;
+  }
   var covidControl = new CenterControl(
-    covidControlDiv, map, covidText, covidAltText, toggleCovid);
+      covidControlDiv, map, covidText, covidAltText, toggleCovid);
   covidControlDiv.index = 1;
   map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(covidControlDiv);
 }
